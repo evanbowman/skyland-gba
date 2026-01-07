@@ -558,7 +558,8 @@ void show_saved_indicator()
 
 
 
-void plot_navigation_path(const WorldMapScene::NavBuffer& nav)
+void plot_navigation_path(const WorldMapScene::NavBuffer& nav,
+                          int color_offset)
 {
     struct Tile16x16p
     {
@@ -634,11 +635,11 @@ void plot_navigation_path(const WorldMapScene::NavBuffer& nav)
         int cx2 = c2.x * 8 + 12;
         int cy1 = c1.y * 8 + 12;
         int cy2 = c2.y * 8 + 12;
-        plot_line(cx1, cy1, cx2, cy2, 0);
-        plot_line(cx1 - 1, cy1, cx2 - 1, cy2, 0);
-        plot_line(cx1 + 1, cy1, cx2 + 1, cy2, 0);
-        plot_line(cx1, cy1 - 1, cx2, cy2 - 1, 0);
-        plot_line(cx1, cy1 + 1, cx2, cy2 + 1, 0);
+        plot_line(cx1, cy1, cx2, cy2, color_offset);
+        plot_line(cx1 - 1, cy1, cx2 - 1, cy2, color_offset);
+        plot_line(cx1 + 1, cy1, cx2 + 1, cy2, color_offset);
+        plot_line(cx1, cy1 - 1, cx2, cy2 - 1, color_offset);
+        plot_line(cx1, cy1 + 1, cx2, cy2 + 1, color_offset);
         ++it;
         ++prev;
     }
@@ -667,7 +668,7 @@ ScenePtr WorldMapScene::update(Time delta)
     }
 
 
-    if (PLATFORM.speaker().is_music_playing("unaccompanied_wind") and
+    if (PLATFORM.speaker().is_music_playing("unaccompanied_wind.raw") and
         not PLATFORM.speaker().is_sound_playing("creaking")) {
         PLATFORM.speaker().play_sound("creaking", 9);
     }
@@ -738,11 +739,6 @@ ScenePtr WorldMapScene::update(Time delta)
 
         render_map_key();
     };
-
-
-    if (APP.player().key_down(Key::start)) {
-        show_tier_2_ = not show_tier_2_;
-    }
 
     switch (state_) {
     case State::deselected:
@@ -999,6 +995,7 @@ ScenePtr WorldMapScene::update(Time delta)
             if (tier_2_timer_ > milliseconds(1500)) {
                 tier_2_timer_ = 0;
                 tier_2_visible_ = true;
+                discretized_range_cache_.reset();
             }
         }
         if (nav_mode_) {
@@ -1014,6 +1011,7 @@ ScenePtr WorldMapScene::update(Time delta)
         }
         if (APP.player().key_down(Key::action_1)) {
             if (nav_mode_) {
+                discretized_range_cache_.reset();
                 for (int i = 0; i < 19; ++i) {
                     auto node = APP.world_graph().nodes_[i];
                     if (node.coord_ == movement_targets_[movement_cursor_]) {
@@ -1021,7 +1019,7 @@ ScenePtr WorldMapScene::update(Time delta)
                         if (node.type_ == WorldGraph::Node::Type::exit) {
                             state_ = State::save_plot;
                             navigation_buffer_.push_back(cursor_);
-                            plot_navigation_path(navigation_buffer_);
+                            plot_navigation_path(navigation_buffer_, 0);
                             return null_scene();
                         }
                         APP.world_graph().nodes_[cursor_].type_ =
@@ -1047,7 +1045,7 @@ ScenePtr WorldMapScene::update(Time delta)
                     }
                 }
                 navigation_buffer_.push_back(cursor_);
-                plot_navigation_path(navigation_buffer_);
+                plot_navigation_path(navigation_buffer_, 0);
                 to_move_state();
                 break;
             }
@@ -1113,6 +1111,7 @@ ScenePtr WorldMapScene::update(Time delta)
         if (APP.player().key_down(Key::left)) {
             Buffer<int, 10> left;
 
+            discretized_range_cache_.reset();
             tier_2_visible_ = false;
             tier_2_timer_ = 0;
 
@@ -1167,6 +1166,7 @@ ScenePtr WorldMapScene::update(Time delta)
         } else if (APP.player().key_down(Key::right)) {
             Buffer<int, 10> right;
 
+            discretized_range_cache_.reset();
             tier_2_visible_ = false;
             tier_2_timer_ = 0;
 
@@ -1224,6 +1224,7 @@ ScenePtr WorldMapScene::update(Time delta)
         } else if (APP.player().key_down(Key::up)) {
             Buffer<int, 10> above;
 
+            discretized_range_cache_.reset();
             tier_2_visible_ = false;
             tier_2_timer_ = 0;
 
@@ -1272,6 +1273,7 @@ ScenePtr WorldMapScene::update(Time delta)
         } else if (APP.player().key_down(Key::down)) {
             Buffer<int, 10> beneath;
 
+            discretized_range_cache_.reset();
             tier_2_visible_ = false;
             tier_2_timer_ = 0;
 
@@ -1408,6 +1410,8 @@ ScenePtr WorldMapScene::update(Time delta)
         if (timer_ > fade_duration) {
             timer_ = 0;
             state_ = State::storm_scroll_in;
+            PLATFORM.screen().schedule_fade(
+                0, {ColorConstant::rich_black, true, true});
             // PLATFORM.screen().fade(1.f, custom_color(0x6057b1), {}, false, false);
         } else {
             const auto amount = 1.f - smoothstep(0.f, fade_duration, timer_);
@@ -1724,6 +1728,256 @@ void WorldMapScene::reset_nav_path()
 
 
 
+using detail::ShadeIntensity;
+using detail::ShadeRangeComponent;
+void draw_range_to_matrix(ShadeIntensity matrix[30][20],
+                          int x,
+                          int y,
+                          ShadeIntensity intensity,
+                          bool has_radar)
+{
+    if (has_radar) {
+        // 5 tiles wide × 11 tiles tall for radar ranges
+        for (int ty = 0; ty < 11; ++ty) {
+            for (int tx = 0; tx < 11; ++tx) {
+                int matrix_x = x + tx;
+                int matrix_y = y + ty;
+
+                // Bounds check
+                if (matrix_x >= 0 && matrix_x < 30 &&
+                    matrix_y >= 0 && matrix_y < 20) {
+                    // Only write if not already occupied
+                    if (matrix[matrix_x][matrix_y] == ShadeIntensity::none) {
+                        matrix[matrix_x][matrix_y] = intensity;
+                    }
+                }
+            }
+        }
+    } else {
+        // 9 tiles wide × 9 tiles tall for normal ranges
+        for (int ty = 0; ty < 9; ++ty) {
+            for (int tx = 0; tx < 9; ++tx) {
+                int matrix_x = x + tx;
+                int matrix_y = y + ty;
+
+                // Bounds check
+                if (matrix_x >= 0 && matrix_x < 30 &&
+                    matrix_y >= 0 && matrix_y < 20) {
+                    // Only write if not already occupied
+                    if (matrix[matrix_x][matrix_y] == ShadeIntensity::none) {
+                        matrix[matrix_x][matrix_y] = intensity;
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+
+void draw_range_from_matrix(ShadeIntensity matrix[30][20],
+                            Vector<ShadeRangeComponent>& output)
+{
+    // First pass: try to place 16x32 sprites (2 tiles wide × 4 tiles tall)
+    for (int y = 0; y < 20; ++y) {
+        for (int x = 0; x < 30; ++x) {
+            // Check if we can place a 2×4 tile sprite here
+            if (x + 1 < 30 && y + 3 < 20) {
+                ShadeIntensity intensity = matrix[x][y];
+                if (intensity != ShadeIntensity::none) {
+                    // Check if entire 2×4 region has the same intensity
+                    bool can_place = true;
+                    for (int ty = 0; ty < 4 && can_place; ++ty) {
+                        for (int tx = 0; tx < 2 && can_place; ++tx) {
+                            if (matrix[x + tx][y + ty] != intensity) {
+                                can_place = false;
+                            }
+                        }
+                    }
+
+                    if (can_place) {
+                        // Draw 16×32 sprite
+                        ShadeRangeComponent comp;
+                        comp.x_ = x;
+                        comp.y_ = y;
+                        comp.sz_ = Sprite::Size::w16_h32;
+                        // cursor.set_texture_index(76);
+
+                        switch (intensity) {
+                        case ShadeIntensity::light:
+                            comp.intensity_ = 0;
+                            break;
+                        case ShadeIntensity::medium:
+                            comp.intensity_ = 64;
+                            break;
+
+                        case ShadeIntensity::dark:
+                            comp.intensity_ = 180;
+                            break;
+                        default:
+                            break;
+                        }
+
+                        // cursor.set_position({Fixnum(x * 8), Fixnum(y * 8)});
+                        // PLATFORM.screen().draw(cursor);
+                        output.push_back(comp);
+
+                        // Clear the matrix region
+                        for (int ty = 0; ty < 4; ++ty) {
+                            for (int tx = 0; tx < 2; ++tx) {
+                                matrix[x + tx][y + ty] = ShadeIntensity::none;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Second pass: try to place 16x16 sprites (2 tiles wide × 2 tiles tall)
+    for (int y = 0; y < 20; ++y) {
+        for (int x = 0; x < 30; ++x) {
+            // Check if we can place a 2×2 tile sprite here
+            if (x + 1 < 30 && y + 1 < 20) {
+                ShadeIntensity intensity = matrix[x][y];
+                if (intensity != ShadeIntensity::none) {
+                    // Check if entire 2×2 region has the same intensity
+                    bool can_place = true;
+                    for (int ty = 0; ty < 2 && can_place; ++ty) {
+                        for (int tx = 0; tx < 2 && can_place; ++tx) {
+                            if (matrix[x + tx][y + ty] != intensity) {
+                                can_place = false;
+                            }
+                        }
+                    }
+
+                    if (can_place) {
+                        // Draw 16×16 sprite
+                        ShadeRangeComponent comp;
+                        comp.x_ = x;
+                        comp.y_ = y;
+                        comp.sz_ = Sprite::Size::w16_h16;
+
+                        // cursor.set_size(Sprite::Size::w16_h16);
+                        // cursor.set_tidx_16x16(76, 0);
+
+                        switch (intensity) {
+                        case ShadeIntensity::light:
+                            comp.intensity_ = 0;
+                            break;
+
+                        case ShadeIntensity::medium:
+                            comp.intensity_ = 64;
+                            break;
+
+                        case ShadeIntensity::dark:
+                            comp.intensity_ = 180;
+                            break;
+
+                        default:
+                            break;
+                        }
+
+                        output.push_back(comp);
+                        // cursor.set_position({Fixnum(x * 8), Fixnum(y * 8)});
+                        // PLATFORM.screen().draw(cursor);
+
+                        // Clear the matrix region
+                        for (int ty = 0; ty < 2; ++ty) {
+                            for (int tx = 0; tx < 2; ++tx) {
+                                matrix[x + tx][y + ty] = ShadeIntensity::none;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Third pass: draw remaining tiles as 8×8 sprites
+    // cursor.set_size(Sprite::Size::w8_h8);
+    // cursor.set_tidx_8x8(76, 0);
+
+    for (int y = 0; y < 20; ++y) {
+        for (int x = 0; x < 30; ++x) {
+            ShadeIntensity intensity = matrix[x][y];
+            if (intensity != ShadeIntensity::none) {
+                ShadeRangeComponent comp;
+                comp.x_ = x;
+                comp.y_ = y;
+                comp.sz_ = Sprite::Size::w8_h8;
+
+                switch (intensity) {
+                case ShadeIntensity::light:
+                    comp.intensity_ = 0;
+                    break;
+                case ShadeIntensity::medium:
+                    comp.intensity_ = 64;
+                    break;
+                case ShadeIntensity::dark:
+                    comp.intensity_ = 180;
+                    break;
+                default:
+                    break;
+                }
+
+                output.push_back(comp);
+                // cursor.set_position({Fixnum(x * 8), Fixnum(y * 8)});
+                // PLATFORM.screen().draw(cursor);
+            }
+        }
+    }
+    // info(format("% % % (%)",
+    //             spr_count_1,
+    //             spr_count_2,
+    //             spr_count_3,
+    //             spr_count_1 + spr_count_2 + spr_count_3));
+}
+
+
+
+void WorldMapScene::build_range_cache(ShadeIntensity matrix[30][20],
+                                      Vector<ShadeRangeComponent>& output)
+{
+    auto current = APP.world_graph().nodes_[cursor_];
+
+    auto x = (current.coord_.x + map_start_x) - 4;
+    auto y = (current.coord_.y + map_start_y) - 4;
+
+    draw_range_to_matrix(matrix, x, y, ShadeIntensity::light, has_radar_);
+    auto o = movement_targets_[movement_cursor_];
+    draw_range_to_matrix(matrix, o.x + map_start_x - 4, o.y + map_start_y - 4,
+                         ShadeIntensity::medium, has_radar_);
+
+    Buffer<Vec2<s8>, 10> tier_2_reachable;
+    for (int x = o.x - 4; x < o.x + 5; ++x) {
+        for (int y = o.y - 4; y < o.y + 5; ++y) {
+            for (auto& node : APP.world_graph().nodes_) {
+                if (node.type_ not_eq WorldGraph::Node::Type::corrupted and
+                    node.type_ not_eq WorldGraph::Node::Type::null and
+                    node.coord_ not_eq o and
+                    node.coord_ == Vec2<s8>{s8(x), s8(y)}) {
+                    tier_2_reachable.push_back(node.coord_);
+                }
+            }
+        }
+    }
+
+    if (show_tier_2_ and tier_2_visible_) {
+        for (auto& o : tier_2_reachable) {
+            draw_range_to_matrix(matrix,
+                                 o.x + map_start_x - 4,
+                                 o.y + map_start_y - 4,
+                                 ShadeIntensity::dark,
+                                 has_radar_);
+        }
+    }
+
+    draw_range_from_matrix(matrix, output);
+}
+
+
+
 void WorldMapScene::display()
 {
     if (state_ == State::show_saved_text or state_ == State::save_animate_out or
@@ -1737,6 +1991,20 @@ void WorldMapScene::display()
     if (++palette_cyc_counter_ == 7) {
         palette_cyc_counter_ = 0;
         PLATFORM_EXTENSION(rotate_palette, Layer::map_0_ext, 1, 8);
+        NavBuffer* nav_buffer = &navigation_buffer_;
+        if (not nav_mode_) {
+            nav_buffer = &render_backup_nav_buffer_;
+        }
+        if (not PLATFORM.get_extensions().rotate_palette and
+            not PLATFORM.has_slow_cpu() and
+            not nav_buffer->empty()) {
+            // We have a fast cpu, but no support for palette rotation. We'll
+            // have to fake it by manually redrawing the texture with different
+            // palette indices.
+            palette_cyc_simulation_++;
+            palette_cyc_simulation_ %= 8;
+            plot_navigation_path(*nav_buffer, 7 - palette_cyc_simulation_);
+        }
     }
 
     auto show_cursor = [&cursor, this](int cursor_) {
@@ -1800,108 +2068,45 @@ void WorldMapScene::display()
             }
         }
 
-        auto current = APP.world_graph().nodes_[cursor_];
-        auto x = (current.coord_.x + map_start_x) - 4;
-        auto y = (current.coord_.y + map_start_y) - 4;
         cursor.set_texture_index(76);
         cursor.set_size(Sprite::Size::w16_h32);
         cursor.set_alpha(Sprite::Alpha::translucent);
         cursor.set_priority(2);
 
-        auto draw_range = [&cursor, this](int x, int y) {
-            if (has_radar_) {
-                for (int i = 0; i < 5; ++i) {
-                    cursor.set_position({Fixnum(Float(x - 1) * 8 + i * 16),
-                                         Fixnum(Float(y) * 8 + 32)});
-                    PLATFORM.screen().draw(cursor);
-                    cursor.set_position({Fixnum(Float(x - 1) * 8 + i * 16),
-                                         Fixnum(Float(y) * 8)});
-                    PLATFORM.screen().draw(cursor);
-                }
 
-                for (int i = 0; i < 5; ++i) {
-                    cursor.set_texture_index(91);
-                    cursor.set_position({Fixnum(Float(x - 1) * 8 + i * 16),
-                                         Fixnum(Float(y) * 8 + 64)});
-                    PLATFORM.screen().draw(cursor);
-                    cursor.set_texture_index(74);
-                    cursor.set_position({Fixnum(Float(x - 1) * 8 + i * 16),
-                                         Fixnum(Float(y) * 8 - 8)});
-                    PLATFORM.screen().draw(cursor);
-                }
-
-
-                cursor.set_texture_index(75);
-                cursor.set_position(
-                    {Fixnum(Float(x + 1) * 8 + 64), Fixnum(Float(y - 1) * 8)});
-                PLATFORM.screen().draw(cursor);
-                cursor.set_position({Fixnum(Float(x + 1) * 8 + 64),
-                                     Fixnum(Float(y - 1) * 8 + 32)});
-                PLATFORM.screen().draw(cursor);
-                cursor.set_position({Fixnum(Float(x + 1) * 8 + 64),
-                                     Fixnum(Float(y - 1) * 8 + 32 + 8)});
-                PLATFORM.screen().draw(cursor);
-                cursor.set_position({Fixnum(Float(x + 1) * 8 + 64),
-                                     Fixnum(Float(y - 1) * 8 + 32 + 24)});
-                PLATFORM.screen().draw(cursor);
-                return;
-            }
-
-            for (int i = 0; i < 4; ++i) {
-                cursor.set_position(
-                    {Fixnum(Float(x) * 8 + i * 16), Fixnum(Float(y) * 8 + 32)});
-                PLATFORM.screen().draw(cursor);
-                cursor.set_position(
-                    {Fixnum(Float(x) * 8 + i * 16), Fixnum(Float(y) * 8)});
-                PLATFORM.screen().draw(cursor);
-            }
-
-            cursor.set_texture_index(74);
-            for (int i = 0; i < 4; ++i) {
-                cursor.set_position(
-                    {Fixnum(Float(x) * 8 + i * 16), Fixnum(Float(y) * 8 + 64)});
-                PLATFORM.screen().draw(cursor);
-            }
-
-            cursor.set_texture_index(75);
-            cursor.set_position(
-                {Fixnum(Float(x) * 8 + 64), Fixnum(Float(y) * 8)});
-            PLATFORM.screen().draw(cursor);
-            cursor.set_position(
-                {Fixnum(Float(x) * 8 + 64), Fixnum(Float(y) * 8 + 32)});
-            PLATFORM.screen().draw(cursor);
-            cursor.set_position(
-                {Fixnum(Float(x) * 8 + 64), Fixnum(Float(y) * 8 + 32 + 8)});
-            PLATFORM.screen().draw(cursor);
-        };
-
-        draw_range(x, y);
-
-        cursor.set_mix({ColorConstant::rich_black, 64});
-        auto o = movement_targets_[movement_cursor_];
-        cursor.set_texture_index(76);
-        draw_range(o.x + map_start_x - 4, o.y + map_start_y - 4);
-
-        Buffer<Vec2<s8>, 10> tier_2_reachable;
-        for (int x = o.x - 4; x < o.x + 5; ++x) {
-            for (int y = o.y - 4; y < o.y + 5; ++y) {
-                for (auto& node : APP.world_graph().nodes_) {
-                    if (node.type_ not_eq WorldGraph::Node::Type::corrupted and
-                        node.type_ not_eq WorldGraph::Node::Type::null and
-                        node.coord_ not_eq o and
-                        node.coord_ == Vec2<s8>{s8(x), s8(y)}) {
-                        tier_2_reachable.push_back(node.coord_);
-                    }
-                }
-            }
+        if (not discretized_range_cache_) {
+            ShadeIntensity matrix[30][20];
+            memset(matrix, 0, sizeof matrix);
+            discretized_range_cache_.emplace();
+            build_range_cache(matrix, *discretized_range_cache_);
         }
 
+        if (discretized_range_cache_) {
+            Sprite spr;
+            spr.set_alpha(Sprite::Alpha::translucent);
+            for (auto& comp : *discretized_range_cache_) {
+                spr.set_size(comp.sz_);
+                spr.set_position({Fixnum::from_integer(comp.x_ * 8),
+                                  Fixnum::from_integer(comp.y_ * 8)});
+                switch (comp.sz_) {
+                case Sprite::Size::w16_h32:
+                    spr.set_texture_index(76);
+                    break;
 
-        if (not has_radar_ and show_tier_2_ and tier_2_visible_) {
-            for (auto& o : tier_2_reachable) {
-                cursor.set_mix({ColorConstant::rich_black, 180});
-                cursor.set_texture_index(76);
-                draw_range(o.x + map_start_x - 4, o.y + map_start_y - 4);
+                case Sprite::Size::w16_h16:
+                    spr.set_tidx_16x16(76, 0);
+                    break;
+
+                case Sprite::Size::w8_h8:
+                    spr.set_tidx_8x8(76, 0);
+                    break;
+
+                default:
+                    LOGIC_ERROR();
+                    break;
+                }
+                spr.set_mix({ColorConstant::rich_black, comp.intensity_});
+                PLATFORM.screen().draw(spr);
             }
         }
 
@@ -2003,7 +2208,8 @@ void WorldMapScene::enter(Scene& prev_scene)
     show_map(APP.world_graph(), -1);
     if (not navigation_path_.empty() and not nav_mode_) {
         navigation_path_.insert(navigation_path_.begin(), cursor_);
-        plot_navigation_path(navigation_path_);
+        render_backup_nav_buffer_ = navigation_path_;
+        plot_navigation_path(navigation_path_, 0);
         navigation_path_.erase(navigation_path_.begin());
     }
 

@@ -2210,13 +2210,6 @@ void Platform::overwrite_t1_tile(u16 index, const EncodedTile& t)
 
 
 
-void Platform::overwrite_sprite_tile(u16 index, const EncodedTile& t)
-{
-    // TODO...
-}
-
-
-
 void Platform::overwrite_overlay_tile(u16 index, const EncodedTile& t)
 {
 }

@@ -734,6 +734,38 @@ o----------------------------o
 
 o----------------------------o
 
+ (device-info selector-sym)
+
+ (device-info 'name)
+
+ Returns the name of the
+ specific hardware that the
+ software is running on. For
+ example:
+
+ "GameboyAdvance"
+ "PC"
+
+ (device-info 'variant)
+
+ Returns the name of the
+ variation of the device
+ running the software.
+ For example:
+
+ GameboyAdvance:
+ "NDS"
+ "AGB_OR_AGS"
+ ...
+
+ PC:
+ "Mac"
+ "Linux"
+ ...
+
+
+o----------------------------o
+
  (dialog strings ...)
 
  Composes a dialog message

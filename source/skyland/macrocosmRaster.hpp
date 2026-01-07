@@ -23,13 +23,8 @@ namespace skyland::macro
 
 
 enum {
-#ifdef __GBA__
     // Sized based on the GBA's hardware vram limits.
     RASTER_CELLCOUNT = 480,
-#else
-    // TODO: increase this?
-    RASTER_CELLCOUNT = 480,
-#endif
 };
 
 

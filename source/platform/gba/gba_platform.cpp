@@ -1905,13 +1905,13 @@ void Platform::overwrite_t1_tile(u16 index, const EncodedTile& t)
 
 
 
-void Platform::overwrite_sprite_tile(u16 index, const EncodedTile& t)
-{
-    // NOTE: Sprites occupy 16x32 pixels, i.e. 8 8x8 pixel tiles.
-    u8* p = ((u8*)&MEM_TILE[4][1]) + index * (vram_tile_size() * 8);
+// void Platform::overwrite_sprite_tile(u16 index, const EncodedTile& t)
+// {
+//     // NOTE: Sprites occupy 16x32 pixels, i.e. 8 8x8 pixel tiles.
+//     u8* p = ((u8*)&MEM_TILE[4][1]) + index * (vram_tile_size() * 8);
 
-    memcpy16(p, &t, (sizeof t) / 2);
-}
+//     memcpy16(p, &t, (sizeof t) / 2);
+// }
 
 
 
@@ -5649,43 +5649,6 @@ static void set_map_tile_16p_palette(u8 base, u16 x, u16 y, int palette)
 
 
 
-void Platform::set_flip(Layer layer, u16 x, u16 y, bool xflip, bool yflip)
-{
-    switch (layer) {
-    case Layer::map_1_ext:
-        // TODO...
-        break;
-
-    case Layer::map_0_ext:
-        // TODO...
-        break;
-
-    case Layer::overlay: {
-        auto c = overlay_back_buffer[x + y * 32];
-        if (xflip) {
-            c |= 1 << 10;
-        } else {
-            c &= ~(1 << 10);
-        }
-
-        if (yflip) {
-            c |= 1 << 11;
-        } else {
-            c &= ~(1 << 11);
-        }
-
-        overlay_back_buffer[x + y * 32] = c;
-        overlay_back_buffer_changed = true;
-        break;
-    }
-
-    default:
-        break;
-    }
-}
-
-
-
 void Platform::set_palette(Layer layer, u16 x, u16 y, u16 palette)
 {
     if (layer == Layer::map_1_ext) {
@@ -6848,6 +6811,31 @@ void setup_hardcoded_palettes()
 
 
 
+void Platform::clear_layer(Layer layer)
+{
+    switch (layer) {
+    case Layer::overlay:
+        fill_overlay(0);
+        break;
+
+    case Layer::map_0_ext:
+    case Layer::map_0:
+        memset16(MEM_SCREENBLOCKS[sbb_t0_tiles], SE_PALBANK(0), 2048);
+        break;
+
+    case Layer::map_1_ext:
+    case Layer::map_1:
+        memset16(MEM_SCREENBLOCKS[sbb_t1_tiles], SE_PALBANK(2), 2048);
+        break;
+
+    default:
+        fatal("clear layer for unsupported layer id");
+        break;
+    }
+}
+
+
+
 static const Platform::Extensions extensions{
     .stack_check = []() -> bool {
         if (not canary_check()) {
@@ -7084,7 +7072,6 @@ static const Platform::Extensions extensions{
             REG_KEYCNT = KEY_SELECT | KEY_START | KEY_R | KEY_L |
                          KEYIRQ_ENABLE | KEYIRQ_AND;
         },
-    .print_memory_diagnostics = [] { scratch_buffer_memory_diagnostics(); },
     .console_write_buffer =
         [](Vector<char>& input) {
             uart_blocking_output_mode();

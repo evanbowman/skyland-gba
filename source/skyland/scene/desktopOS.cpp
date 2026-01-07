@@ -23,6 +23,7 @@
 namespace skyland
 {
 
+#ifdef __GBA__
 
 
 void __draw_image(TileDesc start_tile,
@@ -2050,10 +2051,17 @@ void DesktopOS::DropdownMenu::on_hover()
 }
 
 
+#endif
+
+
 
 ScenePtr boot_desktop_os(Optional<DeferredScene> resume)
 {
+#ifdef __GBA__
     return make_scene<DesktopOS>(resume);
+#else
+    return null_scene();
+#endif
 }
 
 

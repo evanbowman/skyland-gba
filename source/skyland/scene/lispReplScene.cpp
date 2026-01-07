@@ -509,7 +509,8 @@ TOP:
             lisp::read(seq);
             lisp::eval(lisp::get_op(0));
 
-            if (not str_eq(*command_, history_.back())) {
+            if (history_.size() == 0 or
+                not str_eq(*command_, history_.back())) {
                 history_.push_back(*command_);
             }
 

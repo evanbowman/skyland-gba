@@ -2,6 +2,7 @@
 #include "checkersModule.hpp"
 #include "fileBrowserModule.hpp"
 #include "skyland/scene/boxedDialogScene.hpp"
+#include "skyland/scene/introCreditsScene.hpp"
 #include "skyland/scene/textviewScene.hpp"
 #include "skyland/scene/titleScreenScene.hpp"
 #include "skyland/skyland.hpp"
@@ -484,6 +485,7 @@ ScenePtr DataCartModule::boot_cart(int cart_index)
 
     if (*type == "reboot") {
         PLATFORM_EXTENSION(restart);
+        return make_scene<IntroCreditsScene>();
     } else if (*type == "checkers") {
         return make_scene<CheckersModule>();
     } else if (*type == "image") {

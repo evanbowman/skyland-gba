@@ -244,6 +244,7 @@ void SkylandForever::display()
     Sprite spr;
     spr.set_size(Sprite::Size::w16_h32);
     spr.set_texture_index(59);
+    spr.set_priority(0);
     spr.set_position(
         {2.0_fixed,
          Fixnum::from_integer(((settings_start * 8) - 1.f) + cursor_ * 16)});

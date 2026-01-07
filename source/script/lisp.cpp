@@ -2547,11 +2547,15 @@ void Symbol::set_name(const char* name)
         memset(ptr, '\0', buffer_size + 1);
         for (u32 i = 0; i < buffer_size; ++i) {
             if (*name not_eq '\0') {
+#ifdef __GBA__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wstringop-overflow"
 #pragma GCC diagnostic ignored "-Warray-bounds"
+#endif
                 ptr[i] = *(name++);
+#ifdef __GBA__
 #pragma GCC diagnostic pop
+#endif
             }
         }
         break;

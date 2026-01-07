@@ -66,8 +66,8 @@ void SelectChallengeScene::enter(Scene& prev)
     PLATFORM.screen().schedule_fade(default_fade,
                                     {ColorConstant::rich_black, {}, false});
 
-    if (not PLATFORM.speaker().is_music_playing("unaccompanied_wind")) {
-        PLATFORM.speaker().stream_music("unaccompanied_wind", 0);
+    if (not PLATFORM.speaker().is_music_playing("unaccompanied_wind.raw")) {
+        PLATFORM.speaker().stream_music("unaccompanied_wind.raw", 0);
     }
 }
 
@@ -166,12 +166,16 @@ void SelectChallengeScene::exit(Scene& next)
 
 void SelectChallengeScene::display()
 {
+    if (exit_) {
+        return;
+    }
     if (state_ not_eq State::idle) {
         return;
     }
     Sprite cursor;
     cursor.set_size(Sprite::Size::w16_h32);
     cursor.set_texture_index(59);
+    cursor.set_priority(0);
 
     Vec2<Fixnum> origin;
 

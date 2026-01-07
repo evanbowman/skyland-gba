@@ -1,0 +1,30 @@
+* SDL Platform implementation [22/26]
+** DONE fix dynamic texture mapping for certain texture sizes...
+** DONE implement rendering for background layer
+** DONE top left corner in textures loaded from files doesn't display...
+** DONE select menu doesn't display correctly...
+** DONE Paletted colors for specific zones...
+** DONE support window resizing
+** DONE support overwriting tile data with encoded tiles
+** DONE background layer tranparency
+** DONE populate completed sounds array
+** DONE fix issue where textures aren't recolored correctly when using weather engine
+** DONE macOS distribution and bundling
+** DONE add missing sound effects
+** DONE fix broken flag designer
+** DONE Fix load_overlay_chunk when part of the loaded tile is transparent
+** DONE color palette switches back to default after leaving glossary
+** DONE tile graphics bug on title screen when leaving certain game modes...
+** DONE dog sprite doesn't load correctly
+** DONE figure out what to do about overapping transparency issues
+** DONE weather change when encountering storm king doesn't reset palette effects
+** DONE fix junk tiles on title screen
+** DONE Display charted course on sky map
+** DONE figure out why birds flee map upon level load (bad tile lookup?)
+** TODO display keyboard buttons in tutorial player for desktop version
+** TODO fix missing tile in top left corner (again!?)
+** TODO properly display darkened tiles during powerdown
+** TODO fix issue where entering the glossary and leaving from overworld causes color palette to be swapped back to default (no weather effects)
+*** NOTE: this issue happens because we don't have true palette effects, we're faking it
+*** to fix this, do I need to implement actual palette support? Dynamically recolor the texture?
+

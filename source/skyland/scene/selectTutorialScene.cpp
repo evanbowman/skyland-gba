@@ -63,7 +63,7 @@ void SelectTutorialScene::enter(Scene& prev)
 {
     PLATFORM.screen().set_shader(passthrough_shader);
 
-    PLATFORM.speaker().stream_music("unaccompanied_wind", 0);
+    PLATFORM.speaker().stream_music("unaccompanied_wind.raw", 0);
 
     APP.set_coins(0);
 
@@ -226,6 +226,7 @@ void SelectTutorialScene::display()
     Sprite cursor;
     cursor.set_size(Sprite::Size::w16_h32);
     cursor.set_texture_index(59);
+    cursor.set_priority(0);
 
     Vec2<Fixnum> origin;
 

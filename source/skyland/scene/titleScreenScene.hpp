@@ -50,6 +50,9 @@ public:
     static Conf::String music_track();
 
 
+    static void run_init_scripts(bool allow_mods);
+
+
 private:
     bool wait_ = true;
     Optional<Text> text_;
@@ -59,8 +62,6 @@ private:
     Float ambient_movement_ = 0.f;
     bool selector_shaded_ = false;
     bool flower_effect_ = false;
-
-    void run_init_scripts(bool allow_mods);
 
 
     void show_module_icons(int page);

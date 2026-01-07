@@ -108,6 +108,16 @@ public:
     };
 
 
+    bool has_slow_cpu() const
+    {
+#ifdef __GBA__
+        return true;
+#else
+        return false;
+#endif
+    }
+
+
     EncodedTile encode_tile(u8 tile_data[16][16]);
 
 
@@ -120,8 +130,6 @@ public:
 
     void overwrite_t0_tile(u16 index, const EncodedTile& t);
     void overwrite_t1_tile(u16 index, const EncodedTile& t);
-
-    void overwrite_sprite_tile(u16 index, const EncodedTile& t);
 
 
     // Intended to allow usage of the t0 tile layer as a sort of RenderTexture
@@ -306,9 +314,6 @@ public:
     void set_palette(Layer layer, u16 x, u16 y, u16 palette);
     u16 get_palette(Layer layer, u16 x, u16 y);
 
-    void set_flip(Layer layer, u16 x, u16 y, bool xflip, bool yflip);
-
-
     void set_scroll(Layer layer, u16 x, u16 y);
     Vec2<u16> get_scroll(Layer layer);
 
@@ -325,6 +330,7 @@ public:
     // very slow.
     TileDesc get_tile(Layer layer, u16 x, u16 y);
 
+    void clear_layer(Layer layer);
 
     void fill_overlay(u16 TileDesc);
 
@@ -932,7 +938,6 @@ public:
         void (*overlay_circle_effect)(int radius, int x, int y);
         void (*iris_wipe_effect)(int radius, int x, int y);
         void (*hibernate)();
-        void (*print_memory_diagnostics)();
         void (*console_write_buffer)(Vector<char>& input);
         void (*dlc_download)(Vector<char>& output);
         void (*watchdog_on)();
@@ -958,6 +963,21 @@ public:
         void (*override_sprite_palette)(u8 index, ColorConstant c);
 
         bool (*__test_compare_sound)(const char* sound_name);
+
+        void (*sprite_overlapping_supported)(bool& result);
+        bool (*has_startup_opt)(const char* opt);
+        void (*draw_point_light)(Fixnum x,
+                                 Fixnum y,
+                                 int radius,
+                                 ColorConstant tint,
+                                 u8 intensity);
+
+        void (*draw_rect)(int x,
+                          int y,
+                          int w,
+                          int h,
+                          ColorConstant tint,
+                          int priority);
     };
 
 

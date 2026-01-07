@@ -84,8 +84,11 @@ public:
     static void autoassign_drone_target(Drone& d);
 
 protected:
+#ifdef __GBA__
     virtual void update_ai(Time delta);
-
+#else
+    void update_ai(Time delta) override;
+#endif
 
 private:
     struct AIState

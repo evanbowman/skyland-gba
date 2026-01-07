@@ -58,7 +58,7 @@ std::string resource_path()
                 std::string("/");
     }
     ((id(*)(id, SEL))objc_msgSend)(pool, sel_registerName("drain"));
-    return rpath + "../";
+    return rpath;
 }
 
 #elif __linux__

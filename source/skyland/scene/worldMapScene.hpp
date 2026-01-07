@@ -27,6 +27,28 @@ class WorldMap;
 
 
 
+namespace detail
+{
+
+enum class ShadeIntensity : u8 {
+    none = 0,
+    light,
+    medium,
+    dark
+};
+
+struct ShadeRangeComponent
+{
+    u8 x_;
+    u8 y_;
+    Sprite::Size sz_;
+    u8 intensity_;
+};
+
+}
+
+
+
 class WorldMapScene : public Scene
 {
 public:
@@ -108,6 +130,12 @@ private:
     NavBuffer navigation_buffer_;
     NavBuffer cached_navigation_path_;
     static NavBuffer navigation_path_;
+    NavBuffer render_backup_nav_buffer_;
+
+    void build_range_cache(detail::ShadeIntensity matrix[30][20],
+                           Vector<detail::ShadeRangeComponent>& out);
+
+    Optional<Vector<detail::ShadeRangeComponent>> discretized_range_cache_;
 
     Optional<Text> heading_;
     Optional<Text> warning_;
@@ -138,6 +166,7 @@ private:
     u8 save_opt_len_ = 0;
     bool nav_mode_ = false;
     u8 palette_cyc_counter_ = 0;
+    u8 palette_cyc_simulation_ = 0;
 
     void render_map_key();
 

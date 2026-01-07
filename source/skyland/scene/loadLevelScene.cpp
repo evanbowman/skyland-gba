@@ -266,7 +266,7 @@ ScenePtr LoadLevelScene::update(Time delta)
     lisp::gc();
 
     if (node.type_ == WorldGraph::Node::Type::corrupted) {
-        PLATFORM.speaker().stream_music("unaccompanied_wind", 0);
+        PLATFORM.speaker().stream_music("unaccompanied_wind.raw", 0);
 
     } else {
         if (not PLATFORM.speaker().is_music_playing(

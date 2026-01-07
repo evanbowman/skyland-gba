@@ -816,6 +816,48 @@ void Paint::display()
              Fixnum::from_integer(2 + view_shift_ + (4 + (int)tool_ * 2) * 8)});
         PLATFORM.screen().draw(sprite);
     }
+
+    if (auto draw = PLATFORM.get_extensions().draw_rect) {
+        // Palette mapping for some modern platforms is difficult to implement
+        // correctly, it's easier to draw some colored rects than to override
+        // the overlay palette with a different tile layer's palette like we do
+        // on gba. I can't justify implementing implementing palette remapping
+        // logic just to draw some colored squares.
+        ColorConstant palette_table[16] = {custom_color(0x000000),
+                                           custom_color(0x163061),
+                                           custom_color(0x666691),
+                                           custom_color(0x9fb7c5),
+                                           custom_color(0xe6b220),
+                                           custom_color(0xe24920),
+                                           custom_color(0x6e2d4a),
+                                           custom_color(0x277b6e),
+                                           custom_color(0xb8ea80),
+                                           custom_color(0xf2f5eb),
+                                           custom_color(0xa2dfe8),
+                                           custom_color(0x66fff7),
+                                           custom_color(0x165fce),
+                                           custom_color(0xd9e2a3),
+                                           custom_color(0xa9b07f),
+                                           custom_color(0x6b6b39)};
+        for (int i = 1; i < 16; ++i) {
+            draw(8 + i * 8, 18 * 8, 8, 8, palette_table[i], 0);
+        }
+
+        for (int x = 0; x < width_; ++x) {
+            for (int y = 0; y < height_; ++y) {
+                auto px = get_pixel(x, y) % 16;
+                if (px == 0) {
+                    continue; // Transparent
+                }
+                draw(origin_x_ * 8 + x * 8,
+                     origin_y_ * 8 + y * 8,
+                     8,
+                     8,
+                     palette_table[px],
+                     0);
+            }
+        }
+    }
 }
 
 

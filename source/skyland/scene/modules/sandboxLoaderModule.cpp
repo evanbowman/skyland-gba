@@ -220,6 +220,7 @@ void SandboxLoaderModule::display()
     spr.set_size(Sprite::Size::w16_h32);
     spr.set_texture_index(59);
     spr.set_position({2.0_fixed, Fixnum::from_integer(31.f + cursor_ * 16)});
+    spr.set_priority(0);
 
     PLATFORM.screen().draw(spr);
 }

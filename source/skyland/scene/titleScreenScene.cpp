@@ -74,6 +74,10 @@ public:
 
         const s16 shrink_amount = interpolate(-450, -24, interval);
 
+        if (interval > 1.f) {
+            interval = 1.f;
+        }
+
         sprite_.set_mix(
             {ColorConstant::silver_white, u8(255 - 255 * interval)});
 
@@ -182,6 +186,14 @@ static void set_scroll(Layer layer, int x_scroll, int y_scroll)
 
 
 
+void setup_pools()
+{
+    globals().room_pools_.create("room-mem");
+    globals().entity_pools_.create("entity-mem");
+}
+
+
+
 void TitleScreenScene::enter(Scene& prev)
 {
     PLATFORM.speaker().set_music_volume(Platform::Speaker::music_volume_max);
@@ -210,8 +222,7 @@ void TitleScreenScene::enter(Scene& prev)
 
     APP.player_island().clear();
 
-    globals().room_pools_.create("room-mem");
-    globals().entity_pools_.create("entity-mem");
+    setup_pools();
 
     if (APP.opponent_island()) {
         APP.reset_opponent_island();
@@ -757,7 +768,7 @@ ScenePtr TitleScreenScene::update(Time delta)
             timer_ = 0;
             state_ = State::macro_island_exit;
             repeat_action1_ = true;
-            PLATFORM.speaker().stream_music("unaccompanied_wind", 0);
+            PLATFORM.speaker().stream_music("unaccompanied_wind.raw", 0);
             PLATFORM.speaker().play_sound("button_wooden", 3);
 
             const auto amount =
@@ -820,7 +831,7 @@ ScenePtr TitleScreenScene::update(Time delta)
             timer_ = 0;
             state_ = State::macro_island_exit;
             repeat_action1_ = true;
-            PLATFORM.speaker().stream_music("unaccompanied_wind", 0);
+            PLATFORM.speaker().stream_music("unaccompanied_wind.raw", 0);
             PLATFORM.speaker().play_sound("button_wooden", 3);
         }
 
@@ -968,7 +979,7 @@ ScenePtr TitleScreenScene::update(Time delta)
                 state_ = State::fade_modules_1;
             } else {
                 if (not repeat_action1_) {
-                    PLATFORM.speaker().stream_music("unaccompanied_wind", 0);
+                    PLATFORM.speaker().stream_music("unaccompanied_wind.raw", 0);
                     PLATFORM.speaker().play_sound("button_wooden", 3);
                 }
                 module_cursor_.reset();
@@ -1034,13 +1045,20 @@ ScenePtr TitleScreenScene::update(Time delta)
                 play_gust_sound();
                 timer_ = 0;
             } else if (menu_selection_ == 0) {
-                menu_selection_ = 2;
-                put_menu_text();
-                state_ = State::scroll_macro;
-                play_gust_sound();
-                PLATFORM_EXTENSION(force_vsync);
-                PLATFORM.load_tile1_texture("skyland_title_2_flattened");
-                timer_ = 0;
+                if (PLATFORM.device_name() == "PC") {
+                    // TODO... none of these screens to the left on the title
+                    // screen are supported by the desktop (SDL) implementation.
+                    // I need to add support for networked multiplayer and other
+                    // stuff...
+                } else {
+                    menu_selection_ = 2;
+                    put_menu_text();
+                    state_ = State::scroll_macro;
+                    play_gust_sound();
+                    PLATFORM_EXTENSION(force_vsync);
+                    PLATFORM.load_tile1_texture("skyland_title_2_flattened");
+                    timer_ = 0;
+                }
             } else if (menu_selection_ == 3) {
                 menu_selection_ = 1;
                 put_menu_text();
@@ -1466,7 +1484,7 @@ ScenePtr TitleScreenScene::update(Time delta)
                              module_cursor_->y * modules_per_row;
                 if (auto f = detail::_Module::Factory::get(index, dev_)) {
                     PLATFORM.speaker().clear_sounds();
-                    PLATFORM.speaker().stream_music("unaccompanied_wind", 0);
+                    PLATFORM.speaker().stream_music("unaccompanied_wind.raw", 0);
                     PLATFORM.speaker().play_sound("button_wooden", 3);
 
                     if (f->name() == SystemString::module_cart_viewer) {

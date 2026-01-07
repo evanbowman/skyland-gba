@@ -1771,7 +1771,9 @@ BINDING_TABLE({
      {SIG0(nil),
       [](int argc) {
           info("__MEMORY_DIAGNOSTICS______");
-          scratch_buffer_memory_diagnostics();
+          scratch_buffer_memory_diagnostics([](const char* line) {
+              info(line);
+          });
           info(format("extension mem: used %", extension_stats().used));
 
           info("pool diagnostics:");
@@ -2576,11 +2578,22 @@ BINDING_TABLE({
 
           PLATFORM.fill_overlay(0);
           PLATFORM.speaker().clear_sounds();
-          PLATFORM.speaker().stream_music("unaccompanied_wind", 0);
+          PLATFORM.speaker().stream_music("unaccompanied_wind.raw", 0);
           APP.game_mode() = App::GameMode::adventure;
 
           push_menu_queue.push_back(make_deferred_scene<StartAdventureScene>());
 
+          return L_NIL;
+      }}},
+    {"device-info",
+     {SIG1(string, symbol),
+      [](int argc) {
+          auto sym = lisp::get_op(0)->symbol();
+          if (str_eq(sym.name(), "name")) {
+              return lisp::make_string(PLATFORM.device_name().c_str());
+          } else if (str_eq(sym.name(), "variant")) {
+              return lisp::make_string(PLATFORM.model_name().c_str());
+          }
           return L_NIL;
       }}},
     {"is-developer-mode",

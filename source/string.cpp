@@ -36,7 +36,7 @@ void expand_escape_sequences(const char* str, Function<16, void(char)> on_char)
                 }
                 if (auto sv = skyland::SharedVariable::load(var.c_str())) {
                     for (char c : stringify(sv->get())) {
-                        on_char(std::move(c));
+                        on_char(c);
                     }
                 }
             }

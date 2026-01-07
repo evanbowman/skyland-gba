@@ -100,7 +100,13 @@ void ClearSkies::display()
     }
 LENSFLARE_CHECK_DONE:
 
+    bool hardware_supports_spr_overlapping = false;
+    PLATFORM_EXTENSION(sprite_overlapping_supported,
+                       hardware_supports_spr_overlapping);
 
+    if (hardware_supports_spr_overlapping) {
+        disable_lensflare = false;
+    }
 
     struct LensFlare
     {

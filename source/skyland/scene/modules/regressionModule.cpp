@@ -100,6 +100,13 @@ ScenePtr RegressionModule::update(Time delta)
         Text::print("validating tutorials...", {1, 3}, text_colors);
         PLATFORM.screen().display();
 
+        if (auto match = PLATFORM.get_extensions().has_startup_opt) {
+            if (match("--validate-scripts") and not match("--regression")) {
+                ::exit(EXIT_SUCCESS);
+            }
+        }
+
+
         PLATFORM.sleep(120);
 
         test_index++;
@@ -143,6 +150,13 @@ ScenePtr RegressionModule::update(Time delta)
                         {1, 5},
                         text_colors);
             Text::print("press any key to reset...", {1, 7}, text_colors);
+
+            if (auto match = PLATFORM.get_extensions().has_startup_opt) {
+                if (match("--regression")) {
+                    info("regression success!");
+                    ::exit(EXIT_SUCCESS);
+                }
+            }
 
             while (1) {
                 PLATFORM.keyboard().poll();

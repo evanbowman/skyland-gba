@@ -164,4 +164,6 @@ void start(Platform& pfrm)
         app->render();
         PLATFORM.screen().display();
     }
+
+    app->shutdown();
 }

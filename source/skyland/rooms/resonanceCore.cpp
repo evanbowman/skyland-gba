@@ -12,9 +12,9 @@
 #include "resonanceCore.hpp"
 #include "skyland/entity/explosion/coreExplosion.hpp"
 #include "skyland/room_metatable.hpp"
+#include "skyland/sharedVariable.hpp"
 #include "skyland/sound.hpp"
 #include "skyland/tile.hpp"
-#include "skyland/sharedVariable.hpp"
 
 
 

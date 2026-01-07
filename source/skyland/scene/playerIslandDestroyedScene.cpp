@@ -398,7 +398,7 @@ ScenePtr PlayerIslandDestroyedScene::update(Time delta)
         if (((APP.game_mode() not_eq App::GameMode::adventure or endgame) and
              APP.game_mode() not_eq App::GameMode::skyland_forever and
              APP.game_mode() not_eq App::GameMode::co_op)) {
-            PLATFORM.speaker().stream_music("unaccompanied_wind", 0);
+            PLATFORM.speaker().stream_music("unaccompanied_wind.raw", 0);
         }
 
         PLATFORM.speaker().play_sound("explosion1", 3);

@@ -64,7 +64,6 @@
 #include "skyland/rooms/mycelium.hpp"
 #include "skyland/rooms/nemesis.hpp"
 #include "skyland/rooms/overdriveCore.hpp"
-#include "skyland/rooms/resonanceCore.hpp"
 #include "skyland/rooms/palm.hpp"
 #include "skyland/rooms/particleLance.hpp"
 #include "skyland/rooms/phaseShifter.hpp"
@@ -77,6 +76,7 @@
 #include "skyland/rooms/radiator.hpp"
 #include "skyland/rooms/reactor.hpp"
 #include "skyland/rooms/replicator.hpp"
+#include "skyland/rooms/resonanceCore.hpp"
 #include "skyland/rooms/rocketSilo.hpp"
 #include "skyland/rooms/shrubbery.hpp"
 #include "skyland/rooms/snow.hpp"
@@ -252,7 +252,6 @@ void RoomMeta::init_plugin()
 template <int plugin_slots, typename... Rooms> struct RoomMetatable
 {
 public:
-
     static constexpr const char* room_names_[sizeof...(Rooms)] = {Rooms::name()...};
 
 

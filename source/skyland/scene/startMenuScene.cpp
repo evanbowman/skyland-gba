@@ -960,6 +960,12 @@ void StartMenuScene::display()
 
     cursor.set_mix({ColorConstant::silver_white, 1});
 
+    // NOTE: for the gba platform, setting a custom mix color is sufficient to
+    // prevent screen fades from applying to the cursor sprite. For other
+    // non-paletted platforms, we do need to draw the cursor over the overlay to
+    // exclude it from screen fades...
+    cursor.set_priority(0);
+
     auto view = PLATFORM.screen().get_view().get_center();
 
     Vec2<Fixnum> origin;

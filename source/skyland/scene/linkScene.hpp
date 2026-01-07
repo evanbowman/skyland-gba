@@ -34,7 +34,7 @@ public:
     {
         PLATFORM.screen().schedule_fade(1.f, {ColorConstant::silver_white});
 
-        PLATFORM.speaker().stream_music("unaccompanied_wind", 0);
+        PLATFORM.speaker().stream_music("unaccompanied_wind.raw", 0);
 
         auto str = SYSTR(mt_hint);
         u8 mr = centered_text_margins(utf8::len(str->c_str()));

@@ -113,16 +113,16 @@ ScratchBufferPtr make_scratch_buffer(const ScratchBuffer::Tag& tag)
 
 
 
-void scratch_buffer_memory_diagnostics()
+void scratch_buffer_memory_diagnostics(Function<4* sizeof(void*), void(const char*)> cb)
 {
     StringBuffer<96> output;
 
     int buffer_num = 0;
     int buffers_used = 0;
 
-    info("scratch buffer (sbr) diagnostics: ");
-    info("  # |  name");
-    info("----|----------------------------");
+    cb("scratch buffer (sbr) diagnostics: ");
+    cb("  # |  name");
+    cb("----|----------------------------");
 
     for (auto& cell : scratch_buffer_pool.cells()) {
         if (not scratch_buffer_pool.is_freed(&cell)) {
@@ -130,7 +130,7 @@ void scratch_buffer_memory_diagnostics()
             output += stringify(buffer_num);
             output += " | ";
             output += ((ScratchBuffer*)cell.mem_.data())->tag_;
-            info(output);
+            cb(output.c_str());
             ++buffers_used;
         }
         ++buffer_num;
@@ -145,7 +145,7 @@ void scratch_buffer_memory_diagnostics()
                     free_sbr * 2)
                  .c_str();
 
-    info(output);
+    cb(output.c_str());
 }
 
 

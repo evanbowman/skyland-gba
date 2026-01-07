@@ -52,10 +52,6 @@ void IntroCreditsScene::exit(Scene& next)
     PLATFORM.set_overlay_origin(0, 0);
 
     text_.reset();
-
-    if (PLATFORM.device_name() == "PC") {
-        APP.start_console();
-    }
 }
 
 

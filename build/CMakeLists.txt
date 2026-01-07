@@ -569,7 +569,9 @@ endif()
 
 
 if(APPLE)
-  set(EXECUTABLE_NAME SkylandEngine)
+  set(EXECUTABLE_NAME Skyland)
+  set(MACOSX_BUNDLE_ICON_FILE AppIcon.icns)
+  set(MACOSX_BUNDLE_GUI_IDENTIFIER "io.skylandgame.skyland")
   add_executable(${EXECUTABLE_NAME} MACOSX_BUNDLE ${SOURCES})
 
 elseif(GAMEBOY_ADVANCE)
@@ -1038,30 +1040,74 @@ elseif(GAMEBOY_ADVANCE)
 
 elseif(APPLE)
 
+  # Set minimum macOS version to avoid version mismatch warnings
+  set(CMAKE_OSX_DEPLOYMENT_TARGET "13.3" CACHE STRING "Minimum macOS deployment version")
+
+  target_include_directories(${EXECUTABLE_NAME} PRIVATE
+    /opt/homebrew/include)
+
+  target_link_directories(${EXECUTABLE_NAME} PRIVATE
+    /opt/homebrew/lib)
+
+  find_package(SDL2_image REQUIRED)
+  target_link_libraries(${EXECUTABLE_NAME} PRIVATE SDL2_image::SDL2_image)
+
   target_link_libraries(${EXECUTABLE_NAME} PRIVATE
     "-framework Cocoa -framework SDL2")
 
   set_target_properties(${EXECUTABLE_NAME}
-    PROPERTIES LINK_FLAGS "-Wl,-F/Library/Frameworks")
+    PROPERTIES
+    LINK_FLAGS "-Wl,-F/Library/Frameworks"
+    MACOSX_BUNDLE TRUE
+    MACOSX_BUNDLE_BUNDLE_NAME "Skyland"
+    MACOSX_BUNDLE_GUI_IDENTIFIER "com.evanbowman.skyland"
+    MACOSX_BUNDLE_BUNDLE_VERSION "1.0"
+    MACOSX_BUNDLE_SHORT_VERSION_STRING "1.0")
 
   include_directories("/usr/local/include/")
 
-  # Doesn't work!
-  # target_compile_options(${EXECUTABLE_NAME} PRIVATE
-  #   -I/Library/Frameworks/SDL2.framework/Headers)
-
-  add_custom_target(pkg ALL mkdir -p ${EXECUTABLE_NAME}.app/Contents/Resources
+  # Copy resources and frameworks into the app bundle
+  add_custom_target(pkg ALL
+    COMMAND mkdir -p ${EXECUTABLE_NAME}.app/Contents/Resources
     COMMAND mkdir -p ${EXECUTABLE_NAME}.app/Contents/Frameworks
-    COMMAND cp -r ${ROOT_DIR}/images/ ${EXECUTABLE_NAME}.app/Contents/images/
-    COMMAND cp -r ${ROOT_DIR}/shaders/ ${EXECUTABLE_NAME}.app/Contents/shaders/
-    COMMAND cp -r ${ROOT_DIR}/sounds/ ${EXECUTABLE_NAME}.app/Contents/sounds/
-    COMMAND cp -r ${ROOT_DIR}/scripts/ ${EXECUTABLE_NAME}.app/Contents/scripts/
-    COMMAND cp -r ${ROOT_DIR}/strings/ ${EXECUTABLE_NAME}.app/Contents/strings/
-    # COMMAND cp macOS/icon.icns ${EXECUTABLE_NAME}.app/Contents/Resources
-    # COMMAND cp -r ${SFML_DIR}/lib/* ${EXECUTABLE_NAME}.app/Contents/Frameworks
+    COMMAND python3 ../tools/encode_files.py
+    COMMAND cp -r ${ROOT_DIR}/lisp_symtab.dat ${EXECUTABLE_NAME}.app/Contents/Resources/
+    COMMAND cp -r ${ROOT_DIR}/lisp_constant_tab.dat ${EXECUTABLE_NAME}.app/Contents/Resources/
+    COMMAND cp -r ${ROOT_DIR}/images/ ${EXECUTABLE_NAME}.app/Contents/Resources/images/
+    COMMAND cp -r ${ROOT_DIR}/images/AppIcon.icns ${EXECUTABLE_NAME}.app/Contents/Resources/
+    COMMAND cp -r ${ROOT_DIR}/shaders/ ${EXECUTABLE_NAME}.app/Contents/Resources/shaders/
+    COMMAND cp -r ${ROOT_DIR}/sounds/ ${EXECUTABLE_NAME}.app/Contents/Resources/sounds/
+    COMMAND cp -r ${ROOT_DIR}/scripts/ ${EXECUTABLE_NAME}.app/Contents/Resources/scripts/
+    COMMAND cp -r ${ROOT_DIR}/strings/ ${EXECUTABLE_NAME}.app/Contents/Resources/strings/
+    # Copy SDL2 framework
     COMMAND cp -r /Library/Frameworks/SDL2.framework ${EXECUTABLE_NAME}.app/Contents/Frameworks
-    # COMMAND cp -r ${SFML_DIR}/extlibs/libs-osx/Frameworks/* ${EXECUTABLE_NAME}.app/Contents/Frameworks
-    )
+    # Copy SDL2_image library - remove old ones first to avoid permission issues
+    COMMAND rm -f ${EXECUTABLE_NAME}.app/Contents/Frameworks/libSDL2_image*.dylib
+    COMMAND cp /opt/homebrew/opt/sdl2_image/lib/libSDL2_image*.dylib ${EXECUTABLE_NAME}.app/Contents/Frameworks/
+    DEPENDS ${EXECUTABLE_NAME}
+    COMMENT "Copying resources into app bundle")
+
+  # Post-build: Fix library paths for distribution
+  add_custom_command(TARGET ${EXECUTABLE_NAME} POST_BUILD
+    # Fix SDL2_image's dependency on SDL2
+    COMMAND bash -c "for lib in ${EXECUTABLE_NAME}.app/Contents/Frameworks/libSDL2_image*.dylib; do install_name_tool -change '@rpath/SDL2.framework/Versions/A/SDL2' '@executable_path/../Frameworks/SDL2.framework/Versions/A/SDL2' \"$${lib}\" 2>/dev/null || true; done"
+
+    # Fix executable's dependency on SDL2
+    COMMAND install_name_tool -change
+      "@rpath/SDL2.framework/Versions/A/SDL2"
+      "@executable_path/../Frameworks/SDL2.framework/Versions/A/SDL2"
+      ${EXECUTABLE_NAME}.app/Contents/MacOS/${EXECUTABLE_NAME}
+
+    # Fix executable's dependency on SDL2_image (handle potential version number variations)
+    COMMAND bash -c "install_name_tool -change /opt/homebrew/opt/sdl2_image/lib/libSDL2_image-2.0.0.dylib '@executable_path/../Frameworks/libSDL2_image-2.0.0.dylib' ${EXECUTABLE_NAME}.app/Contents/MacOS/${EXECUTABLE_NAME} 2>/dev/null || true"
+    COMMAND bash -c "install_name_tool -change /opt/homebrew/lib/libSDL2_image-2.0.0.dylib '@executable_path/../Frameworks/libSDL2_image-2.0.0.dylib' ${EXECUTABLE_NAME}.app/Contents/MacOS/${EXECUTABLE_NAME} 2>/dev/null || true"
+    COMMAND bash -c "install_name_tool -change /opt/homebrew/Cellar/sdl2_image/2.8.8/lib/libSDL2_image.dylib '@executable_path/../Frameworks/libSDL2_image.dylib' ${EXECUTABLE_NAME}.app/Contents/MacOS/${EXECUTABLE_NAME} 2>/dev/null || true"
+
+    # Verify the final result
+    COMMAND otool -L ${EXECUTABLE_NAME}.app/Contents/MacOS/${EXECUTABLE_NAME}
+
+    COMMENT "Fixing library paths for macOS distribution"
+    VERBATIM)
 
 elseif(PSP)
 
@@ -1120,22 +1166,27 @@ endif()
 
 target_precompile_headers(${EXECUTABLE_NAME}
   PRIVATE
-  <limits>
-  <utility>
-  <new>
-  <tuple>
-  <variant>
-  <type_traits>
-  <initializer_list>
+  <algorithm>
+  <array>
   <ciso646>
-  <stddef.h>
+  <initializer_list>
+  <iterator>
+  <limits>
+  <memory>
+  <new>
   <optional>
+  <stddef.h>
+  <tuple>
+  <type_traits>
+  <utility>
+  <variant>
   ../source/unicode.hpp
   ../source/allocator.hpp
   ../source/containers/vector.hpp
   ../source/graphics/overlay.hpp
   ../source/globals.hpp
   ../source/memory/buffer.hpp
+  ../source/script/lisp.hpp
   ../source/number/numeric.hpp
   ../source/number/fixnum.hpp
   ../source/skyland/room.hpp

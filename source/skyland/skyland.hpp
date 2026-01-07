@@ -382,10 +382,11 @@ public:
     lisp::Value* invoke_ram_script(const char* ram_fs_path);
 
 
-    lisp::Value* invoke_script(
-        const char* path,
-        bool rom_fs_only = false,
-        Optional<Function<4 * sizeof(void*), void(lisp::Value& err)>> err_handler = nullopt());
+    lisp::Value*
+    invoke_script(const char* path,
+                  bool rom_fs_only = false,
+                  Optional<Function<4 * sizeof(void*), void(lisp::Value& err)>>
+                      err_handler = nullopt());
 
 
     bool load_file(const char* path, Vector<char>& result);
@@ -458,6 +459,9 @@ public:
     {
         return macrocosm_;
     }
+
+
+    void shutdown();
 
 
 private:

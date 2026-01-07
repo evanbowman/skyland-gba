@@ -142,7 +142,12 @@ public:
             // clang-format on
             PLATFORM.remote_console().printline(msg, "sc> ");
         } else if (line == "sbr annotate") {
-            scratch_buffer_memory_diagnostics();
+            scratch_buffer_memory_diagnostics([](const char* line) {
+                PLATFORM.remote_console().printline(line);
+                if (PLATFORM.has_slow_cpu()) {
+                    PLATFORM.sleep(1);
+                }
+            });
         } else if (parsed.size() == 3 and parsed[0] == "sbr" and
                    parsed[1] == "dump") {
             auto num = parsed[2].c_str();
@@ -171,14 +176,18 @@ public:
             flash_filesystem::walk_directory(
                 parsed[1].c_str(), [&](const char* path) {
                     PLATFORM.remote_console().printline(path, "");
-                    PLATFORM.sleep(2);
+                    if (PLATFORM.has_slow_cpu()) {
+                        PLATFORM.sleep(2);
+                    }
                 });
 
             PLATFORM.walk_filesystem([&](const char* path) {
                 StringBuffer<64> prefix(parsed[1].c_str());
                 if (starts_with(prefix.c_str(), StringBuffer<64>(path))) {
                     PLATFORM.remote_console().printline(path, "");
-                    PLATFORM.sleep(2);
+                    if (PLATFORM.has_slow_cpu()) {
+                        PLATFORM.sleep(2);
+                    }
                 }
             });
             PLATFORM.sleep(1);
