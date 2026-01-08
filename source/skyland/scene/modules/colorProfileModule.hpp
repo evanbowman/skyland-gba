@@ -14,6 +14,7 @@
 
 #include "script/lisp.hpp"
 #include "skyland/scene/module.hpp"
+#include "skyland/settings.hpp"
 
 
 
@@ -50,11 +51,9 @@ public:
     }
 
 
-    static StringBuffer<64> load_current_profile();
-
-
 private:
     Optional<lisp::Protected> options_;
+    settings::Settings settings_;
     Optional<Text> title_;
     Buffer<Text, 7> text_;
     int sel_ = 0;

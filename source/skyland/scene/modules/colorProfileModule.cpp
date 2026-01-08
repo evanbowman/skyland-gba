@@ -9,7 +9,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "colorProfileModule.hpp"
-#include "platform/flash_filesystem.hpp"
 #include "skyland/scene/titleScreenScene.hpp"
 #include "skyland/skyland.hpp"
 
@@ -20,26 +19,13 @@ namespace skyland
 
 
 
-StringBuffer<64> ColorProfileModule::load_current_profile()
-{
-    Vector<char> color_mode;
-    StringBuffer<64> ret;
-    flash_filesystem::read_file_data("/save/color.txt", color_mode);
-    if (color_mode.size()) {
-        for (char c : color_mode) {
-            ret.push_back(c);
-        }
-    }
-    return ret;
-}
-
-
-
 void ColorProfileModule::enter(Scene& prev)
 {
+    settings::load(settings_);
+
     options_ = APP.invoke_script("/scripts/data/color/color.lisp");
 
-    auto prof = load_current_profile();
+    auto prof = settings_.get("color-profile");
 
     int i = 0;
 
@@ -114,15 +100,11 @@ ScenePtr ColorProfileModule::update(Time delta)
         auto v = lisp::get_list(*options_, sel_);
         auto fname = v->cons().cdr();
         if (fname not_eq L_NIL) {
-            StringBuffer<128> color_name = fname->string().value();
-            Vector<char> cname;
-            for (char c : color_name) {
-                cname.push_back(c);
-            }
-            flash_filesystem::store_file_data("/save/color.txt", cname);
+            settings_.set("color-profile", fname->string().value());
         } else {
-            flash_filesystem::unlink_file("/save/color.txt");
+            settings_.set("color-profile", "");
         }
+        settings_.save();
 
         bind_selected_profile();
 
