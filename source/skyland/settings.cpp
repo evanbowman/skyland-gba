@@ -62,7 +62,8 @@ StringBuffer<96> Settings::get(const char* key)
 
 void Settings::set(const char* key, const char* value)
 {
-    lisp::l_foreach(data_, [key, value](lisp::Value* kvp) {
+    bool assigned = false;
+    lisp::l_foreach(data_, [key, value, &assigned](lisp::Value* kvp) {
         if (kvp->type() == lisp::Value::Type::cons) {
             auto l_key = kvp->cons().car();
             if (l_key->type() == lisp::Value::Type::symbol and
@@ -72,9 +73,15 @@ void Settings::set(const char* key, const char* value)
                 } else {
                     kvp->cons().set_cdr(lisp::make_string(value));
                 }
+                assigned = true;
             }
         }
     });
+    if (not assigned) {
+        lisp::Protected new_kvp = L_CONS(L_SYM(key), L_STRING(value));
+        lisp::Protected new_l = L_CONS(new_kvp, data_);
+        data_ = (lisp::Value*)new_l;
+    }
 }
 
 
