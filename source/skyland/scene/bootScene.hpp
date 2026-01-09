@@ -383,18 +383,7 @@ public:
 
         info(format("boot took %", t2 - t1));
 
-        if (auto cm = PLATFORM.get_extensions().apply_color_correction) {
-            settings::Settings settings;
-            settings::load(settings);
-            auto col = settings.get("color-profile");
-            if (col.length()) {
-                cm(col.c_str());
-            }
-
-            if (settings.get("rumble") == "on") {
-                state_bit_store(StateBit::rumble_enabled, true);
-            }
-        }
+        settings::apply();
 
         PLATFORM.keyboard().poll();
 

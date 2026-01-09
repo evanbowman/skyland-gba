@@ -96,4 +96,37 @@ void Settings::save()
 
 
 
+void apply()
+{
+    Settings settings;
+    load(settings);
+
+    if (auto cm = PLATFORM.get_extensions().apply_color_correction) {
+        auto col = settings.get("color-profile");
+        if (col.length()) {
+            cm(col.c_str());
+        }
+    }
+
+    if (settings.get("rumble") == "on") {
+        state_bit_store(StateBit::rumble_enabled, true);
+    }
+
+    if (auto map = PLATFORM.get_extensions().map_key) {
+#define GET_S(STR) (settings.get(STR).c_str())
+        map(Key::action_1, GET_S("key_action1"));
+        map(Key::action_2, GET_S("key_action2"));
+        map(Key::alt_1,    GET_S("key_alt1"));
+        map(Key::alt_2,    GET_S("key_alt2"));
+        map(Key::start,    GET_S("key_start"));
+        map(Key::select,   GET_S("key_select"));
+        map(Key::up,       GET_S("key_up"));
+        map(Key::down,     GET_S("key_down"));
+        map(Key::left,     GET_S("key_left"));
+        map(Key::right,    GET_S("key_right"));
+    }
+}
+
+
+
 }

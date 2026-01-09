@@ -978,6 +978,8 @@ public:
                           int h,
                           ColorConstant tint,
                           int priority);
+
+        void (*map_key)(Key k, const char* key_name);
     };
 
 

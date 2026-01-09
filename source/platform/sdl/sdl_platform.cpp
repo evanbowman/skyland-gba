@@ -218,6 +218,9 @@ SDL_Color color_to_sdl(ColorConstant k)
 
 
 
+static std::map<SDL_Scancode, Key> keymap;
+
+
 bool save_surface_to_bmp(SDL_Surface* surface, const char* filename)
 {
     if (SDL_SaveBMP(surface, filename) != 0) {
@@ -423,6 +426,29 @@ static const Platform::Extensions extensions{
         [](int x, int y, int w, int h, ColorConstant tint, int priority) {
             rect_draw_queue.push_back({x, y, w, h, tint, priority});
         },
+    .map_key = [](Key k, const char* key_name) {
+        if (strlen(key_name) == 0) {
+            return;
+        }
+        SDL_Scancode scancode = SDL_GetScancodeFromName(key_name);
+
+        if (scancode == SDL_SCANCODE_UNKNOWN) {
+            warning(format("unknown scancode %", key_name));
+            return;
+        }
+
+        // info(format("mapped % to %", (int)k, (int)scancode));
+
+        // We need to erase the existing mapping for this key
+        for (auto it = keymap.begin(); it not_eq keymap.end();) {
+            if (it->second == k) {
+                it = keymap.erase(it);
+            } else {
+                ++it;
+            }
+        }
+        keymap[scancode] = k;
+    }
 };
 
 
@@ -868,21 +894,6 @@ void Platform::Keyboard::rumble(bool enabled)
 
 
 
-static std::map<SDL_Keycode, Key> keymap = {
-    {SDLK_z, Key::action_2}, // Z for A button
-    {SDLK_x, Key::action_1}, // X for B button
-    {SDLK_RETURN, Key::start},
-    {SDLK_RSHIFT, Key::select},
-    {SDLK_RIGHT, Key::right},
-    {SDLK_LEFT, Key::left},
-    {SDLK_DOWN, Key::down},
-    {SDLK_UP, Key::up},
-    {SDLK_a, Key::alt_1}, // A for L button
-    {SDLK_s, Key::alt_2}, // S for R button
-};
-
-
-
 void Platform::Keyboard::poll()
 {
     std::copy(std::begin(states_), std::end(states_), std::begin(prev_));
@@ -913,31 +924,27 @@ void Platform::Keyboard::poll()
 
         case SDL_KEYDOWN: {
             // F11 or Cmd+F (macOS) or Alt+Enter for fullscreen
-            if (e.key.keysym.sym == SDLK_F11 ||
-                (e.key.keysym.sym == SDLK_f && (e.key.keysym.mod & KMOD_GUI)) ||
-                (e.key.keysym.sym == SDLK_RETURN &&
+            if (e.key.keysym.scancode == SDL_SCANCODE_F11 ||
+                (e.key.keysym.scancode == SDL_SCANCODE_F && (e.key.keysym.mod & KMOD_GUI)) ||
+                (e.key.keysym.scancode == SDL_SCANCODE_RETURN &&
                  (e.key.keysym.mod & KMOD_ALT))) {
                 toggle_fullscreen();
                 break; // Don't fall through
             }
             // Cmd/Ctrl + Plus/Minus to change window scale
             if ((e.key.keysym.mod & (KMOD_GUI | KMOD_CTRL))) {
-                if (e.key.keysym.sym == SDLK_EQUALS ||
-                    e.key.keysym.sym == SDLK_PLUS) {
+                if (e.key.keysym.scancode == SDL_SCANCODE_EQUALS ||
+                    e.key.keysym.scancode == SDL_SCANCODE_KP_PLUS) {
                     cycle_window_scale(true);
                     break;
-                } else if (e.key.keysym.sym == SDLK_MINUS) {
+                } else if (e.key.keysym.scancode == SDL_SCANCODE_MINUS ||
+                           e.key.keysym.scancode == SDL_SCANCODE_KP_MINUS) {
                     cycle_window_scale(false);
                     break;
                 }
             }
-            if (e.key.keysym.sym == SDLK_F11 ||
-                (e.key.keysym.sym == SDLK_RETURN &&
-                 (e.key.keysym.mod & KMOD_ALT))) {
-                toggle_fullscreen();
-            }
-
-            auto it = keymap.find(e.key.keysym.sym);
+            // Note: removed duplicate fullscreen check
+            auto it = keymap.find(e.key.keysym.scancode);
             if (it != keymap.end()) {
                 states_[int(it->second)] = true;
             }
@@ -945,7 +952,7 @@ void Platform::Keyboard::poll()
         }
 
         case SDL_KEYUP: {
-            auto it = keymap.find(e.key.keysym.sym);
+            auto it = keymap.find(e.key.keysym.scancode);
             if (it != keymap.end()) {
                 states_[int(it->second)] = false;
             }
