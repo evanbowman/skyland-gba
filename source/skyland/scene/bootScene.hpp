@@ -390,6 +390,10 @@ public:
             if (col.length()) {
                 cm(col.c_str());
             }
+
+            if (settings.get("rumble") == "on") {
+                state_bit_store(StateBit::rumble_enabled, true);
+            }
         }
 
         PLATFORM.keyboard().poll();

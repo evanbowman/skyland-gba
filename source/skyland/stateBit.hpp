@@ -35,6 +35,7 @@ enum class StateBit {
     show_fps,
     verbose_boot,
     minimap_on,
+    rumble_enabled,
     count,
 };
 

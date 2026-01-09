@@ -21,13 +21,17 @@ Settings::Settings() : data_(L_NIL)
 
 void load(Settings& output)
 {
-    const char* exec_script = settings_path;
-
-    if (not flash_filesystem::file_exists(settings_path)) {
-        exec_script = "/scripts/config/settings.lisp";
+    Vector<char> buffer;
+    if (flash_filesystem::read_file_data_text(settings_path, buffer)) {
+        lisp::VectorCharSequence seq(buffer);
+        output.data_ = lisp::dostring(seq, [](lisp::Value& v) {
+            if (APP.is_developer_mode()) {
+                PLATFORM.fatal("settings corrupted");
+            }
+        });
+    } else {
+        output.data_ = APP.invoke_script("/scripts/config/settings.lisp");
     }
-
-    output.data_ = APP.invoke_script(exec_script);
 }
 
 

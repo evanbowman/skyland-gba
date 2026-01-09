@@ -420,7 +420,9 @@ void App::update(Time delta)
         (*console_state_)->impl_->on_text((*console_state_)->impl_, *line);
     }
 
-    rumble_.update(delta);
+    if (state_bit_load(StateBit::rumble_enabled)) {
+        rumble_.update(delta);
+    }
 
     if (game_speed() not_eq GameSpeed::stopped) {
         for (auto it = deferred_callbacks_.begin();
