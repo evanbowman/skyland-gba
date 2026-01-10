@@ -332,7 +332,7 @@
 ;; list. Nothing should modify lists. But for practical purposes, it creates a
 ;; whole bunch of pressure on the GC if we need to clone an entire function
 ;; implementation every time we do argument substitution.
-(assert-eq temp '(lambda (a b c) (+ $0 $1 $2)))
+(assert-eq temp '(fn (+ $0 $1 $2)))
 
 ;; Another thing that you don't typically see: lambda is not the lowest level
 ;; function primitive. There's a lower level syntax element called 'fn, which

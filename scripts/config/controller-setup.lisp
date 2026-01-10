@@ -1,15 +1,6 @@
 (eval-file "/scripts/reset_hooks.lisp")
 
 
-(defn/temp rcv-settings (settings)
-  (dialog "Save new controls?")
-  (dialog-await-y/n)
-  (defn on-dialog-accepted ()
-    (settings-save settings)
-    (show-opts))
-  (defn on-dialog-declined ()
-    (show-opts)))
-
 
 (defn/temp show-opts ()
   (dialog-opts-reset)
@@ -26,7 +17,15 @@
     (dialog-opts-push "Edit Controls"
                       (lambda ()
                         (push-menu "rebind-buttons" '(1))
-                        (setq on-menu-resp rcv-settings)
+                        (setq on-menu-resp (lambda (settings)
+                                             (dialog "Save new controls?")
+                                             (dialog-await-y/n)
+                                             (defn on-dialog-accepted ()
+                                               (settings-save settings)
+                                               (show-opts))
+                                             (defn on-dialog-declined ()
+                                               (show-opts))))
+                        (show-opts)
                         (push-menu "dialog-chain" '()))))
 
 
