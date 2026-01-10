@@ -1059,8 +1059,16 @@ o----------------------------o
  "qrcode", string to encode
  "text-entry", '(required-chars char-limit)
  "file-browser", '(directory allow-backtrack)
+ "dialog-chain", no params.
+ "title-screen", integer page num
 
- Some menus that have produce
+ NOTE:
+ dialog-chain initiates a loop
+ where the game plays dialog
+ messages, and will only stop
+ after pushing a different menu.
+
+ Some menus that produce
  responses will pass the
  response back by calling
  on-menu-resp with the
@@ -1087,6 +1095,24 @@ o----------------------------o
 
  This shouldn't need any
  explanation...
+
+
+o----------------------------o
+
+ (settings-load)
+
+ Returns a list of settings.
+
+
+o----------------------------o
+
+ (settings-save settings)
+
+ Save and apply game settings.
+ The input settings list
+ should be an association list
+ similar to the data returned
+ by settings-load.
 
 
 o----------------------------o

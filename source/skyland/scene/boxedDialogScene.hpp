@@ -93,6 +93,9 @@ public:
     }
 
 
+    bool show_coins_ = true;
+
+
 private:
     void process_command();
 

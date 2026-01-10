@@ -894,6 +894,28 @@ void Platform::Keyboard::rumble(bool enabled)
 
 
 
+const char* Platform::Keyboard::check_key()
+{
+    SDL_Event e;
+    while (SDL_PollEvent(&e)) {
+        switch (e.type) {
+        case SDL_KEYDOWN:
+            return SDL_GetScancodeName(e.key.keysym.scancode);
+            break;
+
+        case SDL_QUIT:
+            exit(1);
+            break;
+
+        default:
+            break;
+        }
+    }
+    return nullptr;
+}
+
+
+
 void Platform::Keyboard::poll()
 {
     std::copy(std::begin(states_), std::end(states_), std::begin(prev_));

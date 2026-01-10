@@ -740,20 +740,12 @@ ScenePtr BoxedDialogScene::update(Time delta)
                                   84);
             }
 
-            // PLATFORM.set_tile(Layer::overlay, st.x - 1, st.y - (9 + y_start), 88);
-            // PLATFORM.set_tile(Layer::overlay, st.x - 1, st.y - (8 + y_start), 88);
-            // PLATFORM.set_tile(Layer::overlay, st.x - 1, st.y - (7 + y_start), 88);
-            // PLATFORM.set_tile(Layer::overlay, st.x - 1, st.y - (10 + y_start), 87);
-
-            // PLATFORM.set_tile(Layer::overlay, st.x - 8, st.y - (9 + y_start), 89);
-            // PLATFORM.set_tile(Layer::overlay, st.x - 8, st.y - (8 + y_start), 89);
-            // PLATFORM.set_tile(Layer::overlay, st.x - 8, st.y - (7 + y_start), 89);
-            // PLATFORM.set_tile(Layer::overlay, st.x - 8, st.y - (6 + y_start), 90);
-
-            data_->coins_.emplace(OverlayCoord{1, 2},
-                                  146,
-                                  (int)APP.coins(),
-                                  UIMetric::Align::left);
+            if (show_coins_) {
+                data_->coins_.emplace(OverlayCoord{1, 2},
+                                      146,
+                                      (int)APP.coins(),
+                                      UIMetric::Align::left);
+            }
 
             display_mode_ = DisplayMode::y_n_wait;
             wait_ = 0;

@@ -25,9 +25,12 @@
 #include "rooms/cargoBay.hpp"
 #include "rooms/core.hpp"
 #include "rooms/qrBlock.hpp"
+#include "scene/fullscreenDialogChainScene.hpp"
+#include "scene/titleScreenScene.hpp"
 #include "scene/constructionScene.hpp"
 #include "scene/loadLevelScene.hpp"
 #include "scene/modules/fileBrowserModule.hpp"
+#include "scene/modules/controllerSetupModule.hpp"
 #include "scene/modules/hexViewerModule.hpp"
 #include "scene/qrViewerScene.hpp"
 #include "scene/readyScene.hpp"
@@ -51,6 +54,7 @@
 #include "skyland/sound.hpp"
 #include "skyland/tile.hpp"
 #include "version.hpp"
+#include "skyland/settings.hpp"
 
 
 
@@ -261,6 +265,22 @@ BINDING_TABLE({
       }}},
     {"score",
      {SIG0(integer), [](int argc) { return L_INT(APP.score().get()); }}},
+    {"settings-load",
+     {SIG0(nil), [](int argc) {
+         settings::Settings settings;
+         settings::load(settings);
+         return (lisp::Value*)settings.data_;
+     }}},
+    {"settings-save",
+     {SIG1(nil, cons), [](int argc) {
+         settings::Settings settings;
+         settings.data_ = lisp::get_op0();
+         if (lisp::is_list(lisp::get_op0())) {
+             settings.save();
+             settings::apply();
+         }
+         return L_NIL;
+     }}},
     {"score-add",
      {SIG1(integer, integer),
       [](int argc) {
@@ -458,7 +478,29 @@ BINDING_TABLE({
           auto menu_name = L_LOAD_STRING(1);
           auto param_list = lisp::get_op(0);
 
-          if (str_eq(menu_name, "ready")) {
+          if (str_eq(menu_name, "rebind-buttons")) {
+              auto rebind = get_list(param_list, 0)->integer().value_;
+              push_menu_queue.push_back([rebind] {
+                  auto next = make_scene<ControllerSetupModule>();
+                  if (rebind) {
+                      next->key_index_ = 0;
+                      next->on_select_ = [](lisp::Value* settings) {
+                          auto fn = lisp::get_var("on-menu-resp");
+                          lisp::push_op(settings);
+                          lisp::safecall(fn, 1);
+                          lisp::pop_op(); // discard result
+                      };
+                  }
+                  return next;
+              });
+          } else if (str_eq(menu_name, "title-screen")) {
+              auto pg_num = get_list(param_list, 0)->integer().value_;
+              push_menu_queue.push_back([pg_num] {
+                  return make_scene<TitleScreenScene>(pg_num);
+              });
+          } else if (str_eq(menu_name, "dialog-chain")) {
+              push_menu_queue.push_back(make_deferred_scene<FullscreenDialogChainScene>());
+          } else if (str_eq(menu_name, "ready")) {
               push_menu_queue.push_back(make_deferred_scene<ReadyScene>());
           } else if (str_eq(menu_name, "item-shop")) {
               push_menu_queue.push_back(make_deferred_scene<ItemShopScene>());

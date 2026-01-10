@@ -548,12 +548,13 @@ public:
     public:
         using KeyStates = std::array<bool, int(Key::count)>;
 
-
         void poll();
 
         void rumble(bool enabled);
 
         using RestoreState = Bitvector<KeyStates{}.size()>;
+
+        const char* check_key();
 
         template <Key... k> bool all_pressed() const
         {

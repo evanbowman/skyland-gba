@@ -646,6 +646,13 @@ static void poll_keys(Platform::Keyboard::KeyStates& k)
 
 
 
+const char* Platform::Keyboard::check_key()
+{
+    return nullptr;
+}
+
+
+
 void Platform::Keyboard::poll()
 {
     set_gflag(GlobalFlag::key_poll_called, true);

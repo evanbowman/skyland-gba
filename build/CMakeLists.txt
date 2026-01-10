@@ -211,6 +211,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/replicatorSelectionScene.cpp
   ${SOURCE_DIR}/skyland/scene/combatDroneSetTargetScene.cpp
   ${SOURCE_DIR}/skyland/scene/levelCompleteOptionsScene.cpp
+  ${SOURCE_DIR}/skyland/scene/fullscreenDialogChainScene.cpp
   ${SOURCE_DIR}/skyland/scene/playerIslandDestroyedScene.cpp
   ${SOURCE_DIR}/skyland/scene/multiplayerCoOpAwaitLockScene.cpp
   ${SOURCE_DIR}/skyland/scene/macro/helpScene.cpp
@@ -229,6 +230,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/modules/factoryResetModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/bugReportModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/feedbackModule.cpp
+  ${SOURCE_DIR}/skyland/scene/modules/controllerSetupModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/colorProfileModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/creditsModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/checkersModule.cpp
@@ -398,6 +400,7 @@ if(NINTENDO_DS OR GAMEBOY_ADVANCE)
     ${DATA_DIR}/overlay_adventurelog.s
     ${DATA_DIR}/colorProfiles.s
     ${DATA_DIR}/stack_overflow_flattened.s
+    ${DATA_DIR}/button_mapping_flattened.s
     ${DATA_DIR}/traded_core_flattened.s
     ${DATA_DIR}/photo_village_flattened.s
     ${DATA_DIR}/photo_surface_flattened.s
@@ -815,6 +818,7 @@ if(GAMEBOY_ADVANCE OR NINTENDO_DS)
     add_tilesheet(glossary_power_cg 0 0 YES YES)
     add_tilesheet(glossary_wall_cg 0 0 YES YES)
     add_tilesheet(gba_health_safety_logo 2 2 YES YES)
+    add_tilesheet(button_mapping 0 0 YES YES)
     add_background(background 0 0 NO YES)
     add_background(background_macro 0 0 NO YES)
     add_background(background_macro_night 0 0 NO YES)

@@ -249,6 +249,7 @@ enum class SystemString {
     module_freebuild,
     module_regression,
     module_colormode,
+    module_button_mapping,
 
     months,
 
