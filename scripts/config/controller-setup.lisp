@@ -25,7 +25,6 @@
                                                (show-opts))
                                              (defn on-dialog-declined ()
                                                (show-opts))))
-                        (show-opts)
                         (push-menu "dialog-chain" '()))))
 
 

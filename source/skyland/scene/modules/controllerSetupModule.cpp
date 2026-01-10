@@ -184,6 +184,7 @@ ScenePtr ControllerSetupModule::update(Time delta)
     }
 
     if (key_index_ > -1 or PLATFORM.keyboard().down_transition<Key::action_2>()) {
+        PLATFORM.screen().schedule_fade(1.f);
         if (next_) {
             return (*next_)();
         } else if (auto scn = process_script_menu_request()) {
