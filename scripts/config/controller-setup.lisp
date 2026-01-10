@@ -5,6 +5,7 @@
   (dialog "Save new controls?")
   (dialog-await-y/n)
   (defn on-dialog-accepted ()
+    (settings-save settings)
     (show-opts))
   (defn on-dialog-declined ()
     (show-opts)))
