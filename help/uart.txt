@@ -101,3 +101,9 @@
  All of the functions in
  /help/api.txt are of course
  available in the console!
+
+ Final note: if you're playing
+ the SDL port, of course none
+ of the above will work.
+ Instead, just run:
+ telnet localhost 9999

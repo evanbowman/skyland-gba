@@ -1076,6 +1076,7 @@ elseif(APPLE)
     COMMAND mkdir -p ${EXECUTABLE_NAME}.app/Contents/Resources
     COMMAND mkdir -p ${EXECUTABLE_NAME}.app/Contents/Frameworks
     COMMAND python3 ../tools/encode_files.py
+    COMMAND cp ${ROOT_DIR}/boot.ini ${EXECUTABLE_NAME}.app/Contents/Resources/
     COMMAND cp -r ${ROOT_DIR}/lisp_symtab.dat ${EXECUTABLE_NAME}.app/Contents/Resources/
     COMMAND cp -r ${ROOT_DIR}/lisp_constant_tab.dat ${EXECUTABLE_NAME}.app/Contents/Resources/
     COMMAND cp -r ${ROOT_DIR}/images/ ${EXECUTABLE_NAME}.app/Contents/Resources/images/

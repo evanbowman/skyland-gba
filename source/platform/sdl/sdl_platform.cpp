@@ -12,6 +12,7 @@
 #include "number/random.hpp"
 #include "platform/flash_filesystem.hpp"
 #include "platform/platform.hpp"
+#include "platform/conf.hpp"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <fstream>
@@ -992,7 +993,11 @@ static std::map<std::string, std::string> files;
 std::pair<const char*, u32> Platform::load_file(const char* folder,
                                                 const char* filename) const
 {
-    const auto name = std::string(folder) + PATH_DELIMITER + filename;
+    std::string name;
+    if (strlen(folder)) {
+        name += std::string(folder) + PATH_DELIMITER;
+    }
+    name += filename;
 
     std::string path;
     for (char c : name) {
@@ -3673,7 +3678,6 @@ namespace {
     std::queue<std::string> incoming_lines;
     std::queue<std::string> outgoing_lines;
     bool server_running = false;
-    constexpr int CONSOLE_PORT = 9999;
 }
 
 static void handle_client(socket_t sock)
@@ -3785,10 +3789,12 @@ void server_thread_main()
     int opt = 1;
     setsockopt(server_socket, SOL_SOCKET, SO_REUSEADDR, (const char*)&opt, sizeof(opt));
 
+    Conf conf;
+
     sockaddr_in addr = {};
     addr.sin_family = AF_INET;
     addr.sin_addr.s_addr = inet_addr("127.0.0.1"); // localhost only
-    addr.sin_port = htons(CONSOLE_PORT);
+    addr.sin_port = htons(conf.expect<Conf::Integer>("hardware.desktop", "console_port"));
 
     if (bind(server_socket, (sockaddr*)&addr, sizeof(addr)) == SOCKET_ERROR) {
         CLOSE_SOCKET(server_socket);
