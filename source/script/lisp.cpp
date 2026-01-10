@@ -3774,6 +3774,18 @@ STANDARD_FORMS({
         }},
         {"lambda", [](Value* code) {
             eval_argumented_function(code->cons().cdr());
+            // NOTE: evaluating an argumented function is destructive. Once
+            // we've evaluated an argumented function once, the function body is
+            // converted to an intermediate representation, and we adjust the
+            // head position in the list and splice out the argument list so
+            // that next time we reach the same function, we evaluate it in the
+            // lower level intermediate representation rather than performing
+            // argument substition again. In fact, re-substituting arguments in
+            // an already argument-substituted function creates re-entrancy
+            // bugs, and if it didn't, I wouldn't be fixing this, so it's not
+            // purely an optmization issue.
+            code->cons().set_car(make_symbol("fn"));
+            code->cons().set_cdr(code->cons().cdr()->cons().cdr());
             auto result = get_op0();
             pop_op(); // result
             pop_op(); // code
