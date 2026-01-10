@@ -4664,7 +4664,7 @@ BUILTIN_TABLE(
 
            lisp::ListBuilder result;
            for (int i = 0; i < len; ++i) {
-               result.push_back(L_INT(sbr->data_[i + offset]));
+               result.push_back(L_INT((u8)sbr->data_[i + offset]));
            }
 
            return result.result();
