@@ -22,8 +22,8 @@ ScenePtr process_script_menu_request();
 
 void FullscreenDialogChainScene::enter(Scene& prev)
 {
-    PLATFORM.screen().schedule_fade(0);
-    PLATFORM.screen().schedule_fade(1);
+    PLATFORM.screen().fade(0.95f);
+    PLATFORM.screen().fade(1.f);
 }
 
 

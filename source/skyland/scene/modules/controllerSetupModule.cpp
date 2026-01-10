@@ -27,7 +27,6 @@ namespace skyland
 ScenePtr ControllerSetupModuleInit::update(Time delta)
 {
     APP.invoke_script("/scripts/config/controller-setup.lisp");
-
     return make_scene<FullscreenDialogChainScene>();
 }
 

@@ -25,7 +25,11 @@
                                                (show-opts))
                                              (defn on-dialog-declined ()
                                                (show-opts))))
-                        (push-menu "dialog-chain" '()))))
+                        (push-menu "dialog-chain" '())))
+
+    (dialog-opts-push "Restore Defaults"
+                      (lambda ()
+                        (eval-file "/scripts/config/set-default-keys.lisp"))))
 
 
   (let ((rumble (lookup 'rumble (settings-load))))

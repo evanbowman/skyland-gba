@@ -228,9 +228,9 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/modules/developerModeModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/regressionModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/factoryResetModule.cpp
-  ${SOURCE_DIR}/skyland/scene/modules/bugReportModule.cpp
-  ${SOURCE_DIR}/skyland/scene/modules/feedbackModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/controllerSetupModule.cpp
+  ${SOURCE_DIR}/skyland/scene/modules/feedbackModule.cpp
+  ${SOURCE_DIR}/skyland/scene/modules/bugReportModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/colorProfileModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/creditsModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/checkersModule.cpp
