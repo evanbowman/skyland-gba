@@ -4,10 +4,8 @@
 (defn/temp rcv-settings (settings)
   (dialog "Save new controls?")
   (dialog-await-y/n)
-  (let ((s settings))
-    (defn on-dialog-accepted ()
-      (settings-save s)
-      (show-opts)))
+  (defn on-dialog-accepted ()
+    (show-opts))
   (defn on-dialog-declined ()
     (show-opts)))
 
