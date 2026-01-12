@@ -6199,8 +6199,6 @@ const char* intern(const char* string)
                 right = mid;
             }
         }
-
-        return nullptr; // not found
     }
 
     // Ok, no stable pointer to the string exists anywhere, so we'll have to
