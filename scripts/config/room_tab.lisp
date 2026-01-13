@@ -75,7 +75,7 @@
   (synth        1   1    0)
   (water        1   1    0)
   (water-source 1   700  0)
-  (ice          30  30   0)
+  (ice          30  1    0)
   (snow         1   1    0)
   (mycelium     60  2500 5)
   (bridge       30  900  0)
