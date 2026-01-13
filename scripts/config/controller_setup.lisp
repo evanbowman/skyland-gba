@@ -1,6 +1,8 @@
 (eval-file "/scripts/reset_hooks.lisp")
 
 
+(global 'show-opts) ; For the linter
+
 (defn/temp setup-keypad-opts ()
   (dialog-opts-push "View Controls"
                     (lambda ()

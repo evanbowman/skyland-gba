@@ -759,6 +759,13 @@
 (assert-v (symbol? 'test))
 (assert-v (symbol? (symbol "dynamic")))
 
+;; Note: force symbol to be created at runtime, to test that it works. Most
+;; other symbols are sort of built into a build-time symbol table by build
+;; scripts.
+(assert-eq 55 (int (string (symbol (string (+ 50 5))))))
+(assert-eq (symbol (string (+ 45 5)))
+           (symbol (string (* 10 5))))
+
 (end-test)
 
 
