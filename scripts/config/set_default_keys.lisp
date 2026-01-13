@@ -7,7 +7,7 @@
                                 (equal "key_" (slice (string (car kvp)) 0 4)))
                               s1)))
     (let ((other (difference key-defaults s1)))
-      (fatal (append key-defaults
+      (settings-save (append key-defaults
                              (map (lambda (kvp)
                                     (assoc (car kvp) s2))
                                   other))))))

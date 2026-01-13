@@ -25,7 +25,8 @@
 
   (dialog-opts-push "Restore Defaults"
                     (lambda ()
-                      (eval-file "/scripts/config/set_default_keys.lisp"))))
+                      (eval-file "/scripts/config/set_default_keys.lisp")
+                      (show-opts))))
 
 
 (defn/temp show-opts ()
