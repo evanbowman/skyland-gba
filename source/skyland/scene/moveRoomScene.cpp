@@ -122,7 +122,7 @@ ScenePtr MoveRoomScene::update(Time delta)
             state_ = State::select_group;
             text_.reset();
             PLATFORM.fill_overlay(0);
-            group_selection_ = allocate_dynamic<GroupSelection>("selgroup");
+            group_selection_ = allocate_small<GroupSelection>("selgroup");
             (*group_selection_)->anchor_ = cursor();
             (*group_selection_)->sel_tl_ = cursor();
             (*group_selection_)->sel_bl_ = cursor();

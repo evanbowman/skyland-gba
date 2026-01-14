@@ -194,8 +194,7 @@ struct Context
     using OperandStack = Buffer<Value*, 497>;
 
 
-    Context()
-        : operand_stack_(allocate_dynamic<OperandStack>("lisp-operand-stack"))
+    Context() : operand_stack_(allocate<OperandStack>("lisp-operand-stack"))
     {
         if (not operand_stack_) {
             PLATFORM.fatal("pointer compression test failed");
@@ -1007,7 +1006,8 @@ ArgBindings make_arg_bindings(Value* arg_lat, ArgBindings* parent)
         } else {
             sym = val;
         }
-        if (not b.bindings_.push_back(ArgBinding{&sym->symbol(), (u8)arg++, type, false})) {
+        if (not b.bindings_.push_back(
+                ArgBinding{&sym->symbol(), (u8)arg++, type, false})) {
             PLATFORM.fatal("too many named arguments for function! Max 5");
         }
     });
@@ -1086,7 +1086,9 @@ static void arg_substitution_impl(Value* impl, ArgBindings& bindings)
                             if (binding.referenced_in_closure_) {
                                 ListBuilder bind;
                                 bind.push_back((lisp::Value*)binding.sym_);
-                                bind.push_back(ctx->argument_symbols_[binding.replacement_]);
+                                bind.push_back(
+                                    ctx->argument_symbols_[binding
+                                                               .replacement_]);
                                 closure.push_back(bind.result());
                                 arg_closure_exists = true;
                             }
@@ -1103,10 +1105,10 @@ static void arg_substitution_impl(Value* impl, ArgBindings& bindings)
                             // function arguments from stack slots to actual
                             // variable names.
                             val->cons().set_car(make_symbol("let"));
-                            val->cons().set_cdr(L_CONS(closure.result(),
-                                                       L_CONS(L_CONS(make_symbol("fn"),
-                                                                     fn_impl),
-                                                              L_NIL)));
+                            val->cons().set_cdr(L_CONS(
+                                closure.result(),
+                                L_CONS(L_CONS(make_symbol("fn"), fn_impl),
+                                       L_NIL)));
                         }
 
                     } else if (str_eq(first->symbol().name(), "fn")) {
@@ -1803,7 +1805,7 @@ void safecall(Value* fn, u8 argc)
 
     if (is_error(result)) {
         const char* tag = "lisp-fmt-buffer";
-        auto p = allocate_dynamic<DefaultPrinter>(tag);
+        auto p = allocate<DefaultPrinter>(tag);
         format(result, *p);
         Platform::fatal(p->data_.c_str());
     }
@@ -3750,18 +3752,17 @@ static void eval_quasiquote(Value* code)
 
 
 
-
 #if defined(__GBA__) or defined(__APPLE__)
-#define STANDARD_FORMS                                                      \
-    MAPBOX_ETERNAL_CONSTEXPR const auto standard_forms =                    \
+#define STANDARD_FORMS                                                         \
+    MAPBOX_ETERNAL_CONSTEXPR const auto standard_forms =                       \
         mapbox::eternal::hash_map<mapbox::eternal::string, EvalCB>
 #else
-#define STANDARD_FORMS                                                  \
+#define STANDARD_FORMS                                                         \
     const auto standard_forms = std::unordered_map<std::string, EvalCB>
 #endif
 
 
-using EvalCB = void(*)(Value*);
+using EvalCB = void (*)(Value*);
 // clang-format off
 STANDARD_FORMS({
         {"if", [](Value* code) {
@@ -4256,7 +4257,7 @@ BUILTIN_TABLE(
        [](int argc) {
            L_EXPECT_OP(0, string);
            auto str = L_LOAD_STRING(0);
-           auto rotstr = allocate_dynamic<StringBuffer<1000>>("rot13");
+           auto rotstr = allocate<StringBuffer<1000>>("rot13");
            while (*str not_eq '\0') {
                rotstr->push_back(rot13(*str));
                ++str;
@@ -4534,8 +4535,7 @@ BUILTIN_TABLE(
                return make_error("bytes-to-string expects a list param!");
            }
 
-           auto temp =
-               allocate_dynamic<StringBuffer<2000>>("bytes-to-string-temp");
+           auto temp = allocate<StringBuffer<2000>>("bytes-to-string-temp");
            l_foreach(get_op0(), [&temp](Value* v) {
                temp->push_back(v->integer().value_);
            });
@@ -5138,7 +5138,7 @@ BUILTIN_TABLE(
            int fmt_arg = argc - 2;
 
            L_EXPECT_OP(argc - 1, string);
-           auto builder = allocate_dynamic<StringBuffer<1800>>("lisp-fmt");
+           auto builder = allocate<StringBuffer<1800>>("lisp-fmt");
 
            auto str = get_op(argc - 1)->string().value();
 
@@ -5243,7 +5243,7 @@ BUILTIN_TABLE(
            } else if (get_op(seq)->type() == Value::Type::string) {
 
                auto inp_str = L_LOAD_STRING(2);
-               auto builder = allocate_dynamic<StringBuffer<2000>>("lispslice");
+               auto builder = allocate<StringBuffer<2000>>("lispslice");
 
                int index = 0;
                utf8::scan(
@@ -5286,7 +5286,7 @@ BUILTIN_TABLE(
        [](int argc) {
            L_EXPECT_OP(0, cons);
 
-           auto str = allocate_dynamic<StringBuffer<2000>>("tempstr");
+           auto str = allocate<StringBuffer<2000>>("tempstr");
 
            l_foreach(get_op0(), [&](Value* val) {
                auto v = val->integer().value_;
@@ -5609,7 +5609,7 @@ BUILTIN_TABLE(
            }
 
            using TempBuffer = Buffer<Value*, 509>;
-           auto buf = allocate_dynamic_fast<TempBuffer>("sort-buffer");
+           auto buf = allocate_fast<TempBuffer>("sort-buffer");
 
            l_foreach(get_op1(), [&buf](Value* v) { buf->push_back(v); });
 
@@ -6212,7 +6212,7 @@ const char* intern(const char* string)
 
     if (not ctx->string_intern_table_) {
         ctx->string_intern_table_ =
-            allocate_dynamic<StringInternTable>("string-intern-table");
+            allocate<StringInternTable>("string-intern-table");
         info(::format("allocating string intern table (due to symbol %)",
                       string));
     }

@@ -578,8 +578,8 @@ void EnemyAI::assign_local_character(Character& character,
     }
 
 
-    DynamicMemory<bool[16][16]> matrix_ =
-        allocate_dynamic<bool[16][16]>("ai-rooms-plot");
+    DynamicMemory<bool[16][16], SubBufferMemory> matrix_ =
+        allocate_small<bool[16][16]>("ai-rooms-plot");
 
     ai_island_->plot_walkable_zones(*matrix_, &character);
 
@@ -894,8 +894,8 @@ void EnemyAI::assign_boarded_character(Character& character,
     }
 
 
-    DynamicMemory<bool[16][16]> matrix_ =
-        allocate_dynamic<bool[16][16]>("ai-chr-slots");
+    DynamicMemory<bool[16][16], SubBufferMemory> matrix_ =
+        allocate_small<bool[16][16]>("ai-chr-slots");
 
     (*target_island_).plot_walkable_zones(*matrix_, &character);
 
@@ -1947,7 +1947,7 @@ void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
 
     using TargetBuffer = Buffer<Target, Island::Rooms::Rooms::capacity()>;
 
-    auto buffer = allocate_dynamic<TargetBuffer>("beam-targets");
+    auto buffer = allocate<TargetBuffer>("beam-targets");
 
     for (auto& room : target_island->rooms()) {
         auto pos = room->position();

@@ -31,7 +31,7 @@ namespace skyland
 
 
 ModifyCharacterScene::ModifyCharacterScene(CharacterId chr_id, bool near)
-    : matrix_(allocate_dynamic<bool[16][16]>("chr-movement-slots")),
+    : matrix_(allocate_small<bool[16][16]>("chr-movement-slots")),
       chr_id_(chr_id), near_(near)
 {
     if (not matrix_) {

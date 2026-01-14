@@ -117,8 +117,7 @@ struct TinyBufferImpl
 
 
 // Specialization for trivially destructible types - no destructor
-template <typename T, u32 Capacity>
-struct TinyBufferImpl<T, Capacity, true>
+template <typename T, u32 Capacity> struct TinyBufferImpl<T, Capacity, true>
 {
     alignas(T) std::array<u8, Capacity * sizeof(T)> mem_;
     u8 count_ = 0;
@@ -206,8 +205,7 @@ struct TinyBufferImpl<T, Capacity, true>
 
 
 // Specialization for non-trivially destructible types - has destructor
-template <typename T, u32 Capacity>
-struct TinyBufferImpl<T, Capacity, false>
+template <typename T, u32 Capacity> struct TinyBufferImpl<T, Capacity, false>
 {
     alignas(T) std::array<u8, Capacity * sizeof(T)> mem_;
     u8 count_ = 0;
@@ -301,4 +299,5 @@ struct TinyBufferImpl<T, Capacity, false>
 
 // Public interface
 template <typename T, u32 Capacity>
-using TinyBuffer = TinyBufferImpl<T, Capacity, std::is_trivially_destructible_v<T>>;
+using TinyBuffer =
+    TinyBufferImpl<T, Capacity, std::is_trivially_destructible_v<T>>;

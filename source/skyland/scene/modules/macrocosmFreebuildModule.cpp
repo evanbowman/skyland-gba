@@ -172,7 +172,7 @@ void MacrocosmFreebuildModule::init()
 ScenePtr MacrocosmFreebuildModule::update(Time delta)
 {
     // if (not APP.gp_.stateflags_.get(GlobalPersistentData::freebuild_unlocked)) {
-    //     auto buffer = allocate_dynamic<DialogString>("dialog-buffer");
+    //     auto buffer = allocate<DialogString>("dialog-buffer");
     //     *buffer = SYSTR(freebuild_locked_text)->c_str();
     //     return make_scene<FullscreenDialogScene>(std::move(buffer), [] {
     //         return make_scene<TitleScreenScene>(3);

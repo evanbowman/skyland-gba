@@ -33,7 +33,7 @@ ScenePtr DebriefScene::update(Time delta)
         return make_scene<ZoneImageScene>();
     } else {
         auto str = var->cons().car()->string().value();
-        auto dialog = allocate_dynamic<DialogString>("dialog-buffer");
+        auto dialog = allocate<DialogString>("dialog-buffer");
         while (*str not_eq '\0') {
             dialog->push_back(*(str++));
         }

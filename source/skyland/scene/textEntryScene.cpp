@@ -30,7 +30,7 @@ TextEntryScene::TextEntryScene(const char* prompt,
                                int required_chars,
                                int char_limit,
                                const char* default_text)
-    : state_(allocate_dynamic<State>("text-entry-buffer")), receiver_(receiver),
+    : state_(allocate_small<State>("text-entry-buffer")), receiver_(receiver),
       required_chars_(required_chars), char_limit_(char_limit)
 {
     state_->prompt_ = prompt;

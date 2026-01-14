@@ -195,7 +195,7 @@ void AutopilotPlayer::update(Time delta)
                     } else if (key->type() == lisp::Value::Type::string) {
                         PLATFORM.fill_overlay(0);
                         APP.dialog_buffer().emplace(
-                            allocate_dynamic<DialogString>("dialog-buffer"));
+                            allocate<DialogString>("dialog-buffer"));
                         **APP.dialog_buffer() += key->string().value();
                     }
                 } else {

@@ -509,7 +509,7 @@ void Island::FireState::update(Island& island, Time delta)
     if (spread_timer_ > fire_spread_time) {
         spread_timer_ -= fire_spread_time;
 
-        auto mat = allocate_dynamic<bool[16][16]>("fire-spread-paths");
+        auto mat = allocate<bool[16][16]>("fire-spread-paths");
         bool plotted = false;
 
         Bitmatrix<16, 16> old_positions = positions_;
@@ -713,7 +713,7 @@ void Island::FireState::display(Island& island)
 
     auto o = ivec(island.visual_origin());
 
-    auto batch = allocate_dynamic<Buffer<Vec2<s32>, 64>>("fire-spr-buffer");
+    auto batch = allocate<Buffer<Vec2<s32>, 64>>("fire-spr-buffer");
 
     for (int x = 0; x < 16; ++x) {
         for (int y = 0; y < 16; ++y) {
@@ -1890,7 +1890,7 @@ void Island::repaint_partial()
         TileId tiles[16][16];
     };
 
-    auto mem = allocate_dynamic<Memory>("repaint partial buffer");
+    auto mem = allocate<Memory>("repaint partial buffer");
 
     for (u32 x = 0; x < terrain_.size(); ++x) {
         for (int y = 0; y < 16; ++y) {
@@ -1978,7 +1978,7 @@ void Island::repaint()
         TileId tiles[16][16];
     };
 
-    auto mem = allocate_dynamic<Memory>("repaint-ctx");
+    auto mem = allocate<Memory>("repaint-ctx");
 
     for (int x = 0; x < 16; ++x) {
         for (int y = 0; y < 16; ++y) {

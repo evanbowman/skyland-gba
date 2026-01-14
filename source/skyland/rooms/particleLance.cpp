@@ -105,11 +105,11 @@ void ParticleLance::finalize()
     if (health() == 0) {
         ExploSpawner::create(center());
         for (int i = 0; i < 3; ++i) {
-            if (auto e =
-                alloc_entity<ExploTrail>(center(),
-                                         rng::choice<360>(rng::utility_state),
-                                         1.25_fixed,
-                                         seconds(2))) {
+            if (auto e = alloc_entity<ExploTrail>(
+                    center(),
+                    rng::choice<360>(rng::utility_state),
+                    1.25_fixed,
+                    seconds(2))) {
                 APP.effects().push(std::move(e));
             }
         }

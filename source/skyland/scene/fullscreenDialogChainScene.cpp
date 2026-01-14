@@ -47,4 +47,4 @@ ScenePtr FullscreenDialogChainScene::update(Time delta)
 
 
 
-}
+} // namespace skyland

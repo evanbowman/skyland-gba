@@ -428,7 +428,7 @@ ScenePtr MacroverseScene::update(Time delta)
         m.sector().shadowcast();
         raster::globalstate::_recalc_depth_test.fill();
         if (abandon_) {
-            auto buffer = allocate_dynamic<DialogString>("dialog-buffer");
+            auto buffer = allocate<DialogString>("dialog-buffer");
             *buffer = SYSTR(grav_collapse_started)->c_str();
             auto next = make_scene<BoxedDialogScene>(std::move(buffer));
             next->set_next_scene(make_deferred_scene<AbandonColonyScene>());

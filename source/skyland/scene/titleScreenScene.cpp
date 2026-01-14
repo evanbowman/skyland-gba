@@ -979,7 +979,8 @@ ScenePtr TitleScreenScene::update(Time delta)
                 state_ = State::fade_modules_1;
             } else {
                 if (not repeat_action1_) {
-                    PLATFORM.speaker().stream_music("unaccompanied_wind.raw", 0);
+                    PLATFORM.speaker().stream_music("unaccompanied_wind.raw",
+                                                    0);
                     PLATFORM.speaker().play_sound("button_wooden", 3);
                 }
                 module_cursor_.reset();
@@ -1289,8 +1290,7 @@ ScenePtr TitleScreenScene::update(Time delta)
 
                     save::store_global_data(APP.gp_);
                     APP.invoke_script("/scripts/reset_hooks.lisp");
-                    auto dialog =
-                        allocate_dynamic<DialogString>("dialog-buffer");
+                    auto dialog = allocate<DialogString>("dialog-buffer");
                     *dialog = SYS_CSTR(dialog_tutorial_prompt);
 
                     auto& cursor_loc = globals().near_cursor_loc_;
@@ -1484,7 +1484,8 @@ ScenePtr TitleScreenScene::update(Time delta)
                              module_cursor_->y * modules_per_row;
                 if (auto f = detail::_Module::Factory::get(index, dev_)) {
                     PLATFORM.speaker().clear_sounds();
-                    PLATFORM.speaker().stream_music("unaccompanied_wind.raw", 0);
+                    PLATFORM.speaker().stream_music("unaccompanied_wind.raw",
+                                                    0);
                     PLATFORM.speaker().play_sound("button_wooden", 3);
 
                     if (f->name() == SystemString::module_cart_viewer) {

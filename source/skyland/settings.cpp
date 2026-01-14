@@ -1,6 +1,6 @@
 #include "settings.hpp"
-#include "skyland/skyland.hpp"
 #include "platform/flash_filesystem.hpp"
+#include "skyland/skyland.hpp"
 
 
 

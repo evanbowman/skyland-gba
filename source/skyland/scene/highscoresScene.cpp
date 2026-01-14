@@ -482,8 +482,8 @@ ScenePtr HighscoresScene::update(Time)
         auto next = []() {
             auto encoded = encode_highscore_data();
 
-            auto temp = allocate_dynamic<StringBuffer<700>>("temp-buf");
-            auto fmt_buf = allocate_dynamic<StringBuffer<700>>("fmt-buf");
+            auto temp = allocate<StringBuffer<700>>("temp-buf");
+            auto fmt_buf = allocate<StringBuffer<700>>("fmt-buf");
             for (auto& c : encoded) {
                 temp->push_back(c);
             }

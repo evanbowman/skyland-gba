@@ -170,8 +170,7 @@ void Blizzard::display()
     }
 
     using Buf = Buffer<Vec2<s32>, 64>;
-    auto batch =
-        allocate_dynamic_fast<Buf>("rain-spr-buffer", Buf::SkipZeroFill{});
+    auto batch = allocate_fast<Buf>("rain-spr-buffer", Buf::SkipZeroFill{});
 
     static const int rain_pos_scale = 128;
     const auto scale = rain_pos_scale;

@@ -10,8 +10,8 @@
 
 #pragma once
 
-#include "platform/scratch_buffer.hpp"
 #include "bitvector.hpp"
+#include "platform/scratch_buffer.hpp"
 
 
 #define SUB_BUFFER_SIZE 268
@@ -46,7 +46,7 @@ struct SubBufferControlBlock
 using SubBufferPtr = Rc<SubBuffer, SubBufferControlBlock>;
 
 
-SubBufferPtr make_sub_buffer(const SubBuffer::Tag& tag);
+SubBufferPtr make_sub_buffer(const SubBuffer::Tag& tag, u32 zero_fill_size);
 
 
 
@@ -54,5 +54,13 @@ struct SubBufferMemory
 {
     using Type = SubBuffer;
     using PtrType = SubBufferPtr;
-    static PtrType create(SubBuffer::Tag t);
+    static PtrType create(SubBuffer::Tag t,
+                          u32 zero_fill_size = SUB_BUFFER_SIZE);
 };
+
+
+
+bool is_sub_buffer_pool(ScratchBuffer*);
+void sub_buffer_memory_diagnostics(
+    ScratchBuffer* backing_buffer,
+    Function<4 * sizeof(void*), void(const char*)> cb);

@@ -87,7 +87,7 @@ ScenePtr DlcInjectorModule::update(Time delta)
     if (not begin_load_) {
         auto future_scene = [] { return make_scene<DlcInjectorModule>(true); };
 
-        auto buffer = allocate_dynamic<DialogString>("dialog-buffer");
+        auto buffer = allocate<DialogString>("dialog-buffer");
 
         if (PLATFORM.device_name() == "GameboyAdvance") {
             *buffer = SYSTR(misc_dlc_message)->c_str();

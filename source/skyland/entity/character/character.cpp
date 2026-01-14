@@ -1283,7 +1283,7 @@ void Character::set_movement_path(Path path)
 void Character::rewind_movement_step(const RoomCoord& new_pos)
 {
     if (not movement_path_) {
-        movement_path_.emplace(allocate_dynamic_bestfit<PathBuffer>("path-buffer"));
+        movement_path_.emplace(allocate_small<PathBuffer>("path-buffer"));
     }
 
     (*movement_path_)->push_back(grid_position_);

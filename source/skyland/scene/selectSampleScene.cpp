@@ -247,8 +247,8 @@ ScenePtr SelectSampleScene::update(Time delta)
             PLATFORM.speaker().play_sound("cursor_tick", 0);
 
             using TranslationBuffer = Buffer<char, 2000>;
-            auto inp = allocate_dynamic<TranslationBuffer>("inp-buffer");
-            auto outp = allocate_dynamic<TranslationBuffer>("outp-buffer");
+            auto inp = allocate<TranslationBuffer>("inp-buffer");
+            auto outp = allocate<TranslationBuffer>("outp-buffer");
 
             for (u32 i = 0; i < file.second; ++i) {
                 inp->push_back(file.first[i]);

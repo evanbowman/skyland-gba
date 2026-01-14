@@ -121,7 +121,7 @@ private:
         Buffer<RoomCoord, 90> rooms_;
     };
 
-    Optional<DynamicMemory<GroupSelection>> group_selection_;
+    Optional<DynamicMemory<GroupSelection, SubBufferMemory>> group_selection_;
 
     Island* island_;
 };

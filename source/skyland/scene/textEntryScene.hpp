@@ -53,7 +53,7 @@ private:
         StringBuffer<100> buffer_;
     };
 
-    DynamicMemory<State> state_;
+    DynamicMemory<State, SubBufferMemory> state_;
     Vec2<u8> keyboard_cursor_;
 
     Receiver receiver_;

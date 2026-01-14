@@ -26,7 +26,7 @@ namespace skyland
 
 
 
-PlayerP1::PlayerP1() : ai_state_(allocate_dynamic<AIState>("island-ai-control"))
+PlayerP1::PlayerP1() : ai_state_(allocate_small<AIState>("island-ai-control"))
 {
 }
 

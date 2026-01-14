@@ -93,7 +93,7 @@ struct RoomPluginInfo : public RoomMeta::Info
 
     SystemStringBuffer ui_name() const override
     {
-        auto ret = allocate_dynamic<StringBuffer<1900>>("locale-string");
+        auto ret = allocate<StringBuffer<1900>>("locale-string");
         *ret += name();
         return ret;
     }

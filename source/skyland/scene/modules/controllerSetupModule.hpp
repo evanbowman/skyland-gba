@@ -23,10 +23,9 @@ namespace skyland
 
 
 
-class ControllerSetupModuleInit  : public Module<ControllerSetupModuleInit>
+class ControllerSetupModuleInit : public Module<ControllerSetupModuleInit>
 {
 public:
-
     static SystemString module_name()
     {
         return SystemString::module_button_mapping;
@@ -55,7 +54,6 @@ public:
 
 
     static Factory factory_;
-
 };
 
 

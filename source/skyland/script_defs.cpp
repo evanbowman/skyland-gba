@@ -25,12 +25,11 @@
 #include "rooms/cargoBay.hpp"
 #include "rooms/core.hpp"
 #include "rooms/qrBlock.hpp"
-#include "scene/fullscreenDialogChainScene.hpp"
-#include "scene/titleScreenScene.hpp"
 #include "scene/constructionScene.hpp"
+#include "scene/fullscreenDialogChainScene.hpp"
 #include "scene/loadLevelScene.hpp"
-#include "scene/modules/fileBrowserModule.hpp"
 #include "scene/modules/controllerSetupModule.hpp"
+#include "scene/modules/fileBrowserModule.hpp"
 #include "scene/modules/hexViewerModule.hpp"
 #include "scene/qrViewerScene.hpp"
 #include "scene/readyScene.hpp"
@@ -38,6 +37,7 @@
 #include "scene/scriptedMenuScene.hpp"
 #include "scene/startAdventureScene.hpp"
 #include "scene/textEntryScene.hpp"
+#include "scene/titleScreenScene.hpp"
 #include "script/lisp.hpp"
 #include "script/listBuilder.hpp"
 #include "serial.hpp"
@@ -51,10 +51,10 @@
 #include "skyland/scene/lispReplScene.hpp"
 #include "skyland/scene/modules/glossaryViewerModule.hpp"
 #include "skyland/scene/worldMapScene.hpp"
+#include "skyland/settings.hpp"
 #include "skyland/sound.hpp"
 #include "skyland/tile.hpp"
 #include "version.hpp"
-#include "skyland/settings.hpp"
 
 
 
@@ -97,7 +97,7 @@ DynamicMemory<FileLine> get_line_from_file(const char* file_name, int line)
 {
     --line; // From the caller's perspective, file lines start from 1.
 
-    auto result = allocate_dynamic<FileLine>("file-line");
+    auto result = allocate<FileLine>("file-line");
 
     if (!result) {
         return result;
@@ -266,21 +266,23 @@ BINDING_TABLE({
     {"score",
      {SIG0(integer), [](int argc) { return L_INT(APP.score().get()); }}},
     {"settings-load",
-     {SIG0(nil), [](int argc) {
-         settings::Settings settings;
-         settings::load(settings);
-         return (lisp::Value*)settings.data_;
-     }}},
+     {SIG0(nil),
+      [](int argc) {
+          settings::Settings settings;
+          settings::load(settings);
+          return (lisp::Value*)settings.data_;
+      }}},
     {"settings-save",
-     {SIG1(nil, cons), [](int argc) {
-         settings::Settings settings;
-         settings.data_ = lisp::get_op0();
-         if (lisp::is_list(lisp::get_op0())) {
-             settings.save();
-             settings::apply();
-         }
-         return L_NIL;
-     }}},
+     {SIG1(nil, cons),
+      [](int argc) {
+          settings::Settings settings;
+          settings.data_ = lisp::get_op0();
+          if (lisp::is_list(lisp::get_op0())) {
+              settings.save();
+              settings::apply();
+          }
+          return L_NIL;
+      }}},
     {"score-add",
      {SIG1(integer, integer),
       [](int argc) {
@@ -495,11 +497,11 @@ BINDING_TABLE({
               });
           } else if (str_eq(menu_name, "title-screen")) {
               auto pg_num = get_list(param_list, 0)->integer().value_;
-              push_menu_queue.push_back([pg_num] {
-                  return make_scene<TitleScreenScene>(pg_num);
-              });
+              push_menu_queue.push_back(
+                  [pg_num] { return make_scene<TitleScreenScene>(pg_num); });
           } else if (str_eq(menu_name, "dialog-chain")) {
-              push_menu_queue.push_back(make_deferred_scene<FullscreenDialogChainScene>());
+              push_menu_queue.push_back(
+                  make_deferred_scene<FullscreenDialogChainScene>());
           } else if (str_eq(menu_name, "ready")) {
               push_menu_queue.push_back(make_deferred_scene<ReadyScene>());
           } else if (str_eq(menu_name, "item-shop")) {
@@ -925,7 +927,7 @@ BINDING_TABLE({
           for (int i = argc - 1; i > -1; --i) {
               if (not APP.dialog_buffer()) {
                   APP.dialog_buffer().emplace(
-                      allocate_dynamic<DialogString>("dialog-buffer"));
+                      allocate<DialogString>("dialog-buffer"));
               }
 
               if (lisp::get_op(i)->type() not_eq lisp::Value::Type::string) {
@@ -1813,9 +1815,8 @@ BINDING_TABLE({
      {SIG0(nil),
       [](int argc) {
           info("__MEMORY_DIAGNOSTICS______");
-          scratch_buffer_memory_diagnostics([](const char* line) {
-              info(line);
-          });
+          scratch_buffer_memory_diagnostics(
+              [](const char* line) { info(line); });
           info(format("extension mem: used %", extension_stats().used));
 
           info("pool diagnostics:");
@@ -2467,7 +2468,7 @@ BINDING_TABLE({
 
           auto island = unwrap_isle(lisp::get_op(1));
 
-          auto matrix = allocate_dynamic<bool[16][16]>("construction-zones");
+          auto matrix = allocate<bool[16][16]>("construction-zones");
 
           island->plot_construction_zones(*matrix);
 

@@ -119,7 +119,7 @@ void Deflector::display_on_hover(Platform::Screen& screen,
         for (int y = top; y < bot + 1; ++y) {
             if (x == left or y == top or x == right or y == bot) {
                 sprite.set_position({origin.x + Fixnum::from_integer(x * 16),
-                        origin.y + Fixnum::from_integer(y * 16)});
+                                     origin.y + Fixnum::from_integer(y * 16)});
 
                 screen.draw(sprite);
             }

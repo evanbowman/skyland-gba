@@ -35,8 +35,7 @@ class BoxedDialogScene : public Scene
 {
 public:
     BoxedDialogScene(DialogBuffer buffer)
-        : buffer_(std::move(buffer)),
-          data_(allocate_dynamic<Data>("dialog-data"))
+        : buffer_(std::move(buffer)), data_(allocate<Data>("dialog-data"))
     {
         goto_tutorial_ = 0;
         allow_fastforward_ = true;

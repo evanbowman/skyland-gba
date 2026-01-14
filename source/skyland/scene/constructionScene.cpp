@@ -201,7 +201,7 @@ Optional<RoomCoord> get_local_tapclick(Island* island, const Vec2<u32>& pos)
 
 void shift_rooms_right(Island& island)
 {
-    auto tmp = allocate_dynamic<Buffer<Room*, 100>>("shift-buf");
+    auto tmp = allocate<Buffer<Room*, 100>>("shift-buf");
     for (auto& room : island.rooms()) {
         tmp->push_back(room.get());
     }

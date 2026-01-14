@@ -39,7 +39,7 @@ public:
 
         if (counter_ > 70) {
 
-            auto buffer = allocate_dynamic<DialogString>("dialog-buffer");
+            auto buffer = allocate<DialogString>("dialog-buffer");
             *buffer = SYSTR(grav_collapse_ended)->c_str();
             auto next = make_scene<BoxedDialogScene>(std::move(buffer));
             next->set_next_scene([&state] {

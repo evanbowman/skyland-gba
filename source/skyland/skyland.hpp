@@ -520,7 +520,7 @@ private:
 
     // In the unlikely event that the game freezes for some reason, the software
     // stores a backup of the last state before entering the current level.
-    DynamicMemory<save::EmergencyBackup> backup_;
+    DynamicMemory<save::EmergencyBackup, SubBufferMemory> backup_;
 
     time_stream::TimeStream time_stream_;
 

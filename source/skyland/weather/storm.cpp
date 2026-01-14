@@ -26,7 +26,7 @@ static_assert(rain_pos_scale % 2 == 0);
 
 
 
-Storm::Storm(int particle_count)
+Storm::Storm(int particle_count) : state_("weather-state")
 {
     auto& s = *state_;
     s.particle_count_ = particle_count;
@@ -101,8 +101,7 @@ State::State()
 void State::display()
 {
     using Buf = Buffer<Vec2<s32>, 64>;
-    auto batch =
-        allocate_dynamic_fast<Buf>("rain-spr-buffer", Buf::SkipZeroFill{});
+    auto batch = allocate_fast<Buf>("rain-spr-buffer", Buf::SkipZeroFill{});
 
     constexpr auto scale = rain_pos_scale;
 

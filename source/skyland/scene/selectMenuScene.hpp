@@ -27,7 +27,7 @@ namespace skyland
 class SelectMenuScene : public ActiveWorldScene
 {
 public:
-    SelectMenuScene() : opts_(allocate_dynamic<Options>("sel-opts"))
+    SelectMenuScene() : opts_(allocate<Options>("sel-opts"))
     {
     }
 

@@ -616,8 +616,8 @@ Optional<QRCode> terrain::Sector::qr_encode(
     msg("compression... (heatshrink)");
 
 
-    auto buffer1 = allocate_dynamic<Buffer<char, 1000>>("enc-input");
-    auto buffer2 = allocate_dynamic<Buffer<char, 1000>>("enc-input");
+    auto buffer1 = allocate<Buffer<char, 1000>>("enc-input");
+    auto buffer2 = allocate<Buffer<char, 1000>>("enc-input");
     auto contiguous_data = &*buffer1;
 
     contiguous_data->push_back((u8)p_.shape_);
@@ -647,7 +647,7 @@ Optional<QRCode> terrain::Sector::qr_encode(
 
     // Encode as base32, because the data is going into a url
     auto encoded = base32::encode(b32_array);
-    auto result = allocate_dynamic<StringBuffer<1900>>("result-str");
+    auto result = allocate<StringBuffer<1900>>("result-str");
     *result = v->string().value();
     (*result) += "?d="; // url parameter
 

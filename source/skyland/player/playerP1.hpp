@@ -93,7 +93,7 @@ protected:
 private:
     struct AIState
     {
-        using IdBuffer = Buffer<CharacterId, 80>;
+        using IdBuffer = Buffer<CharacterId, 40>;
 
         Time next_action_timer_ = seconds(1);
         Time next_weapon_action_timer_ = seconds(1) + milliseconds(500);
@@ -114,7 +114,7 @@ private:
         void run();
     };
 
-    DynamicMemory<AIState> ai_state_;
+    DynamicMemory<AIState, SubBufferMemory> ai_state_;
 
 
     Time last_key_ = 0;

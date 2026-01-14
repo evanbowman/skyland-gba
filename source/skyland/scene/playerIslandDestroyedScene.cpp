@@ -810,8 +810,7 @@ ScenePtr PlayerIslandDestroyedScene::update(Time delta)
 
                         lisp::dostring("(adventure-log-add 6 '())");
 
-                        auto dialog =
-                            allocate_dynamic<DialogString>("dialog-buffer");
+                        auto dialog = allocate<DialogString>("dialog-buffer");
                         *dialog = SYS_CSTR(adventure_completed_message);
                         auto next =
                             make_scene<BoxedDialogScene>(std::move(dialog));
@@ -957,7 +956,7 @@ ScenePtr PlayerIslandDestroyedScene::update(Time delta)
 
             APP.camera()->shake(3);
 
-            confetti_ = allocate_dynamic<ConfettiBuffer>("confetti");
+            confetti_ = allocate<ConfettiBuffer>("confetti");
             if (confetti_ and *confetti_) {
                 for (int i = 0; i < 18; ++i) {
 

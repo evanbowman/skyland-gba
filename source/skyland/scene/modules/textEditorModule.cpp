@@ -584,7 +584,7 @@ int TextEditorModule::line_length()
 
 
 TextEditorModule::TextEditorModule(UserContext&& context)
-    : state_(allocate_dynamic<State>("text-editor-state")),
+    : state_(allocate<State>("text-editor-state")),
       user_context_(std::move(context)), filesystem_(FileSystem::device),
       syntax_mode_(SyntaxMode::plain_text), file_mode_(FileMode::readonly)
 {
@@ -606,7 +606,7 @@ TextEditorModule::TextEditorModule(UserContext&& user_context,
                                    SyntaxMode syntax_mode,
                                    FileMode file_mode,
                                    FileSystem filesystem)
-    : state_(allocate_dynamic<State>("text-editor-state")),
+    : state_(allocate<State>("text-editor-state")),
       user_context_(std::move(user_context)), filesystem_(filesystem),
       syntax_mode_(syntax_mode), file_mode_(file_mode)
 {

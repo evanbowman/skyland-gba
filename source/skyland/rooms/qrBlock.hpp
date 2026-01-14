@@ -28,7 +28,7 @@ class QrBlock final : public Decoration
 public:
     QrBlock(Island* parent, const RoomCoord& position)
         : Decoration(parent, name(), position),
-          data_(allocate_dynamic<StringBuffer<400>>("qr-data"))
+          data_(allocate<StringBuffer<400>>("qr-data"))
     {
     }
 

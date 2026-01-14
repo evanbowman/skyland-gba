@@ -68,7 +68,7 @@ private:
 
     void snap();
 
-    Optional<DynamicMemory<GroupSelection>> selection_;
+    Optional<DynamicMemory<GroupSelection, SubBufferMemory>> selection_;
 
     Time describe_room_timer_ = milliseconds(400);
     Optional<Text> room_description_;

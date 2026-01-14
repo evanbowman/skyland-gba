@@ -151,13 +151,13 @@ App* __app__;
 
 App::App(bool clean_boot)
     : level_timer_(0), stat_timer_(0),
-      world_state_(allocate_dynamic<WorldState>("env-buffer",
+      world_state_(allocate<WorldState>("env-buffer",
 
-                                                Layer::map_0_ext,
-                                                5,
-                                                player())),
+                                        Layer::map_0_ext,
+                                        5,
+                                        player())),
       current_scene_(null_scene()), next_scene_(null_scene()),
-      backup_(allocate_dynamic<save::EmergencyBackup>("emergency-backup"))
+      backup_(allocate_small<save::EmergencyBackup>("emergency-backup"))
 {
     __app__ = this;
 
@@ -415,7 +415,7 @@ void App::update(Time delta)
     auto line = PLATFORM.remote_console().readline();
     if (UNLIKELY(static_cast<bool>(line))) {
         if (not console_state_) {
-            console_state_.emplace(allocate_dynamic<ConsoleState>("console"));
+            console_state_.emplace(allocate<ConsoleState>("console"));
         }
         (*console_state_)->impl_->on_text((*console_state_)->impl_, *line);
     }

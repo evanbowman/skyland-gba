@@ -30,12 +30,7 @@ class WorldMap;
 namespace detail
 {
 
-enum class ShadeIntensity : u8 {
-    none = 0,
-    light,
-    medium,
-    dark
-};
+enum class ShadeIntensity : u8 { none = 0, light, medium, dark };
 
 struct ShadeRangeComponent
 {
@@ -45,7 +40,7 @@ struct ShadeRangeComponent
     u8 intensity_;
 };
 
-}
+} // namespace detail
 
 
 
@@ -146,7 +141,7 @@ private:
     Optional<MediumIcon> logbook_icon_;
     Optional<MediumIcon> edit_icon_;
 
-    Optional<DynamicMemory<WorldGraph>> cached_world_graph_;
+    Optional<DynamicMemory<WorldGraph, SubBufferMemory>> cached_world_graph_;
 
     int movement_cursor_ = 0;
     int prev_world_loc_ = 0;

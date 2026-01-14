@@ -920,7 +920,7 @@ dialog_prompt(SystemString systr, DeferredScene next, const char* ambience)
     lisp::set_var("on-dialog-closed", L_NIL);
     PLATFORM.screen().fade(0.95f);
     PLATFORM.screen().fade(1.f);
-    auto dialog = allocate_dynamic<DialogString>("dialog-buffer");
+    auto dialog = allocate<DialogString>("dialog-buffer");
     *dialog = loadstr(systr)->c_str();
     auto s = make_scene<BoxedDialogScene>(std::move(dialog));
     s->set_next_scene(next);

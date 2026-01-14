@@ -323,7 +323,7 @@ void MacrocosmScene::enter(macro::EngineImpl& state, Scene& prev)
     } else if (not state.data_->freebuild_mode_ and
                not state.data_->checkers_mode_) {
 
-        ui_ = allocate_dynamic<UIObjects>("macro-ui-objects");
+        ui_ = allocate<UIObjects>("macro-ui-objects");
 
         auto& sector = state.sector();
 

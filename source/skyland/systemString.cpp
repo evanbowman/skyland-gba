@@ -42,7 +42,7 @@ const char* systemstring_bound_file()
 
 SystemStringBuffer loadstr(SystemString str)
 {
-    auto result = allocate_dynamic<StringBuffer<1900>>("system-string");
+    auto result = allocate<StringBuffer<1900>>("system-string");
 
     if (lang_file_changed) {
         auto path = lang_file;

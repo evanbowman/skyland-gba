@@ -40,7 +40,7 @@ namespace skyland
 class CoOpSyncScene : public Scene, public network::Listener
 {
 public:
-    CoOpSyncScene() : ctx_(allocate_dynamic<Context>("co_op_sync_ctx"))
+    CoOpSyncScene() : ctx_(allocate<Context>("co_op_sync_ctx"))
     {
     }
 

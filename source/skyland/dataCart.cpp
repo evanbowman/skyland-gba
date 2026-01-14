@@ -122,7 +122,7 @@ DataCartLibrary::DataCartLibrary() : carts_(cart_lib_backup_data)
 
 void DataCartLibrary::store(DataCart cart)
 {
-    if ((u64)cart.id() > sizeof(carts_) * 8 or (u64)cart.id() >= max_carts_) {
+    if ((u64)cart.id() > sizeof(carts_) * 8 or (u64) cart.id() >= max_carts_) {
         Platform::fatal("cart id too high!");
     }
 

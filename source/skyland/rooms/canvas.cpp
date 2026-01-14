@@ -85,13 +85,13 @@ Canvas::ImagePtr alloc_img(Layer layer)
     if (layer == Layer::map_0_ext) {
         if (not img_pool_layer0) {
             img_pool_layer0 =
-                allocate_dynamic<ImgPool>("canvas-img-pool-0", "canvas-img-0");
+                allocate<ImgPool>("canvas-img-pool-0", "canvas-img-0");
         }
         return {(*img_pool_layer0)->alloc(), delete_img_layer0};
     } else {
         if (not img_pool_layer1) {
             img_pool_layer1 =
-                allocate_dynamic<ImgPool>("canvas-img-pool-1", "canvas-img-1");
+                allocate<ImgPool>("canvas-img-pool-1", "canvas-img-1");
         }
         return {(*img_pool_layer1)->alloc(), delete_img_layer1};
     }

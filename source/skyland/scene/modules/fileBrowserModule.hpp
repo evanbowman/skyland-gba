@@ -124,7 +124,7 @@ private:
 
     UserContext user_context_;
 
-    Optional<DynamicMemory<CwdNames>> cwd_names_;
+    Optional<DynamicMemory<CwdNames, SubBufferMemory>> cwd_names_;
 
     enum Mode {
         browse,

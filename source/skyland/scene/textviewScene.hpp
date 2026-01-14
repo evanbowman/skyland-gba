@@ -20,7 +20,7 @@ class TextviewScene : public Scene
 {
 public:
     TextviewScene(const char* str)
-        : str_(allocate_dynamic<StringBuffer<2000>>("textview-text")), page_(0)
+        : str_(allocate<StringBuffer<2000>>("textview-text")), page_(0)
     {
         *str_ = str;
     }

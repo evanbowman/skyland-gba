@@ -43,7 +43,7 @@ public:
 
 
 private:
-    DynamicMemory<bool[16][16]> matrix_;
+    DynamicMemory<bool[16][16], SubBufferMemory> matrix_;
     Time cursor_anim_timer_ = 0;
     u8 cursor_anim_frame_ = 0;
     RoomCoord origin_;

@@ -23,7 +23,7 @@ void compress(const Vector<char>& input, Vector<char>& output)
         Buffer<char, 1000> output_;
     };
 
-    auto win = allocate_dynamic<Window>("compr-window");
+    auto win = allocate<Window>("compr-window");
 
     heatshrink_encoder enc;
     heatshrink_encoder_reset(&enc);
@@ -65,7 +65,7 @@ void decompress(const Vector<char>& input, Vector<char>& output)
         Buffer<char, 1000> output_;
     };
 
-    auto win = allocate_dynamic<Window>("compr-window");
+    auto win = allocate<Window>("compr-window");
 
     heatshrink_decoder enc;
     heatshrink_decoder_reset(&enc);

@@ -112,7 +112,7 @@ void EmergencyBackup::init()
 
     lisp::gc();
 
-    lisp_data_.emplace();
+    lisp_data_.emplace("backup-lisp-code-vector");
 
     LispPrinter p(*lisp_data_);
     auto val = APP.invoke_script("/scripts/save.lisp");

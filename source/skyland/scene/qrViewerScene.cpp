@@ -39,7 +39,7 @@ QRViewerScene::QRViewerScene(const char* text,
                              DeferredScene next,
                              ColorConstant exit_color)
     : message_(message), next_(next), exit_color_(exit_color),
-      text_(allocate_dynamic<TextBuffer>("qr-text-buffer"))
+      text_(allocate<TextBuffer>("qr-text-buffer"))
 {
     **text_ = text;
 }
@@ -221,7 +221,7 @@ void ConfiguredURLQRViewerScene::enter(Scene& prev)
 
     APP.set_developer_mode(was_developer_mode);
 
-    auto temp = allocate_dynamic<StringBuffer<500>>("temp-buf-qr");
+    auto temp = allocate<StringBuffer<500>>("temp-buf-qr");
     // Prepend the url from config.
     *temp = (*text_)->c_str();
     (*text_)->clear();

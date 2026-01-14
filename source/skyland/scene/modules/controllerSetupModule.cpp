@@ -36,7 +36,6 @@ ControllerSetupModuleInit::Factory ControllerSetupModuleInit::factory_;
 
 
 
-
 void __draw_image(TileDesc start_tile,
                   u16 start_x,
                   u16 start_y,
@@ -73,18 +72,16 @@ void ControllerSetupModule::enter(Scene& prev)
 
 
 
-static const char* const key_names[] = {
-    "key_alt1",
-    "key_up",
-    "key_left",
-    "key_down",
-    "key_right",
-    "key_start",
-    "key_select",
-    "key_alt2",
-    "key_action1",
-    "key_action2"
-};
+static const char* const key_names[] = {"key_alt1",
+                                        "key_up",
+                                        "key_left",
+                                        "key_down",
+                                        "key_right",
+                                        "key_start",
+                                        "key_select",
+                                        "key_alt2",
+                                        "key_action1",
+                                        "key_action2"};
 
 
 
@@ -182,7 +179,8 @@ ScenePtr ControllerSetupModule::update(Time delta)
         }
     }
 
-    if (key_index_ > -1 or PLATFORM.keyboard().down_transition<Key::action_2>()) {
+    if (key_index_ > -1 or
+        PLATFORM.keyboard().down_transition<Key::action_2>()) {
         PLATFORM.screen().schedule_fade(1.f);
         if (next_) {
             return (*next_)();

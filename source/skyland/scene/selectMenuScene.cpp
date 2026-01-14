@@ -354,14 +354,16 @@ void SelectMenuScene::enter(Scene& scene)
 
         const auto flag_pos = island()->flag_pos();
         if (flag_pos and *flag_pos == cursor) {
-            auto scn = lookup_flag_in_glossary_appendix(island()->custom_flag_graphics());
+            auto scn = lookup_flag_in_glossary_appendix(
+                island()->custom_flag_graphics());
             auto opp = island() == opponent_island();
             if (scn and opp) {
                 add_line(SystemString::sel_menu_flag_info,
                          "",
                          true,
                          [this]() -> ScenePtr {
-                             return lookup_flag_in_glossary_appendix(island()->custom_flag_graphics());
+                             return lookup_flag_in_glossary_appendix(
+                                 island()->custom_flag_graphics());
                          });
             }
         }
@@ -423,9 +425,7 @@ void SelectMenuScene::enter(Scene& scene)
                     add_line(SystemString::sel_menu_adjust_power,
                              "",
                              true,
-                             []() {
-                                 return make_scene<AdjustPowerScene>();
-                             });
+                             []() { return make_scene<AdjustPowerScene>(); });
                 }
             }
             if (powerdown_allowed and room and is_player_island(isle) and

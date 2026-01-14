@@ -521,7 +521,7 @@ public:
 
 
         if (not _db) {
-            _db.emplace(allocate_dynamic<raster::DepthBuffer>("depth-buffer"));
+            _db.emplace(allocate<raster::DepthBuffer>("depth-buffer"));
         }
 
         [[maybe_unused]] auto t2 = PLATFORM.delta_clock().sample();
@@ -835,7 +835,7 @@ protected:
 
     void setup_occlusion()
     {
-        occlusion_ = allocate_dynamic<OcclusionTable>("occ-table");
+        occlusion_ = allocate<OcclusionTable>("occ-table");
 
         auto partially_transparent = [](Type t) {
             return t == Type::air or t == Type::lumber or t == Type::selector;

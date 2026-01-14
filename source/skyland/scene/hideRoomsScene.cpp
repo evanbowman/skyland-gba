@@ -23,7 +23,7 @@ namespace skyland
 
 void HideRoomsScene::enter(Scene& prev)
 {
-    data_ = allocate_dynamic<Data>("hide-rooms-context");
+    data_ = allocate_small<Data>("hide-rooms-context");
 
 
     auto [mt, ms] = room_metatable();

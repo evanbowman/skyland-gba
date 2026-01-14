@@ -240,8 +240,7 @@ void Explosive::ignite(int range, Health damage, bool spread_fire)
         make_flak_smoke(p);
     });
 
-    auto targets =
-        allocate_dynamic<Buffer<Room*, 300>>("dynamite-target-bufer");
+    auto targets = allocate<Buffer<Room*, 300>>("dynamite-target-bufer");
 
     for (int x = -range; x < range + 1; ++x) {
         for (int y = -range; y < range + 1; ++y) {

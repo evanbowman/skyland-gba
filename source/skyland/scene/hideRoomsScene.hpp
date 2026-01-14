@@ -48,7 +48,7 @@ private:
     };
 
 
-    Optional<DynamicMemory<Data>> data_;
+    Optional<DynamicMemory<Data, SubBufferMemory>> data_;
 
 
     Buffer<Text, 3> names_;

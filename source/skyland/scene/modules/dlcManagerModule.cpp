@@ -25,7 +25,7 @@ namespace skyland
 
 void DlcManagerModule::enter(Scene& prev)
 {
-    patches_ = allocate_dynamic<PatchList>("dlc-patch-list");
+    patches_ = allocate<PatchList>("dlc-patch-list");
 
     auto on_match = [&](const char* const path) {
         const char* p = path;
@@ -190,7 +190,7 @@ ScenePtr DlcManagerModule::update(Time delta)
     APP.player().update(delta);
 
     if ((*patches_)->list_.empty()) {
-        auto buffer = allocate_dynamic<DialogString>("dialog-buffer");
+        auto buffer = allocate<DialogString>("dialog-buffer");
         *buffer = SYSTR(no_dlc_prompt)->c_str();
         return make_scene<FullscreenDialogScene>(
             std::move(buffer), [] { return make_scene<TitleScreenScene>(3); });

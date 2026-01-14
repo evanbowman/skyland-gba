@@ -32,14 +32,13 @@ class ConstructionScene : public ActiveWorldScene
 {
 public:
     ConstructionScene(bool near = true)
-        : data_(allocate_dynamic<Data>("construction-data")), near_(near)
+        : data_(allocate<Data>("construction-data")), near_(near)
     {
     }
 
 
     ConstructionScene(int selector)
-        : selector_(selector),
-          data_(allocate_dynamic<Data>("construction-data"))
+        : selector_(selector), data_(allocate<Data>("construction-data"))
     {
     }
 

@@ -142,7 +142,7 @@ void start(Platform& pfrm)
 
     BootScene::message("start application...");
 
-    auto app = allocate_dynamic<App>("app-data", clean_boot);
+    auto app = allocate<App>("app-data", clean_boot);
 
     if (app->is_developer_mode()) {
         state_bit_store(StateBit::verbose_boot, true);

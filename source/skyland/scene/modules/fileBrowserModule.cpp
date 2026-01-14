@@ -39,7 +39,7 @@ FileBrowserModule::FileBrowserModule(UserContext&& user_context,
                                      bool is_rom_path)
     : user_context_(std::move(user_context))
 {
-    path_ = allocate_dynamic<PathBuffer>("fs-path-buffer");
+    path_ = allocate<PathBuffer>("fs-path-buffer");
 
     StringBuffer<max_folder_name> temp;
     u32 path_len = strlen(path);
@@ -68,10 +68,10 @@ void FileBrowserModule::enter(Scene& prev)
         PLATFORM.load_overlay_texture("overlay_editor");
     }
 
-    cwd_names_ = allocate_dynamic<CwdNames>("fs-cwd-names");
+    cwd_names_ = allocate_small<CwdNames>("fs-cwd-names");
 
     if (not path_) {
-        path_ = allocate_dynamic<PathBuffer>("fs-path-buffer");
+        path_ = allocate<PathBuffer>("fs-path-buffer");
         (*path_)->push_back("/");
     }
 
@@ -186,7 +186,7 @@ void FileBrowserModule::repaint()
 
     auto cwd = this->cwd();
 
-    auto folders = allocate_dynamic<PathBuffer>("fs-folders-buffer");
+    auto folders = allocate<PathBuffer>("fs-folders-buffer");
 
 
 
@@ -282,7 +282,7 @@ void FileBrowserModule::repaint()
     case SelectedFilesystem::rom:
         auto cwd = this->cwd();
 
-        auto folders = allocate_dynamic<PathBuffer>("fs-folders-buffer");
+        auto folders = allocate<PathBuffer>("fs-folders-buffer");
 
         PLATFORM.walk_filesystem(walk_fs);
 

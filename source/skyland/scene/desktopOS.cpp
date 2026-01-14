@@ -1581,7 +1581,7 @@ public:
 
 
     DesktopOS(Optional<DeferredScene> resume)
-        : mem_(allocate_dynamic<Mem>("desktop-gui"))
+        : mem_(allocate<Mem>("desktop-gui"))
     {
         mem_->resume_ = resume;
         g_os_ = this;
@@ -1925,28 +1925,28 @@ public:
     {
         if (str_eq(application->name(), "Compass")) {
             mem_->windows_.push_back(
-                allocate_dynamic<ExplorerWindow>("os-window", application));
+                allocate<ExplorerWindow>("os-window", application));
         } else if (str_eq(application->name(), "SkyTunes")) {
             mem_->windows_.push_back(
-                allocate_dynamic<SkyTunesWindow>("os-window", application));
+                allocate<SkyTunesWindow>("os-window", application));
         } else if (str_eq(application->name(), "mGBA")) {
             mem_->windows_.push_back(
-                allocate_dynamic<mGBAWindow>("os-window", application));
+                allocate<mGBAWindow>("os-window", application));
         } else if (str_eq(application->name(), "TextEdit")) {
             mem_->windows_.push_back(
-                allocate_dynamic<TextEditWindow>("os-window", application));
+                allocate<TextEditWindow>("os-window", application));
         } else if (str_eq(application->name(), "Seeker")) {
             mem_->windows_.push_back(
-                allocate_dynamic<SeekerWindow>("os-window", application));
+                allocate<SeekerWindow>("os-window", application));
         } else if (str_eq(application->name(), "Lisp")) {
             mem_->windows_.push_back(
-                allocate_dynamic<LispWindow>("os-window", application));
+                allocate<LispWindow>("os-window", application));
         } else if (str_eq(application->name(), "System Monitor")) {
-            mem_->windows_.push_back(allocate_dynamic<SystemMonitorWindow>(
-                "os-window", application));
+            mem_->windows_.push_back(
+                allocate<SystemMonitorWindow>("os-window", application));
         } else {
             mem_->windows_.push_back(
-                allocate_dynamic<Window>("os-window", application));
+                allocate<Window>("os-window", application));
         }
         application->on_open_callback_(&*mem_->windows_.back(),
                                        application->on_open_param_);

@@ -4365,7 +4365,7 @@ void Platform::Speaker::play_music(const char* name, Microseconds offset)
     play_sound("footstep2", 0);
     play_sound("footstep3", 0);
 
-    // auto tmp = allocate_dynamic<OptDmaBufferData>("test");
+    // auto tmp = allocate<OptDmaBufferData>("test");
     // auto before = __platform__->delta_clock().sample();
     // // audio_update_fast_isr();
 
@@ -6556,8 +6556,7 @@ static void uart_serial_isr()
         // Hmm... how'd we end up with a null byte!?
     } else {
         if (not state.rx_in_progress_) {
-            state.rx_in_progress_ =
-                allocate_dynamic<ConsoleLine>("uart-rx-buffer");
+            state.rx_in_progress_ = allocate<ConsoleLine>("uart-rx-buffer");
         }
 
         if (state.rx_in_progress_) {
@@ -6685,7 +6684,7 @@ bool Platform::RemoteConsole::printline(const char* text, const char* prompt)
         return false;
     }
 
-    state.tx_msg_ = allocate_dynamic<ConsoleLine>("uart-console-output");
+    state.tx_msg_ = allocate<ConsoleLine>("uart-console-output");
 
     Optional<char> first_char;
 
@@ -7016,7 +7015,7 @@ static const Platform::Extensions extensions{
                 if (not opt_dma_buffer_) {
                     VBlankIntrWait();
                     opt_dma_buffer_ =
-                        allocate_dynamic<OptDmaBufferData>("opt-dma-buffer");
+                        allocate<OptDmaBufferData>("opt-dma-buffer");
                     memset((*opt_dma_buffer_)->data(), 0, 160 * 2);
                     window_init_effectmode();
                     REG_SOUNDCNT_H = REG_SOUNDCNT_H & ~(1 << 8);
@@ -7048,7 +7047,7 @@ static const Platform::Extensions extensions{
                 if (not opt_dma_buffer_) {
                     VBlankIntrWait();
                     opt_dma_buffer_ =
-                        allocate_dynamic<OptDmaBufferData>("opt-dma-buffer");
+                        allocate<OptDmaBufferData>("opt-dma-buffer");
                     memset((*opt_dma_buffer_)->data(), 0, 160 * 2);
                     window_init_inverse_effectmode();
                     REG_SOUNDCNT_H = REG_SOUNDCNT_H & ~(1 << 8);

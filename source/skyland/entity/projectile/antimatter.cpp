@@ -189,8 +189,7 @@ void Antimatter::on_collision(Room& room, Vec2<u8> origin)
             make_flak_smoke(p);
         });
 
-        auto targets =
-            allocate_dynamic<Buffer<Room*, 300>>("antimatter-target-buffer");
+        auto targets = allocate<Buffer<Room*, 300>>("antimatter-target-buffer");
 
         static const Health damage = 58;
 

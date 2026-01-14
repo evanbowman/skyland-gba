@@ -949,7 +949,7 @@ void format(Value* value, Printer& p);
 
 template <int len> StringBuffer<len> val_to_string(Value* value)
 {
-    auto p = allocate_dynamic<DefaultPrinter>("...");
+    auto p = allocate<DefaultPrinter>("...");
     format(value, *p);
 
     StringBuffer<len> out = p->data_.c_str();

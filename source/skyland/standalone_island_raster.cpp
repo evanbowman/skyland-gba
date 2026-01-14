@@ -336,7 +336,7 @@ namespace skyland
 {
 SystemStringBuffer loadstr(SystemString str)
 {
-    return allocate_dynamic<StringBuffer<1900>>("dummy");
+    return allocate<StringBuffer<1900>>("dummy");
 }
 
 bool App::is_developer_mode()

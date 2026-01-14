@@ -73,7 +73,8 @@ void set_scratch_buffer_oom_handler(
 
 
 class Platform;
-void scratch_buffer_memory_diagnostics(Function<4* sizeof(void*), void(const char*)> cb);
+void scratch_buffer_memory_diagnostics(
+    Function<4 * sizeof(void*), void(const char*)> cb);
 void scratch_buffer_dump_sector(int sector);
 
 
@@ -82,5 +83,6 @@ struct ScratchBufferMemory
 {
     using Type = ScratchBuffer;
     using PtrType = ScratchBufferPtr;
-    static PtrType create(ScratchBuffer::Tag t);
+    static PtrType create(ScratchBuffer::Tag t,
+                          u32 zero_fill_size = SCRATCH_BUFFER_SIZE);
 };

@@ -163,8 +163,8 @@ struct DepthBuffer
     BumpAllocator<24, DepthNode> depth_node_allocator_;
 
     DepthBuffer()
-        : depth_1_(allocate_dynamic<DepthBufferSlab>("iso-depth-buffer")),
-          depth_2_(allocate_dynamic<DepthBufferSlab>("iso-depth-buffer"))
+        : depth_1_(allocate<DepthBufferSlab>("iso-depth-buffer")),
+          depth_2_(allocate<DepthBufferSlab>("iso-depth-buffer"))
     {
     }
 

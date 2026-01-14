@@ -252,7 +252,8 @@ void RoomMeta::init_plugin()
 template <int plugin_slots, typename... Rooms> struct RoomMetatable
 {
 public:
-    static constexpr const char* room_names_[sizeof...(Rooms)] = {Rooms::name()...};
+    static constexpr const char* room_names_[sizeof...(Rooms)] = {
+        Rooms::name()...};
 
 
     template <size_t i, typename First, typename... Rest> void init()

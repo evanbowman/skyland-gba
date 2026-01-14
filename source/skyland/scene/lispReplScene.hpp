@@ -71,7 +71,7 @@ private:
     };
 
     DynamicMemory<Command> command_;
-    DynamicMemory<Completions> cpl_;
+    DynamicMemory<Completions, SubBufferMemory> cpl_;
     Vector<Command> history_;
 
     Optional<Text> keyboard_top_;

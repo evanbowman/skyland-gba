@@ -12,7 +12,6 @@
 #pragma once
 
 #include "fadeInScene.hpp"
-#include "skyland/settings.hpp"
 #include "modules/datetimeModule.hpp"
 #include "modules/macrocosmFreebuildModule.hpp"
 #include "platform/flash_filesystem.hpp"
@@ -25,6 +24,7 @@
 #include "skyland/scene/modules/skylandForever.hpp"
 #include "skyland/scene/titleScreenScene.hpp"
 #include "skyland/scene_pool.hpp"
+#include "skyland/settings.hpp"
 #include "skyland/skyland.hpp"
 #include "version.hpp"
 
@@ -63,8 +63,7 @@ private:
     Buffer<Text, 8> text_opts_;
 
 public:
-    LanguageSelectScene()
-        : opts_(load_language_options())
+    LanguageSelectScene() : opts_(load_language_options())
     {
     }
 
@@ -137,7 +136,7 @@ public:
 private:
     static DynamicMemory<LanguageOptions> load_language_options()
     {
-        auto result = allocate_dynamic<LanguageOptions>("lang-table");
+        auto result = allocate<LanguageOptions>("lang-table");
 
         auto cp = PLATFORM.load_file_contents("strings", "lang.txt");
 

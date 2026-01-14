@@ -77,7 +77,7 @@ void MultiplayerConnectScene::exit(Scene& next)
 
 ScenePtr MultiplayerConnectScene::setup()
 {
-    auto buffer = allocate_dynamic<DialogString>("dialog-string");
+    auto buffer = allocate<DialogString>("dialog-string");
 
     if (PLATFORM.device_name() == "GameboyAdvance" and
         PLATFORM.model_name() == "NDS") {
@@ -125,7 +125,7 @@ ScenePtr MultiplayerConnectScene::update(Time delta)
 
         globals().multiplayer_prep_seconds_ = 0;
 
-        auto buffer = allocate_dynamic<DialogString>("dialog-string");
+        auto buffer = allocate<DialogString>("dialog-string");
         *buffer = SYSTR(multi_connection_failure)->c_str();
         return make_scene<FullscreenDialogScene>(std::move(buffer),
                                                  future_scene);

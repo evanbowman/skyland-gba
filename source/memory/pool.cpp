@@ -23,8 +23,8 @@ GenericPool* GenericPool::instances_;
 void GenericPool::print_diagnostics()
 {
     auto pool = GenericPool::instances();
-    auto output = allocate_dynamic<Platform::RemoteConsole::Line>(
-        "pool-annotation-buffer");
+    auto output =
+        allocate<Platform::RemoteConsole::Line>("pool-annotation-buffer");
 
     *output += "        name        |   size  |  total  |  used \r\n";
     *output += "____________________|_________|_________|________\r\n";

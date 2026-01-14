@@ -65,7 +65,7 @@ WorldGraph::PathBuffer WorldGraph::path(Vec2<s8> n1, Vec2<s8> n2)
         Vertex* mat_[WorldGraph::width][WorldGraph::height] = {{}};
     };
 
-    auto mat = allocate_dynamic<Matrix>("wg-path-mat");
+    auto mat = allocate<Matrix>("wg-path-mat");
 
     Vertex* start_v = nullptr;
 
@@ -558,8 +558,7 @@ void show_saved_indicator()
 
 
 
-void plot_navigation_path(const WorldMapScene::NavBuffer& nav,
-                          int color_offset)
+void plot_navigation_path(const WorldMapScene::NavBuffer& nav, int color_offset)
 {
     struct Tile16x16p
     {
@@ -1329,8 +1328,7 @@ ScenePtr WorldMapScene::update(Time delta)
         nav_mode_ = true;
         heading_->assign(SYSTR(wg_nav)->c_str());
         cached_cursor_ = cursor_;
-        cached_world_graph_ =
-            allocate_dynamic<WorldGraph>("cached-world-graph");
+        cached_world_graph_ = allocate_small<WorldGraph>("cached-world-graph");
         **cached_world_graph_ = APP.world_graph();
         navigation_buffer_.clear();
         navigation_buffer_.push_back(cursor_);
@@ -1744,8 +1742,8 @@ void draw_range_to_matrix(ShadeIntensity matrix[30][20],
                 int matrix_y = y + ty;
 
                 // Bounds check
-                if (matrix_x >= 0 && matrix_x < 30 &&
-                    matrix_y >= 0 && matrix_y < 20) {
+                if (matrix_x >= 0 && matrix_x < 30 && matrix_y >= 0 &&
+                    matrix_y < 20) {
                     // Only write if not already occupied
                     if (matrix[matrix_x][matrix_y] == ShadeIntensity::none) {
                         matrix[matrix_x][matrix_y] = intensity;
@@ -1761,8 +1759,8 @@ void draw_range_to_matrix(ShadeIntensity matrix[30][20],
                 int matrix_y = y + ty;
 
                 // Bounds check
-                if (matrix_x >= 0 && matrix_x < 30 &&
-                    matrix_y >= 0 && matrix_y < 20) {
+                if (matrix_x >= 0 && matrix_x < 30 && matrix_y >= 0 &&
+                    matrix_y < 20) {
                     // Only write if not already occupied
                     if (matrix[matrix_x][matrix_y] == ShadeIntensity::none) {
                         matrix[matrix_x][matrix_y] = intensity;
@@ -1946,8 +1944,11 @@ void WorldMapScene::build_range_cache(ShadeIntensity matrix[30][20],
 
     draw_range_to_matrix(matrix, x, y, ShadeIntensity::light, has_radar_);
     auto o = movement_targets_[movement_cursor_];
-    draw_range_to_matrix(matrix, o.x + map_start_x - 4, o.y + map_start_y - 4,
-                         ShadeIntensity::medium, has_radar_);
+    draw_range_to_matrix(matrix,
+                         o.x + map_start_x - 4,
+                         o.y + map_start_y - 4,
+                         ShadeIntensity::medium,
+                         has_radar_);
 
     Buffer<Vec2<s8>, 10> tier_2_reachable;
     for (int x = o.x - 4; x < o.x + 5; ++x) {
@@ -1996,8 +1997,7 @@ void WorldMapScene::display()
             nav_buffer = &render_backup_nav_buffer_;
         }
         if (not PLATFORM.get_extensions().rotate_palette and
-            not PLATFORM.has_slow_cpu() and
-            not nav_buffer->empty()) {
+            not PLATFORM.has_slow_cpu() and not nav_buffer->empty()) {
             // We have a fast cpu, but no support for palette rotation. We'll
             // have to fake it by manually redrawing the texture with different
             // palette indices.

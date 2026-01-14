@@ -10,9 +10,9 @@
 
 
 #include "number/random.hpp"
+#include "platform/conf.hpp"
 #include "platform/flash_filesystem.hpp"
 #include "platform/platform.hpp"
-#include "platform/conf.hpp"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <fstream>
@@ -24,12 +24,12 @@
 #include <thread>
 #include <unordered_set>
 #if defined(__APPLE__)
-#include <mach-o/dyld.h>  // for _NSGetExecutablePath
-#include <unistd.h>        // for fork, execl
+#include <mach-o/dyld.h> // for _NSGetExecutablePath
+#include <unistd.h>      // for fork, execl
 #elif defined(__linux__)
-#include <unistd.h>        // for fork, execl, readlink
+#include <unistd.h> // for fork, execl, readlink
 #elif defined(_WIN32)
-#include <windows.h>       // for GetModuleFileNameA, CreateProcessA
+#include <windows.h> // for GetModuleFileNameA, CreateProcessA
 #endif
 
 
@@ -229,8 +229,8 @@ bool save_surface_to_bmp(SDL_Surface* surface, const char* filename)
         return false;
     }
 
-    std::cout << "Saved surface to " << filename << " ("
-              << surface->w << "x" << surface->h << ")" << std::endl;
+    std::cout << "Saved surface to " << filename << " (" << surface->w << "x"
+              << surface->h << ")" << std::endl;
     return true;
 }
 
@@ -427,30 +427,30 @@ static const Platform::Extensions extensions{
         [](int x, int y, int w, int h, ColorConstant tint, int priority) {
             rect_draw_queue.push_back({x, y, w, h, tint, priority});
         },
-    .map_key = [](Key k, const char* key_name) {
-        if (strlen(key_name) == 0) {
-            return;
-        }
-        SDL_Scancode scancode = SDL_GetScancodeFromName(key_name);
-
-        if (scancode == SDL_SCANCODE_UNKNOWN) {
-            warning(format("unknown scancode %", key_name));
-            return;
-        }
-
-        // info(format("mapped % to %", (int)k, (int)scancode));
-
-        // We need to erase the existing mapping for this key
-        for (auto it = keymap.begin(); it not_eq keymap.end();) {
-            if (it->second == k) {
-                it = keymap.erase(it);
-            } else {
-                ++it;
+    .map_key =
+        [](Key k, const char* key_name) {
+            if (strlen(key_name) == 0) {
+                return;
             }
-        }
-        keymap[scancode] = k;
-    }
-};
+            SDL_Scancode scancode = SDL_GetScancodeFromName(key_name);
+
+            if (scancode == SDL_SCANCODE_UNKNOWN) {
+                warning(format("unknown scancode %", key_name));
+                return;
+            }
+
+            // info(format("mapped % to %", (int)k, (int)scancode));
+
+            // We need to erase the existing mapping for this key
+            for (auto it = keymap.begin(); it not_eq keymap.end();) {
+                if (it->second == k) {
+                    it = keymap.erase(it);
+                } else {
+                    ++it;
+                }
+            }
+            keymap[scancode] = k;
+        }};
 
 
 
@@ -720,13 +720,14 @@ void Platform::restart()
 #if defined(__APPLE__) || defined(__linux__)
     // Get the executable path
     char path[1024];
-    #ifdef __APPLE__
+#ifdef __APPLE__
     uint32_t size = sizeof(path);
     _NSGetExecutablePath(path, &size);
-    #else // Linux
+#else // Linux
     ssize_t len = readlink("/proc/self/exe", path, sizeof(path) - 1);
-    if (len != -1) path[len] = '\0';
-    #endif
+    if (len != -1)
+        path[len] = '\0';
+#endif
 
     // Fork and exec
     if (fork() == 0) {
@@ -742,7 +743,8 @@ void Platform::restart()
     STARTUPINFOA si = {sizeof(si)};
     PROCESS_INFORMATION pi;
 
-    if (CreateProcessA(path, NULL, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+    if (CreateProcessA(
+            path, NULL, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
         CloseHandle(pi.hProcess);
         CloseHandle(pi.hThread);
     }
@@ -751,7 +753,6 @@ void Platform::restart()
     exit(EXIT_SUCCESS);
 #endif
 }
-
 
 
 
@@ -948,7 +949,8 @@ void Platform::Keyboard::poll()
         case SDL_KEYDOWN: {
             // F11 or Cmd+F (macOS) or Alt+Enter for fullscreen
             if (e.key.keysym.scancode == SDL_SCANCODE_F11 ||
-                (e.key.keysym.scancode == SDL_SCANCODE_F && (e.key.keysym.mod & KMOD_GUI)) ||
+                (e.key.keysym.scancode == SDL_SCANCODE_F &&
+                 (e.key.keysym.mod & KMOD_GUI)) ||
                 (e.key.keysym.scancode == SDL_SCANCODE_RETURN &&
                  (e.key.keysym.mod & KMOD_ALT))) {
                 toggle_fullscreen();
@@ -1035,7 +1037,8 @@ struct DynamicTextureMapping
 
 
 
-static inline bool is_dynamic_texture_index(u16 texture_index, Sprite::Size size)
+static inline bool is_dynamic_texture_index(u16 texture_index,
+                                            Sprite::Size size)
 {
     int scale = 2;
     if (size == Sprite::Size::w32_h32) {
@@ -1048,7 +1051,8 @@ static inline bool is_dynamic_texture_index(u16 texture_index, Sprite::Size size
 
 
 
-static inline u8 get_dynamic_slot_for_index(u16 texture_index, Sprite::Size size)
+static inline u8 get_dynamic_slot_for_index(u16 texture_index,
+                                            Sprite::Size size)
 {
     if (size == Sprite::Size::w32_h32) {
         return texture_index;
@@ -1424,12 +1428,14 @@ void Platform::set_raw_tile(Layer layer, u16 x, u16 y, TileDesc val)
         //   2 3 6 7 10 11 ...
         // So tile index 5 is at metatile 1, position top-right (x=3, y=0)
 
-        u16 metatile_index = val / 4;           // Which 2x2 metatile group
-        u16 within_metatile = val % 4;          // Position within the metatile (0-3)
+        u16 metatile_index = val / 4;  // Which 2x2 metatile group
+        u16 within_metatile = val % 4; // Position within the metatile (0-3)
 
-        u16 metatile_x = metatile_index * 2;    // Each metatile is 2 tiles wide
-        u16 tile_x = metatile_x + (within_metatile & 1);      // Add 0 or 1 for left/right
-        u16 tile_y = (within_metatile & 2) >> 1;               // 0 for top row, 1 for bottom row
+        u16 metatile_x = metatile_index * 2; // Each metatile is 2 tiles wide
+        u16 tile_x =
+            metatile_x + (within_metatile & 1); // Add 0 or 1 for left/right
+        u16 tile_y =
+            (within_metatile & 2) >> 1; // 0 for top row, 1 for bottom row
 
         TileDesc target = tile_y * (tile0_surface->w / 8) + tile_x;
 
@@ -1851,7 +1857,8 @@ void Platform::overwrite_t0_tile(u16 index, const EncodedTile& t)
 
             // Look up the color in the palette
             SDL_Color color;
-            if (palette_index >= tile0_transformed_palette.count or palette_index == 0) {
+            if (palette_index >= tile0_transformed_palette.count or
+                palette_index == 0) {
                 color = {0xFF, 0x00, 0xFF, 0x00};
             } else {
                 color = tile0_transformed_palette.colors[palette_index];
@@ -1953,7 +1960,8 @@ void Platform::overwrite_t1_tile(u16 index, const EncodedTile& t)
 
             // Look up the color in the palette
             SDL_Color color;
-            if (palette_index >= tile1_transformed_palette.count or palette_index == 0) {
+            if (palette_index >= tile1_transformed_palette.count or
+                palette_index == 0) {
                 color = {0xFF, 0x00, 0xFF, 0x00};
             } else {
                 color = tile1_transformed_palette.colors[palette_index];
@@ -2051,7 +2059,8 @@ void Platform::overwrite_overlay_tile(u16 index, const EncodedTile& t)
 
             // Look up the color in the palette
             SDL_Color color;
-            if (palette_index >= overlay_transformed_palette.count or palette_index == 0) {
+            if (palette_index >= overlay_transformed_palette.count or
+                palette_index == 0) {
                 // Out of bounds - use transparent magenta
                 color = {0xFF, 0x00, 0xFF, 0x00};
             } else {
@@ -2834,14 +2843,15 @@ SDL_Surface* expand_surface_to_width(SDL_Surface* loaded_surface, int width)
     if (loaded_surface->w < width) {
         const auto source_width = loaded_surface->w;
         const auto source_height = loaded_surface->h;
-        auto expanded_surface = SDL_CreateRGBSurface(0,
-                                                     width,
-                                                     source_height,
-                                                     loaded_surface->format->BitsPerPixel,
-                                                     loaded_surface->format->Rmask,
-                                                     loaded_surface->format->Gmask,
-                                                     loaded_surface->format->Bmask,
-                                                     loaded_surface->format->Amask);
+        auto expanded_surface =
+            SDL_CreateRGBSurface(0,
+                                 width,
+                                 source_height,
+                                 loaded_surface->format->BitsPerPixel,
+                                 loaded_surface->format->Rmask,
+                                 loaded_surface->format->Gmask,
+                                 loaded_surface->format->Bmask,
+                                 loaded_surface->format->Amask);
 
         if (!expanded_surface) {
             error("Failed to expand tile0 surface!");
@@ -2851,7 +2861,8 @@ SDL_Surface* expand_surface_to_width(SDL_Surface* loaded_surface, int width)
             SDL_FillRect(expanded_surface, nullptr, transparent_magenta);
             SDL_Rect src_rect = {0, 0, source_width, source_height};
             SDL_Rect dst_rect = {0, 0, source_width, source_height};
-            SDL_BlitSurface(loaded_surface, &src_rect, expanded_surface, &dst_rect);
+            SDL_BlitSurface(
+                loaded_surface, &src_rect, expanded_surface, &dst_rect);
 
             SDL_FreeSurface(loaded_surface);
 
@@ -2885,7 +2896,8 @@ void Platform::load_tile0_texture(const char* name_or_path)
         return;
     }
 
-    tile0_index_zero_is_transparent = is_tile_transparent(loaded_surface, 0, 0, 0);
+    tile0_index_zero_is_transparent =
+        is_tile_transparent(loaded_surface, 0, 0, 0);
 
     // NOTE: don't do the expansion for externally loaded files, which are
     // neither flattened nor metatiled, as expanding them messes up texture
@@ -2937,7 +2949,8 @@ void Platform::load_tile1_texture(const char* name_or_path)
         return;
     }
 
-    tile1_index_zero_is_transparent = is_tile_transparent(loaded_surface, 0, 0, 0);
+    tile1_index_zero_is_transparent =
+        is_tile_transparent(loaded_surface, 0, 0, 0);
 
     if (std::string(name_or_path).find('.') == std::string::npos) {
         loaded_surface = expand_surface_to_width(loaded_surface, 2048);
@@ -3051,8 +3064,9 @@ void Platform::load_sprite_texture(const char* name)
         surface = converted;
     }
 
-// Create white mask version for color mixing
-    SDL_Surface* mask_surf = SDL_CreateRGBSurfaceWithFormat(0, surface->w, surface->h, 32, SDL_PIXELFORMAT_RGBA32);
+    // Create white mask version for color mixing
+    SDL_Surface* mask_surf = SDL_CreateRGBSurfaceWithFormat(
+        0, surface->w, surface->h, 32, SDL_PIXELFORMAT_RGBA32);
     if (mask_surf) {
         // Lock both surfaces
         if (SDL_MUSTLOCK(surface)) {
@@ -3067,10 +3081,11 @@ void Platform::load_sprite_texture(const char* name)
         for (int i = 0; i < pixel_count; i++) {
             Uint8 r, g, b, a;
             SDL_GetRGBA(src_pixels[i], surface->format, &r, &g, &b, &a);
-            if (r == 255 and g == 0 and b == 255) {  // Non-transparent pixel
+            if (r == 255 and g == 0 and b == 255) { // Non-transparent pixel
                 dst_pixels[i] = 0;
             } else {
-                dst_pixels[i] = SDL_MapRGBA(mask_surf->format, 255, 255, 255, a);
+                dst_pixels[i] =
+                    SDL_MapRGBA(mask_surf->format, 255, 255, 255, a);
             }
         }
 
@@ -3124,9 +3139,18 @@ void Platform::clear_tile1_mappings()
 
 
 
+static Optional<Platform::UnrecoverrableErrorCallback>
+    unrecoverrable_error_callback;
+
+
+
 void Platform::fatal(const char* msg)
 {
     error(msg);
+
+    if (::__platform__ and ::unrecoverrable_error_callback) {
+        (*::unrecoverrable_error_callback)(&*msg);
+    }
 
     if (extensions.has_startup_opt("--regression")) {
         exit(EXIT_FAILURE);
@@ -3160,7 +3184,6 @@ void Platform::fatal(const char* msg)
                PLATFORM.load_file("", "/lisp_constant_tab.dat"));
 
     auto show_verbose_msg = [&] {
-
         PLATFORM.keyboard().poll();
         PLATFORM.screen().clear();
 
@@ -3425,7 +3448,7 @@ bool Platform::load_overlay_texture(const char* name)
 
 void Platform::on_unrecoverrable_error(UnrecoverrableErrorCallback callback)
 {
-    // ...
+    ::unrecoverrable_error_callback.emplace(callback);
 }
 
 
@@ -3504,7 +3527,7 @@ Microseconds Platform::DeltaClock::reset()
         slept = *sleep_time;
         sleep_time.reset();
     }
-    auto adjusted = elapsed - slept;  // duration arithmetic works here
+    auto adjusted = elapsed - slept; // duration arithmetic works here
     ::last_delta = adjusted.count();
     return adjusted.count();
 }
@@ -3648,10 +3671,10 @@ int Platform::NetworkPeer::send_queue_size() const
 
 
 
-#include <thread>
 #include <mutex>
-#include <string>
 #include <queue>
+#include <string>
+#include <thread>
 #ifdef _WIN32
 #include <winsock2.h>
 #include <ws2tcpip.h>
@@ -3659,9 +3682,9 @@ int Platform::NetworkPeer::send_queue_size() const
 typedef SOCKET socket_t;
 #define CLOSE_SOCKET closesocket
 #else
-#include <sys/socket.h>
-#include <netinet/in.h>
 #include <arpa/inet.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
 #include <unistd.h>
 typedef int socket_t;
 #define CLOSE_SOCKET close
@@ -3669,16 +3692,17 @@ typedef int socket_t;
 #define SOCKET_ERROR -1
 #endif
 
-namespace {
-    std::thread server_thread;
-    std::thread client_thread;
-    socket_t server_socket = INVALID_SOCKET;
-    socket_t client_socket = INVALID_SOCKET;
-    std::mutex console_mutex;
-    std::queue<std::string> incoming_lines;
-    std::queue<std::string> outgoing_lines;
-    bool server_running = false;
-}
+namespace
+{
+std::thread server_thread;
+std::thread client_thread;
+socket_t server_socket = INVALID_SOCKET;
+socket_t client_socket = INVALID_SOCKET;
+std::mutex console_mutex;
+std::queue<std::string> incoming_lines;
+std::queue<std::string> outgoing_lines;
+std::atomic<bool> server_running = false;
+} // namespace
 
 static void handle_client(socket_t sock)
 {
@@ -3688,10 +3712,15 @@ static void handle_client(socket_t sock)
     // Set socket timeout for recv
 #ifdef _WIN32
     DWORD timeout = 500; // 500ms
-    setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout, sizeof(timeout));
+    setsockopt(
+        sock, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout, sizeof(timeout));
     // Enable TCP keepalive
     BOOL keepalive = TRUE;
-    setsockopt(sock, SOL_SOCKET, SO_KEEPALIVE, (const char*)&keepalive, sizeof(keepalive));
+    setsockopt(sock,
+               SOL_SOCKET,
+               SO_KEEPALIVE,
+               (const char*)&keepalive,
+               sizeof(keepalive));
 #else
     struct timeval timeout;
     timeout.tv_sec = 0;
@@ -3787,14 +3816,19 @@ void server_thread_main()
 
     // Allow address reuse
     int opt = 1;
-    setsockopt(server_socket, SOL_SOCKET, SO_REUSEADDR, (const char*)&opt, sizeof(opt));
+    setsockopt(server_socket,
+               SOL_SOCKET,
+               SO_REUSEADDR,
+               (const char*)&opt,
+               sizeof(opt));
 
     Conf conf;
 
     sockaddr_in addr = {};
     addr.sin_family = AF_INET;
     addr.sin_addr.s_addr = inet_addr("127.0.0.1"); // localhost only
-    addr.sin_port = htons(conf.expect<Conf::Integer>("hardware.desktop", "console_port"));
+    addr.sin_port =
+        htons(conf.expect<Conf::Integer>("hardware.desktop", "console_port"));
 
     if (bind(server_socket, (sockaddr*)&addr, sizeof(addr)) == SOCKET_ERROR) {
         CLOSE_SOCKET(server_socket);
@@ -3809,12 +3843,17 @@ void server_thread_main()
     // Set accept timeout
 #ifdef _WIN32
     DWORD timeout = 1000; // 1 second
-    setsockopt(server_socket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout, sizeof(timeout));
+    setsockopt(server_socket,
+               SOL_SOCKET,
+               SO_RCVTIMEO,
+               (const char*)&timeout,
+               sizeof(timeout));
 #else
     struct timeval timeout;
     timeout.tv_sec = 1;
     timeout.tv_usec = 0;
-    setsockopt(server_socket, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
+    setsockopt(
+        server_socket, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
 #endif
 
     while (server_running) {
@@ -3851,10 +3890,12 @@ void server_thread_main()
 
 void Platform::RemoteConsole::start()
 {
+    if (server_running) {
+        return;
+    }
 #ifndef __EMSCRIPTEN__
     server_running = true;
     server_thread = std::thread(server_thread_main);
-    server_thread.detach();
 #endif
 }
 
@@ -3938,9 +3979,6 @@ void Platform::Logger::log(Severity level, const char* msg)
 
     log_data_->push_back('\n', t);
     std::cout << '\n';
-    if (console_running) {
-        std::cout << "> " << std::flush;
-    }
 }
 
 
@@ -4362,8 +4400,8 @@ void draw_sprite_group(int prio)
             u8 base_alpha =
                 (sprite.alpha == Sprite::Alpha::translucent) ? 127 : 255;
 
-            if (sprite.color != ColorConstant::null && sprite.mix_amount > 0
-                and sprite_mask_texture) {
+            if (sprite.color != ColorConstant::null && sprite.mix_amount > 0 and
+                sprite_mask_texture) {
                 // Dual-pass rendering with scaling
                 float mix_ratio = sprite.mix_amount / 255.0f;
 
@@ -4379,10 +4417,8 @@ void draw_sprite_group(int prio)
                                  flip);
 
                 auto mix_color = color_to_sdl(sprite.color);
-                SDL_SetTextureColorMod(sprite_mask_texture,
-                                       mix_color.r,
-                                       mix_color.g,
-                                       mix_color.b);
+                SDL_SetTextureColorMod(
+                    sprite_mask_texture, mix_color.r, mix_color.g, mix_color.b);
                 SDL_SetTextureAlphaMod(sprite_mask_texture,
                                        base_alpha * mix_ratio);
                 SDL_RenderCopyEx(renderer,
@@ -5685,6 +5721,16 @@ Platform::Platform()
 Platform::~Platform()
 {
     server_running = false;
+
+    if (server_socket != INVALID_SOCKET) {
+        CLOSE_SOCKET(server_socket);
+        server_socket = INVALID_SOCKET;
+    }
+
+    if (server_thread.joinable()) {
+        server_thread.join();
+    }
+
     cleanup_point_light_cache();
     cleanup_charset_surfaces();
 }

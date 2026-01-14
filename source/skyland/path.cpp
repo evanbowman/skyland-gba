@@ -118,7 +118,7 @@ Optional<Path> find_path(Island* island,
                 return {};
             }
             if (min->coord_ == end) {
-                auto path_mem = allocate_dynamic_bestfit<PathBuffer>("path-buffer");
+                auto path_mem = allocate_small<PathBuffer>("path-buffer");
                 if (not path_mem) {
                     return {};
                 }

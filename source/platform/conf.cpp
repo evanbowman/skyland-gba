@@ -70,7 +70,7 @@ Conf::String get_conf(const char* data, const char* section, const char* key)
         read_value
     } state = State::seek_section;
 
-    Conf::String result = allocate_dynamic<StringBuffer<2000>>("conf-string");
+    Conf::String result = allocate<StringBuffer<2000>>("conf-string");
 
 #define EAT_LINE()                                                             \
     while (true) {                                                             \

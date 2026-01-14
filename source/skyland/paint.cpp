@@ -32,7 +32,7 @@ u32 flood_fill(u8 matrix[16][16], u8 replace, u8 x, u8 y);
 
 void Paint::init()
 {
-    history_ = allocate_dynamic<HistoryBuffer>("paint-history");
+    history_ = allocate<HistoryBuffer>("paint-history");
 
     for (int x = 0; x < width_; ++x) {
         for (int y = 0; y < height_; ++y) {

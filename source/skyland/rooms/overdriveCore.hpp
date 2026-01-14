@@ -101,7 +101,6 @@ public:
 
 
     Optional<UpgradeList> upgrade_mt_list() const override;
-
 };
 
 

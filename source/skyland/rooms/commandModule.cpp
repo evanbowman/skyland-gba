@@ -30,7 +30,7 @@ CommandModule::CommandModule(Island* parent,
                              const RoomCoord& position,
                              const char* n)
     : Room(parent, n, position),
-      id_buffers_(allocate_dynamic<IdBuffers>("command-module-buffer"))
+      id_buffers_(allocate<IdBuffers>("command-module-buffer"))
 {
 }
 

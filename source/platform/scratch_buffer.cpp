@@ -114,7 +114,8 @@ ScratchBufferPtr make_scratch_buffer(const ScratchBuffer::Tag& tag)
 
 
 
-void scratch_buffer_memory_diagnostics(Function<4* sizeof(void*), void(const char*)> cb)
+void scratch_buffer_memory_diagnostics(
+    Function<4 * sizeof(void*), void(const char*)> cb)
 {
     StringBuffer<96> output;
 
@@ -132,6 +133,10 @@ void scratch_buffer_memory_diagnostics(Function<4* sizeof(void*), void(const cha
             output += " | ";
             output += ((ScratchBuffer*)cell.mem_.data())->tag_;
             cb(output.c_str());
+            if (is_sub_buffer_pool((ScratchBuffer*)cell.mem_.data())) {
+                sub_buffer_memory_diagnostics((ScratchBuffer*)cell.mem_.data(),
+                                              cb);
+            }
             ++buffers_used;
         }
         ++buffer_num;
@@ -191,7 +196,8 @@ void scratch_buffer_dump_sector(int sector)
 
 
 
-ScratchBufferMemory::PtrType ScratchBufferMemory::create(ScratchBuffer::Tag t)
+ScratchBufferMemory::PtrType ScratchBufferMemory::create(ScratchBuffer::Tag t,
+                                                         u32 zero_fill_size)
 {
-    return make_zeroed_sbr(t);
+    return make_zeroed_sbr(t, zero_fill_size);
 }

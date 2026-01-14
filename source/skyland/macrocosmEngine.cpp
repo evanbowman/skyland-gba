@@ -80,8 +80,7 @@ EngineImpl& bound_state()
 
 
 
-EngineImpl::EngineImpl(App* app)
-    : data_(allocate_dynamic<Data>("macrocosm-data"))
+EngineImpl::EngineImpl(App* app) : data_(allocate<Data>("macrocosm-data"))
 {
     _bound_state = this;
 
@@ -94,8 +93,7 @@ EngineImpl::EngineImpl(App* app)
 
 EngineImpl::Data::Data()
     : origin_sector_(
-          allocate_dynamic<terrain::FreebuildWideSector>("sector-mem",
-                                                         Vec2<s8>{0, 0})),
+          allocate<terrain::FreebuildWideSector>("sector-mem", Vec2<s8>{0, 0})),
       current_sector_(&*origin_sector_)
 {
 }
@@ -242,7 +240,7 @@ template <u32 inflate> struct Sector
             Buffer<char, 1000> decompressed;
         };
 
-        auto c = allocate_dynamic<Ctx>("decompression-context");
+        auto c = allocate<Ctx>("decompression-context");
 
         for (u32 i = 0; i < encoded_size.get(); ++i) {
             if (rd == save_data.end()) {
@@ -286,7 +284,7 @@ template <u32 inflate> struct Sector
             Buffer<char, 1000> compressed;
         };
 
-        auto c = allocate_dynamic<Ctx>("compression-context");
+        auto c = allocate<Ctx>("compression-context");
 
         for (u32 i = 0; i < sizeof blocks_; ++i) {
             c->block_data.push_back(((u8*)&blocks_)[i]);
@@ -566,35 +564,32 @@ terrain::Sector* EngineImpl::make_sector(Vec2<s8> coord,
         switch (shape) {
         case terrain::Sector::Shape::cube:
             data_->other_sectors_.emplace_back(
-                allocate_dynamic<terrain::CubeSector>("sector-mem", coord));
+                allocate<terrain::CubeSector>("sector-mem", coord));
             return &*data_->other_sectors_.back();
 
         case terrain::Sector::Shape::pancake:
             data_->other_sectors_.emplace_back(
-                allocate_dynamic<terrain::PancakeSector>("sector-mem", coord));
+                allocate<terrain::PancakeSector>("sector-mem", coord));
             return &*data_->other_sectors_.back();
 
         case terrain::Sector::Shape::pillar:
             data_->other_sectors_.emplace_back(
-                allocate_dynamic<terrain::PillarSector>("sector-mem", coord));
+                allocate<terrain::PillarSector>("sector-mem", coord));
             return &*data_->other_sectors_.back();
 
         case terrain::Sector::Shape::freebuild_wide:
             data_->other_sectors_.emplace_back(
-                allocate_dynamic<terrain::FreebuildWideSector>("sector-mem",
-                                                               coord));
+                allocate<terrain::FreebuildWideSector>("sector-mem", coord));
             return &*data_->other_sectors_.back();
 
         case terrain::Sector::Shape::freebuild_flat:
             data_->other_sectors_.emplace_back(
-                allocate_dynamic<terrain::FreebuildFlatSector>("sector-mem",
-                                                               coord));
+                allocate<terrain::FreebuildFlatSector>("sector-mem", coord));
             return &*data_->other_sectors_.back();
 
         case terrain::Sector::Shape::freebuild:
             data_->other_sectors_.emplace_back(
-                allocate_dynamic<terrain::FreebuildSector>("sector-mem",
-                                                           coord));
+                allocate<terrain::FreebuildSector>("sector-mem", coord));
             return &*data_->other_sectors_.back();
 
         case terrain::Sector::Shape::reserved_important_never_use:

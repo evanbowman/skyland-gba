@@ -48,8 +48,8 @@ public:
 
 
     ExchangeColonyScene(Vec2<s8> exchange_sector)
-        : data_in_(allocate_dynamic<Schema>("exchange_colony_buffer")),
-          data_out_(allocate_dynamic<Schema>("exchange_colony_buffer")),
+        : data_in_(allocate<Schema>("exchange_colony_buffer")),
+          data_out_(allocate<Schema>("exchange_colony_buffer")),
           input_ptr_(reinterpret_cast<u8*>(&*data_in_)),
           exchange_sector_(exchange_sector)
     {

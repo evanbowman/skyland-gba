@@ -135,7 +135,7 @@ void repaint(const Settings& settings)
     static const int minimap_px_height = 40;
     using MinimapPixels = u8[minimap_px_width][minimap_px_height];
 
-    // auto pixel_buffer = allocate_dynamic<MinimapPixels>("m-px-buffer");
+    // auto pixel_buffer = allocate<MinimapPixels>("m-px-buffer");
     alignas(u32) MinimapPixels pixel_buffer;
 
     auto cursor_loc = globals().far_cursor_loc_;

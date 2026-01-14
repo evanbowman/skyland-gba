@@ -42,7 +42,7 @@ EnvironmentId DustStorm::id() const
 
 
 
-DustStorm::DustStorm()
+DustStorm::DustStorm() : state_("weather-state")
 {
     auto& s = *state_;
     s.particle_count_ = 12;

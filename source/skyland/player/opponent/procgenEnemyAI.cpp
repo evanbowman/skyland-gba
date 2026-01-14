@@ -457,7 +457,7 @@ void ProcgenEnemyAI::generate_weapons(int max)
         Buffer<Pair, 30> pairs_;
     };
 
-    auto c = allocate_dynamic<Context>("procgen-buffer");
+    auto c = allocate<Context>("procgen-buffer");
 
     for (int x = 0; x < 16; ++x) {
         for (int y = 0; y < 16; ++y) {
@@ -817,7 +817,7 @@ void ProcgenEnemyAI::generate_forcefields()
         Buffer<Slot, 60> slots_;
     };
 
-    auto c = allocate_dynamic<Context>("procgen-buffer");
+    auto c = allocate<Context>("procgen-buffer");
 
     int free_count = 15 - construction_zone_min_y;
     for (int i = 0; i < 15; ++i) {
@@ -1244,7 +1244,7 @@ void ProcgenEnemyAI::generate_stairwells()
         Buffer<StairwellPos, 30> slots;
     };
 
-    auto c = allocate_dynamic<Context>("procgen-buffer");
+    auto c = allocate<Context>("procgen-buffer");
 
 
     auto mt = load_metaclass("stairwell");
@@ -1400,7 +1400,7 @@ void ProcgenEnemyAI::generate_characters()
         bool matrix_[16][16];
     };
 
-    auto c = allocate_dynamic<Context>("procgen-buffer");
+    auto c = allocate<Context>("procgen-buffer");
 
     for (int i = 0; i < chr_count; ++i) {
         APP.opponent_island()->plot_walkable_zones(c->matrix_, nullptr);
@@ -1503,7 +1503,7 @@ void ProcgenEnemyAI::place_room_adjacent(const char* room_name)
         Buffer<Slot, 50> slots;
     };
 
-    auto c = allocate_dynamic<Context>("procgen-buffer");
+    auto c = allocate<Context>("procgen-buffer");
 
     auto find_connected_slots = [&](int room_height) {
         for (int x = 0; x < 16; ++x) {

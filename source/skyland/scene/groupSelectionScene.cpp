@@ -42,7 +42,7 @@ void GroupSelectionScene::enter(Scene& prev)
 {
     ActiveWorldScene::enter(prev);
 
-    group_selection_ = allocate_dynamic<GroupSelection>("selgroup");
+    group_selection_ = allocate_small<GroupSelection>("selgroup");
 
     auto cursor = globals().near_cursor_loc_;
 

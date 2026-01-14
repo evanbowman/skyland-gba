@@ -46,7 +46,7 @@ std::tuple<u8, u8, Island*> check_island_tapclick(const Vec2<u32>& pos);
 WeaponSetTargetScene::WeaponSetTargetScene(GroupSelection& sel)
     : weapon_loc_({}), near_(true)
 {
-    selection_ = allocate_dynamic<GroupSelection>("selgroup");
+    selection_ = allocate_small<GroupSelection>("selgroup");
     **selection_ = sel;
 }
 

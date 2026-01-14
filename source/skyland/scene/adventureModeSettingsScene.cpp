@@ -424,7 +424,8 @@ ScenePtr AdventureModeSettingsScene::update(Time delta)
             APP.gp_.stateflags_.set(GlobalPersistentData::goblin_faction,
                                     false);
             APP.gp_.stateflags_.set(GlobalPersistentData::sylph_faction, false);
-            APP.gp_.stateflags_.set(GlobalPersistentData::random_faction, false);
+            APP.gp_.stateflags_.set(GlobalPersistentData::random_faction,
+                                    false);
 
             switch (APP.faction()) {
             default:

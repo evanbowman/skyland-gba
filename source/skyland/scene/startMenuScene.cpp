@@ -49,7 +49,7 @@ namespace skyland
 
 
 StartMenuScene::StartMenuScene(int fade_direction, int default_cursor)
-    : data_(allocate_dynamic<Data>("start-menu-options-buffer")),
+    : data_(allocate<Data>("start-menu-options-buffer")),
       fade_direction_(fade_direction)
 {
     data_->cursor_ = default_cursor;
@@ -325,8 +325,7 @@ AGAIN:
                     PLATFORM.screen().schedule_fade(0.f);
                     PLATFORM.screen().pixelate(0);
 
-                    auto dialog =
-                        allocate_dynamic<DialogString>("dialog-buffer");
+                    auto dialog = allocate<DialogString>("dialog-buffer");
                     *dialog = SYS_CSTR(qr_code_size_error);
                     auto next = make_scene<BoxedDialogScene>(std::move(dialog));
                     next->set_next_scene(

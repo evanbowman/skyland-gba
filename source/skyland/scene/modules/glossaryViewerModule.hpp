@@ -157,7 +157,7 @@ private:
     s16 scrollbar_glow_ = -256;
 
     using FilterBuf = Buffer<MetaclassIndex, 100>;
-    Optional<DynamicMemory<FilterBuf>> filter_buf_;
+    Optional<DynamicMemory<FilterBuf, SubBufferMemory>> filter_buf_;
 
     static Factory factory_;
 };

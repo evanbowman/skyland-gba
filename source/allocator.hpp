@@ -15,28 +15,30 @@
 #ifndef __TEST__
 #include "platform/platform.hpp"
 #endif
-#include "platform/scratch_buffer.hpp"
 #include "memory/sub_buffer.hpp"
+#include "platform/scratch_buffer.hpp"
 #include <new>
 
 
 namespace detail
 {
-template <typename MemoryPolicy>
-struct buffer_size {
+template <typename MemoryPolicy> struct buffer_size
+{
     static constexpr u32 value = MemoryPolicy::Type::size;
 };
 
-template <u32 RequiredSize, bool UseSubBuffer = (RequiredSize <= SubBuffer::size)>
-struct SelectMemory {
+template <u32 RequiredSize,
+          bool UseSubBuffer = (RequiredSize <= SubBuffer::size)>
+struct SelectMemory
+{
     using type = ScratchBufferMemory;
 };
 
-template <u32 RequiredSize>
-struct SelectMemory<RequiredSize, true> {
+template <u32 RequiredSize> struct SelectMemory<RequiredSize, true>
+{
     using type = SubBufferMemory;
 };
-}
+} // namespace detail
 
 template <u32 RequiredSize>
 using SelectMemory = typename detail::SelectMemory<RequiredSize>::type;
@@ -80,11 +82,9 @@ template <typename T, typename Mem = ScratchBufferMemory> struct DynamicMemory
     DynamicMemory(const DynamicMemory& other) = delete;
 
 
-    template <typename U, typename M> DynamicMemory& operator=(DynamicMemory<U, M>&& rebind)
+    template <typename U>
+    DynamicMemory& operator=(DynamicMemory<U, Mem>&& rebind)
     {
-        static_assert(std::is_same<M, Mem>(),
-                      "Unsupported rebind against incompatible backing mem!");
-
         memory_ = rebind.memory_;
         // Preserve the original deleter instead of creating a new one
         obj_ = {static_cast<T*>(rebind.obj_.release()),
@@ -92,14 +92,12 @@ template <typename T, typename Mem = ScratchBufferMemory> struct DynamicMemory
         return *this;
     }
 
-    template <typename U, typename M>
-    DynamicMemory(DynamicMemory<U, M>&& rebind)
+    template <typename U>
+    DynamicMemory(DynamicMemory<U, Mem>&& rebind)
         : memory_(rebind.memory_),
           obj_(static_cast<T*>(rebind.obj_.release()),
                reinterpret_cast<void (*)(T*)>(rebind.obj_.get_deleter()))
     {
-        static_assert(std::is_same<M, Mem>(),
-                      "Unsupported rebind against incompatible backing mem!");
     }
 
 
@@ -122,8 +120,7 @@ template <typename T, typename Mem = ScratchBufferMemory> struct DynamicMemory
 
 
 template <typename T, typename... Args>
-DynamicMemory<T> allocate_dynamic_fast(const ScratchBuffer::Tag& tag,
-                                       Args&&... args)
+DynamicMemory<T> allocate_fast(const ScratchBuffer::Tag& tag, Args&&... args)
 {
     static_assert(sizeof(T) + alignof(T) <= sizeof ScratchBuffer::data_);
 
@@ -157,11 +154,14 @@ DynamicMemory<T> allocate_dynamic_fast(const ScratchBuffer::Tag& tag,
 
 
 template <typename T, typename... Args>
-DynamicMemory<T> allocate_dynamic(const ScratchBuffer::Tag& tag, Args&&... args)
+DynamicMemory<T, ScratchBufferMemory> allocate(const ScratchBuffer::Tag& tag,
+                                               Args&&... args)
 {
-    static_assert(sizeof(T) + alignof(T) <= sizeof ScratchBuffer::data_);
+    using MemT = ScratchBufferMemory;
+    static_assert(sizeof(T) + alignof(T) <= MemT::Type::size);
 
-    auto sc_buf = make_zeroed_sbr(tag, sizeof(T) + alignof(T));
+    auto sc_buf = MemT::create(tag);
+
 
     auto deleter = [](T* val) {
         if (val) {
@@ -190,17 +190,15 @@ DynamicMemory<T> allocate_dynamic(const ScratchBuffer::Tag& tag, Args&&... args)
 
 
 
-// A very trivially slower allocator that slices scratch buffers into smaller
-// components called SubBuffers if possible, wasting less memory. For longer
-// lived allocations, prefer this function.
-template <typename T, typename ...Args>
-DynamicMemory<T, SelectMemory<sizeof(T)>>
-allocate_dynamic_bestfit(const ScratchBuffer::Tag& tag, Args&&... args)
+template <typename T, typename... Args>
+DynamicMemory<T, SubBufferMemory> allocate_small(const ScratchBuffer::Tag& tag,
+                                                 Args&&... args)
 {
-    using MemT = SelectMemory<sizeof(T)>;
+    using MemT = SubBufferMemory;
     static_assert(sizeof(T) + alignof(T) <= MemT::Type::size);
 
     auto sc_buf = MemT::create(tag);
+
 
     auto deleter = [](T* val) {
         if (val) {
@@ -234,6 +232,8 @@ allocate_dynamic_bestfit(const ScratchBuffer::Tag& tag, Args&&... args)
 template <typename T> class ScratchMemory
 {
 private:
+    using Mem = SelectMemory<sizeof(T) + alignof(T)>;
+
     // ScratchMemory stores the aligned offset of the data in the scratch buffer
     // in a single byte value in the first byte of the buffer.
     struct DataHeader
@@ -247,8 +247,8 @@ private:
     // u8 data_[sizeof(T)];
 
 public:
-    ScratchMemory()
-        : handle_(make_zeroed_sbr("scratch-memory", sizeof(T) + alignof(T)))
+    ScratchMemory(typename Mem::Type::Tag tag)
+        : handle_(Mem::create(tag, sizeof(T) + alignof(T)))
     {
         void* alloc_ptr = handle_->data_;
         std::size_t size = sizeof handle_->data_;
@@ -300,7 +300,7 @@ public:
 
 
 private:
-    ScratchBufferPtr handle_;
+    typename Mem::PtrType handle_;
 };
 
 
@@ -370,8 +370,8 @@ template <u8 pages, typename T> class BumpAllocator
 public:
     BumpAllocator()
     {
-        mem_.emplace_back(allocate_dynamic_fast<Block>(
-            "depth-block", typename Block::SkipZeroFill{}));
+        mem_.emplace_back(allocate_fast<Block>("depth-block",
+                                               typename Block::SkipZeroFill{}));
         current_ = &*mem_.back();
     }
 
@@ -387,7 +387,7 @@ public:
             if (mem_.full()) {
                 Platform::fatal("Bump allocator oom!");
             }
-            mem_.emplace_back(allocate_dynamic_fast<Block>(
+            mem_.emplace_back(allocate_fast<Block>(
                 "depth-block", typename Block::SkipZeroFill{}));
             current_ = &*mem_.back();
             cnt_ = 0;

@@ -63,7 +63,7 @@ private:
 
     Vec2<Fixnum> last_draw_pos_[4];
 
-    Optional<DynamicMemory<GroupSelection>> group_selection_;
+    Optional<DynamicMemory<GroupSelection, SubBufferMemory>> group_selection_;
 
     Optional<Text> text_;
     Optional<MetaclassIndex> group_mti_;

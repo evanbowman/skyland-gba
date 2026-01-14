@@ -9,10 +9,10 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#include "skyland/scene.hpp"
-#include "platform/platform.hpp"
-#include "skyland/skyland.hpp"
 #include "boxedDialogScene.hpp"
+#include "platform/platform.hpp"
+#include "skyland/scene.hpp"
+#include "skyland/skyland.hpp"
 
 
 
@@ -24,14 +24,12 @@ namespace skyland
 class FullscreenDialogChainScene : public Scene
 {
 public:
-
     void enter(Scene& prev) override;
 
 
     ScenePtr update(Time delta) override;
-
 };
 
 
 
-}
+} // namespace skyland
