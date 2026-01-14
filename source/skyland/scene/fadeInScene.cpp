@@ -83,12 +83,20 @@ void FadeInScene::enter(Scene& prev)
     }
 
     PLATFORM.screen().set_shader(APP.environment().shader());
+    PLATFORM.screen().set_shader_argument(0);
 
     APP.player_island().schedule_repaint();
 
     if (APP.opponent_island()) {
         APP.opponent_island()->schedule_repaint();
     }
+#ifndef __GBA__
+    // FIXME!!! Palette handling is a bit broken in the SDL port.
+    show_island(&APP.player_island());
+    APP.with_opponent_island([](Island& isle) {
+        show_island(&isle);
+    });
+#endif
 }
 
 
