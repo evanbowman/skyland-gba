@@ -24,7 +24,7 @@ namespace skyland
 
 
 ItemShopScene::ItemShopScene()
-    : items_(allocate_dynamic<ItemsBuffer>("shop-items-buffer"))
+    : items_(allocate_dynamic_bestfit<ItemsBuffer>("shop-items-buffer"))
 {
 }
 

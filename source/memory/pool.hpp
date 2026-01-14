@@ -173,6 +173,12 @@ public:
         return cells_;
     }
 
+    bool contains(u8* mem)
+    {
+        return mem >= (void*)cells().data() and
+               mem < (void*)(cells().data() + cells().size());
+    }
+
     bool is_freed(const Cell* cell) const
     {
         auto list = freelist_;
@@ -236,9 +242,19 @@ public:
         return pool_.remaining();
     }
 
+    u32 pooled_element_count() const
+    {
+        return pool_.pooled_element_count();
+    }
+
     bool empty() const
     {
         return pool_.empty();
+    }
+
+    bool contains(u8* mem)
+    {
+        return pool_.contains(mem);
     }
 
     using _Pool = Pool<sizeof(T), count, alignof(T)>;

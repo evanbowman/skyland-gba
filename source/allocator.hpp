@@ -16,7 +16,30 @@
 #include "platform/platform.hpp"
 #endif
 #include "platform/scratch_buffer.hpp"
+#include "memory/sub_buffer.hpp"
 #include <new>
+
+
+namespace detail
+{
+template <typename MemoryPolicy>
+struct buffer_size {
+    static constexpr u32 value = MemoryPolicy::Type::size;
+};
+
+template <u32 RequiredSize, bool UseSubBuffer = (RequiredSize <= SubBuffer::size)>
+struct SelectMemory {
+    using type = ScratchBufferMemory;
+};
+
+template <u32 RequiredSize>
+struct SelectMemory<RequiredSize, true> {
+    using type = SubBufferMemory;
+};
+}
+
+template <u32 RequiredSize>
+using SelectMemory = typename detail::SelectMemory<RequiredSize>::type;
 
 
 
@@ -41,13 +64,13 @@ align(size_t __align, size_t __size, void*& __ptr, size_t& __space) noexcept
 // memory. If your data is nowhere near 2k, and the data is long lived, might be
 // better to use a bulk allocator, and share the underlying scratch buffer with
 // other stuff.
-template <typename T> struct DynamicMemory
+template <typename T, typename Mem = ScratchBufferMemory> struct DynamicMemory
 {
-    ScratchBufferPtr memory_;
+    typename Mem::PtrType memory_;
     UniquePtr<T, void (*)(T*)> obj_;
 
     DynamicMemory() = default;
-    DynamicMemory(ScratchBufferPtr mem, UniquePtr<T, void (*)(T*)> obj)
+    DynamicMemory(typename Mem::PtrType mem, UniquePtr<T, void (*)(T*)> obj)
         : memory_(mem), obj_(std::move(obj))
 
     {
@@ -57,8 +80,11 @@ template <typename T> struct DynamicMemory
     DynamicMemory(const DynamicMemory& other) = delete;
 
 
-    template <typename U> DynamicMemory& operator=(DynamicMemory<U>&& rebind)
+    template <typename U, typename M> DynamicMemory& operator=(DynamicMemory<U, M>&& rebind)
     {
+        static_assert(std::is_same<M, Mem>(),
+                      "Unsupported rebind against incompatible backing mem!");
+
         memory_ = rebind.memory_;
         // Preserve the original deleter instead of creating a new one
         obj_ = {static_cast<T*>(rebind.obj_.release()),
@@ -66,12 +92,14 @@ template <typename T> struct DynamicMemory
         return *this;
     }
 
-    template <typename U>
-    DynamicMemory(DynamicMemory<U>&& rebind)
+    template <typename U, typename M>
+    DynamicMemory(DynamicMemory<U, M>&& rebind)
         : memory_(rebind.memory_),
           obj_(static_cast<T*>(rebind.obj_.release()),
                reinterpret_cast<void (*)(T*)>(rebind.obj_.get_deleter()))
     {
+        static_assert(std::is_same<M, Mem>(),
+                      "Unsupported rebind against incompatible backing mem!");
     }
 
 
@@ -134,6 +162,45 @@ DynamicMemory<T> allocate_dynamic(const ScratchBuffer::Tag& tag, Args&&... args)
     static_assert(sizeof(T) + alignof(T) <= sizeof ScratchBuffer::data_);
 
     auto sc_buf = make_zeroed_sbr(tag, sizeof(T) + alignof(T));
+
+    auto deleter = [](T* val) {
+        if (val) {
+            if constexpr (not std::is_trivial<T>()) {
+                val->~T();
+            }
+            // No need to actually deallocate anything, we
+            // just need to make sure that we're calling the
+            // destructor.
+        }
+    };
+
+    void* alloc_ptr = sc_buf->data_;
+    std::size_t size = sizeof sc_buf->data_;
+
+    if (align(alignof(T), sizeof(T), alloc_ptr, size)) {
+        T* result = reinterpret_cast<T*>(alloc_ptr);
+        new (result) T(std::forward<Args>(args)...);
+        alloc_ptr = (char*)alloc_ptr + sizeof(T);
+        size -= sizeof(T);
+
+        return {sc_buf, {result, deleter}};
+    }
+    return {sc_buf, {nullptr, deleter}};
+}
+
+
+
+// A very trivially slower allocator that slices scratch buffers into smaller
+// components called SubBuffers if possible, wasting less memory. For longer
+// lived allocations, prefer this function.
+template <typename T, typename ...Args>
+DynamicMemory<T, SelectMemory<sizeof(T)>>
+allocate_dynamic_bestfit(const ScratchBuffer::Tag& tag, Args&&... args)
+{
+    using MemT = SelectMemory<sizeof(T)>;
+    static_assert(sizeof(T) + alignof(T) <= MemT::Type::size);
+
+    auto sc_buf = MemT::create(tag);
 
     auto deleter = [](T* val) {
         if (val) {

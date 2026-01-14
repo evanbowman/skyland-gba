@@ -43,7 +43,7 @@ private:
     };
 
     using ItemsBuffer = Buffer<ShopItem, 4>;
-    DynamicMemory<ItemsBuffer> items_;
+    DynamicMemory<ItemsBuffer, SubBufferMemory> items_;
 
     Time timer_ = 0;
 

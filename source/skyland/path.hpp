@@ -28,8 +28,8 @@ class Island;
 
 
 
-using PathBuffer = Buffer<RoomCoord, 512>;
-using Path = DynamicMemory<PathBuffer>;
+using PathBuffer = Buffer<RoomCoord, 100>;
+using Path = DynamicMemory<PathBuffer, SubBufferMemory>;
 
 
 class Character;

@@ -15,6 +15,7 @@
 #include "platform.hpp"
 #endif
 #include "ext_workram_data.hpp"
+#include "memory/sub_buffer.hpp"
 
 
 
@@ -187,3 +188,10 @@ void scratch_buffer_dump_sector(int sector)
     PLATFORM.remote_console().printline(complete.c_str(), "sc> ");
 }
 #endif
+
+
+
+ScratchBufferMemory::PtrType ScratchBufferMemory::create(ScratchBuffer::Tag t)
+{
+    return make_zeroed_sbr(t);
+}

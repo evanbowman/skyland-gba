@@ -25,6 +25,8 @@
 
 struct ScratchBuffer
 {
+    static constexpr const u32 size = SCRATCH_BUFFER_SIZE;
+
     // NOTE: do not make any assumptions about the alignment of the data_
     // member.
     char data_[SCRATCH_BUFFER_SIZE];
@@ -73,3 +75,12 @@ void set_scratch_buffer_oom_handler(
 class Platform;
 void scratch_buffer_memory_diagnostics(Function<4* sizeof(void*), void(const char*)> cb);
 void scratch_buffer_dump_sector(int sector);
+
+
+
+struct ScratchBufferMemory
+{
+    using Type = ScratchBuffer;
+    using PtrType = ScratchBufferPtr;
+    static PtrType create(ScratchBuffer::Tag t);
+};

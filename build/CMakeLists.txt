@@ -83,6 +83,7 @@ set(SOURCES
   ${SOURCE_DIR}/localization.cpp
   ${SOURCE_DIR}/localization_extended.cpp
   ${SOURCE_DIR}/memory/malloc.cpp
+  ${SOURCE_DIR}/memory/sub_buffer.cpp
   ${SOURCE_DIR}/memory/extension.cpp
   ${SOURCE_DIR}/compression.cpp
   ${SOURCE_DIR}/memory/pool.cpp
@@ -128,7 +129,6 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/weather/night.cpp
   ${SOURCE_DIR}/skyland/weather/storm.cpp
   ${SOURCE_DIR}/skyland/weather/typhoon.cpp
-  ${SOURCE_DIR}/skyland/weather/dynamic.cpp
   ${SOURCE_DIR}/skyland/weather/dustStorm.cpp
   ${SOURCE_DIR}/skyland/weather/blizzard.cpp
   ${SOURCE_DIR}/skyland/weather/solarStorm.cpp
