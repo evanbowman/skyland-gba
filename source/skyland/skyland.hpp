@@ -121,6 +121,13 @@ public:
     }
 
 
+    template <typename F> void foreach_island(F&& cb)
+    {
+        cb(player_island());
+        with_opponent_island(cb);
+    }
+
+
     void start_console();
 
 

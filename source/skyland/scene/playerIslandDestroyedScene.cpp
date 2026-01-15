@@ -501,23 +501,25 @@ ScenePtr PlayerIslandDestroyedScene::update(Time delta)
 
 
                 if (not ready_transporters.empty()) {
-                    for (auto& room : APP.opponent_island()->rooms()) {
-                        Buffer<RoomCoord, 8> temp;
+                    APP.with_opponent_island([&](Island& isle) {
+                        for (auto& room : isle.rooms()) {
+                            Buffer<RoomCoord, 8> temp;
 
-                        for (auto& chr : room->characters()) {
-                            if (chr->owner() == &APP.player()) {
-                                temp.push_back(chr->grid_position());
+                            for (auto& chr : room->characters()) {
+                                if (chr->owner() == &APP.player()) {
+                                    temp.push_back(chr->grid_position());
+                                }
+                            }
+
+                            for (auto pos : temp) {
+                                if (not ready_transporters.empty()) {
+                                    auto tx = ready_transporters.back();
+                                    tx->recover_character(pos);
+                                    ready_transporters.pop_back();
+                                }
                             }
                         }
-
-                        for (auto pos : temp) {
-                            if (not ready_transporters.empty()) {
-                                auto tx = ready_transporters.back();
-                                tx->recover_character(pos);
-                                ready_transporters.pop_back();
-                            }
-                        }
-                    }
+                    });
                 }
 
                 for (auto& room : APP.player_island().rooms()) {
@@ -535,23 +537,20 @@ ScenePtr PlayerIslandDestroyedScene::update(Time delta)
                 APP.swap_opponent<FriendlyAI>();
             }
 
-            for (auto& room : APP.player_island().rooms()) {
-                room->detach_drone(true);
-            }
-
-            for (auto& room : APP.opponent_island()->rooms()) {
-                room->detach_drone(true);
-            }
-
-            APP.player_island().drones().clear();
-            APP.opponent_island()->drones().clear();
+            APP.foreach_island([&](Island& isle) {
+                for (auto& room : isle.rooms()) {
+                    room->detach_drone(true);
+                }
+                isle.drones().clear();
+            });
 
             APP.birds().clear(); // bugfix?
 
             for (u8 x = 0; x < 16; ++x) {
                 for (u8 y = 0; y < 16; ++y) {
-                    APP.player_island().fire_extinguish({x, y});
-                    APP.opponent_island()->fire_extinguish({x, y});
+                    APP.foreach_island([&](Island& isle) {
+                        isle.fire_extinguish({x, y});
+                    });
                 }
             }
         }
@@ -649,16 +648,12 @@ ScenePtr PlayerIslandDestroyedScene::update(Time delta)
 
         setup_shader();
 
-        for (auto& room : APP.player_island().rooms()) {
-            room->detach_drone(true);
-        }
-
-        for (auto& room : APP.opponent_island()->rooms()) {
-            room->detach_drone(true);
-        }
-
-        APP.player_island().drones().clear();
-        APP.opponent_island()->drones().clear();
+        APP.foreach_island([&](Island& isle) {
+            for (auto& room : isle.rooms()) {
+                room->detach_drone(true);
+            }
+            isle.drones().clear();
+        });
 
         for (auto& room : APP.player_island().rooms()) {
             room->unset_target();
