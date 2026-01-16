@@ -1885,6 +1885,8 @@ bool is_executing()
 // params are supplied, checks the proper structure of special forms, etc...
 void lint(Value* expr, Value* variable_list)
 {
+    Protected var_list(variable_list);
+
     bool is_special_form = false;
 
     switch (expr->type()) {
@@ -1940,6 +1942,7 @@ void lint(Value* expr, Value* variable_list)
                             return;
                         }
                         variable_list = L_CONS(sym, variable_list);
+                        var_list = variable_list;
                         bindings = bindings->cons().cdr();
                     }
                     is_special_form = true;
@@ -1971,6 +1974,7 @@ void lint(Value* expr, Value* variable_list)
                             return;
                         }
                         variable_list = L_CONS(arg_sym, variable_list);
+                        var_list = variable_list;
                         args = args->cons().cdr();
                     }
                     is_special_form = true;
@@ -3869,7 +3873,7 @@ void eval(Value* code)
         }
 
         eval(code->cons().car());
-        auto function = get_op0();
+        Protected function(get_op0());
         pop_op();
 
         int argc = 0;
