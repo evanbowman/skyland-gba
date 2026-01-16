@@ -807,15 +807,7 @@ inline Value* set_var(const char* name, Value* value)
 }
 
 
-inline Value* get_var(const char* name)
-{
-    auto var_sym = make_symbol(name);
-    if (var_sym->type() not_eq Value::Type::symbol) {
-        return var_sym;
-    }
-
-    return get_var(var_sym);
-}
+Value* get_var(const char* name);
 
 
 class CharSequence

@@ -28,6 +28,23 @@
 #endif
 
 
+// Runs gc for every read() function call, every eval() function call, etc.
+// These functions are called quite frequently, e.g. eval() calls eval()
+// recursively as it evaluates lisp code, so you get good coverage by just
+// instrumenting these two functions. The GC stress test is designed to detect
+// mistakes where variables are not properly protected from the garbage
+// collector. By running the gc any time you do anything, it makes it easier to
+// track down gc bugs. Of course, doing so is super resource intensive and I
+// wouldn't recommend turning it on in release builds. And it'd take SUPER LONG
+// to run on a gba so do it in desktop builds.
+// #define LISP_GC_STRESS_TEST
+#ifdef LISP_GC_STRESS_TEST
+#define STRESS_GC() run_gc()
+#else
+#define STRESS_GC()
+#endif
+
+
 namespace lisp
 {
 
@@ -186,7 +203,7 @@ constexpr const std::array<FinalizerTableEntry, Value::Type::count> fin_table =
 
 #define MAX_NAMED_ARGUMENTS 5
 #define RECENT_ALLOC_CACHE_SIZE 8
-#define __USE_RECENT_ALLOC_CACHE__
+// #define __USE_RECENT_ALLOC_CACHE__
 
 
 struct Context
@@ -282,6 +299,13 @@ static void invoke_finalizer(Value* value);
 void value_pool_free(Value* value);
 
 
+static void collect_value(Value* value)
+{
+    invoke_finalizer(value);
+    value_pool_free(value);
+}
+
+
 void __unsafe_discard_list(Value* list)
 {
     // NOTE: this function manually deallocates a list, and does not check to
@@ -292,8 +316,7 @@ void __unsafe_discard_list(Value* list)
 
     while (list not_eq L_NIL) {
         auto next = list->cons().cdr();
-        invoke_finalizer(list);
-        value_pool_free(list);
+        collect_value(list);
         list = next;
     }
 }
@@ -316,8 +339,7 @@ static void pop_callstack()
     if (bound_context->callstack_untouched_) {
         // If nothing referenced the callstack by calling stacktrace(), then we
         // can deallocate the memory reserved for the stack frame right away.
-        invoke_finalizer(old);
-        value_pool_free(old);
+        collect_value(old);
     }
 
     if (length(bound_context->callstack_) == 1) {
@@ -838,6 +860,9 @@ static Value* alloc_value()
         i %= RECENT_ALLOC_CACHE_SIZE;
 #endif
 
+#ifdef MEM_PTR_TRACE
+        std::cout << ::format("alloc %", (int)(intptr_t)val).c_str() << std::endl;
+#endif
         return init_val(val);
     }
 
@@ -1135,8 +1160,7 @@ static void arg_substitution_impl(Value* impl, ArgBindings& bindings)
                         // We're performing a destructive operation on a
                         // cons. We can throw out the old value...  This is
                         // actually safe.
-                        invoke_finalizer(old_val);
-                        value_pool_free(old_val);
+                        collect_value(old_val);
 
                         auto sym = ctx->argument_symbols_[binding.replacement_];
 
@@ -1654,7 +1678,7 @@ void funcall(Value* obj, u8 argc)
 
     // NOTE: The callee must be somewhere on the operand stack, so it's safe
     // to store this unprotected var here.
-    Value* prev_bindings = bound_context->lexical_bindings_;
+    Protected prev_bindings(bound_context->lexical_bindings_);
 
     auto& ctx = *bound_context;
     auto prev_arguments_break_loc = ctx.arguments_break_loc_;
@@ -1829,6 +1853,19 @@ Value* get_this()
 Value* get_var_stable(const char* intern_str)
 {
     return get_var(make_symbol(intern_str, Symbol::ModeBits::stable_pointer));
+}
+
+
+Value* get_var(const char* name)
+{
+    auto var_sym = make_symbol(name);
+    if (var_sym->type() not_eq Value::Type::symbol) {
+        return var_sym;
+    }
+
+    auto val = get_var(var_sym);
+    collect_value(var_sym);
+    return val;
 }
 
 
@@ -2288,6 +2325,7 @@ Value* lint_code(CharSequence& code)
         pop_op(); // reader result
 
         if (is_error(expr_result)) {
+            Protected p(expr_result);
             const auto current_line = error_find_linenum(code, last_i);
             error_append_line_hint(expr_result->error(), current_line);
             expr_result->error().stacktrace_ = compr(L_NIL);
@@ -2342,6 +2380,7 @@ Value* dostring(CharSequence& code,
             pop_op();
             break;
         }
+        STRESS_GC();
     }
 
     if (bound_context->strict_ and
@@ -2360,6 +2399,10 @@ const char* nameof(Value* value);
 
 void format_impl(Value* value, Printer& p, int depth, bool skip_quotes = false)
 {
+    if (not value->hdr_.alive_) {
+        return;
+    }
+
     bool prefix_quote = false;
 
     switch ((lisp::Value::Type)value->type()) {
@@ -2798,14 +2841,10 @@ int compact_string_memory()
     ctx.string_buffer_remaining_ = (SCRATCH_BUFFER_SIZE - (write_offset + 1));
 
     for (auto& b : recovered_buffers) {
-        invoke_finalizer(b);
-        value_pool_free(b);
+        collect_value(b);
     }
 
     return recovered_buffers.size();
-
-    // info(::format("compacted string memory, % total in use",
-    //               string_bytes_total));
 }
 
 
@@ -2828,8 +2867,11 @@ static int gc_sweep()
                 val->hdr_.mark_bit_ = false;
                 ++used_count;
             } else {
-                invoke_finalizer(val);
-                value_pool_free(val);
+#ifdef MEM_PTR_TRACE
+                std::cout << ::format("free % ",
+                                      (int)(intptr_t)val).c_str() << std::endl;
+#endif
+                collect_value(val);
                 ++collect_count;
             }
         }
@@ -2936,6 +2978,8 @@ push_reader_error(CharSequence& code, int byte_offset, Error::Code ec)
 static u32 read_list(CharSequence& code, int offset)
 {
     int i = 0;
+
+    STRESS_GC();
 
     auto result = get_nil();
     push_op(get_nil());
@@ -3379,6 +3423,8 @@ static void negate_number(Value* v)
 u32 read(CharSequence& code, int offset)
 {
     int i = 0;
+
+    STRESS_GC();
 
     push_op(get_nil());
 
@@ -3860,6 +3906,8 @@ void eval(Value* code)
     // NOTE: just to protect this from the GC, in case the user didn't bother to
     // do so.
     push_op(code);
+
+    STRESS_GC();
 
     if (code->type() == Value::Type::symbol) {
         pop_op();
