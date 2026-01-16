@@ -509,7 +509,8 @@ static bool globals_tree_insert(Value* key, Value* value, bool define_var)
 
         if (key->symbol().unique_id() < TKEY(pt)) {
             Protected new_kvp(make_cons(key, value));
-            auto node = make_cons(new_kvp, make_cons(get_nil(), get_nil()));
+            Protected children(make_cons(get_nil(), get_nil()));
+            auto node = make_cons(new_kvp, children);
             SLST(node, LST(pt));
             SRST(node, pt);
             SLST(pt, get_nil());
@@ -519,7 +520,8 @@ static bool globals_tree_insert(Value* key, Value* value, bool define_var)
             }
         } else if (key->symbol().unique_id() > TKEY(pt)) {
             Protected new_kvp(make_cons(key, value));
-            auto node = make_cons(new_kvp, make_cons(get_nil(), get_nil()));
+            Protected children(make_cons(get_nil(), get_nil()));
+            auto node = make_cons(new_kvp, children);
             SRST(node, RST(pt));
             SLST(node, pt);
             SRST(pt, get_nil());
