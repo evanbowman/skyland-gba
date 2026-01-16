@@ -194,11 +194,11 @@ void StartAdventureScene::reset_state()
 
     Character::__reset_ids();
 
-    APP.current_world_location() = 0;
+    APP.set_current_world_location(0);
     APP.world_graph().generate();
     APP.persistent_data().lives_ = 2;
 
-    APP.zone() = 1;
+    APP.set_zone(1);
 
     APP.persistent_data().total_seconds_.set(0);
     APP.persistent_data().score_.set(0);

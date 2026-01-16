@@ -228,7 +228,7 @@ void MultiplayerSettingsScene::setup_co_op_game()
 
     APP.persistent_data().score_.set(0);
 
-    APP.set_coins(std::max(0, APP.coins() - 1000));
+    APP.set_coins(std::max((s32)0, APP.coins() - 1000));
 
     APP.swap_player<CoOpTeam>();
 

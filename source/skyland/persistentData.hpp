@@ -15,10 +15,10 @@
 
 #include "achievement.hpp"
 #include "bitvector.hpp"
-#include "coins.hpp"
 #include "flag.hpp"
 #include "highscores.hpp"
 #include "number/endian.hpp"
+#include "types.hpp"
 #include "worldGraph.hpp"
 
 
@@ -78,12 +78,28 @@ struct GlobalPersistentData
 
 
 
-struct PersistentData
+struct alignas(4) PersistentData
 {
-    Coins coins_ = 0; // TODO: use HostInteger<> here?
+    PersistentData()
+    {
+        coins_.set(0);
+        current_world_location_.set(0);
+        zone_.set(0);
+    }
+
+    HostInteger<Coins> coins_;
     WorldGraph world_graph_;
-    int current_world_location_ = 0;
-    int zone_ = 0;
+
+    // NOTE: in the past, a couple of fields in persistent data were integers,
+    // requiring specific padding and alignment. After switching to use the more
+    // portable HostInteger<> class, we need to preserve alignment for
+    // compatibility with old save files. But declaring the integers with a
+    // fixed size and endianness was still necessary to enable save file
+    // compatibility between GBA consoles and 64-bit desktop builds.
+    u8 pad_[3];
+
+    HostInteger<s32> current_world_location_;
+    HostInteger<s32> zone_;
 
     HostInteger<u32> total_seconds_;
     HostInteger<u32> rng_;

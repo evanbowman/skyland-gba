@@ -688,7 +688,7 @@ ScenePtr WorldMapScene::update(Time delta)
         navigation_buffer_.clear();
         nav_mode_ = false;
         APP.world_graph() = **cached_world_graph_;
-        APP.current_world_location() = cursor_;
+        APP.set_current_world_location(cursor_);
         state_ = State::deselected;
         return make_scene<WorldMapScene>();
     };
@@ -1027,7 +1027,7 @@ ScenePtr WorldMapScene::update(Time delta)
                             stringify(navigation_buffer_.size()).c_str(),
                             OverlayCoord{u8(node.coord_.x + 5),
                                          u8(node.coord_.y + 3 + 1)});
-                        APP.current_world_location() = cursor_;
+                        APP.set_current_world_location(cursor_);
                         update_storm_frontier(APP.world_graph(), 0);
                         ++APP.world_graph().storm_depth_;
                         show_map(APP.world_graph(), 0);
@@ -1076,7 +1076,7 @@ ScenePtr WorldMapScene::update(Time delta)
             }
 
             prev_world_loc_ = APP.current_world_location();
-            APP.current_world_location() = cursor_;
+            APP.set_current_world_location(cursor_);
             show_map(APP.world_graph(), 0);
             cmix_ = {};
             map_key_.reset();
@@ -1358,7 +1358,7 @@ ScenePtr WorldMapScene::update(Time delta)
         PLATFORM.speaker().play_sound("cancel", 5);
         PLATFORM.sleep(30);
         navigation_path_ = cached_navigation_path_;
-        APP.current_world_location() = prev_world_loc_;
+        APP.set_current_world_location(prev_world_loc_);
         auto next = make_scene<WorldMapScene>();
         APP.world_graph().storm_depth_--;
         return next;

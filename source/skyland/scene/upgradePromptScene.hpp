@@ -11,7 +11,7 @@
 
 #pragma once
 
-#include "skyland/metaclassIndex.hpp"
+#include "skyland/types.hpp"
 #include "worldScene.hpp"
 
 

@@ -74,7 +74,7 @@ public:
 
     Coins coins() const
     {
-        return persistent_data_.coins_;
+        return persistent_data_.coins_.get();
     }
 
 
@@ -286,15 +286,27 @@ public:
     }
 
 
-    int& current_world_location()
+    s32 current_world_location()
     {
-        return persistent_data_.current_world_location_;
+        return persistent_data_.current_world_location_.get();
     }
 
 
-    int& zone()
+    void set_current_world_location(s32 loc)
     {
-        return persistent_data_.zone_;
+        persistent_data_.current_world_location_.set(loc);
+    }
+
+
+    void set_zone(s32 zone)
+    {
+        persistent_data_.zone_.set(zone);
+    }
+
+
+    s32 zone()
+    {
+        return persistent_data_.zone_.get();
     }
 
 

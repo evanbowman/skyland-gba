@@ -309,7 +309,7 @@ void App::restore_backup()
         }
     }
 
-    current_world_location() = backup_->next_world_location_;
+    APP.set_current_world_location(backup_->next_world_location_);
     ++world_graph().storm_depth_;
 }
 
@@ -591,10 +591,10 @@ void App::render()
 void App::set_coins(Coins coins)
 {
     time_stream::event::CoinsChanged e;
-    e.previous_value_.set(persistent_data_.coins_);
+    e.previous_value_.set(persistent_data_.coins_.get());
     time_stream_.push(level_timer_, e);
 
-    persistent_data_.coins_ = coins;
+    persistent_data_.coins_.set(coins);
 }
 
 

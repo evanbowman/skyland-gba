@@ -1025,9 +1025,9 @@ void PlayerIslandDestroyedScene::handle_zone_exit()
             WorldGraph::Node::Type::exit) {
         // We're at the exit node. Let's adjust stuff, so that we're at
         // the beginning of the next zone.
-        APP.current_world_location() = 0;
+        APP.set_current_world_location(0);
         APP.world_graph().generate();
-        APP.zone() += 1;
+        APP.set_zone(APP.zone() + 1);
 
         if (APP.zone() == 4) {
             // No exit in the final zone, you have to fight the
