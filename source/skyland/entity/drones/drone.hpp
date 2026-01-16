@@ -12,11 +12,11 @@
 #pragma once
 
 #include "memory/rc.hpp"
-#include "skyland/blockChecksum.hpp"
 #include "skyland/coord.hpp"
 #include "skyland/entity.hpp"
 #include "skyland/scene.hpp"
 #include "skyland/targetQueue.hpp"
+#include "skyland/types.hpp"
 
 
 

@@ -14,7 +14,7 @@
 #include "drone.hpp"
 #include "script/lisp.hpp"
 #include "skyland/alloc_entity.hpp"
-#include "skyland/coins.hpp"
+#include "skyland/types.hpp"
 
 
 

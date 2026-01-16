@@ -13,8 +13,8 @@
 
 
 #include "allocator.hpp"
-#include "skyland/characterId.hpp"
 #include "skyland/scene.hpp"
+#include "skyland/types.hpp"
 #include "worldScene.hpp"
 
 

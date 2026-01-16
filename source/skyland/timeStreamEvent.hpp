@@ -12,14 +12,13 @@
 #pragma once
 
 #include "achievement.hpp"
-#include "characterId.hpp"
-#include "coins.hpp"
 #include "entity/character/characterStats.hpp"
 #include "img.hpp"
 #include "number/random.hpp"
 #include "skyland/entity/projectile/ballistaBolt.hpp"
 #include "skyland/rooms/reconstructionQueue.hpp"
 #include "timeStreamHeader.hpp"
+#include "types.hpp"
 
 
 

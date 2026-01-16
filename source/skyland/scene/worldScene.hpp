@@ -13,10 +13,8 @@
 
 
 #include "graphics/overlay.hpp"
-#include "skyland/coins.hpp"
-#include "skyland/gamespeed.hpp"
-#include "skyland/power.hpp"
 #include "skyland/scene.hpp"
+#include "skyland/types.hpp"
 
 
 

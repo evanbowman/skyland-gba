@@ -10,8 +10,8 @@
 
 #pragma once
 
-#include "skyland/characterId.hpp"
 #include "skyland/scene_pool.hpp"
+#include "skyland/types.hpp"
 
 
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "memory/tinyBuffer.hpp"
-#include "skyland/metaclassIndex.hpp"
+#include "skyland/types.hpp"
 
 
 

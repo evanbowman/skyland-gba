@@ -15,15 +15,12 @@
 #include "coord.hpp"
 #include "entity.hpp"
 #include "entity/character/character.hpp"
-#include "health.hpp"
-#include "metaclassIndex.hpp"
 #include "number/numeric.hpp"
 #include "platform/layer.hpp"
-#include "power.hpp"
 #include "scene.hpp"
 #include "script/value.hpp"
 #include "targetQueue.hpp"
-#include "tileId.hpp"
+#include "types.hpp"
 #include <limits>
 
 

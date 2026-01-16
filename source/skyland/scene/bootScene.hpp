@@ -461,43 +461,6 @@ public:
         PLATFORM.screen().display();
         PLATFORM.sleep(10);
 
-        // Special case: if we're connected to a networked multiplayer peer upon
-        // boot, then we've started a multiboot game, and should progress
-        // immediately to a co op match after starting up.
-        if (PLATFORM.network_peer().is_connected()) {
-            state_bit_store(StateBit::multiboot, true);
-            globals().room_pools_.create("room-mem");
-            globals().entity_pools_.create("entity-mem");
-            APP.time_stream().enable_pushes(false);
-            APP.invoke_script("/scripts/config/rooms.lisp");
-            APP.invoke_script("/scripts/config/damage.lisp");
-            APP.invoke_script("/scripts/config/timing.lisp");
-            init_clouds();
-            PLATFORM.load_tile0_texture(
-                APP.environment().player_island_texture());
-            PLATFORM.load_tile1_texture(
-                APP.environment().opponent_island_texture());
-            PLATFORM.load_sprite_texture(APP.environment().sprite_texture());
-            PLATFORM.load_background_texture(
-                APP.environment().background_texture());
-            PLATFORM_EXTENSION(vertical_parallax_enable, true);
-            SkylandForever::init(1, rng::get(rng::critical_state));
-            APP.persistent_data().score_.set(0);
-            APP.set_coins(std::max(0, APP.coins() - 1000));
-            APP.swap_player<CoOpTeam>();
-            APP.game_mode() = App::GameMode::co_op;
-
-            for (auto& room : APP.player_island().rooms()) {
-                network::packet::RoomConstructed packet;
-                packet.metaclass_index_.set(room->metaclass_index());
-                packet.x_ = room->position().x;
-                packet.y_ = room->position().y;
-                network::transmit(packet);
-            }
-
-            return make_scene<FadeInScene>();
-        }
-
         if (auto match = PLATFORM.get_extensions().has_startup_opt) {
             if (match("--regression") or match("--validate-scripts")) {
                 setup_pools();

@@ -15,7 +15,7 @@
 #include "allocator.hpp"
 #include "memory/buffer.hpp"
 #include "player.hpp"
-#include "skyland/characterId.hpp"
+#include "skyland/types.hpp"
 
 
 

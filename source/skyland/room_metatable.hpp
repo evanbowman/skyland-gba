@@ -13,13 +13,12 @@
 
 
 #include "bitvector.hpp"
-#include "coins.hpp"
 #include "island.hpp"
-#include "metaclassIndex.hpp"
 #include "room.hpp"
 #include "rooms/pluginRoom.hpp"
 #include "script/value.hpp"
 #include "systemString.hpp"
+#include "types.hpp"
 
 
 

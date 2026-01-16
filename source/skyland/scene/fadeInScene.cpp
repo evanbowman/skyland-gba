@@ -93,9 +93,7 @@ void FadeInScene::enter(Scene& prev)
 #ifndef __GBA__
     // FIXME!!! Palette handling is a bit broken in the SDL port.
     show_island(&APP.player_island());
-    APP.with_opponent_island([](Island& isle) {
-        show_island(&isle);
-    });
+    APP.with_opponent_island([](Island& isle) { show_island(&isle); });
 #endif
 }
 

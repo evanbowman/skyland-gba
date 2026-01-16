@@ -15,9 +15,9 @@
 #include "memory/buffer.hpp"
 #include "memory/extension.hpp"
 #include "script/value.hpp"
-#include "skyland/characterId.hpp"
 #include "skyland/entity.hpp"
 #include "skyland/path.hpp"
+#include "skyland/types.hpp"
 
 
 

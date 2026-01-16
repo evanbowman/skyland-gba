@@ -12,7 +12,7 @@
 #pragma once
 
 #include "skyland/room.hpp"
-#include "skyland/tileId.hpp"
+#include "skyland/types.hpp"
 
 
 

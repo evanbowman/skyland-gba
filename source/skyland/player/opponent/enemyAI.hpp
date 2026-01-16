@@ -14,8 +14,8 @@
 
 #include "allocator.hpp"
 #include "opponent.hpp"
-#include "skyland/coins.hpp"
 #include "skyland/island.hpp"
+#include "skyland/types.hpp"
 
 
 

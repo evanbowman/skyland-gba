@@ -15,13 +15,11 @@
 #include "alloc_entity.hpp"
 #include "boxed.hpp"
 #include "camera.hpp"
-#include "coins.hpp"
 #include "console.hpp"
 #include "dialog.hpp"
 #include "entity/birds/bird.hpp"
 #include "faction.hpp"
 #include "flag.hpp"
-#include "gamespeed.hpp"
 #include "highscores.hpp"
 #include "island.hpp"
 #include "keyCallbackProcessor.hpp"
@@ -36,6 +34,7 @@
 #include "stateBit.hpp"
 #include "timeStream.hpp"
 #include "timeTracker.hpp"
+#include "types.hpp"
 #include "weather/environment.hpp"
 
 

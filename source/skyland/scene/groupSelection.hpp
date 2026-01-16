@@ -12,7 +12,7 @@
 
 #include "memory/buffer.hpp"
 #include "skyland/coord.hpp"
-#include "skyland/metaclassIndex.hpp"
+#include "skyland/types.hpp"
 
 
 

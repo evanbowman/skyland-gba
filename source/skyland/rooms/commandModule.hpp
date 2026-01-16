@@ -11,9 +11,9 @@
 
 #pragma once
 
-#include "skyland/coins.hpp"
 #include "skyland/room.hpp"
 #include "skyland/systemString.hpp"
+#include "skyland/types.hpp"
 
 
 

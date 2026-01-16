@@ -14,7 +14,7 @@
 #include "skyland/img.hpp"
 #include "skyland/systemString.hpp"
 #include "skyland/tile.hpp"
-#include "skyland/tileId.hpp"
+#include "skyland/types.hpp"
 
 
 

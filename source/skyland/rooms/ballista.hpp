@@ -12,8 +12,8 @@
 #pragma once
 
 
-#include "skyland/blockChecksum.hpp"
 #include "skyland/systemString.hpp"
+#include "skyland/types.hpp"
 #include "weapon.hpp"
 
 

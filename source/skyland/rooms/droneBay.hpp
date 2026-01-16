@@ -14,11 +14,11 @@
 
 #include "memory/extension.hpp"
 #include "reconstructionQueue.hpp"
-#include "skyland/coins.hpp"
 #include "skyland/entity/drones/drone.hpp"
 #include "skyland/room.hpp"
 #include "skyland/sharedVariable.hpp"
 #include "skyland/systemString.hpp"
+#include "skyland/types.hpp"
 
 
 

@@ -16,12 +16,12 @@
 #include "allocator.hpp"
 #include "containers/list.hpp"
 #include "graphics/sprite.hpp"
-#include "health.hpp"
 #include "hitbox.hpp"
 #include "memory/buffer.hpp"
 #include "memory/segmentedPool.hpp"
 #include "memory/uniquePtr.hpp"
 #include "number/numeric.hpp"
+#include "skyland/types.hpp"
 
 
 
