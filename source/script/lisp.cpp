@@ -1199,7 +1199,7 @@ static Value* make_lisp_argumented_function(Value* impl)
         return make_error(Error::Code::invalid_syntax, error_str);
     }
 
-    auto val = alloc_value();
+    Protected val(alloc_value());
 
     // Now, the complicated part...
     // We need to clone the existing source code input, then we will alter
@@ -5177,7 +5177,6 @@ BUILTIN_TABLE(
       {SIG1(symbol, string),
        [](int argc) {
            L_EXPECT_OP(0, string);
-
            return make_symbol(get_op0()->string().value());
        }}},
      {"format",
@@ -5355,7 +5354,7 @@ BUILTIN_TABLE(
            EvalPrinter p(b);
 
            if (argc == 1 and get_op0()->hdr_.type() == Value::Type::symbol) {
-               return make_string_from_literal(get_op0()->symbol().name());
+               return make_string(get_op0()->symbol().name());
            }
 
            for (int i = argc - 1; i > -1; --i) {
