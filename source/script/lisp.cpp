@@ -28,23 +28,6 @@
 #endif
 
 
-// Runs gc for every read() function call, every eval() function call, etc.
-// These functions are called quite frequently, e.g. eval() calls eval()
-// recursively as it evaluates lisp code, so you get good coverage by just
-// instrumenting these two functions. The GC stress test is designed to detect
-// mistakes where variables are not properly protected from the garbage
-// collector. By running the gc any time you do anything, it makes it easier to
-// track down gc bugs. Of course, doing so is super resource intensive and I
-// wouldn't recommend turning it on in release builds. And it'd take SUPER LONG
-// to run on a gba so do it in desktop builds.
-// #define LISP_GC_STRESS_TEST
-#ifdef LISP_GC_STRESS_TEST
-#define STRESS_GC() run_gc()
-#else
-#define STRESS_GC()
-#endif
-
-
 namespace lisp
 {
 
@@ -88,11 +71,40 @@ union ValueMemory
 static_assert(sizeof(ValueMemory) == 8);
 #endif
 
+static constexpr const int early_gc_threshold_min = 30;
 
 static EXT_WORKRAM_DATA int value_remaining_count;
-static EXT_WORKRAM_DATA int early_gc_threshold = value_remaining_count;
+static EXT_WORKRAM_DATA int early_gc_threshold = early_gc_threshold_min;
 static EXT_WORKRAM_DATA ValueMemory value_pool_data[VALUE_POOL_SIZE];
 static Value* value_pool = nullptr;
+
+
+
+static inline void gc_safepoint()
+{
+    if (value_remaining_count < early_gc_threshold) {
+        run_gc();
+    }
+}
+
+
+static inline void gc_require_space()
+{
+    // NOTE: Some parts of the interpreter are not safe to run gc in, but also
+    // need to allocate values. So we run the gc early if we're below the
+    // required values theshold, to make sure that we won't trigger the gc in a
+    // part of the code where gc cannot be run.
+    //
+    // NOTE: because the early_gc_threshold will always be higher than the small
+    // number of values that we require space for, there's no reason to actually
+    // check how many values are left. We just need to check if we're below the
+    // early gc threshold.
+    gc_safepoint();
+}
+
+#define GC_REQUIRE_SPACE(REQUIRED_VALS)                     \
+    static_assert(REQUIRED_VALS < early_gc_threshold_min);  \
+    gc_require_space();
 
 
 struct StringInternTable
@@ -202,8 +214,6 @@ constexpr const std::array<FinalizerTableEntry, Value::Type::count> fin_table =
 
 
 #define MAX_NAMED_ARGUMENTS 5
-#define RECENT_ALLOC_CACHE_SIZE 8
-// #define __USE_RECENT_ALLOC_CACHE__
 
 
 struct Context
@@ -239,24 +249,6 @@ struct Context
     // involving garbage collection that crop up during argument substitution.
     Value* argument_symbols_[MAX_NAMED_ARGUMENTS];
 
-#ifdef __USE_RECENT_ALLOC_CACHE__
-    // Ok, so this array exists mainly for the sake of my own sanity. Allocating
-    // lisp values within C++ code is extremely fragile; it is very easy to
-    // forget to protect something from the GC, resulting in dangling pointer
-    // issues if the gc runs unexpectedly and collects something that's actually
-    // in use. The recent_alloc_cache stores N recently allocated values, and
-    // the GC will not collect these N vals.
-    //
-    // For example: If someone calls make_cons(make_symbol("..."), L_NIL); Then
-    // there's a potential gc bug, where allocation of the cons value within
-    // make cons triggers a gc sweep which collects the input symbol argument,
-    // which is not protected from the GC. The existence of the
-    // recent_alloc_cache simplifies things for the programmer, by protecting
-    // values from the gc in cases of programmer error, where the developer may
-    // have made an honest mistake and forgot to gc protect something.
-    Value* recent_alloc_cache_[RECENT_ALLOC_CACHE_SIZE];
-#endif
-
     const char* external_symtab_contents_ = nullptr;
     u32 external_symtab_size_;
 
@@ -273,7 +265,6 @@ struct Context
     u16 string_buffer_remaining_ = 0;
     u16 arguments_break_loc_;
     u8 current_fn_argc_ = 0;
-    u8 recent_alloc_cache_index_ = 0;
     bool strict_ : 1 = false;
     bool callstack_untouched_ : 1 = true;
     bool critical_gc_alert_ : 1 = false;
@@ -348,10 +339,7 @@ static void pop_callstack()
         //
         // Returning to the toplevel should be a very safe place to run the
         // collector--we aren't in the middle of running any interesting code.
-
-        if (value_remaining_count < early_gc_threshold) {
-            run_gc();
-        }
+        gc_safepoint();
     }
 }
 
@@ -852,14 +840,6 @@ static Value* alloc_value()
     };
 
     if (auto val = value_pool_alloc()) {
-#ifdef __USE_RECENT_ALLOC_CACHE__
-        auto& i = bound_context->recent_alloc_cache_index_;
-        bound_context->recent_alloc_cache_[i++] = val;
-
-        static_assert(is_powerof2(RECENT_ALLOC_CACHE_SIZE));
-        i %= RECENT_ALLOC_CACHE_SIZE;
-#endif
-
 #ifdef MEM_PTR_TRACE
         std::cout << ::format("alloc %", (int)(intptr_t)val).c_str() << std::endl;
 #endif
@@ -2380,7 +2360,7 @@ Value* dostring(CharSequence& code,
             pop_op();
             break;
         }
-        STRESS_GC();
+        gc_safepoint();
     }
 
     if (bound_context->strict_ and
@@ -2741,14 +2721,6 @@ static void gc_mark()
         gc_mark_value(sym);
     }
 
-#ifdef __USE_RECENT_ALLOC_CACHE__
-    for (auto& v : bound_context->recent_alloc_cache_) {
-        if (v) {
-            gc_mark_value(v);
-        }
-    }
-#endif
-
     auto& ctx = bound_context;
 
     for (auto elem : *ctx->operand_stack_) {
@@ -2903,9 +2875,19 @@ void live_values(::Function<6 * sizeof(void*), void(Value&)> callback)
 }
 
 
+static bool gc_running;
 static int run_gc()
 {
-    return gc_mark(), gc_sweep();
+    if (gc_running) {
+        return 0;
+    }
+
+    gc_running = true;
+    gc_mark();
+    int collect_count = gc_sweep();
+    gc_running = false;
+
+    return collect_count;
 }
 
 
@@ -2979,7 +2961,7 @@ static u32 read_list(CharSequence& code, int offset)
 {
     int i = 0;
 
-    STRESS_GC();
+    gc_safepoint();
 
     auto result = get_nil();
     push_op(get_nil());
@@ -3424,7 +3406,7 @@ u32 read(CharSequence& code, int offset)
 {
     int i = 0;
 
-    STRESS_GC();
+    gc_safepoint();
 
     push_op(get_nil());
 
@@ -3907,7 +3889,7 @@ void eval(Value* code)
     // do so.
     push_op(code);
 
-    STRESS_GC();
+    gc_safepoint();
 
     if (code->type() == Value::Type::symbol) {
         pop_op();
@@ -4259,6 +4241,8 @@ BUILTIN_TABLE(
 
            bool define_if_missing = not bound_context->strict_;
 
+           GC_REQUIRE_SPACE(4);
+
            return lisp::set_var(get_op1(), get_op0(), define_if_missing);
        }}},
      {"global",
@@ -4273,6 +4257,7 @@ BUILTIN_TABLE(
                            .c_str()));
                    return make_error(Error::Code::invalid_syntax, str);
                }
+               GC_REQUIRE_SPACE(4);
                if (not globals_tree_find(get_op(i))) {
                    set_var(get_op(i), L_NIL, true);
                }
@@ -5064,8 +5049,16 @@ BUILTIN_TABLE(
      {"lisp-mem-set-gc-thresh",
       {SIG1(nil, integer),
        [](int) {
+           const char* early_gc_err_fmt =
+               "GC threshold % too low, minimum % required for safe operations";
            L_EXPECT_OP(0, integer);
-           early_gc_threshold = L_LOAD_INT(0);
+           auto val = L_LOAD_INT(0);
+           if (val < early_gc_threshold_min) {
+               return make_error(::format(early_gc_err_fmt,
+                                          val,
+                                          early_gc_threshold_min).c_str());
+           }
+           early_gc_threshold = val;
            return L_NIL;
        }}},
      {"lisp-mem-crit-gc-alert",
@@ -5173,6 +5166,7 @@ BUILTIN_TABLE(
                    auto err = lisp::Error::Code::invalid_argument_type;
                    return lisp::make_error(err, L_NIL);
                }
+               GC_REQUIRE_SPACE(20);
                set_var(sym, L_NIL, true);
                globals_tree_erase(sym);
            }
@@ -5396,13 +5390,11 @@ BUILTIN_TABLE(
            L_EXPECT_OP(1, function);
 
            auto fn = get_op1();
-           Value* result = make_cons(L_NIL, L_NIL);
-           auto prev = result;
-           auto current = result;
+           Protected result(make_cons(L_NIL, L_NIL));
+           auto prev = (Value*)result;
+           auto current = (Value*)result;
 
            l_foreach(get_op0(), [&](Value* val) {
-               push_op(result); // gc protect
-
                push_op(val);
                funcall(fn, 1);
                auto funcall_result = get_op0();
@@ -5415,8 +5407,6 @@ BUILTIN_TABLE(
                    current = next;
                }
                pop_op(); // funcall result
-
-               pop_op(); // gc unprotect
            });
 
            if (current == result) {
@@ -5425,7 +5415,7 @@ BUILTIN_TABLE(
 
            prev->cons().set_cdr(L_NIL);
 
-           return result;
+           return (Value*)result;
        }}},
      {"nameof",
       {SIG1(nil, nil),
@@ -6456,8 +6446,8 @@ Value* get_var(Value* symbol)
     hint += symbol->symbol().name();
     hint += "]";
 
-    return make_error(Error::Code::undefined_variable_access,
-                      make_string(hint.c_str()));
+    Protected err_str(make_string(hint.c_str()));
+    return make_error(Error::Code::undefined_variable_access, err_str);
 }
 
 
@@ -6552,12 +6542,6 @@ void init(Optional<std::pair<const char*, u32>> external_symtab,
 
     bound_context.emplace();
 
-#ifdef __USE_RECENT_ALLOC_CACHE__
-    for (auto& v : bound_context->recent_alloc_cache_) {
-        v = nullptr;
-    }
-#endif
-
     if (external_symtab and external_symtab->second) {
         bound_context->external_symtab_contents_ = external_symtab->first;
         bound_context->external_symtab_size_ = external_symtab->second;
@@ -6582,7 +6566,7 @@ void init(Optional<std::pair<const char*, u32>> external_symtab,
     ctx->string_buffer_ = ctx->nil_;
     ctx->macros_ = ctx->nil_;
 
-    ctx->tree_nullnode_ = make_cons(get_nil(), make_cons(get_nil(), get_nil()));
+    ctx->tree_nullnode_ = L_CONS(get_nil(), L_CONS(get_nil(), get_nil()));
 
     // Push a few nil onto the operand stack. Allows us to access the first few
     // elements of the operand stack without performing size checks.

@@ -179,7 +179,8 @@ lisp::Value* wrap_island(Island* isle)
 {
     auto tag = isle->script_userdata_tag();
     lisp::Protected ud(lisp::make_userdata(isle, tag));
-    return lisp::wrap(ud, L_SYM("isle"));
+    lisp::Protected sym(L_SYM("isle"));
+    return lisp::wrap(ud, sym);
 }
 
 
@@ -1351,7 +1352,8 @@ BINDING_TABLE({
               result.push_back(buf);
           }
 
-          return wrap(result.result(), lisp::make_symbol("file"));
+          lisp::Protected file_sym(lisp::make_symbol("file"));
+          return wrap(result.result(), file_sym);
       }}},
     {"file-exists?",
      {SIG1(nil, string),
@@ -1904,7 +1906,7 @@ BINDING_TABLE({
           L_EXPECT_OP(0, function);
           L_EXPECT_OP(1, string);
 
-          auto bundle = lisp::make_cons(lisp::get_op(1), lisp::get_op(0));
+          lisp::Protected bundle(lisp::make_cons(lisp::get_op(1), lisp::get_op(0)));
           bundle = lisp::make_cons(bundle, lisp::get_op(2));
           bundle = lisp::make_cons(L_INT(0), bundle);
           if (bundle->type() == lisp::Value::Type::cons) {
@@ -1919,7 +1921,7 @@ BINDING_TABLE({
           L_EXPECT_OP(0, function);
           L_EXPECT_OP(1, string);
 
-          auto bundle = lisp::make_cons(lisp::get_op(1), lisp::get_op(0));
+          lisp::Protected bundle(lisp::make_cons(lisp::get_op(1), lisp::get_op(0)));
           bundle = lisp::make_cons(bundle, lisp::get_op(2));
           bundle = lisp::make_cons(L_INT(1), bundle);
           if (bundle->type() == lisp::Value::Type::cons) {

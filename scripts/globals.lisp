@@ -61,3 +61,5 @@
 (defconstant faction-enable-human-mask (bit-shift-left 1 0))
 (defconstant faction-enable-goblin-mask (bit-shift-left 1 1))
 (defconstant faction-enable-sylph-mask (bit-shift-left 1 2))
+
+(defconstant default-early-gc-thresh 1000)

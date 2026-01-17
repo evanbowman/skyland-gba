@@ -672,9 +672,6 @@ Value* gensym();
 Value* make_string_from_literal(const char* str);
 
 
-Value* make_cons_safe(Value* car, Value* cdr);
-
-
 #define L_CONS(CAR, CDR)                                                       \
     ([&] {                                                                     \
         lisp::Protected v1(static_cast<lisp::Value*>(CAR));                    \

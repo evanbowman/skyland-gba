@@ -16,9 +16,8 @@
 ;; of memory, but the interpreter is a bit buggy in that
 ;; state...
 ;; NOTE: after exhaustive testing, most GC bugs have
-;; been eliminated. Eventually let's remove this auto
-;; gc threshold. Reduced to 1000 for now.
-(lisp-mem-set-gc-thresh 1000)
+;; been eliminated.
+(lisp-mem-set-gc-thresh default-early-gc-thresh)
 
 
 ;; Define some common global

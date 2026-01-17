@@ -249,6 +249,7 @@
 
 
 (begin-test "file")
+(exit-stress-gc-mode)
 
 ;; This file that we're running must exist...
 (assert-v (file-exists? "/scripts/test/unittest.lisp"))
@@ -298,6 +299,7 @@
 (when (not (equal (device-info 'name) "PC"))
   ;; FIXME: this doesn't work on PC
   (assert-v (not (file-exists? "/test.dat"))))
+
 
 (end-test)
 

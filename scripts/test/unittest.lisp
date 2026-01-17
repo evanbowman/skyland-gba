@@ -82,6 +82,19 @@
 (assert-v (error? ((lambda () (setq a 5) 8))))
 
 
+(defn enter-stress-gc-mode ()
+  ;; Only do this on PC builds where we have a fast cpu.
+  (when (equal (device-info 'name) "PC")
+    ;; Raising the threshold really high will force gc to run for every read
+    ;; expression, every expression and every nested sub-expression.
+    (lisp-mem-set-gc-thresh 1000000)))
+
+(defn exit-stress-gc-mode ()
+  (lisp-mem-set-gc-thresh default-early-gc-thresh))
+
+
+(enter-stress-gc-mode)
+
 
 (begin-test "reader")
 
@@ -138,7 +151,12 @@
 
 
 
+(gc)
 (begin-test "string")
+
+;; The tests below make certain memory assumptions that would be affected by
+;; running gc in between steps.
+(exit-stress-gc-mode)
 
 (assert-eq (length "ありがとうございます") 10)
 (assert-eq (slice "ありがとうございます" 2 7) "がとうござ")
@@ -165,6 +183,8 @@
 (assert-eq (lisp-mem-string-storage) (+ temp 7))
 "yyyy" ;; This should trigger an allocation of five additional bytes...
 (assert-eq (lisp-mem-string-storage) (+ temp 12))
+
+(enter-stress-gc-mode)
 
 (end-test)
 
