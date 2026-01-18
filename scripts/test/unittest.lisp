@@ -681,6 +681,25 @@
 (setq temp (apply string (map (lambda (x) (format "%" x)) (range 0 10))))
 (assert-eq "0123456789" temp)
 
+;; Test nested operations
+(assert-eq 100 (length (map (lambda (x) (cons x x)) (range 100))))
+
+;; Test apply + map
+(assert-eq 328350 (apply + (map (lambda (x) (* x x)) (range 100))))
+
+;; Test deep nesting
+;; Summation of numbers between 0 and 19 should be 190 I think
+(assert-eq 190 (length (flatten (map (lambda (x) (range x)) (range 20)))))
+
+(assert-eq 10020
+           (apply + (string-explode (apply string (map (lambda (x) (format "%" x)) (range 100))))))
+
+(assert-eq 100 (length (split (apply string (fill 100 "a,")) ",")))
+
+(assert-eq (range 10) (car (car (car (car (list (list (list (list (range 10))))))))))
+
+(assert-eq 2450 (apply + (map eval (map (lambda (x) (list '+ x x)) (range 50)))))
+
 (end-test)
 
 

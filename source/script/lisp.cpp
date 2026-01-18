@@ -4751,7 +4751,7 @@ BUILTIN_TABLE(
            return result;
        }}},
      {"fill",
-      {SIG2(cons, integer, integer),
+      {SIG2(cons, integer, nil),
        [](int argc) {
            L_EXPECT_OP(1, integer);
 
