@@ -797,14 +797,26 @@ o----------------------------o
  root.
 
 
-o----------------------------o
+ o----------------------------o
 
  (lisp-mem-set-gc-thresh n)
 
- Run the GC more frequently
- than strictly needed, when
- the number of remaining
- values drops below n.
+ Run GC when free values drop
+ below n (min 30).
+
+ Higher threshold = more
+ frequent GC = wider safety
+ margin.
+
+ Some complex operations
+ require multiple allocations
+ to complete atomically.
+ Running GC too aggressively
+ (threshold < 30) may trigger
+ collection mid-operation,
+ exposing edge cases in tree
+ operations or string
+ compaction.
 
 
 o----------------------------o

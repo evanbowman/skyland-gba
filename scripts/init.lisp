@@ -8,15 +8,6 @@
   (lisp-mem-crit-gc-alert true))
 
 
-;; NOTE: Based on some testing (see the game's syslog),
-;; SKYLAND rarely ever has more than about 2000 LISP values
-;; allocated at a time. When we're down to 3000 out of
-;; 10k available vals seems like a reasonable time to
-;; run it early. We could wait until we're completely out
-;; of memory, but the interpreter is a bit buggy in that
-;; state...
-;; NOTE: after exhaustive testing, most GC bugs have
-;; been eliminated.
 (lisp-mem-set-gc-thresh default-early-gc-thresh)
 
 
