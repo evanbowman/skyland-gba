@@ -1756,6 +1756,7 @@ void funcall(Value* obj, u8 argc)
 
         case Function::ModeBits::lisp_bytecode_function: {
             PLATFORM_EXTENSION(stack_check);
+            gc_safepoint();
 
             auto& ctx = *bound_context;
             const auto break_loc = ctx.operand_stack_->size() - 1;
