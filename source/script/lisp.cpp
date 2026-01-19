@@ -3321,9 +3321,10 @@ static void macroexpand()
 
                 if (length(macro_args) > length(supplied_macro_args)) {
                     pop_op();
+                    Protected error_str = make_string("invalid arguments "
+                                                      "passed to macro");
                     push_op(make_error(Error::Code::invalid_syntax,
-                                       make_string("invalid arguments "
-                                                   "passed to macro")));
+                                       error_str));
                     return;
                 }
 
