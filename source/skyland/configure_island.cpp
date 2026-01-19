@@ -50,6 +50,13 @@ void configure_island(Island& island, lisp::Value* island_desc_lat)
     });
 
     island.repaint();
+
+    for (auto& room : island.rooms()) {
+        // Fixme: ideally we would save the cost that we purchased each block
+        // for in save data... but we'll need to come up with a way of doing
+        // this while maintaining backwards compatibility...
+        room->set_purchase_cost((*room->metaclass())->cost());
+    }
 }
 
 

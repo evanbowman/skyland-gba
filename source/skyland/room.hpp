@@ -795,6 +795,18 @@ public:
     virtual void register_select_menu_options(SelectMenuScene&);
 
 
+    void set_purchase_cost(Coins cost);
+
+
+    Coins get_purchase_cost() const
+    {
+        return purchase_cost_;
+    }
+
+
+    void refresh_purchase_cost();
+
+
 protected:
     void set_injured();
 
@@ -842,6 +854,7 @@ private:
     ////////////////////////////////////////////////////////////////////////////
 
     Health health_;
+    u16 purchase_cost_;
 
     ////////////////////////////////////////////////////////////////////////////
     //
@@ -867,8 +880,6 @@ private:
     u8 size_x_ : 4;
     u8 size_y_ : 4;
 
-    [[maybe_unused]] u8 unused___ : 3;
-
     u8 shielded_ : 1;
 
     u8 finalized_ : 1;
@@ -893,7 +904,7 @@ private:
     u8 show_damage_delay_frames_ : 6;
 
     u8 powerdown_ : 1;
-    [[maybe_unused]] u8 unused_ : 1;
+    [[maybe_unused]] u8 unused_ : 4;
 };
 
 

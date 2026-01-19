@@ -1034,6 +1034,7 @@ void Island::update(Time dt)
             }
 
             const auto group = room->group();
+            const auto pc = room->get_purchase_cost();
 
             room->finalize();
 
@@ -1049,12 +1050,14 @@ void Island::update(Time dt)
                     p.y_ = pos.y;
                     p.type_ = mt;
                     p.group_ = (u8)group;
+                    p.purchase_cost_.set(pc);
                     APP.push_time_stream(p);
                 } else {
                     time_stream::event::PlayerRoomDestroyed p;
                     p.x_ = pos.x;
                     p.y_ = pos.y;
                     p.type_ = mt;
+                    p.purchase_cost_.set(pc);
                     APP.push_time_stream(p);
                 }
             } else {

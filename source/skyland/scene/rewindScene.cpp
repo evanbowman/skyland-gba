@@ -456,6 +456,7 @@ ScenePtr RewindScene::update(Time)
                 if (not quiet) {
                     medium_explosion_inv(room->origin());
                 }
+                room->set_purchase_cost(e->purchase_cost_.get());
             }
             APP.time_stream().pop(sizeof *e);
             break;
@@ -472,6 +473,7 @@ ScenePtr RewindScene::update(Time)
                 if (not quiet) {
                     medium_explosion_inv(room->origin());
                 }
+                room->set_purchase_cost(e->purchase_cost_.get());
                 room->set_group((Room::Group)e->group_);
                 APP.player_island().repaint();
             }

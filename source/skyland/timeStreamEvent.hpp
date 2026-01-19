@@ -265,6 +265,7 @@ struct PlayerRoomDestroyed
     u8 x_ : 4;
     u8 y_ : 4;
     u8 type_;
+    host_u16 purchase_cost_;
 
     static constexpr const auto t = Type::player_room_destroyed;
 };
@@ -278,6 +279,7 @@ struct PlayerRoomDestroyedWithGroup
     u8 y_ : 4;
     u8 type_;
     u8 group_;
+    host_u16 purchase_cost_;
 
     static constexpr const auto t = Type::player_room_destroyed_with_group;
 };

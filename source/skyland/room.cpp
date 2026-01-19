@@ -34,6 +34,10 @@ namespace skyland
 
 
 
+Coins get_room_cost(Island* island, const RoomMeta& meta);
+
+
+
 Room::Room(Island* parent, const char* name, const RoomCoord& position)
     : parent_(parent), dispatch_list_(nullptr), health_(1),
       x_position_(position.x), y_position_(position.y), ai_aware_(true),
@@ -82,6 +86,7 @@ Room::Room(Island* parent, const char* name, const RoomCoord& position)
             size_x_ = mt_size.x;
             size_y_ = mt_size.y;
             health_ = current->full_health();
+            refresh_purchase_cost();
 
             ready();
             return;
@@ -99,6 +104,29 @@ Room::Room(Island* parent, const char* name, const RoomCoord& position)
 #endif
 
     Platform::fatal("room failed to bind metaclass!?");
+}
+
+
+
+void Room::set_purchase_cost(Coins cost)
+{
+    purchase_cost_ = cost;
+}
+
+
+
+void Room::refresh_purchase_cost()
+{
+    // NOTE: purchase cost is used ONLY as a means of preventing resources from
+    // being farmed by building a workshop, building blocks, salvaging a
+    // workshop, and then salvaging blocks for a higher price than you built
+    // them for.
+
+    if (parent() == &APP.player_island()) {
+        purchase_cost_ = get_room_cost(parent(), *metaclass());
+    } else {
+        purchase_cost_ = (*metaclass())->cost();
+    }
 }
 
 

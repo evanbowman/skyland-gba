@@ -41,7 +41,7 @@ static Coins salvage_value(Room& room)
                 (not APP.opponent_island() ? 1.f : salvage_factor)) *
                (Float(room.health()) / (*room.metaclass())->full_health());
 
-    return std::min(sv, get_room_cost(room.parent(), *room.metaclass()));
+    return std::min(sv, room.get_purchase_cost());
 }
 
 
