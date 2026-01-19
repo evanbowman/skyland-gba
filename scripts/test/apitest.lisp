@@ -8,8 +8,6 @@
 ;;;
 
 
-(gc)
-
 (global 'put 'temp)
 
 (setq put log)
@@ -328,7 +326,6 @@
   (filesystem-walk
    "/"
    (lambda (path)
-     (gc)
      (when (ends-with path ".lisp")
        (+= temp 1)
        (let ((indent 1)
@@ -361,4 +358,3 @@
 (unbind 'ends-with
         'assert-v
         'assert-eq)
-(gc)

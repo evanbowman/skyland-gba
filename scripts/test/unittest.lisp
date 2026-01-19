@@ -74,7 +74,6 @@
 
 (defn end-test ()
   (put " passed!")
-  (gc)
   (setq current-test nil))
 
 
@@ -824,5 +823,3 @@
         'assert-eq)
 
 (if (lambda? log) (unbind 'put))
-
-(gc)

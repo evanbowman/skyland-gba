@@ -101,5 +101,3 @@
 
 
     (dialog-opts-push (format "Unacceptable! (+%@)" (coins-victory)) (lambda ()))))
-
-(gc)
