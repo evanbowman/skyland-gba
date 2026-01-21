@@ -883,9 +883,6 @@ Value* dostring(const char* code);
 Value* lint_code(CharSequence& code);
 
 
-bool is_executing();
-
-
 #define L_EXPECT_OP(OFFSET, TYPE)                                              \
     if (lisp::Value::Type::TYPE not_eq lisp::Value::Type::error and            \
         lisp::get_op((OFFSET))->type() == lisp::Value::Type::error) {          \

@@ -28,6 +28,9 @@
 #endif
 
 
+#define USE_SYMBOL_CACHE
+
+
 namespace lisp
 {
 
@@ -45,6 +48,9 @@ static const u32 string_intern_table_size = 2000;
 #else
 #define VALUE_POOL_SIZE 200000
 #endif
+
+#define SYMBOL_CACHE_SIZE 8
+
 
 union ValueMemory
 {
@@ -249,6 +255,11 @@ struct Context
     // involving garbage collection that crop up during argument substitution.
     Value* argument_symbols_[MAX_NAMED_ARGUMENTS];
 
+#ifdef USE_SYMBOL_CACHE
+    Value* symbol_cache_[SYMBOL_CACHE_SIZE];
+    u8 symbol_cache_index_ = 0;
+#endif
+
     const char* external_symtab_contents_ = nullptr;
     u32 external_symtab_size_;
 
@@ -258,8 +269,6 @@ struct Context
     NativeInterface native_interface_;
 
     int string_intern_pos_ = 0;
-    int eval_depth_ = 0;
-    int interp_entry_count_ = 0;
     u32 alloc_highwater_ = 0;
 
     u16 string_buffer_remaining_ = 0;
@@ -294,22 +303,6 @@ static void collect_value(Value* value)
 {
     invoke_finalizer(value);
     value_pool_free(value);
-}
-
-
-void __unsafe_discard_list(Value* list)
-{
-    // NOTE: this function manually deallocates a list, and does not check to
-    // make sure that the value passed is actually of list type. This function
-    // may only be called in places within the interpreter implementation where
-    // we are throwing out some intermediary datastructures and know that the
-    // data could not possibly be referenced by anything.
-
-    while (list not_eq L_NIL) {
-        auto next = list->cons().cdr();
-        collect_value(list);
-        list = next;
-    }
 }
 
 
@@ -782,12 +775,11 @@ CompressedPtr compr(Value* val)
 Value* dcompr(CompressedPtr ptr)
 {
 #ifdef USE_COMPRESSED_PTRS
-    auto ret =
-        (Value*)(((ptr.offset_ * sizeof(ValueMemory)) + (u8*)value_pool_data));
-    return ret;
+    u32 offset = ptr.offset_;  // explicit zero-extend
+    return (Value*)((offset << 3) + (uintptr_t)value_pool_data);
 #else
     return (Value*)ptr.ptr_;
-#endif // USE_COMPRESSED_PTRS
+#endif
 }
 
 
@@ -1135,13 +1127,6 @@ static void arg_substitution_impl(Value* impl, ArgBindings& bindings)
                     if (binding.sym_->unique_id() ==
                         val->symbol().unique_id()) {
 
-                        auto old_val = impl->cons().car();
-
-                        // We're performing a destructive operation on a
-                        // cons. We can throw out the old value...  This is
-                        // actually safe.
-                        collect_value(old_val);
-
                         auto sym = ctx->argument_symbols_[binding.replacement_];
 
                         impl->cons().set_car(sym);
@@ -1288,8 +1273,13 @@ Value* make_boolean(bool is_true)
 }
 
 
+static int int_count[256];
+
 Value* make_integer(s32 value)
 {
+    if ((u32)value < (u32)256) {
+        info(::format("make % (%)", value, int_count[value]++));
+    }
     auto val = alloc_value();
     val->hdr_.type_ = Value::Type::integer;
     val->integer().value_ = value;
@@ -1347,12 +1337,23 @@ Value* make_error(Error::Code error_code, Value* context)
 
 Value* make_symbol(const char* name, Symbol::ModeBits mode)
 {
+    [[maybe_unused]] auto& ctx = bound_context;
+#ifdef USE_SYMBOL_CACHE
+    for (int i = 0; i < 8; ++i) {
+        auto v = ctx->symbol_cache_[i];
+        if (v not_eq L_NIL and str_eq(name, v->symbol().name())) {
+            return v;
+        }
+    }
+#endif
+
+    const auto len = strlen(name);
+
     if (mode == Symbol::ModeBits::small and
-        strlen(name) > Symbol::buffer_size) {
+        len > Symbol::buffer_size) {
         Platform::fatal("Symbol ModeBits small with len > internal buffer");
     }
-
-    if (strlen(name) <= Symbol::buffer_size) {
+    if (len <= Symbol::buffer_size) {
         mode = Symbol::ModeBits::small;
     }
 
@@ -1360,6 +1361,12 @@ Value* make_symbol(const char* name, Symbol::ModeBits mode)
     val->hdr_.type_ = Value::Type::symbol;
     val->hdr_.mode_bits_ = (u8)mode;
     val->symbol().set_name(name);
+
+#ifdef USE_SYMBOL_CACHE
+    ctx->symbol_cache_[ctx->symbol_cache_index_] = val;
+    ctx->symbol_cache_index_ = (ctx->symbol_cache_index_ + 1) % SYMBOL_CACHE_SIZE;
+#endif
+
     return val;
 }
 
@@ -1891,16 +1898,6 @@ long hexdec(unsigned const char* hex)
 }
 
 
-bool is_executing()
-{
-    if (bound_context) {
-        return bound_context->interp_entry_count_;
-    }
-
-    return false;
-}
-
-
 // Checks for undefined variable access, checks to make sure enough function
 // params are supplied, checks the proper structure of special forms, etc...
 void lint(Value* expr, Value* variable_list)
@@ -2331,8 +2328,6 @@ Value* dostring(const char* code)
 Value* dostring(CharSequence& code,
                 ::Function<4 * sizeof(void*), void(Value&)> on_error)
 {
-    ++bound_context->interp_entry_count_;
-
     int i = 0;
 
     Protected result(get_nil());
@@ -2368,8 +2363,6 @@ Value* dostring(CharSequence& code,
         bound_context->operand_stack_->size() not_eq prev_stk) {
         PLATFORM.fatal("stack spill!");
     }
-
-    --bound_context->interp_entry_count_;
 
     return result;
 }
@@ -2723,6 +2716,12 @@ static void gc_mark()
     }
 
     auto& ctx = bound_context;
+
+#ifdef USE_SYMBOL_CACHE
+    for (auto v : ctx->symbol_cache_) {
+        gc_mark_value(v);
+    }
+#endif
 
     for (auto elem : *ctx->operand_stack_) {
         gc_mark_value(elem);
@@ -3807,7 +3806,6 @@ STANDARD_FORMS({
             pop_op(); // result
             pop_op(); // code
             push_op(result);
-            --bound_context->interp_entry_count_;
         }},
         {"lambda", [](Value* code) {
             eval_argumented_function(code->cons().cdr());
@@ -3827,7 +3825,6 @@ STANDARD_FORMS({
             pop_op(); // result
             pop_op(); // code
             push_op(result);
-            --bound_context->interp_entry_count_;
             return;
         }},
         {"fn", [](Value* code) {
@@ -3836,12 +3833,10 @@ STANDARD_FORMS({
             pop_op(); // result
             pop_op(); // code
             push_op(result);
-            --bound_context->interp_entry_count_;
         }},
         {"'", [](Value* code) {
             pop_op(); // code
             push_op(code->cons().cdr());
-            --bound_context->interp_entry_count_;
         }},
         {"`", [](Value* code) {
             eval_quasiquote(code->cons().cdr());
@@ -3849,7 +3844,6 @@ STANDARD_FORMS({
             pop_op(); // result
             pop_op(); // code
             push_op(result);
-            --bound_context->interp_entry_count_;
         }},
         {"let", [](Value* code) {
             eval_let(code->cons().cdr());
@@ -3857,13 +3851,10 @@ STANDARD_FORMS({
             pop_op();
             pop_op();
             push_op(result);
-            --bound_context->interp_entry_count_;
         }},
         {"macro", [](Value* code) {
             eval_macro(code->cons().cdr());
             pop_op();
-            // TODO: store macro!
-            --bound_context->interp_entry_count_;
         }},
         {"while", [](Value* code) {
             eval_while(code->cons().cdr());
@@ -3885,8 +3876,6 @@ STANDARD_FORMS({
 
 void eval(Value* code)
 {
-    ++bound_context->interp_entry_count_;
-
     // NOTE: just to protect this from the GC, in case the user didn't bother to
     // do so.
     push_op(code);
@@ -3928,7 +3917,6 @@ void eval(Value* code)
                 clear_args();
                 pop_op();
                 push_op(make_error(Error::Code::value_not_callable, arg_list));
-                --bound_context->interp_entry_count_;
                 return;
             }
 
@@ -3947,7 +3935,6 @@ void eval(Value* code)
         pop_op(); // result
         pop_op(); // protected expr (see top)
         push_op(result);
-        --bound_context->interp_entry_count_;
         return;
     }
 }
@@ -6566,6 +6553,12 @@ void init(Optional<std::pair<const char*, u32>> external_symtab,
 
     ctx->string_buffer_ = ctx->nil_;
     ctx->macros_ = ctx->nil_;
+
+#ifdef USE_SYMBOL_CACHE
+    for (auto& v : ctx->symbol_cache_) {
+        v = ctx->nil_;
+    }
+#endif
 
     ctx->tree_nullnode_ = L_CONS(get_nil(), L_CONS(get_nil(), get_nil()));
 
