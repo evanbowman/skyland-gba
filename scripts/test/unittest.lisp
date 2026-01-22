@@ -293,6 +293,8 @@
 (assert-eq (range 0 10 1/2)
            '(0 1/2 1 3/2 2 5/2 3 7/2 4 9/2 5 11/2 6 13/2 7 15/2 8 17/2 9 19/2))
 
+(assert-eq 0.72 (float (rationalize 0.72)))
+
 (end-test)
 
 

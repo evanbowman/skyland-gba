@@ -5338,6 +5338,59 @@ BUILTIN_TABLE(
                          divisor_div);
            return make_ratio(result_num, result_div);
        }}},
+     {"rationalize",
+      {SIG1(rational, fp),
+       [](int argc) {
+           float f = get_op0()->fp().value_;
+
+           if (f == 0.0f) {
+               return make_integer(0);
+           }
+
+           // Handle sign
+           bool negative = f < 0;
+           if (negative)
+               f = -f;
+
+           // Continued fraction algorithm
+           s32 n0 = 0, d0 = 1; // Previous convergent
+           s32 n1 = 1, d1 = 0; // Current convergent
+
+           float x = f;
+           const int max_iterations = 10;
+           const float epsilon = 0.000001f;
+
+           for (int i = 0; i < max_iterations; i++) {
+               s32 a = (s32)x; // Floor
+
+               // Update convergents
+               s32 n2 = a * n1 + n0;
+               s32 d2 = a * d1 + d0;
+
+               // Check if close enough
+               float approx = (float)n2 / (float)d2;
+               if (abs(approx - f) < epsilon) {
+                   if (negative)
+                       n2 = -n2;
+                   return make_ratio(n2, d2);
+               }
+
+               // Next iteration
+               float frac = x - a;
+               if (frac < epsilon)
+                   break;
+
+               x = 1.0f / frac;
+               n0 = n1;
+               d0 = d1;
+               n1 = n2;
+               d1 = d2;
+           }
+
+           if (negative)
+               n1 = -n1;
+           return make_ratio(n1, d1);
+       }}},
      {"lisp-mem-stack-used",
       {SIG0(integer),
        [](int argc) { return L_INT(bound_context->operand_stack_->size()); }}},

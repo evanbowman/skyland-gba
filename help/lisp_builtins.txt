@@ -451,6 +451,14 @@ o----------------------------o
  must be integers.
 
 
+o----------------------------o
+
+ (rationalize float)
+
+ Convert a floating point
+ number to a ratio.
+
+
 
 ##############################
 
