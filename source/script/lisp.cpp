@@ -1847,7 +1847,7 @@ Value* get_var(const char* name)
     }
 
     auto val = get_var(var_sym);
-    collect_value(var_sym);
+    // collect_value(var_sym);
     return val;
 }
 
