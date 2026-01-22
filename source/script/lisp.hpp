@@ -665,9 +665,6 @@ void apropos(const char* match, Vector<const char*>& out);
 Value* stacktrace();
 
 
-Value* gensym();
-
-
 // NOTE: Argument MUST be a C string literal.
 Value* make_string_from_literal(const char* str);
 

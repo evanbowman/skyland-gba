@@ -594,18 +594,6 @@ o----------------------------o
 
 o----------------------------o
 
- (gensym)
-
- Generate a unique symbol.
- Technically, return values
- wrap around after a few
- hundred thousand gensym
- calls. But a GBA program
- would never use a macro that
- big! :)
-
-o----------------------------o
-
  (symbol string)
 
  Create a symbol from a
