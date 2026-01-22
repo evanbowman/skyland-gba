@@ -1906,7 +1906,8 @@ BINDING_TABLE({
           L_EXPECT_OP(0, function);
           L_EXPECT_OP(1, string);
 
-          lisp::Protected bundle(lisp::make_cons(lisp::get_op(1), lisp::get_op(0)));
+          lisp::Protected bundle(
+              lisp::make_cons(lisp::get_op(1), lisp::get_op(0)));
           bundle = lisp::make_cons(bundle, lisp::get_op(2));
           bundle = lisp::make_cons(L_INT(0), bundle);
           if (bundle->type() == lisp::Value::Type::cons) {
@@ -1921,7 +1922,8 @@ BINDING_TABLE({
           L_EXPECT_OP(0, function);
           L_EXPECT_OP(1, string);
 
-          lisp::Protected bundle(lisp::make_cons(lisp::get_op(1), lisp::get_op(0)));
+          lisp::Protected bundle(
+              lisp::make_cons(lisp::get_op(1), lisp::get_op(0)));
           bundle = lisp::make_cons(bundle, lisp::get_op(2));
           bundle = lisp::make_cons(L_INT(1), bundle);
           if (bundle->type() == lisp::Value::Type::cons) {

@@ -116,16 +116,6 @@
 (assert-eq -5.0 (- 5.0))
 (assert-eq .5 (* 0.25 2.0))
 
-;; Test for errors on incompatible float/int math
-(assert-v (error? (- 5 5.0)))
-(assert-v (error? (- 5.0 5)))
-(assert-v (error? (+ 5 5.0)))
-(assert-v (error? (+ 5.0 5)))
-(assert-v (error? (* 5.0 5)))
-(assert-v (error? (* 5 5.0)))
-(assert-v (error? (/ 5.0 5)))
-(assert-v (error? (/ 5 5.0)))
-
 (assert-v (float? 0.05))
 (assert-v (float? -.6))
 (assert-v (int? 22))
@@ -138,6 +128,8 @@
 (assert-v (not (boolean? 55)))
 
 (assert-eq 1 (mod 10 3))
+(assert-eq 1/2 (mod 7/2 1))
+
 
 (assert-eq 0xffffffff (bit-or 0xff00ff00 0x00ff00ff))
 (assert-eq 0x22222222 (bit-and 0x33333333 0xaaaaaaaa))
@@ -145,6 +137,161 @@
 (assert-eq 0x55555555 (bit-xor 0xaaaaaaaa 0xffffffff))
 
 (assert-eq 0xaff (read (hex 0xaff)))
+
+;; Integer arithmetic
+(assert-eq 5 (+ 2 3))
+(assert-eq 10 (+ 1 2 3 4))
+(assert-eq 0 (+))
+(assert-eq 2 (- 5 3))
+(assert-eq -5 (- 5))
+(assert-eq 6 (* 2 3))
+(assert-eq 24 (* 2 3 4))
+(assert-eq 1 (*))
+(assert-eq 2 (/ 6 3))
+(assert-eq 3 (/ 12 4))
+
+;; Ratio arithmetic - division produces ratios
+(assert-eq 7/2 (/ 7 2))
+(assert-eq 1/3 (/ 1 3))
+(assert-eq 2/3 (/ 2 3))
+(assert-eq -3/4 (/ -3 4))
+(assert-eq 3/4 (/ -3 -4))
+
+;; Ratio addition
+(assert-eq 5/6 (+ 1/2 1/3))
+(assert-eq 1 (+ 1/3 1/6 1/2))
+(assert-eq 3/2 (+ 1/2 1))
+(assert-eq 7/6 (+ 1/2 2/3))
+(assert-eq 11/6 (+ 1/2 1/3 1))
+
+;; Ratio subtraction
+(assert-eq 1/6 (- 1/2 1/3))
+(assert-eq -1/2 (- 1/2 1))
+(assert-eq 1/2 (- 1 1/2))
+(assert-eq -2/3 (- 2/3))
+(assert-eq 2/3 (- -2/3))
+
+;; Ratio multiplication
+(assert-eq 1/6 (* 1/2 1/3))
+(assert-eq 1/2 (* 2/3 3/4))
+(assert-eq 3/2 (* 1/2 3))
+(assert-eq 2 (* 1/2 4))
+(assert-eq 2/15 (* 1/3 2/5))
+
+;; Ratio division
+(assert-eq 3/2 (/ 1/2 1/3))
+(assert-eq 1/4 (/ 1/2 2))
+(assert-eq 2 (/ 2/3 1/3))
+(assert-eq 5/6 (/ 2/3 4/5))
+
+;; Ratios automatically reduce to integers
+(assert-eq 1 (+ 1/2 1/2))
+(assert-eq 2 (+ 2/3 4/3))
+(assert-eq 1 (* 1/3 3))
+(assert-eq 3 (/ 9 3))
+(assert-v (int? (+ 1/2 1/2)))
+(assert-v (int? (* 2/3 3)))
+
+;; incr and decr with integers
+(assert-eq 6 (incr 5))
+(assert-eq 4 (decr 5))
+(assert-eq 1 (incr 0))
+(assert-eq -1 (decr 0))
+(assert-eq 0 (incr -1))
+
+;; incr and decr with ratios
+(assert-eq 5/3 (incr 2/3))
+(assert-eq -1/3 (decr 2/3))
+(assert-eq 3/2 (incr 1/2))
+(assert-eq -1/2 (decr 1/2))
+(assert-eq 2 (incr 1/1))
+
+;; Comparison with integers
+(assert-v (< 2 3))
+(assert-v (not (< 3 2)))
+(assert-v (not (< 3 3)))
+(assert-v (> 3 2))
+(assert-v (not (> 2 3)))
+(assert-v (not (> 2 2)))
+
+;; Comparison with ratios
+(assert-v (< 1/2 2/3))
+(assert-v (< 1/3 1/2))
+(assert-v (not (< 2/3 1/2)))
+(assert-v (> 2/3 1/2))
+(assert-v (not (> 1/3 1/2)))
+
+;; Comparison mixed integer and ratio
+(assert-v (< 1/2 1))
+(assert-v (< 2 5/2))
+(assert-v (not (< 5/2 2)))
+(assert-v (> 5/2 2))
+(assert-v (> 3 5/2))
+(assert-v (not (> 2 5/2)))
+
+;; Float arithmetic (unchanged)
+(assert-eq 5.0 (* 2.5 2.0))
+(assert-eq 10.0 (* 2.0 5.0))
+(assert-eq -5.0 (- 5.0))
+(assert-eq 0.5 (* 0.25 2.0))
+(assert-eq 2.5 (/ 5.0 2.0))
+
+;; Float contagion - any float makes result float
+(assert-eq 5.0 (+ 2 3.0))
+(assert-eq 5.0 (+ 2.0 3))
+(assert-eq 6.0 (* 2 3.0))
+(assert-eq 6.0 (* 2.0 3))
+(assert-eq 2.0 (- 5 3.0))
+(assert-eq 2.0 (- 5.0 3))
+(assert-eq 3.5 (/ 7 2.0))
+(assert-eq 3.5 (/ 7.0 2))
+
+;; Float contagion with ratios
+(assert-eq 1.5 (+ 1/2 1.0))
+(assert-eq 1.0 (* 1/2 2.0))
+(assert-eq 0.75 (* 1/2 1.5))
+(assert-eq 0.25 (/ 1/2 2.0))
+
+;; Comparison with floats
+(assert-v (< 2.0 3.0))
+(assert-v (< 1 2.5))
+(assert-v (< 1/2 1.0))
+(assert-v (> 3.0 2.0))
+(assert-v (> 2.5 2))
+
+;; Type predicates
+(assert-v (int? 5))
+(assert-v (int? -5))
+(assert-v (int? 0))
+(assert-v (ratio? 1/2))
+(assert-v (ratio? 7/3))
+(assert-v (ratio? -2/3))
+(assert-v (not (ratio? 2)))
+(assert-v (not (ratio? 2/1)))  ;; Should be int after reduction
+(assert-v (float? 1.5))
+(assert-v (float? -0.5))
+(assert-v (not (int? 1/2)))
+(assert-v (not (float? 1/2)))
+
+;; Edge cases
+(assert-eq 0 (* 0 1000))
+(assert-eq 0/1 (* 0 1/2))  ;; 0/1 reduces to 0
+(assert-eq 0 (+ 1/2 -1/2))
+(assert-eq 1 (/ 1/2 1/2))
+(assert-eq -1 (* -1/2 2))
+
+;; Division by zero errors
+(assert-v (error? (/ 5 0)))
+(assert-v (error? (/ 1/2 0)))
+(assert-v (error? (/ 5.0 0.0)))
+
+;; Multiple argument tests
+(assert-eq 2/3 (+ 1/6 1/6 1/3))
+(assert-eq 1/24 (* 1/2 1/3 1/4))
+(assert-eq 10 (+ 1 2 3 4))
+
+(assert-eq (range 0 10 1/2)
+           '(0 1/2 1 3/2 2 5/2 3 7/2 4 9/2 5 11/2 6 13/2 7 15/2 8 17/2 9 19/2))
 
 (end-test)
 

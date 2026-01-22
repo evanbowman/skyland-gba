@@ -75,8 +75,14 @@ struct ValueHeader
         string,
         fp,
         wrapped,
-        __reserved_3,
-        __reserved_2,
+        ratio,
+
+        // NOTE: the rational type is mainly only used in type signatures, in
+        // places where we want static analysis, but also to support either ints
+        // or ratios as arguments. There aren't actually rational values in the
+        // type system that are distinct from integers and ratios.
+        rational,
+
         __reserved_1,
         __reserved_0,
         count,
@@ -201,6 +207,8 @@ struct Symbol
 struct Integer
 {
     ValueHeader hdr_;
+    u8 pad_0_;
+    s16 pad_1_;
     s32 value_;
 
     static ValueHeader::Type type()
@@ -265,6 +273,25 @@ struct Wrapped
 
     CompressedPtr data_;
     CompressedPtr type_sym_;
+};
+
+
+
+struct Ratio
+{
+    ValueHeader hdr_;
+    u8 pad_;
+    CompressedPtr numerator_;
+    s32 divisor_;
+
+    static ValueHeader::Type type()
+    {
+        return ValueHeader::Type::ratio;
+    }
+
+    static constexpr void finalizer(Value*)
+    {
+    }
 };
 
 
@@ -588,6 +615,11 @@ struct Value
         return *reinterpret_cast<Float*>(this);
     }
 
+    Ratio& ratio()
+    {
+        return *reinterpret_cast<Ratio*>(this);
+    }
+
     Cons& cons()
     {
         return *reinterpret_cast<Cons*>(this);
@@ -647,6 +679,7 @@ Value* wrap(Value* input, Value* type_sym);
 Value* make_boolean(bool is_true);
 Value* make_function(Function::CPP_Impl impl);
 Value* make_cons(Value* car, Value* cdr);
+Value* make_ratio(s32 num, s32 div);
 Value* make_integer(s32 value);
 Value* make_list(u32 length);
 Value* make_error(Error::Code error_code, Value* context);

@@ -303,6 +303,9 @@ o----------------------------o
  the step size in a third
  argument.
 
+ Inputs must be integers or
+ ratios.
+
 
 o----------------------------o
 
@@ -378,7 +381,7 @@ o----------------------------o
 
  (incr v)
 
- Increment an integer.
+ Increment a rational number.
 
 
 o----------------------------o
@@ -387,7 +390,7 @@ o----------------------------o
 
  Convert v to an integer, if
  possible. v must be a string,
- float, or integer.
+ float, ratio, or integer.
 
 
 o----------------------------o
@@ -410,7 +413,7 @@ o----------------------------o
 
  (decr v)
 
- Decrement an integer.
+ Decrement a rational number.
 
 
 o----------------------------o

@@ -10,8 +10,8 @@
 
 #pragma once
 
-#include "number/int.h"
 #include "number/fixnum.hpp"
+#include "number/int.h"
 
 
 
@@ -45,4 +45,4 @@ using CharacterId = u16;
 using DroneId = u16;
 
 
-}
+} // namespace skyland

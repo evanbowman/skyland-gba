@@ -66,8 +66,8 @@ union ValueMemory
     DataBuffer databuffer_;
     String string_;
     Wrapped wrapped_;
-    __Reserved<Value::Type::__reserved_3> __reserved_3;
-    __Reserved<Value::Type::__reserved_2> __reserved_2;
+    Ratio ratio_;
+    __Reserved<Value::Type::rational> __reserved_2;
     __Reserved<Value::Type::__reserved_1> __reserved_1;
     __Reserved<Value::Type::__reserved_0> __reserved_0;
 };
@@ -108,8 +108,8 @@ static inline void gc_require_space()
     gc_safepoint();
 }
 
-#define GC_REQUIRE_SPACE(REQUIRED_VALS)                     \
-    static_assert(REQUIRED_VALS < early_gc_threshold_min);  \
+#define GC_REQUIRE_SPACE(REQUIRED_VALS)                                        \
+    static_assert(REQUIRED_VALS < early_gc_threshold_min);                     \
     gc_require_space();
 
 
@@ -212,8 +212,8 @@ constexpr const std::array<FinalizerTableEntry, Value::Type::count> fin_table =
         String::finalizer,
         Float::finalizer,
         Wrapped::finalizer,
-        __Reserved<Value::Type::__reserved_3>::finalizer,
-        __Reserved<Value::Type::__reserved_2>::finalizer,
+        Ratio::finalizer,
+        __Reserved<Value::Type::rational>::finalizer,
         __Reserved<Value::Type::__reserved_1>::finalizer,
         __Reserved<Value::Type::__reserved_0>::finalizer,
 };
@@ -763,7 +763,7 @@ CompressedPtr compr(Value* val)
 Value* dcompr(CompressedPtr ptr)
 {
 #ifdef USE_COMPRESSED_PTRS
-    u32 offset = ptr.offset_;  // explicit zero-extend
+    u32 offset = ptr.offset_; // explicit zero-extend
     return (Value*)((offset << 3) + (uintptr_t)value_pool_data);
 #else
     return (Value*)ptr.ptr_;
@@ -821,7 +821,8 @@ static Value* alloc_value()
 
     if (auto val = value_pool_alloc()) {
 #ifdef MEM_PTR_TRACE
-        std::cout << ::format("alloc %", (int)(intptr_t)val).c_str() << std::endl;
+        std::cout << ::format("alloc %", (int)(intptr_t)val).c_str()
+                  << std::endl;
 #endif
         return init_val(val);
     }
@@ -1226,6 +1227,46 @@ Value* make_bytecode_function(Value* bytecode)
 }
 
 
+void reduce_fraction(s32& num, s32& div)
+{
+    if (num == 0) {
+        div = 1;
+        return;
+    }
+
+    if (div < 0) {
+        num = -num;
+        div = -div;
+    }
+
+    s32 a = num < 0 ? -num : num; // abs(num)
+    s32 b = div;
+
+    while (b != 0) {
+        s32 temp = b;
+        b = a % b;
+        a = temp;
+    }
+    num /= a;
+    div /= a;
+}
+
+
+Value* make_ratio(s32 num, s32 div)
+{
+    reduce_fraction(num, div);
+    Protected numerator(make_integer(num));
+    if (div == 1) {
+        return numerator;
+    }
+    auto val = alloc_value();
+    val->hdr_.type_ = Value::Type::ratio;
+    val->ratio().numerator_ = compr(numerator);
+    val->ratio().divisor_ = div;
+    return val;
+}
+
+
 Value* make_cons_safe(Value* car, Value* cdr)
 {
     push_op(car);
@@ -1332,8 +1373,7 @@ Value* make_symbol(const char* name, Symbol::ModeBits mode)
 
     const auto len = strlen(name);
 
-    if (mode == Symbol::ModeBits::small and
-        len > Symbol::buffer_size) {
+    if (mode == Symbol::ModeBits::small and len > Symbol::buffer_size) {
         Platform::fatal("Symbol ModeBits small with len > internal buffer");
     }
     if (len <= Symbol::buffer_size) {
@@ -1347,7 +1387,8 @@ Value* make_symbol(const char* name, Symbol::ModeBits mode)
 
 #ifdef USE_SYMBOL_CACHE
     ctx->symbol_cache_[ctx->symbol_cache_index_] = val;
-    ctx->symbol_cache_index_ = (ctx->symbol_cache_index_ + 1) % SYMBOL_CACHE_SIZE;
+    ctx->symbol_cache_index_ =
+        (ctx->symbol_cache_index_ + 1) % SYMBOL_CACHE_SIZE;
 #endif
 
     return val;
@@ -1602,12 +1643,14 @@ const char* type_to_string(ValueHeader::Type tp)
 {
     switch (tp) {
     case Value::Type::count:
-    case Value::Type::__reserved_3:
-    case Value::Type::__reserved_2:
     case Value::Type::__reserved_1:
     case Value::Type::__reserved_0:
     case Value::Type::nil:
         return "?";
+    case Value::Type::rational:
+        return "rational";
+    case Value::Type::ratio:
+        return "ratio";
     case Value::Type::heap_node:
         return "?";
     case Value::Type::integer:
@@ -1675,7 +1718,10 @@ void funcall(Value* obj, u8 argc)
     if (obj->function().sig_.FIELD not_eq Value::Type::nil and                 \
         get_arg(ARG)->type() not_eq obj->function().sig_.FIELD and             \
         not(get_arg(ARG)->type() == Value::Type::nil and                       \
-            obj->function().sig_.FIELD == Value::Type::cons)) {                \
+            obj->function().sig_.FIELD == Value::Type::cons) and               \
+        not(get_arg(ARG)->type() == Value::Type::rational and                  \
+            (obj->function().sig_.FIELD == Value::Type::integer or             \
+             obj->function().sig_.FIELD == Value::Type::ratio))) {             \
         pop_args();                                                            \
         push_op(make_error(                                                    \
             arg_error(obj->function().sig_.FIELD, get_arg(ARG)->type())        \
@@ -2074,6 +2120,12 @@ void lint(Value* expr, Value* variable_list)
                                 return true;
                             }
                         }
+                        if (expected_type == Value::Type::rational and
+                            (detected_type == Value::Type::integer or
+                             detected_type == Value::Type::ratio)) {
+                            // Special case: integers can be promoted to ratios.
+                            return true;
+                        }
                         return detected_type == expected_type;
                     };
 
@@ -2377,8 +2429,7 @@ void format_impl(Value* value, Printer& p, int depth, bool skip_quotes = false)
 
         break;
 
-    case lisp::Value::Type::__reserved_3:
-    case lisp::Value::Type::__reserved_2:
+    case lisp::Value::Type::rational:
     case lisp::Value::Type::__reserved_1:
     case lisp::Value::Type::__reserved_0:
         break;
@@ -2442,6 +2493,12 @@ void format_impl(Value* value, Printer& p, int depth, bool skip_quotes = false)
         p.put_str(to_string<32>(value->integer().value_).c_str());
         break;
     }
+
+    case lisp::Value::Type::ratio:
+        format_impl(dcompr(value->ratio().numerator_), p, depth);
+        p.put_str("/");
+        p.put_str(to_string<32>(value->ratio().divisor_).c_str());
+        break;
 
     case lisp::Value::Type::cons:
         if (depth == 0 and not prefix_quote) {
@@ -2642,6 +2699,10 @@ static void gc_mark_value(Value* value)
         }
         break;
 
+    case Value::Type::ratio:
+        gc_mark_value(dcompr(value->ratio().numerator_));
+        break;
+
     default:
         break;
     }
@@ -2823,8 +2884,8 @@ static int gc_sweep()
                 ++used_count;
             } else {
 #ifdef MEM_PTR_TRACE
-                std::cout << ::format("free % ",
-                                      (int)(intptr_t)val).c_str() << std::endl;
+                std::cout << ::format("free % ", (int)(intptr_t)val).c_str()
+                          << std::endl;
 #endif
                 collect_value(val);
                 ++collect_count;
@@ -3171,8 +3232,10 @@ static u32 read_number(CharSequence& code, int offset)
     int i = 0;
 
     StringBuffer<64> num_str;
+    StringBuffer<64> num_str2;
 
     bool is_fp = false;
+    bool is_ratio = false;
 
     while (true) {
         switch (code[offset + i]) {
@@ -3193,8 +3256,21 @@ static u32 read_number(CharSequence& code, int offset)
         case '7':
         case '8':
         case '9':
-            num_str.push_back(code[offset + i++]);
+            if (is_ratio) {
+                num_str2.push_back(code[offset + i++]);
+            } else {
+                num_str.push_back(code[offset + i++]);
+            }
             break;
+
+        case '/': {
+            if (is_ratio) {
+                goto FINAL;
+            }
+            is_ratio = true;
+            ++i;
+            break;
+        };
 
         case '.': {
             if (is_fp) {
@@ -3218,17 +3294,22 @@ static u32 read_number(CharSequence& code, int offset)
 
 FINAL:
 
-    if (is_fp) {
+    auto parse_int = [](auto& str) {
+        s32 result = 0;
+        for (u32 i = 0; i < str.length(); ++i) {
+            result = result * 10 + (str[i] - '0');
+        }
+        return result;
+    };
+
+    if (is_ratio) {
+        push_op(make_ratio(parse_int(num_str), parse_int(num_str2)));
+    } else if (is_fp) {
         push_op(L_FP(atof(num_str.c_str())));
     } else if (num_str.length() > 1 and num_str[1] == 'x') {
         push_op(make_integer(hexdec((const u8*)num_str.begin() + 2)));
     } else {
-        s32 result = 0;
-        for (u32 i = 0; i < num_str.length(); ++i) {
-            result = result * 10 + (num_str[i] - '0');
-        }
-
-        push_op(make_integer(result));
+        push_op(make_integer(parse_int(num_str)));
     }
 
     return i;
@@ -3306,8 +3387,7 @@ static void macroexpand()
                     pop_op();
                     Protected error_str = make_string("invalid arguments "
                                                       "passed to macro");
-                    push_op(make_error(Error::Code::invalid_syntax,
-                                       error_str));
+                    push_op(make_error(Error::Code::invalid_syntax, error_str));
                     return;
                 }
 
@@ -3378,7 +3458,9 @@ static void macroexpand()
 
 static void negate_number(Value* v)
 {
-    if (v->type() == Value::Type::fp) {
+    if (v->type() == Value::Type::ratio) {
+        dcompr(v->ratio().numerator_)->integer().value_ *= -1;
+    } else if (v->type() == Value::Type::fp) {
         v->fp().value_ *= -1;
     } else {
         v->integer().value_ *= -1;
@@ -3966,14 +4048,19 @@ bool is_equal(Value* lhs, Value* rhs)
                is_equal(lhs->cons().cdr(), rhs->cons().cdr());
 
     case Value::Type::count:
-    case Value::Type::__reserved_3:
-    case Value::Type::__reserved_2:
+    case Value::Type::rational:
     case Value::Type::__reserved_1:
     case Value::Type::__reserved_0:
     case Value::Type::nil:
     case Value::Type::heap_node:
     case Value::Type::databuffer:
         return lhs == rhs;
+
+    case Value::Type::ratio:
+        return is_equal(dcompr(lhs->ratio().numerator_),
+                        dcompr(rhs->ratio().numerator_)) and
+            lhs->ratio().divisor_ == rhs->ratio().divisor_;
+        break;
 
     case Value::Type::wrapped: {
         if (not str_eq(dcompr(lhs->wrapped().type_sym_)->symbol().name(),
@@ -4101,29 +4188,6 @@ Value* stacktrace()
 }
 
 
-
-bool comp_less_than(Value* lhs, Value* rhs)
-{
-    if (lhs->type() == Value::Type::fp) {
-        return lhs->fp().value_ < rhs->fp().value_;
-    }
-    return lhs->integer().value_ < rhs->integer().value_;
-}
-
-
-
-Value* l_comp_less_than(int argc)
-{
-    if (get_op0()->type() == Value::Type::fp) {
-        L_EXPECT_OP(1, fp);
-        return make_integer(comp_less_than(get_op1(), get_op0()));
-    }
-    L_EXPECT_OP(0, integer);
-    L_EXPECT_OP(1, integer);
-    return make_integer(comp_less_than(get_op1(), get_op0()));
-}
-
-
 Value* repr_signature(Function::Signature sig)
 {
     ListBuilder list;
@@ -4133,6 +4197,134 @@ Value* repr_signature(Function::Signature sig)
     list.push_back(L_SYM(type_to_string((Value::Type)sig.arg2_type_)));
     list.push_back(L_SYM(type_to_string((Value::Type)sig.arg3_type_)));
     return list.result();
+}
+
+
+void div_rationals(s32& result_num, s32& result_div,
+                   s32 a_num, s32 a_div,
+                   s32 b_num, s32 b_div)
+{
+    // (a/b) / (c/d) = (a/b) * (d/c) = (a*d) / (b*c)
+    result_num = a_num * b_div;
+    result_div = a_div * b_num;
+
+    // Handle sign (denominator must be positive)
+    if (result_div < 0) {
+        result_num = -result_num;
+        result_div = -result_div;
+    }
+}
+
+
+void sub_rationals(s32& result_num, s32& result_div,
+                   s32 a_num, s32 a_div,
+                   s32 b_num, s32 b_div)
+{
+    // a/b - c/d = (a*d - c*b) / (b*d)
+    result_num = a_num * b_div - b_num * a_div;
+    result_div = a_div * b_div;
+}
+
+
+void mul_rationals(s32& result_num, s32& result_div,
+                   s32 a_num, s32 a_div,
+                   s32 b_num, s32 b_div)
+{
+    // (a/b) * (c/d) = (a*c) / (b*d)
+    result_num = a_num * b_num;
+    result_div = a_div * b_div;
+}
+
+
+void add_rationals(s32& result_num, s32& result_div,
+                   s32 a_num, s32 a_div,
+                   s32 b_num, s32 b_div)
+{
+    // Formula: a/b + c/d = (a*d + b*c) / (b*d)
+    result_num = a_num * b_div + b_num * a_div;
+    result_div = a_div * b_div;
+
+    reduce_fraction(result_num, result_div);
+}
+
+
+bool to_rational(Value* v, s32& num, s32& div)
+{
+    if (v->type() == Value::Type::integer) {
+        num = v->integer().value_;
+        div = 1;
+        return true;
+    }
+    else if (v->type() == Value::Type::ratio) {
+        auto& ratio = v->ratio();
+        num = dcompr(ratio.numerator_)->integer().value_;
+        div = ratio.divisor_;
+        return true;
+    }
+    return false;  // Not a rational type
+}
+
+
+bool rational_less(s32 a_num, s32 a_div, s32 b_num, s32 b_div)
+{
+    // a/b < c/d  iff  a*d < c*b  (when denominators are positive)
+    return a_num * b_div < b_num * a_div;
+}
+
+
+bool comp_less_than(Value* lhs, Value* rhs)
+{
+    // Check for float contagion
+    if (lhs->type() == Value::Type::fp || rhs->type() == Value::Type::fp) {
+        Float::ValueType lhs_val, rhs_val;
+
+        // Convert lhs to float
+        if (lhs->type() == Value::Type::fp) {
+            lhs_val = lhs->fp().value_;
+        } else {
+            s32 num = 1, div = 1;
+            to_rational(lhs, num, div);
+            lhs_val = (Float::ValueType)num / div;
+        }
+
+        // Convert rhs to float
+        if (rhs->type() == Value::Type::fp) {
+            rhs_val = rhs->fp().value_;
+        } else {
+            s32 num = 1, div = 1;
+            to_rational(rhs, num, div);
+            rhs_val = (Float::ValueType)num / div;
+        }
+
+        return lhs_val < rhs_val;
+    }
+
+    // Rational comparison
+    s32 lhs_num = 1, lhs_div = 1, rhs_num = 1, rhs_div = 1;
+    to_rational(lhs, lhs_num, lhs_div);
+    to_rational(rhs, rhs_num, rhs_div);
+
+    return rational_less(lhs_num, lhs_div, rhs_num, rhs_div);
+}
+
+
+static bool is_numeric(Value* v)
+{
+    return v->type() == Value::Type::rational ||
+           v->type() == Value::Type::integer ||
+           v->type() == Value::Type::ratio ||
+           v->type() == Value::Type::fp;
+}
+
+
+Value* l_comp_less_than(int argc)
+{
+    // Validate arguments are numeric
+    if (!is_numeric(get_op0()) || !is_numeric(get_op1())) {
+        return make_error("arguments must be numeric");
+    }
+
+    return make_integer(comp_less_than(get_op1(), get_op0()));
 }
 
 
@@ -4392,6 +4584,11 @@ BUILTIN_TABLE(
        [](int argc) {
            return make_boolean(get_op0()->type() == Value::Type::nil);
        }}},
+     {"ratio?",
+      {EMPTY_SIG(1),
+       [](int argc) {
+           return make_boolean(get_op0()->type() == Value::Type::ratio);
+       }}},
      {"int?",
       {EMPTY_SIG(1),
        [](int argc) {
@@ -4536,7 +4733,11 @@ BUILTIN_TABLE(
      {"int",
       {SIG1(integer, nil),
        [](int argc) {
-           if (get_op0()->type() == Value::Type::string) {
+           if (get_op0()->type() == Value::Type::ratio) {
+               auto& ratio = get_op0()->ratio();
+               return make_integer(dcompr(ratio.numerator_)->integer().value_ /
+                                   ratio.divisor_);
+           } else if (get_op0()->type() == Value::Type::string) {
                auto str = L_LOAD_STRING(0);
 
                int accum = 0;
@@ -4565,6 +4766,10 @@ BUILTIN_TABLE(
                return get_op0();
            } else if (get_op0()->type() == Value::Type::integer) {
                return L_FP(L_LOAD_INT(0));
+           } else if (get_op0()->type() == Value::Type::ratio) {
+               auto& ratio = get_op0()->ratio();
+               s32 num = dcompr(ratio.numerator_)->integer().value_;
+               return L_FP((float)num / (float)ratio.divisor_);
            } else {
                return lisp::make_error(lisp::Error::Code::invalid_argument_type,
                                        L_NIL);
@@ -4758,15 +4963,46 @@ BUILTIN_TABLE(
      {">",
       {EMPTY_SIG(2),
        [](int argc) {
-           if (get_op0()->type() == Value::Type::fp) {
-               L_EXPECT_OP(1, fp);
-               return make_integer(get_op1()->fp().value_ >
-                                   get_op0()->fp().value_);
+           // Check for float contagion
+           if (get_op0()->type() == Value::Type::fp ||
+               get_op1()->type() == Value::Type::fp) {
+
+               Float::ValueType op0, op1;
+
+               // Convert op0 to float
+               if (get_op0()->type() == Value::Type::fp) {
+                   op0 = get_op0()->fp().value_;
+               } else {
+                   s32 num, div;
+                   if (!to_rational(get_op0(), num, div)) {
+                       return make_error("arguments must be numeric");
+                   }
+                   op0 = (Float::ValueType)num / div;
+               }
+
+               // Convert op1 to float
+               if (get_op1()->type() == Value::Type::fp) {
+                   op1 = get_op1()->fp().value_;
+               } else {
+                   s32 num, div;
+                   if (!to_rational(get_op1(), num, div)) {
+                       return make_error("arguments must be numeric");
+                   }
+                   op1 = (Float::ValueType)num / div;
+               }
+
+               return make_integer(op1 > op0);
            }
-           L_EXPECT_OP(0, integer);
-           L_EXPECT_OP(1, integer);
-           return make_integer(get_op1()->integer().value_ >
-                               get_op0()->integer().value_);
+
+           // Rational comparison
+           s32 op0_num, op0_div, op1_num, op1_div;
+           if (!to_rational(get_op0(), op0_num, op0_div) ||
+               !to_rational(get_op1(), op1_num, op1_div)) {
+               return make_error("arguments must be numeric");
+           }
+
+           return make_integer(
+               rational_less(op0_num, op0_div, op1_num, op1_div));
        }}},
      {"bit-and",
       {SIG2(integer, integer, integer),
@@ -4799,11 +5035,44 @@ BUILTIN_TABLE(
            return L_INT(~L_LOAD_INT(0));
        }}},
      {"mod",
-      {SIG2(integer, integer, integer),
+      {SIG2(rational, rational, rational),
        [](int argc) {
-           L_EXPECT_OP(0, integer);
-           L_EXPECT_OP(1, integer);
-           return L_INT(L_LOAD_INT(1) % L_LOAD_INT(0));
+           s32 divisor_num, divisor_div, dividend_num, dividend_div;
+           if (!to_rational(get_op0(), divisor_num, divisor_div) ||
+               !to_rational(get_op1(), dividend_num, dividend_div)) {
+               return make_error("arguments must be numeric");
+           }
+
+           if (divisor_num == 0) {
+               return make_error("division by zero");
+           }
+
+           s32 quot_num, quot_div;
+           div_rationals(quot_num,
+                         quot_div,
+                         dividend_num,
+                         dividend_div,
+                         divisor_num,
+                         divisor_div);
+
+           s32 floor_val = quot_num / quot_div;
+           if (quot_num < 0 && quot_num % quot_div != 0) {
+               floor_val -= 1; // Adjust for negative
+           }
+
+           s32 mult_num, mult_div;
+           mul_rationals(
+               mult_num, mult_div, divisor_num, divisor_div, floor_val, 1);
+
+           s32 result_num, result_div;
+           sub_rationals(result_num,
+                         result_div,
+                         dividend_num,
+                         dividend_div,
+                         mult_num,
+                         mult_div);
+
+           return make_ratio(result_num, result_div);
        }}},
      {"bit-shift-right",
       {SIG2(integer, integer, integer),
@@ -4837,34 +5106,82 @@ BUILTIN_TABLE(
            return make_string(result.c_str());
        }}},
      {"incr",
-      {SIG1(integer, integer),
+      {SIG1(rational, rational),
        [](int argc) {
-           L_EXPECT_OP(0, integer);
-           return L_INT(L_LOAD_INT(0) + 1);
+           s32 num, div;
+           if (!to_rational(get_op0(), num, div)) {
+               return make_error("argument to incr must be int or ratio");
+           }
+           add_rationals(num, div, num, div, 1, 1);
+           return make_ratio(num, div);
        }}},
      {"decr",
-      {SIG1(integer, integer),
+      {SIG1(rational, rational),
        [](int argc) {
-           L_EXPECT_OP(0, integer);
-           return L_INT(L_LOAD_INT(0) - 1);
+           s32 num, div;
+           if (!to_rational(get_op0(), num, div)) {
+               return make_error("argument to decr must be int or ratio");
+           }
+           add_rationals(num, div, num, div, -1, 1);
+           return make_ratio(num, div);
        }}},
      {"+",
       {EMPTY_SIG(0),
        [](int argc) {
-           if (argc >= 1 and get_op0()->type() == Value::Type::fp) {
-               Float::ValueType accum = 0;
+           if (argc == 0) {
+               return make_integer(0);
+           }
+
+           // Check for float contagion
+           bool has_float = false;
+           for (int i = 0; i < argc; ++i) {
+               if (get_op(i)->type() == Value::Type::fp) {
+                   has_float = true;
+                   break;
+               }
+           }
+
+           // Float path
+           if (has_float) {
+               Float::ValueType accum = 0.0f;
                for (int i = 0; i < argc; ++i) {
-                   L_EXPECT_OP(i, fp);
-                   accum += get_op(i)->fp().value_;
+                   if (get_op(i)->type() == Value::Type::fp) {
+                       accum += get_op(i)->fp().value_;
+                   } else if (get_op(i)->type() == Value::Type::integer) {
+                       accum += (Float::ValueType)get_op(i)->integer().value_;
+                   } else if (get_op(i)->type() == Value::Type::ratio) {
+                       auto& ratio = get_op(i)->ratio();
+                       s32 num = dcompr(ratio.numerator_)->integer().value_;
+                       Float::ValueType val =
+                           (Float::ValueType)num / ratio.divisor_;
+                       accum += val;
+                   } else {
+                       return make_error("arguments must be numeric");
+                   }
                }
                return L_FP(accum);
            }
-           int accum = 0;
+
+           // Rational path - accumulate as ratio
+           s32 accum_num = 0, accum_div = 1;
            for (int i = 0; i < argc; ++i) {
-               L_EXPECT_OP(i, integer);
-               accum += get_op(i)->integer().value_;
+               s32 op_num, op_div;
+               if (!to_rational(get_op(i), op_num, op_div)) {
+                   return make_error("arguments must be numeric");
+               }
+
+               s32 result_num, result_div;
+               add_rationals(result_num,
+                             result_div,
+                             accum_num,
+                             accum_div,
+                             op_num,
+                             op_div);
+               accum_num = result_num;
+               accum_div = result_div;
            }
-           return make_integer(accum);
+
+           return make_ratio(accum_num, accum_div);
        }}},
      {"-",
       {EMPTY_SIG(1),
@@ -4873,51 +5190,153 @@ BUILTIN_TABLE(
                if (get_op0()->type() == Value::Type::fp) {
                    return L_FP(-L_LOAD_FP(0));
                }
-               L_EXPECT_OP(0, integer);
-               return make_integer(-get_op0()->integer().value_);
 
-           } else {
-               L_EXPECT_ARGC(argc, 2);
-               if (get_op0()->type() == Value::Type::fp) {
-                   L_EXPECT_OP(1, fp);
-                   return L_FP(get_op1()->fp().value_ - get_op0()->fp().value_);
+               s32 num, div;
+               if (!to_rational(get_op0(), num, div)) {
+                   return make_error("argument must be numeric");
                }
 
-               L_EXPECT_OP(1, integer);
-               L_EXPECT_OP(0, integer);
-               return make_integer(get_op1()->integer().value_ -
-                                   get_op0()->integer().value_);
+               return make_ratio(-num, div);
            }
+
+           L_EXPECT_ARGC(argc, 2);
+
+           // Check for float contagion
+           if (get_op0()->type() == Value::Type::fp ||
+               get_op1()->type() == Value::Type::fp) {
+
+               Float::ValueType op0 =
+                   (get_op0()->type() == Value::Type::fp)
+                       ? get_op0()->fp().value_
+                       : (Float::ValueType)get_op0()->integer().value_;
+               Float::ValueType op1 =
+                   (get_op1()->type() == Value::Type::fp)
+                       ? get_op1()->fp().value_
+                       : (Float::ValueType)get_op1()->integer().value_;
+
+               return L_FP(op1 - op0);
+           }
+
+           s32 op0_num, op0_div, op1_num, op1_div;
+           if (!to_rational(get_op0(), op0_num, op0_div) ||
+               !to_rational(get_op1(), op1_num, op1_div)) {
+               return make_error("arguments must be numeric");
+           }
+
+           s32 result_num, result_div;
+           sub_rationals(
+               result_num, result_div, op1_num, op1_div, op0_num, op0_div);
+
+           return make_ratio(result_num, result_div);
        }}},
      {"*",
       {EMPTY_SIG(0),
        [](int argc) {
-           if (argc >= 1 and get_op0()->type() == Value::Type::fp) {
-               Float::ValueType accum = 1;
+           if (argc == 0) {
+               return make_integer(1); // Identity element
+           }
+
+           // Check for float contagion
+           bool has_float = false;
+           for (int i = 0; i < argc; ++i) {
+               if (get_op(i)->type() == Value::Type::fp) {
+                   has_float = true;
+                   break;
+               }
+           }
+
+           // Float path
+           if (has_float) {
+               Float::ValueType accum = 1.0f;
                for (int i = 0; i < argc; ++i) {
-                   L_EXPECT_OP(i, fp);
-                   accum *= get_op(i)->fp().value_;
+                   if (get_op(i)->type() == Value::Type::fp) {
+                       accum *= get_op(i)->fp().value_;
+                   } else if (get_op(i)->type() == Value::Type::integer) {
+                       accum *= (Float::ValueType)get_op(i)->integer().value_;
+                   } else if (get_op(i)->type() == Value::Type::ratio) {
+                       auto& ratio = get_op(i)->ratio();
+                       s32 num = dcompr(ratio.numerator_)->integer().value_;
+                       Float::ValueType val =
+                           (Float::ValueType)num / ratio.divisor_;
+                       accum *= val;
+                   } else {
+                       return make_error("arguments must be numeric");
+                   }
                }
                return L_FP(accum);
            }
-           int accum = 1;
+
+           // Rational path - accumulate as ratio
+           s32 accum_num = 1, accum_div = 1;
            for (int i = 0; i < argc; ++i) {
-               L_EXPECT_OP(i, integer);
-               accum *= get_op(i)->integer().value_;
+               s32 op_num, op_div;
+               if (!to_rational(get_op(i), op_num, op_div)) {
+                   return make_error("arguments must be numeric");
+               }
+
+               s32 result_num, result_div;
+               mul_rationals(result_num,
+                             result_div,
+                             accum_num,
+                             accum_div,
+                             op_num,
+                             op_div);
+               accum_num = result_num;
+               accum_div = result_div;
            }
-           return make_integer(accum);
+
+           return make_ratio(accum_num, accum_div);
        }}},
      {"/",
       {EMPTY_SIG(2),
        [](int argc) {
-           if (get_op0()->type() == Value::Type::fp) {
-               L_EXPECT_OP(1, fp);
-               return L_FP(get_op1()->fp().value_ / get_op0()->fp().value_);
+           // Handle float contagion first
+           if (get_op0()->type() == Value::Type::fp ||
+               get_op1()->type() == Value::Type::fp) {
+
+               float divisor, dividend;
+
+               // Convert divisor to float
+               if (get_op0()->type() == Value::Type::fp) {
+                   divisor = get_op0()->fp().value_;
+               } else {
+                   s32 num = 1, div = 1;
+                   to_rational(get_op0(), num, div);
+                   divisor = (float)num / (float)div; // Cast BOTH to float
+               }
+
+               // Convert dividend to float
+               if (get_op1()->type() == Value::Type::fp) {
+                   dividend = get_op1()->fp().value_;
+               } else {
+                   s32 num = 1, div = 1;
+                   to_rational(get_op1(), num, div);
+                   dividend = (float)num / (float)div; // Cast BOTH to float
+               }
+
+               if (divisor == 0.0f) {
+                   return make_error("division by zero");
+               }
+               return L_FP(dividend / divisor);
            }
-           L_EXPECT_OP(1, integer);
-           L_EXPECT_OP(0, integer);
-           return make_integer(get_op1()->integer().value_ /
-                               get_op0()->integer().value_);
+
+           // Rational path
+           s32 divisor_num, divisor_div, dividend_num, dividend_div;
+           if (!to_rational(get_op0(), divisor_num, divisor_div) ||
+               !to_rational(get_op1(), dividend_num, dividend_div)) {
+               return make_error("arguments must be numeric");
+           }
+           if (divisor_num == 0) {
+               return make_error("division by zero");
+           }
+           s32 result_num, result_div;
+           div_rationals(result_num,
+                         result_div,
+                         dividend_num,
+                         dividend_div,
+                         divisor_num,
+                         divisor_div);
+           return make_ratio(result_num, result_div);
        }}},
      {"lisp-mem-stack-used",
       {SIG0(integer),
@@ -4975,9 +5394,9 @@ BUILTIN_TABLE(
            L_EXPECT_OP(0, integer);
            auto val = L_LOAD_INT(0);
            if (val < early_gc_threshold_min) {
-               return make_error(::format(early_gc_err_fmt,
-                                          val,
-                                          early_gc_threshold_min).c_str());
+               return make_error(
+                   ::format(early_gc_err_fmt, val, early_gc_threshold_min)
+                       .c_str());
            }
            early_gc_threshold = val;
            return L_NIL;
@@ -5032,48 +5451,53 @@ BUILTIN_TABLE(
            return L_INT(databuffers);
        }}},
      {"range",
-      {SIG1(cons, integer),
+      {SIG1(cons, rational),
        [](int argc) {
-           int start = 0;
-           int end = 0;
-           int incr = 1;
+           s32 start_num = 0, start_div = 1;
+           s32 end_num = 0, end_div = 1;
+           s32 incr_num = 1, incr_div = 1;
 
            if (argc == 1) {
-
-               L_EXPECT_OP(0, integer);
-
-               start = 0;
-               end = get_op0()->integer().value_;
-
+               if (!to_rational(get_op0(), end_num, end_div)) {
+                   return make_error("arguments must be rational");
+               }
            } else if (argc == 2) {
-
-               L_EXPECT_OP(1, integer);
-               L_EXPECT_OP(0, integer);
-
-               start = get_op1()->integer().value_;
-               end = get_op0()->integer().value_;
-
+               if (!to_rational(get_op1(), start_num, start_div) ||
+                   !to_rational(get_op0(), end_num, end_div)) {
+                   return make_error("arguments must be rational");
+               }
            } else if (argc == 3) {
-
-               L_EXPECT_OP(2, integer);
-               L_EXPECT_OP(1, integer);
-               L_EXPECT_OP(0, integer);
-
-               start = get_op(2)->integer().value_;
-               end = get_op1()->integer().value_;
-               incr = get_op0()->integer().value_;
+               if (!to_rational(get_op(2), start_num, start_div) ||
+                   !to_rational(get_op1(), end_num, end_div) ||
+                   !to_rational(get_op0(), incr_num, incr_div)) {
+                   return make_error("arguments must be rational");
+               }
            } else {
-               return lisp::make_error(lisp::Error::Code::invalid_argc, L_NIL);
+               return make_error("invalid argc");
            }
 
-           if (incr == 0) {
+           if (incr_num == 0) {
                return get_nil();
            }
 
            ListBuilder lat;
+           s32 current_num = start_num;
+           s32 current_div = start_div;
 
-           for (int i = start; i < end; i += incr) {
-               lat.push_back(make_integer(i));
+           // Loop while current < end
+           while (rational_less(current_num, current_div, end_num, end_div)) {
+               lat.push_back(make_ratio(current_num, current_div));
+
+               // current += incr
+               s32 new_num, new_div;
+               add_rationals(new_num,
+                             new_div,
+                             current_num,
+                             current_div,
+                             incr_num,
+                             incr_div);
+               current_num = new_num;
+               current_div = new_div;
            }
 
            return lat.result();

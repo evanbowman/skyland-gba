@@ -78,6 +78,9 @@
  int: A signed 32 bit
  integer.
 
+ ratio: A ratio consisting
+ of a numerator and a divisor.
+
  cons: A pair of two values.
 
  function: A value containing
