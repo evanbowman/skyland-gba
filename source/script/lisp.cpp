@@ -1273,13 +1273,8 @@ Value* make_boolean(bool is_true)
 }
 
 
-static int int_count[256];
-
 Value* make_integer(s32 value)
 {
-    if ((u32)value < (u32)256) {
-        info(::format("make % (%)", value, int_count[value]++));
-    }
     auto val = alloc_value();
     val->hdr_.type_ = Value::Type::integer;
     val->integer().value_ = value;
