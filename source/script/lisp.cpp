@@ -63,12 +63,12 @@ union ValueMemory
     Function function_;
     Error error_;
     Symbol symbol_;
-    UserData user_data_;
     DataBuffer databuffer_;
     String string_;
     Wrapped wrapped_;
     Ratio ratio_;
-    __Reserved<Value::Type::rational> __reserved_2;
+    __Reserved<Value::Type::rational> __reserved_3;
+    __Reserved<Value::Type::__reserved_2> __reserved_2;
     __Reserved<Value::Type::__reserved_1> __reserved_1;
     __Reserved<Value::Type::__reserved_0> __reserved_0;
 };
@@ -208,13 +208,13 @@ constexpr const std::array<FinalizerTableEntry, Value::Type::count> fin_table =
         Function::finalizer,
         Error::finalizer,
         Symbol::finalizer,
-        UserData::finalizer,
         DataBuffer::finalizer,
         String::finalizer,
         Float::finalizer,
         Wrapped::finalizer,
         Ratio::finalizer,
         __Reserved<Value::Type::rational>::finalizer,
+        __Reserved<Value::Type::__reserved_2>::finalizer,
         __Reserved<Value::Type::__reserved_1>::finalizer,
         __Reserved<Value::Type::__reserved_0>::finalizer,
 };
@@ -849,11 +849,23 @@ static Value* alloc_value()
 }
 
 
+Value* wrap(void* input, Value* type_sym)
+{
+    auto val = alloc_value();
+    val->hdr_.type_ = Value::Type::wrapped;
+    val->wrapped().variant_ = Wrapped::Variant::userdata;
+    val->wrapped().userdata_ = input;
+    val->wrapped().type_sym_ = compr(type_sym);
+    return val;
+}
+
+
 Value* wrap(Value* input, Value* type_sym)
 {
     auto val = alloc_value();
     val->hdr_.type_ = Value::Type::wrapped;
-    val->wrapped().data_ = compr(input);
+    val->wrapped().variant_ = Wrapped::Variant::lisp_data;
+    val->wrapped().lisp_data_ = compr(input);
     val->wrapped().type_sym_ = compr(type_sym);
     return val;
 }
@@ -978,8 +990,6 @@ ArgBindings make_arg_bindings(Value* arg_lat, ArgBindings* parent)
                 type = Value::Type::fp;
             } else if (str_eq(type_symbol.name(), "error")) {
                 type = Value::Type::error;
-            } else if (str_eq(type_symbol.name(), "userdata")) {
-                type = Value::Type::user_data;
             } else if (str_eq(type_symbol.name(), "databuffer")) {
                 type = Value::Type::databuffer;
             } else if (str_eq(type_symbol.name(), "nil")) {
@@ -1381,16 +1391,6 @@ static Value* intern_to_symbol(const char* already_interned_str)
 }
 
 
-Value* make_userdata(void* obj, u16 tag)
-{
-    auto val = alloc_value();
-    val->hdr_.type_ = Value::Type::user_data;
-    val->user_data().obj_ = obj;
-    val->user_data().tag_ = tag;
-    return val;
-}
-
-
 Value* make_databuffer(const char* sbr_tag)
 {
     if (not scratch_buffers_remaining()) {
@@ -1619,6 +1619,7 @@ const char* type_to_string(ValueHeader::Type tp)
 {
     switch (tp) {
     case Value::Type::count:
+    case Value::Type::__reserved_2:
     case Value::Type::__reserved_1:
     case Value::Type::__reserved_0:
     case Value::Type::nil:
@@ -1639,8 +1640,6 @@ const char* type_to_string(ValueHeader::Type tp)
         return "error";
     case Value::Type::symbol:
         return "symbol";
-    case Value::Type::user_data:
-        return "userdata";
     case Value::Type::databuffer:
         return "databuffer";
     case Value::Type::string:
@@ -2406,6 +2405,7 @@ void format_impl(Value* value, Printer& p, int depth, bool skip_quotes = false)
         break;
 
     case lisp::Value::Type::rational:
+    case lisp::Value::Type::__reserved_2:
     case lisp::Value::Type::__reserved_1:
     case lisp::Value::Type::__reserved_0:
         break;
@@ -2523,10 +2523,6 @@ void format_impl(Value* value, Printer& p, int depth, bool skip_quotes = false)
         p.put_str(">");
         break;
 
-    case lisp::Value::Type::user_data:
-        p.put_str(::format("<userdata:%>", value->user_data().tag_).c_str());
-        break;
-
     case lisp::Value::Type::error:
         p.put_str("[ERR: ");
         p.put_str(lisp::Error::get_string(value->error().code_));
@@ -2629,7 +2625,9 @@ static void gc_mark_value(Value* value)
 
     switch (value->type()) {
     case Value::Type::wrapped:
-        gc_mark_value(dcompr(value->wrapped().data_));
+        if (value->wrapped().variant_ == Wrapped::Variant::lisp_data) {
+            gc_mark_value(dcompr(value->wrapped().lisp_data_));
+        }
         gc_mark_value(dcompr(value->wrapped().type_sym_));
         break;
 
@@ -4025,6 +4023,7 @@ bool is_equal(Value* lhs, Value* rhs)
 
     case Value::Type::count:
     case Value::Type::rational:
+    case Value::Type::__reserved_2:
     case Value::Type::__reserved_1:
     case Value::Type::__reserved_0:
     case Value::Type::nil:
@@ -4079,9 +4078,6 @@ bool is_equal(Value* lhs, Value* rhs)
 
     case Value::Type::symbol:
         return lhs->symbol().unique_id() == rhs->symbol().unique_id();
-
-    case Value::Type::user_data:
-        return lhs->user_data().obj_ == rhs->user_data().obj_;
 
     case Value::Type::string:
         return str_cmp(lhs->string().value(), rhs->string().value()) == 0;
@@ -4578,12 +4574,6 @@ BUILTIN_TABLE(
        [](int argc) {
            return make_boolean(get_op0()->type() == Value::Type::symbol);
        }}},
-     {"userdata-tag",
-      {SIG1(integer, user_data),
-       [](int argc) {
-           L_EXPECT_OP(0, user_data);
-           return L_INT(get_op0()->user_data().tag_);
-       }}},
      {"type",
       {SIG1(symbol, nil),
        [](int argc) {
@@ -4592,15 +4582,10 @@ BUILTIN_TABLE(
            }
            return make_symbol(type_to_string(get_op0()->type()));
        }}},
-     {"userdata?",
-      {EMPTY_SIG(1),
-       [](int argc) {
-           return make_boolean(get_op0()->type() == Value::Type::user_data);
-       }}},
      {"databuffer?",
       {EMPTY_SIG(1),
        [](int argc) {
-           return make_boolean(get_op0()->type() == Value::Type::user_data);
+           return make_boolean(get_op0()->type() == Value::Type::databuffer);
        }}},
      {"string?",
       {EMPTY_SIG(1),
@@ -4622,7 +4607,10 @@ BUILTIN_TABLE(
       {SIG1(nil, wrapped),
        [](int argc) {
            L_EXPECT_OP(0, wrapped);
-           return dcompr(get_op0()->wrapped().data_);
+           if (get_op0()->wrapped().variant_ == Wrapped::Variant::userdata) {
+               return make_error("cannot unwrap userdata!");
+           }
+           return dcompr(get_op0()->wrapped().lisp_data_);
        }}},
      {"odd?",
       {SIG1(nil, integer),

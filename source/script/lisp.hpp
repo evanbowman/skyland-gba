@@ -70,7 +70,6 @@ struct ValueHeader
         function,
         error,
         symbol,
-        user_data,
         databuffer,
         string,
         fp,
@@ -83,6 +82,7 @@ struct ValueHeader
         // type system that are distinct from integers and ratios.
         rational,
 
+        __reserved_2,
         __reserved_1,
         __reserved_0,
         count,
@@ -271,8 +271,16 @@ struct Wrapped
     {
     }
 
-    CompressedPtr data_;
+    enum class Variant : u8 {
+        lisp_data,
+        userdata
+    } variant_;
+
     CompressedPtr type_sym_;
+    union {
+        CompressedPtr lisp_data_;
+        void* userdata_;
+    };
 };
 
 
@@ -533,23 +541,6 @@ struct Error
 };
 
 
-struct UserData
-{
-    ValueHeader hdr_;
-    u16 tag_;
-    void* obj_;
-
-    static ValueHeader::Type type()
-    {
-        return ValueHeader::Type::user_data;
-    }
-
-    static constexpr void finalizer(Value*)
-    {
-    }
-};
-
-
 template <ValueHeader::Type T> struct __Reserved
 {
     ValueHeader hdr_;
@@ -640,11 +631,6 @@ struct Value
         return *reinterpret_cast<Symbol*>(this);
     }
 
-    UserData& user_data()
-    {
-        return *reinterpret_cast<UserData*>(this);
-    }
-
     DataBuffer& databuffer()
     {
         return *reinterpret_cast<DataBuffer*>(this);
@@ -676,6 +662,7 @@ bool is_boolean_true(Value* val);
 
 
 Value* wrap(Value* input, Value* type_sym);
+Value* wrap(void* userdata, Value* type_sym);
 Value* make_boolean(bool is_true);
 Value* make_function(Function::CPP_Impl impl);
 Value* make_cons(Value* car, Value* cdr);
@@ -684,7 +671,6 @@ Value* make_integer(s32 value);
 Value* make_list(u32 length);
 Value* make_error(Error::Code error_code, Value* context);
 Value* make_error(const char* message);
-Value* make_userdata(void* obj, u16 tag);
 Value* make_symbol(const char* name,
                    Symbol::ModeBits mode = Symbol::ModeBits::requires_intern);
 Value* make_databuffer(const char* sbr_tag = "");

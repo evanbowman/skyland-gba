@@ -177,10 +177,8 @@ SYMTAB({{"on-fadein", 0},
 
 lisp::Value* wrap_island(Island* isle)
 {
-    auto tag = isle->script_userdata_tag();
-    lisp::Protected ud(lisp::make_userdata(isle, tag));
     lisp::Protected sym(L_SYM("isle"));
-    return lisp::wrap(ud, sym);
+    return lisp::wrap(isle, sym);
 }
 
 
@@ -206,7 +204,7 @@ Island* unwrap_isle(lisp::Value* v)
     if (not str_eq(dcompr(v->wrapped().type_sym_)->symbol().name(), "isle")) {
         PLATFORM.fatal("invalid wrapped value!?");
     }
-    return (Island*)dcompr(v->wrapped().data_)->user_data().obj_;
+    return (Island*)v->wrapped().userdata_;
 }
 
 
@@ -1229,7 +1227,7 @@ BINDING_TABLE({
      {SIG1(string, wrapped),
       [](int argc) {
           L_EXPECT_OP(0, wrapped);
-          auto p = lisp::get_list(dcompr(lisp::get_op0()->wrapped().data_), 0);
+          auto p = lisp::get_list(dcompr(lisp::get_op0()->wrapped().lisp_data_), 0);
           auto str = p->string().value();
           return lisp::make_string(::format("#(file:%)", str).c_str());
       }}},
@@ -1239,7 +1237,7 @@ BINDING_TABLE({
           L_EXPECT_OP(1, integer);
           L_EXPECT_OP(2, wrapped);
 
-          auto inp_list = dcompr(lisp::get_op(2)->wrapped().data_);
+          auto inp_list = dcompr(lisp::get_op(2)->wrapped().lisp_data_);
 
           if (not lisp::is_list(inp_list) or
               not lisp::is_list(lisp::get_op0())) {
@@ -1290,7 +1288,7 @@ BINDING_TABLE({
       [](int argc) {
           L_EXPECT_OP(0, wrapped);
 
-          auto input = dcompr(lisp::get_op0()->wrapped().data_);
+          auto input = dcompr(lisp::get_op0()->wrapped().lisp_data_);
 
           if (not lisp::is_list(input)) {
               return lisp::make_boolean(false);

@@ -103,8 +103,7 @@ void PluginRoom::update(Time delta)
         auto& fn =
             b->fetch_info<RoomPluginInfo::FieldTag::update, lisp::Function>();
 
-        lisp::push_op(
-            lisp::make_userdata(parent(), parent()->script_userdata_tag()));
+        lisp::push_op(lisp::wrap((void*)parent(), lisp::make_symbol("isle")));
         lisp::push_op(lisp::make_integer(position().x));
         lisp::push_op(lisp::make_integer(position().y));
 

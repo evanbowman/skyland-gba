@@ -110,8 +110,8 @@
 
 (assert-eq (type (player)) 'isle)
 
-(assert-eq (userdata-tag (unwrap (player))) 1)
-(assert-eq (userdata-tag (unwrap (opponent))) 2)
+(assert-v (error? (unwrap (player)))) ; cannot unwrap custom userdata
+(assert-v (error? (unwrap (opponent))))
 
 (assert-eq "#(isle:player)" (string (player)))
 (assert-eq "#(isle:opponent)" (string (opponent)))
