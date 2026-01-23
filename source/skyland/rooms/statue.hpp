@@ -124,7 +124,7 @@ public:
         }
 
         if (lisp::length(list) >= 5) {
-            __set_health(lisp::get_list(list, 4)->integer().value_);
+            __set_health(lisp::to_integer(lisp::get_list(list, 4)));
         }
     }
 

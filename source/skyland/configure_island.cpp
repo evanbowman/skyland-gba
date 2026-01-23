@@ -37,8 +37,8 @@ void configure_island(Island& island, lisp::Value* island_desc_lat)
 
 
         if (len >= 3) {
-            u8 x = lisp::get_list(val, 1)->integer().value_;
-            u8 y = lisp::get_list(val, 2)->integer().value_;
+            u8 x = lisp::to_integer(lisp::get_list(val, 1));
+            u8 y = lisp::to_integer(lisp::get_list(val, 2));
 
             if (auto c = load_metaclass(name_symb->symbol().name())) {
                 (*c)->create(&island, RoomCoord{x, y}, false);

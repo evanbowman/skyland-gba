@@ -63,9 +63,9 @@ void DlcManagerModule::enter(Scene& prev)
                 }
 
                 if (str_eq(car->symbol().name(), "tile")) {
-                    tile_deps = cdr->integer().value_;
+                    tile_deps = lisp::to_integer(cdr);
                 } else if (str_eq(car->symbol().name(), "spr")) {
-                    spr_deps = cdr->integer().value_;
+                    spr_deps = lisp::to_integer(cdr);
                 }
             });
         } else {

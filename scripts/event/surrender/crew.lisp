@@ -12,8 +12,8 @@
 
 (defn on-dialog-closed ()
   (setq on-dialog-closed '())
-  (let ((c (int (* 0.72 (float (coins-victory)))))
-        (score-bonus (int (* 0.25 (float (coins-victory))))))
+  (let ((c (int (* 72/100 (coins-victory))))
+        (score-bonus (int (* 1/4 (coins-victory)))))
     (dialog "The goblins offer surrender, accept terms?")
 
     (dialog-opts-reset)
@@ -44,7 +44,7 @@
 
                           (exit 2)))))
   (let ((cnt 0)
-          (tot (/ (length (rooms (opponent))) 5)))
+        (tot (floor (/ (length (rooms (opponent))) 5))))
       (setq cnt tot)
       (when cnt
         (dialog-opts-push

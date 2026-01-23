@@ -358,7 +358,10 @@ int compile_impl(CompilerContext& ctx,
                  int jump_offset,
                  bool tail_expr)
 {
-    if (code->type() == Value::Type::nil) {
+    if (code->type() == Value::Type::ratio) {
+        PLATFORM.fatal("TODO: ratio literals unsupported in bytecode!"
+                       " (you can use the / function instead though)");
+    } else if (code->type() == Value::Type::nil) {
 
         append<instruction::PushNil>(buffer, write_pos);
 

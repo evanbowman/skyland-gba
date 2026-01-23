@@ -41,8 +41,8 @@ void ItemShopScene::enter(Scene& prev)
     auto items = lisp::get_var("shop-items");
     lisp::l_foreach(items, [this](lisp::Value* item) {
         auto mt = metaclass_index(lisp::get_list(item, 0)->symbol().name());
-        u16 price = lisp::get_list(item, 1)->integer().value_;
-        u16 qty = lisp::get_list(item, 2)->integer().value_;
+        u16 price = lisp::to_integer(lisp::get_list(item, 1));
+        u16 qty = lisp::to_integer(lisp::get_list(item, 2));
         if (items_->full()) {
             Platform::fatal("shop item list cannot exceed 4 elems");
         }

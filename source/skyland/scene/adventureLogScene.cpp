@@ -152,7 +152,7 @@ StringBuffer<128> AdventureLogScene::format_logentry(int entry)
         }
 
 
-        auto line = lisp::get_list(v, 0)->integer().value_;
+        auto line = lisp::to_integer(lisp::get_list(v, 0));
         auto str = get_line_from_file(file, line);
 
         Buffer<StringBuffer<20>, 8> args;

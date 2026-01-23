@@ -313,7 +313,7 @@ ScenePtr ActiveWorldScene::update(Time delta)
         APP.game_mode() not_eq App::GameMode::multiplayer and
         APP.input_setup_info()) {
 
-        bool near = (*APP.input_setup_info())->cons().car()->integer().value_;
+        bool near = lisp::to_integer((*APP.input_setup_info())->cons().car());
 
         auto next = make_scene<SelInputScene>(
             (*APP.input_setup_info())->cons().cdr(), near);

@@ -4248,6 +4248,23 @@ void add_rationals(s32& result_num, s32& result_div,
 }
 
 
+s32 to_integer(Value* v)
+{
+    if (v->type() == Value::Type::integer) {
+        return v->integer().value_;
+    } else if (v->type() == Value::Type::ratio) {
+        auto& ratio = v->ratio();
+        return dcompr(ratio.numerator_)->integer().value_ /
+            ratio.divisor_;
+    }
+    if (bound_context->strict_) {
+        PLATFORM.fatal(::format("cannot convert % to integer!",
+                                val_to_string<64>(v).c_str()));
+    }
+    return 1;
+}
+
+
 bool to_rational(Value* v, s32& num, s32& div)
 {
     if (v->type() == Value::Type::integer) {
@@ -4557,10 +4574,24 @@ BUILTIN_TABLE(
            return get_arg(get_op0()->integer().value_);
        }}},
      {"abs",
-      {SIG1(integer, integer),
+      {SIG1(rational, rational),
        [](int argc) {
-           L_EXPECT_OP(0, integer);
-           return make_integer(abs(L_LOAD_INT(0)));
+           L_EXPECT_RATIONAL(0);
+           if (get_op0()->type() == Value::Type::integer) {
+               auto old = L_LOAD_INT(0);
+               if (old >= 0) {
+                   return get_op0();
+               }
+               return make_integer(abs(old));
+           } else if (get_op0()->type() == Value::Type::ratio) {
+               auto& old = get_op0()->ratio();
+               auto old_num = dcompr(old.numerator_)->integer().value_;
+               if (old_num >= 0) {
+                   return get_op0();
+               }
+               return make_ratio(abs(old_num), old.divisor_);
+           }
+           return L_NIL;
        }}},
      {"not",
       {EMPTY_SIG(1),

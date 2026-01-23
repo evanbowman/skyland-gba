@@ -169,7 +169,7 @@ void SelectTutorialScene::show_options()
             PLATFORM.fatal("tutorial list format invalid");
         }
 
-        int tutorial_num = lisp::get_list(val, 2)->integer().value_;
+        int tutorial_num = lisp::to_integer(lisp::get_list(val, 2));
 
         bool completed = APP.gp_.watched_tutorials_.get() & (1 << tutorial_num);
 
@@ -259,7 +259,7 @@ ScenePtr SelectTutorialScene::update(Time delta)
         auto index = page_ * 5 + cursor_;
         auto choice = lisp::get_list(*tutorials_, index);
 
-        auto tutorial_num = lisp::get_list(choice, 2)->integer().value_;
+        auto tutorial_num = lisp::to_integer(lisp::get_list(choice, 2));
 
         if (not(APP.gp_.watched_tutorials_.get() & (1 << tutorial_num))) {
             APP.gp_.watched_tutorials_.set(APP.gp_.watched_tutorials_.get() |

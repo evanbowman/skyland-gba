@@ -179,7 +179,7 @@ void AutopilotPlayer::update(Time delta)
             if (current->type() == lisp::Value::Type::cons) {
                 auto tm = current->cons().car();
                 if (tm->type() == lisp::Value::Type::integer) {
-                    next_key_timeout_ = milliseconds(tm->integer().value_);
+                    next_key_timeout_ = milliseconds(lisp::to_integer(tm));
                 } else {
                     PLATFORM.fatal("invalid autopilot list format");
                 }

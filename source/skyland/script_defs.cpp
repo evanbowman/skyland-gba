@@ -285,10 +285,14 @@ BINDING_TABLE({
           return L_NIL;
       }}},
     {"score-add",
-     {SIG1(integer, integer),
+     {SIG1(rational, rational),
       [](int argc) {
-          L_EXPECT_OP(0, integer);
-          APP.score().set(APP.score().get() + L_LOAD_INT(0));
+          s32 num;
+          s32 div;
+          if (to_rational(lisp::get_op0(), num, div)) {
+              APP.score().set(APP.score().get() + num);
+              return lisp::make_ratio(num, div);
+          }
           return L_INT(APP.score().get());
       }}},
     {"groups",
@@ -350,10 +354,10 @@ BINDING_TABLE({
     {"emit",
      {EMPTY_SIG(5),
       [](int argc) {
-          L_EXPECT_OP(0, integer);
-          L_EXPECT_OP(1, integer);
-          L_EXPECT_OP(2, integer);
-          L_EXPECT_OP(3, integer);
+          L_EXPECT_RATIONAL(0);
+          L_EXPECT_RATIONAL(1);
+          L_EXPECT_RATIONAL(2);
+          L_EXPECT_RATIONAL(3);
           L_EXPECT_OP(4, wrapped);
 
           auto island = unwrap_isle(lisp::get_op(4));
@@ -375,10 +379,10 @@ BINDING_TABLE({
           return L_NIL;
       }}},
     {"groups-add",
-     {SIG3(nil, symbol, integer, integer),
+     {SIG3(nil, symbol, rational, rational),
       [](int argc) {
-          L_EXPECT_OP(0, integer);
-          L_EXPECT_OP(1, integer);
+          L_EXPECT_RATIONAL(0);
+          L_EXPECT_RATIONAL(1);
           L_EXPECT_OP(2, symbol);
 
           u8 x = L_LOAD_INT(1);
@@ -482,7 +486,7 @@ BINDING_TABLE({
           auto param_list = lisp::get_op(0);
 
           if (str_eq(menu_name, "rebind-buttons")) {
-              auto rebind = get_list(param_list, 0)->integer().value_;
+              auto rebind = lisp::to_integer(get_list(param_list, 0));
               push_menu_queue.push_back([rebind] {
                   auto next = make_scene<ControllerSetupModule>();
                   if (rebind) {
@@ -497,7 +501,7 @@ BINDING_TABLE({
                   return next;
               });
           } else if (str_eq(menu_name, "title-screen")) {
-              auto pg_num = get_list(param_list, 0)->integer().value_;
+              auto pg_num = lisp::to_integer(get_list(param_list, 0));
               push_menu_queue.push_back(
                   [pg_num] { return make_scene<TitleScreenScene>(pg_num); });
           } else if (str_eq(menu_name, "dialog-chain")) {
@@ -509,7 +513,7 @@ BINDING_TABLE({
               push_menu_queue.push_back(make_deferred_scene<ItemShopScene>());
           } else if (str_eq(menu_name, "file-browser")) {
               auto path = get_list(param_list, 0)->string().value();
-              bool allow_backtrack = get_list(param_list, 1)->integer().value_;
+              bool allow_backtrack = to_integer(get_list(param_list, 1));
               push_menu_queue.push_back([path, allow_backtrack] {
                   UserContext ctx;
                   ctx.allow_backtrack_ = allow_backtrack;
@@ -525,8 +529,8 @@ BINDING_TABLE({
                   return next;
               });
           } else if (str_eq(menu_name, "text-entry")) {
-              auto rqd = get_list(param_list, 0)->integer().value_;
-              auto lim = get_list(param_list, 1)->integer().value_;
+              auto rqd = lisp::to_integer(get_list(param_list, 0));
+              auto lim = lisp::to_integer(get_list(param_list, 1));
               push_menu_queue.push_back([rqd, lim]() {
                   return make_scene<TextEntryScene>(
                       "Entry:",
@@ -667,17 +671,17 @@ BINDING_TABLE({
           return result.result();
       }}},
     {"room-damage",
-     {SIG3(nil, wrapped, integer, integer),
+     {SIG3(nil, wrapped, rational, rational),
       [](int argc) {
-          L_EXPECT_OP(0, integer);
-          L_EXPECT_OP(1, integer);
+          L_EXPECT_RATIONAL(0);
+          L_EXPECT_RATIONAL(1);
           L_EXPECT_OP(2, wrapped);
 
           auto island = unwrap_isle(lisp::get_op(2));
 
           auto coord = RoomCoord{
-              (u8)lisp::get_op(1)->integer().value_,
-              (u8)lisp::get_op(0)->integer().value_,
+              (u8)L_LOAD_INT(1),
+              (u8)L_LOAD_INT(0),
           };
 
           if (auto room = island->get_room(coord)) {
@@ -688,17 +692,17 @@ BINDING_TABLE({
           }
       }}},
     {"room-hp",
-     {SIG3(nil, wrapped, integer, integer),
+     {SIG3(nil, wrapped, rational, rational),
       [](int argc) {
-          L_EXPECT_OP(0, integer);
-          L_EXPECT_OP(1, integer);
+          L_EXPECT_RATIONAL(0);
+          L_EXPECT_RATIONAL(1);
           L_EXPECT_OP(2, wrapped);
 
           auto island = unwrap_isle(lisp::get_op(2));
 
           auto coord = RoomCoord{
-              (u8)lisp::get_op(1)->integer().value_,
-              (u8)lisp::get_op(0)->integer().value_,
+              (u8)L_LOAD_INT(1),
+              (u8)L_LOAD_INT(0),
           };
 
           if (auto room = island->get_room(coord)) {
@@ -708,23 +712,23 @@ BINDING_TABLE({
           }
       }}},
     {"room-hp-set",
-     {SIG4(nil, wrapped, integer, integer, integer),
+     {SIG4(nil, wrapped, rational, rational, rational),
       [](int argc) {
-          L_EXPECT_OP(0, integer);
-          L_EXPECT_OP(1, integer);
-          L_EXPECT_OP(2, integer);
+          L_EXPECT_RATIONAL(0);
+          L_EXPECT_RATIONAL(1);
+          L_EXPECT_RATIONAL(2);
           L_EXPECT_OP(3, wrapped);
 
           auto island = unwrap_isle(lisp::get_op(3));
 
           auto coord = RoomCoord{
-              (u8)lisp::get_op(2)->integer().value_,
-              (u8)lisp::get_op(1)->integer().value_,
+              (u8)L_LOAD_INT(2),
+              (u8)L_LOAD_INT(1),
           };
 
           if (auto room = island->get_room(coord)) {
               auto hp = room->health();
-              auto newhp = lisp::get_op(0)->integer().value_;
+              auto newhp = L_LOAD_INT(0);
 
               auto diff = newhp - hp;
               if (diff < 0) {
@@ -800,9 +804,9 @@ BINDING_TABLE({
           return b.result();
       }}},
     {"cart-add",
-     {SIG1(nil, integer),
+     {SIG1(nil, rational),
       [](int argc) {
-          L_EXPECT_OP(0, integer);
+          L_EXPECT_RATIONAL(0);
 
           DataCartLibrary lib;
           lib.store(L_LOAD_INT(0));
@@ -810,9 +814,9 @@ BINDING_TABLE({
           return L_NIL;
       }}},
     {"cart-found?",
-     {SIG1(nil, integer),
+     {SIG1(nil, rational),
       [](int argc) {
-          L_EXPECT_OP(0, integer);
+          L_EXPECT_RATIONAL(0);
 
           DataCartLibrary lib;
           if (lib.load(L_LOAD_INT(0))) {
@@ -822,10 +826,10 @@ BINDING_TABLE({
           return L_NIL;
       }}},
     {"cart-read",
-     {SIG2(string, integer, string),
+     {SIG2(string, rational, string),
       [](int argc) {
           L_EXPECT_OP(0, string);
-          L_EXPECT_OP(1, integer);
+          L_EXPECT_RATIONAL(1);
 
           DataCart cart(L_LOAD_INT(1));
 
@@ -836,9 +840,9 @@ BINDING_TABLE({
           }
       }}},
     {"cart-info",
-     {SIG1(cons, integer),
+     {SIG1(cons, rational),
       [](int argc) {
-          L_EXPECT_OP(0, integer);
+          L_EXPECT_RATIONAL(0);
 
           DataCart cart(L_LOAD_INT(0));
           lisp::ListBuilder list;
@@ -946,10 +950,10 @@ BINDING_TABLE({
           return L_NIL;
       }}},
     {"fire-new",
-     {SIG3(nil, wrapped, integer, integer),
+     {SIG3(nil, wrapped, rational, rational),
       [](int argc) {
-          L_EXPECT_OP(0, integer); // y
-          L_EXPECT_OP(1, integer); // x
+          L_EXPECT_RATIONAL(0); // y
+          L_EXPECT_RATIONAL(1); // x
           L_EXPECT_OP(2, wrapped);
 
           auto island = unwrap_isle(lisp::get_op(2));
@@ -973,12 +977,12 @@ BINDING_TABLE({
           return result.result();
       }}},
     {"poweroff",
-     {SIG4(nil, wrapped, integer, integer, integer),
+     {SIG4(nil, wrapped, rational, rational, rational),
       [](int argc) {
           L_EXPECT_OP(3, wrapped);
-          L_EXPECT_OP(2, integer);
-          L_EXPECT_OP(1, integer);
-          L_EXPECT_OP(0, integer);
+          L_EXPECT_RATIONAL(2);
+          L_EXPECT_RATIONAL(1);
+          L_EXPECT_RATIONAL(0);
 
           auto island = unwrap_isle(lisp::get_op(3));
           u8 x = L_LOAD_INT(2);
@@ -1130,9 +1134,9 @@ BINDING_TABLE({
           return L_NIL;
       }}},
     {"on-timeout",
-     {SIG2(nil, integer, symbol),
+     {SIG2(nil, rational, symbol),
       [](int argc) {
-          L_EXPECT_OP(1, integer);
+          L_EXPECT_RATIONAL(1);
           L_EXPECT_OP(0, symbol);
 
           auto [app, pfrm] = interp_get_context();
@@ -1155,9 +1159,9 @@ BINDING_TABLE({
           return L_NIL;
       }}},
     {"port",
-     {SIG1(nil, integer),
+     {SIG1(nil, rational),
       [](int argc) {
-          L_EXPECT_OP(0, integer);
+          L_EXPECT_RATIONAL(0);
 
           auto [app, pfrm] = interp_get_context();
 
@@ -1170,11 +1174,11 @@ BINDING_TABLE({
           return L_NIL;
       }}},
     {"effect",
-     {SIG3(nil, string, integer, integer),
+     {SIG3(nil, string, rational, rational),
       [](int argc) {
           L_EXPECT_OP(2, string);
-          L_EXPECT_OP(1, integer);
-          L_EXPECT_OP(0, integer);
+          L_EXPECT_RATIONAL(1);
+          L_EXPECT_RATIONAL(0);
 
           auto str = L_LOAD_STRING(2);
           auto x = L_LOAD_INT(1);
@@ -1370,9 +1374,9 @@ BINDING_TABLE({
     {"weather",
      {SIG0(integer), [](int argc) { return L_INT(APP.environment().id()); }}},
     {"weather-set",
-     {SIG1(nil, integer),
+     {SIG1(nil, rational),
       [](int argc) {
-          L_EXPECT_OP(0, integer);
+          L_EXPECT_RATIONAL(0);
 
           environment_init(L_LOAD_INT(0));
           PLATFORM.screen().set_shader(APP.environment().shader());
@@ -1407,9 +1411,9 @@ BINDING_TABLE({
           return L_NIL;
       }}},
     {"opponent-generate",
-     {SIG1(nil, integer),
+     {SIG1(nil, rational),
       [](int argc) {
-          L_EXPECT_OP(0, integer);
+          L_EXPECT_RATIONAL(0);
 
           auto [app, pfrm] = interp_get_context();
 
@@ -1419,7 +1423,7 @@ BINDING_TABLE({
           auto& o = app->swap_opponent<ProcgenEnemyAI>(
               rng::get(rng::critical_state), 1);
 
-          o.set_levelgen_count(lisp::get_op(0)->integer().value_);
+          o.set_levelgen_count(L_LOAD_INT(0));
           o.generate_level();
 
           app->swap_opponent<EnemyAI>();
@@ -1427,9 +1431,9 @@ BINDING_TABLE({
           return L_NIL;
       }}},
     {"opponent-init",
-     {SIG2(nil, integer, symbol),
+     {SIG2(nil, rational, symbol),
       [](int argc) {
-          L_EXPECT_OP(1, integer);
+          L_EXPECT_RATIONAL(1);
           L_EXPECT_OP(0, symbol);
 
           auto [app, pfrm] = interp_get_context();
@@ -1445,18 +1449,18 @@ BINDING_TABLE({
               pfrm->fatal(err.c_str());
           }
 
-          app->create_opponent_island(lisp::get_op(1)->integer().value_);
+          app->create_opponent_island(L_LOAD_INT(1));
 
           return L_NIL;
       }}},
     {"terrain-set",
-     {SIG2(nil, wrapped, integer),
+     {SIG2(nil, wrapped, rational),
       [](int argc) {
-          L_EXPECT_OP(0, integer);
+          L_EXPECT_RATIONAL(0);
           L_EXPECT_OP(1, wrapped);
 
           auto island = unwrap_isle(lisp::get_op(1));
-          island->init_terrain(lisp::get_op(0)->integer().value_);
+          island->init_terrain(L_LOAD_INT(0));
 
           return L_NIL;
       }}},
@@ -1493,8 +1497,8 @@ BINDING_TABLE({
 
           auto island = unwrap_isle(lisp::get_op(1));
           auto name = lisp::get_list(lisp::get_op(0), 0)->symbol().name();
-          u8 x = lisp::get_list(lisp::get_op(0), 1)->integer().value_;
-          u8 y = lisp::get_list(lisp::get_op(0), 2)->integer().value_;
+          u8 x = lisp::to_integer(lisp::get_list(lisp::get_op(0), 1));
+          u8 y = lisp::to_integer(lisp::get_list(lisp::get_op(0), 2));
 
           if (auto c = load_metaclass(name)) {
               (*c)->create(island, RoomCoord{x, y});
@@ -1506,17 +1510,17 @@ BINDING_TABLE({
           return L_NIL;
       }}},
     {"room-del",
-     {SIG3(nil, wrapped, integer, integer),
+     {SIG3(nil, wrapped, rational, rational),
       [](int argc) {
-          L_EXPECT_OP(0, integer);
-          L_EXPECT_OP(1, integer);
+          L_EXPECT_RATIONAL(0);
+          L_EXPECT_RATIONAL(1);
           L_EXPECT_OP(2, wrapped);
 
           auto island = unwrap_isle(lisp::get_op(2));
 
           auto coord = RoomCoord{
-              (u8)lisp::get_op(1)->integer().value_,
-              (u8)lisp::get_op(0)->integer().value_,
+              (u8)L_LOAD_INT(1),
+              (u8)L_LOAD_INT(0),
           };
 
           island->destroy_room(coord);
@@ -1524,17 +1528,17 @@ BINDING_TABLE({
           return L_NIL;
       }}},
     {"room-load",
-     {SIG3(nil, wrapped, integer, integer),
+     {SIG3(nil, wrapped, rational, rational),
       [](int argc) {
-          L_EXPECT_OP(0, integer);
-          L_EXPECT_OP(1, integer);
+          L_EXPECT_RATIONAL(0);
+          L_EXPECT_RATIONAL(1);
           L_EXPECT_OP(2, wrapped);
 
           auto island = unwrap_isle(lisp::get_op(2));
 
           auto coord = RoomCoord{
-              (u8)lisp::get_op(1)->integer().value_,
-              (u8)lisp::get_op(0)->integer().value_,
+              (u8)L_LOAD_INT(1),
+              (u8)L_LOAD_INT(0),
           };
 
           if (auto room = island->get_room(coord)) {
@@ -1543,17 +1547,17 @@ BINDING_TABLE({
           return L_NIL;
       }}},
     {"room-is-critical",
-     {SIG3(nil, wrapped, integer, integer),
+     {SIG3(nil, wrapped, rational, rational),
       [](int argc) {
-          L_EXPECT_OP(0, integer);
-          L_EXPECT_OP(1, integer);
+          L_EXPECT_RATIONAL(0);
+          L_EXPECT_RATIONAL(1);
           L_EXPECT_OP(2, wrapped);
 
           auto island = unwrap_isle(lisp::get_op(2));
 
           auto coord = RoomCoord{
-              (u8)lisp::get_op(1)->integer().value_,
-              (u8)lisp::get_op(0)->integer().value_,
+              (u8)L_LOAD_INT(1),
+              (u8)L_LOAD_INT(0),
           };
 
           if (auto room = island->get_room(coord)) {
@@ -1573,17 +1577,17 @@ BINDING_TABLE({
           return lisp::make_boolean(false);
       }}},
     {"room-mut",
-     {SIG4(nil, wrapped, integer, integer, symbol),
+     {SIG4(nil, wrapped, rational, rational, symbol),
       [](int argc) {
           L_EXPECT_OP(0, symbol);
-          L_EXPECT_OP(1, integer);
-          L_EXPECT_OP(2, integer);
+          L_EXPECT_RATIONAL(1);
+          L_EXPECT_RATIONAL(2);
           L_EXPECT_OP(3, wrapped);
 
           auto island = unwrap_isle(lisp::get_op(3));
           auto coord = RoomCoord{
-              (u8)lisp::get_op(2)->integer().value_,
-              (u8)lisp::get_op(1)->integer().value_,
+              (u8)L_LOAD_INT(2),
+              (u8)L_LOAD_INT(1),
           };
 
           if (auto room = island->get_room(coord)) {
@@ -1594,17 +1598,17 @@ BINDING_TABLE({
           return L_NIL;
       }}},
     {"chr-del",
-     {SIG3(nil, wrapped, integer, integer),
+     {SIG3(nil, wrapped, rational, rational),
       [](int argc) {
-          L_EXPECT_OP(0, integer); // y
-          L_EXPECT_OP(1, integer); // x
+          L_EXPECT_RATIONAL(0); // y
+          L_EXPECT_RATIONAL(1); // x
           L_EXPECT_OP(2, wrapped);
 
           auto island = unwrap_isle(lisp::get_op(2));
 
           auto coord = RoomCoord{
-              (u8)lisp::get_op(1)->integer().value_,
-              (u8)lisp::get_op(0)->integer().value_,
+              (u8)L_LOAD_INT(1),
+              (u8)L_LOAD_INT(0),
           };
 
           island->remove_character(coord);
@@ -1612,13 +1616,13 @@ BINDING_TABLE({
           return L_NIL;
       }}},
     {"chr-id",
-     {SIG2(integer, integer, integer),
+     {SIG2(integer, rational, rational),
       [](int argc) {
-          L_EXPECT_OP(0, integer); // new-id
-          L_EXPECT_OP(1, integer); // old-id
+          L_EXPECT_RATIONAL(0); // new-id
+          L_EXPECT_RATIONAL(1); // old-id
 
-          auto old_id = lisp::get_op(1)->integer().value_;
-          auto new_id = lisp::get_op(0)->integer().value_;
+          auto old_id = L_LOAD_INT(1);
+          auto new_id = L_LOAD_INT(0);
 
           if (auto chr = Character::find_by_id(old_id).first) {
               chr->__assign_id(new_id);
@@ -1631,8 +1635,8 @@ BINDING_TABLE({
      {EMPTY_SIG(1),
       [](int argc) {
           if (argc == 2) {
-              auto hp = lisp::get_op(0)->integer().value_;
-              auto id = lisp::get_op(1)->integer().value_;
+              auto hp = L_LOAD_INT(0);
+              auto id = L_LOAD_INT(1);
               if (auto chr = Character::find_by_id(id).first) {
                   chr->__set_health(hp);
                   if (chr->is_replicant()) {
@@ -1640,7 +1644,7 @@ BINDING_TABLE({
                   }
               }
           } else if (argc == 1) {
-              auto id = lisp::get_op(0)->integer().value_;
+              auto id = L_LOAD_INT(0);
               if (auto chr = Character::find_by_id(id).first) {
                   return lisp::make_integer(chr->health());
               }
@@ -1652,19 +1656,19 @@ BINDING_TABLE({
     {"chr-move",
      {EMPTY_SIG(5),
       [](int argc) {
-          L_EXPECT_OP(0, integer); // y2
-          L_EXPECT_OP(1, integer); // x2
-          L_EXPECT_OP(2, integer); // y1
-          L_EXPECT_OP(3, integer); // x1
+          L_EXPECT_RATIONAL(0);    // y2
+          L_EXPECT_RATIONAL(1);    // x2
+          L_EXPECT_RATIONAL(2);    // y1
+          L_EXPECT_RATIONAL(3);    // x1
           L_EXPECT_OP(4, wrapped); // island
 
           auto island = unwrap_isle(lisp::get_op(4));
 
-          u8 startx = lisp::get_op(3)->integer().value_;
-          u8 starty = lisp::get_op(2)->integer().value_;
+          u8 startx = L_LOAD_INT(3);
+          u8 starty = L_LOAD_INT(2);
 
-          u8 destx = lisp::get_op(1)->integer().value_;
-          u8 desty = lisp::get_op(0)->integer().value_;
+          u8 destx = L_LOAD_INT(1);
+          u8 desty = L_LOAD_INT(0);
 
           if (auto room = island->get_room({startx, starty})) {
               for (auto& chr : room->characters()) {
@@ -1684,18 +1688,18 @@ BINDING_TABLE({
           return L_NIL;
       }}},
     {"chr-new",
-     {SIG4(integer, wrapped, integer, integer, symbol),
+     {SIG4(integer, wrapped, rational, rational, symbol),
       [](int argc) {
           L_EXPECT_OP(1, symbol);
-          L_EXPECT_OP(2, integer); // y
-          L_EXPECT_OP(3, integer); // x
+          L_EXPECT_RATIONAL(2); // y
+          L_EXPECT_RATIONAL(3); // x
           L_EXPECT_OP(4, wrapped);
 
           auto island = unwrap_isle(lisp::get_op(4));
 
           auto coord = RoomCoord{
-              (u8)lisp::get_op(3)->integer().value_,
-              (u8)lisp::get_op(2)->integer().value_,
+              (u8)lisp::to_integer(lisp::get_op(3)),
+              (u8)lisp::to_integer(lisp::get_op(2)),
           };
 
           bool is_replicant = false;
@@ -1714,7 +1718,6 @@ BINDING_TABLE({
           if (lisp::get_op(0)->type() == lisp::Value::Type::integer) {
               is_replicant = lisp::get_op0()->integer().value_;
           } else {
-              // const bool is_replicant = lisp::get_op(0)->integer().value_;
               if (not lisp::is_list(lisp::get_op(0))) {
                   return lisp::make_error(
                       lisp::Error::Code::invalid_argument_type,
@@ -1728,7 +1731,7 @@ BINDING_TABLE({
                           const char* text = car->symbol().name();
                           auto find_param = [&](const char* p) -> int {
                               if (str_eq(p, text)) {
-                                  return val->cons().cdr()->integer().value_;
+                                  return lisp::to_integer(val->cons().cdr());
                               }
                               return 0;
                           };
@@ -1862,15 +1865,15 @@ BINDING_TABLE({
           return L_NIL;
       }}},
     {"click",
-     {SIG3(nil, wrapped, integer, integer),
+     {SIG3(nil, wrapped, rational, rational),
       [](int argc) {
-          L_EXPECT_OP(0, integer);
-          L_EXPECT_OP(1, integer);
+          L_EXPECT_RATIONAL(0);
+          L_EXPECT_RATIONAL(1);
           L_EXPECT_OP(2, wrapped);
 
           RoomCoord coord;
-          coord.x = lisp::get_op(1)->integer().value_;
-          coord.y = lisp::get_op(0)->integer().value_;
+          coord.x = L_LOAD_INT(1);
+          coord.y = L_LOAD_INT(0);
 
           if (auto room = (unwrap_isle(lisp::get_op(2)))->get_room(coord)) {
               room->select(coord);
@@ -1879,10 +1882,10 @@ BINDING_TABLE({
           return L_NIL;
       }}},
     {"sel-move",
-     {SIG3(nil, wrapped, integer, integer),
+     {SIG3(nil, wrapped, rational, rational),
       [](int argc) {
-          L_EXPECT_OP(0, integer);
-          L_EXPECT_OP(1, integer);
+          L_EXPECT_RATIONAL(0);
+          L_EXPECT_RATIONAL(1);
           L_EXPECT_OP(2, wrapped);
 
           RoomCoord& sel = globals().near_cursor_loc_;
@@ -1895,8 +1898,8 @@ BINDING_TABLE({
                   ws->far_camera();
               }
 
-              sel.x = lisp::get_op(1)->integer().value_;
-              sel.y = lisp::get_op(0)->integer().value_;
+              sel.x = L_LOAD_INT(1);
+              sel.y = L_LOAD_INT(0);
           }
           return L_NIL;
       }}},
@@ -1933,11 +1936,11 @@ BINDING_TABLE({
           return L_NIL;
       }}},
     {"island-set-pos",
-     {SIG3(nil, wrapped, integer, integer),
+     {SIG3(nil, wrapped, rational, rational),
       [](int argc) {
           L_EXPECT_OP(2, wrapped);
-          L_EXPECT_OP(1, integer);
-          L_EXPECT_OP(0, integer);
+          L_EXPECT_RATIONAL(1);
+          L_EXPECT_RATIONAL(0);
           auto island = unwrap_isle(lisp::get_op(2));
           if (island == APP.opponent_island()) {
               island->set_drift(Fixnum(-0.000025f));
@@ -1968,9 +1971,9 @@ BINDING_TABLE({
           return L_NIL;
       }}},
     {"flag-show",
-     {SIG2(nil, wrapped, integer),
+     {SIG2(nil, wrapped, rational),
       [](int argc) {
-          L_EXPECT_OP(0, integer);
+          L_EXPECT_RATIONAL(0);
           L_EXPECT_OP(1, wrapped);
 
           auto island = unwrap_isle(lisp::get_op(1));
@@ -2015,34 +2018,25 @@ BINDING_TABLE({
           }
       }}},
     {"coins-add",
-     {SIG1(nil, integer),
+     {SIG1(nil, rational),
       [](int argc) {
-          L_EXPECT_OP(0, integer);
-
-          if (APP.macrocosm()) {
-              // auto current = macrocosm(*app).data_->p().coins_.get();
-              // current += L_LOAD_INT(0);
-              // macrocosm(*app).data_->p().coins_.set(
-              //     std::min(std::numeric_limits<macro::Coins>::max(), current));
-          } else {
-              APP.set_coins(std::max(0, (int)(L_LOAD_INT(0) + APP.coins())));
+          L_EXPECT_RATIONAL(0);
+          s32 num;
+          s32 div;
+          if (lisp::to_rational(lisp::get_op0(), num, div)) {
+              APP.set_coins(std::max(0, (int)(num + APP.coins())));
           }
-
           return L_NIL;
       }}},
     {"coins-set",
-     {SIG1(nil, integer),
+     {SIG1(nil, rational),
       [](int argc) {
-          L_EXPECT_OP(0, integer);
-
-          if (APP.macrocosm()) {
-              // auto val = L_LOAD_INT(0);
-              // macrocosm(*app).data_->p().coins_.set(
-              //     std::min(std::numeric_limits<macro::Coins>::max(), val));
-          } else {
-              APP.set_coins(L_LOAD_INT(0));
+          L_EXPECT_RATIONAL(0);
+          s32 num;
+          s32 div;
+          if (lisp::to_rational(lisp::get_op0(), num, div)) {
+              APP.set_coins(std::max(0, (int)num));
           }
-
           return L_NIL;
       }}},
     {"coins-victory",
@@ -2074,11 +2068,15 @@ BINDING_TABLE({
           return APP.invoke_script(str);
       }}},
     {"choice",
-     {SIG1(integer, integer),
+     {SIG1(integer, rational),
       [](int argc) {
-          L_EXPECT_OP(0, integer);
-          return lisp::make_integer(rng::choice(
-              lisp::get_op(0)->integer().value_, rng::critical_state));
+          L_EXPECT_RATIONAL(0);
+          s32 num;
+          s32 div;
+          if (lisp::to_rational(lisp::get_op0(), num, div)) {
+              return lisp::make_integer(rng::choice(num, rng::critical_state));
+          }
+          return L_NIL;
       }}},
     {"autopilot",
      {SIG1(nil, cons),
@@ -2144,13 +2142,13 @@ BINDING_TABLE({
           return L_INT(file_line_count(fname));
       }}},
     {"file-get-line",
-     {SIG2(nil, string, integer),
+     {SIG2(nil, string, rational),
       [](int argc) {
           L_EXPECT_OP(1, string);
-          L_EXPECT_OP(0, integer);
+          L_EXPECT_RATIONAL(0);
 
           auto line = get_line_from_file(lisp::get_op(1)->string().value(),
-                                         lisp::get_op(0)->integer().value_);
+                                         L_LOAD_INT(0));
 
           if (line) {
               return lisp::make_string(line->c_str());
@@ -2176,11 +2174,11 @@ BINDING_TABLE({
               val = val->cons().cdr();
 
               if (auto c = load_metaclass(name_sym->symbol().name())) {
-                  auto health = val->cons().car()->integer().value_;
+                  auto health = lisp::to_integer(val->cons().car());
                   val = val->cons().cdr();
-                  auto cost = val->cons().car()->integer().value_;
+                  auto cost = lisp::to_integer(val->cons().car());
                   val = val->cons().cdr();
-                  auto power = val->cons().car()->integer().value_;
+                  auto power = lisp::to_integer(val->cons().car());
                   (*c)->configure(health, cost, power);
               } else {
                   Platform::fatal("invalid room type symbol");
@@ -2190,15 +2188,15 @@ BINDING_TABLE({
           return L_NIL;
       }}},
     {"cargo",
-     {SIG3(nil, wrapped, integer, integer),
+     {SIG3(nil, wrapped, rational, rational),
       [](int argc) {
-          L_EXPECT_OP(0, integer); // y
-          L_EXPECT_OP(1, integer); // x
+          L_EXPECT_RATIONAL(0); // y
+          L_EXPECT_RATIONAL(1); // x
           L_EXPECT_OP(2, wrapped);
 
           auto island = unwrap_isle(lisp::get_op(2));
-          const u8 x = lisp::get_op(1)->integer().value_;
-          const u8 y = lisp::get_op(0)->integer().value_;
+          const u8 x = L_LOAD_INT(1);
+          const u8 y = L_LOAD_INT(0);
 
           if (auto room = island->get_room({x, y})) {
               if (auto cb = room->cast<CargoBay>()) {
@@ -2243,16 +2241,16 @@ BINDING_TABLE({
           return L_NIL;
       }}},
     {"cargo-set",
-     {SIG4(nil, wrapped, integer, integer, string),
+     {SIG4(nil, wrapped, rational, rational, string),
       [](int argc) {
-          L_EXPECT_OP(0, string);  // cargo
-          L_EXPECT_OP(1, integer); // y
-          L_EXPECT_OP(2, integer); // x
+          L_EXPECT_OP(0, string); // cargo
+          L_EXPECT_RATIONAL(1);   // y
+          L_EXPECT_RATIONAL(2);   // x
           L_EXPECT_OP(3, wrapped);
 
           auto island = unwrap_isle(lisp::get_op(3));
-          const u8 x = lisp::get_op(2)->integer().value_;
-          const u8 y = lisp::get_op(1)->integer().value_;
+          const u8 x = L_LOAD_INT(2);
+          const u8 y = L_LOAD_INT(1);
 
           if (auto room = island->get_room({x, y})) {
               if (auto cb = room->cast<CargoBay>()) {
@@ -2263,16 +2261,16 @@ BINDING_TABLE({
           return L_NIL;
       }}},
     {"qr-set",
-     {SIG4(nil, wrapped, integer, integer, string),
+     {SIG4(nil, wrapped, rational, rational, string),
       [](int argc) {
-          L_EXPECT_OP(0, string);  // cargo
-          L_EXPECT_OP(1, integer); // y
-          L_EXPECT_OP(2, integer); // x
+          L_EXPECT_OP(0, string); // cargo
+          L_EXPECT_RATIONAL(1);   // y
+          L_EXPECT_RATIONAL(2);   // x
           L_EXPECT_OP(3, wrapped);
 
           auto island = unwrap_isle(lisp::get_op(3));
-          const u8 x = lisp::get_op(2)->integer().value_;
-          const u8 y = lisp::get_op(1)->integer().value_;
+          const u8 x = L_LOAD_INT(2);
+          const u8 y = L_LOAD_INT(1);
 
           if (auto room = island->get_room({x, y})) {
               if (auto cb = room->cast<QrBlock>()) {
@@ -2283,12 +2281,11 @@ BINDING_TABLE({
           return L_NIL;
       }}},
     {"achieve",
-     {SIG1(nil, integer),
+     {SIG1(nil, rational),
       [](int argc) {
-          L_EXPECT_OP(0, integer);
+          L_EXPECT_RATIONAL(0);
 
-          const auto achievement =
-              (achievements::Achievement)(lisp::get_op(0)->integer().value_);
+          const auto achievement = (achievements::Achievement)(L_LOAD_INT(0));
 
           if ((int)achievement >= (int)achievements::Achievement::count) {
               return L_NIL;
@@ -2310,11 +2307,11 @@ BINDING_TABLE({
           L_EXPECT_OP(0, cons);
           L_EXPECT_OP(1, cons);
 
-          s8 x1 = lisp::get_op1()->cons().car()->integer().value_;
-          s8 y1 = lisp::get_op1()->cons().cdr()->integer().value_;
+          s8 x1 = lisp::to_integer(lisp::get_op1()->cons().car());
+          s8 y1 = lisp::to_integer(lisp::get_op1()->cons().cdr());
 
-          s8 x2 = lisp::get_op0()->cons().car()->integer().value_;
-          s8 y2 = lisp::get_op0()->cons().cdr()->integer().value_;
+          s8 x2 = lisp::to_integer(lisp::get_op0()->cons().car());
+          s8 y2 = lisp::to_integer(lisp::get_op0()->cons().cdr());
 
           auto path = APP.world_graph().path({x1, y1}, {x2, y2});
 
@@ -2343,7 +2340,7 @@ BINDING_TABLE({
           }
           WorldMapScene::nav_path().clear();
           lisp::l_foreach(list, [](lisp::Value* v) {
-              WorldMapScene::nav_path().push_back(v->integer().value_);
+              WorldMapScene::nav_path().push_back(lisp::to_integer(v));
           });
           return L_NIL;
       }}},
@@ -2367,11 +2364,11 @@ BINDING_TABLE({
           return builder.result();
       }}},
     {"wg-node-set",
-     {SIG3(nil, integer, integer, integer),
+     {SIG3(nil, rational, rational, rational),
       [](int argc) {
-          L_EXPECT_OP(0, integer);
-          L_EXPECT_OP(1, integer);
-          L_EXPECT_OP(2, integer);
+          L_EXPECT_RATIONAL(0);
+          L_EXPECT_RATIONAL(1);
+          L_EXPECT_RATIONAL(2);
 
           const s8 x = L_LOAD_U8(2);
           const s8 y = L_LOAD_U8(1);
@@ -2392,7 +2389,7 @@ BINDING_TABLE({
      {SIG1(integer, cons),
       [](int argc) {
           L_EXPECT_OP(0, cons);
-          int x = lisp::get_op0()->cons().car()->integer().value_;
+          int x = lisp::to_integer(lisp::get_op0()->cons().car());
           int turns = 0;
           while (not is_x_behind_storm_frontier(x, turns)) {
               ++turns;
@@ -2400,16 +2397,16 @@ BINDING_TABLE({
           return L_INT(turns);
       }}},
     {"wg-is-x-behind-frontier?",
-     {SIG1(nil, integer),
+     {SIG1(nil, rational),
       [](int argc) {
-          L_EXPECT_OP(0, integer);
+          L_EXPECT_RATIONAL(0);
           int x = L_LOAD_INT(0);
           return lisp::make_boolean(is_x_behind_storm_frontier(x, 0));
       }}},
     {"wg-storm-frontier-set",
-     {SIG1(nil, integer),
+     {SIG1(nil, rational),
       [](int argc) {
-          L_EXPECT_OP(0, integer);
+          L_EXPECT_RATIONAL(0);
           for (auto& node : APP.world_graph().nodes_) {
               if (node.type_ == WorldGraph::Node::Type::corrupted and
                   is_x_behind_storm_frontier(node.coord_.x, 0)) {
@@ -2467,8 +2464,8 @@ BINDING_TABLE({
           L_EXPECT_OP(1, wrapped);
           L_EXPECT_OP(0, cons);
 
-          const int sx = lisp::get_op(0)->cons().car()->integer().value_;
-          const int sy = lisp::get_op(0)->cons().cdr()->integer().value_;
+          const int sx = lisp::to_integer(lisp::get_op(0)->cons().car());
+          const int sy = lisp::to_integer(lisp::get_op(0)->cons().cdr());
 
           auto island = unwrap_isle(lisp::get_op(1));
 
@@ -2516,14 +2513,14 @@ BINDING_TABLE({
           return L_NIL;
       }}},
     {"setvar",
-     {SIG2(nil, string, integer),
+     {SIG2(nil, string, rational),
       [](int argc) {
           L_EXPECT_OP(1, string);
-          L_EXPECT_OP(0, integer);
+          L_EXPECT_RATIONAL(0);
 
           if (auto v =
                   SharedVariable::load(lisp::get_op(1)->string().value())) {
-              v->set(lisp::get_op(0)->integer().value_);
+              v->set(L_LOAD_INT(0));
               return L_NIL;
           }
 
@@ -2652,11 +2649,11 @@ BINDING_TABLE({
           return lisp::make_boolean(state_bit_load(StateBit::regression));
       }}},
     {"challenge-complete",
-     {SIG1(nil, integer),
+     {SIG1(nil, rational),
       [](int argc) {
-          L_EXPECT_OP(0, integer);
+          L_EXPECT_RATIONAL(0);
 
-          int challenge = lisp::get_op(0)->integer().value_;
+          int challenge = lisp::to_integer(lisp::get_op(0));
           u64 challenge_bitmask = 1 << challenge;
 
           const bool was_set =

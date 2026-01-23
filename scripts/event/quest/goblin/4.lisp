@@ -70,7 +70,7 @@
 
 (let ((fee (cond
             ((< (coins) 1000) (coins))
-            ((< (coins) 8000) (/ (coins) 2))
+            ((< (coins) 8000) (floor (/ (coins) 2)))
             (true 8000)))
       (qid 4))
   (defn on-converge ()

@@ -125,7 +125,7 @@ ScenePtr RegressionModule::update(Time delta)
                 lisp::get_list(tutorial_list, test_index - 1), 2);
 
             APP.invoke_script(format("/scripts/tutorials/test/%.lisp",
-                                     test_num->integer().value_)
+                                     lisp::to_integer(test_num))
                                   .c_str());
         }
 

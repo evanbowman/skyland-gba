@@ -53,7 +53,7 @@ void PluginRoom::render_interior(App* app, TileId buffer[16][16])
             auto v = lisp::get_list((lisp::Value*)&l, x + y * size().x);
             if (v->type() == lisp::Value::Type::integer) {
                 buffer[position().x + x][position().y + y] =
-                    v->integer().value_;
+                    lisp::to_integer(v);
             }
         }
     }
@@ -73,7 +73,7 @@ void PluginRoom::render_exterior(App* app, TileId buffer[16][16])
             auto v = lisp::get_list((lisp::Value*)&l, x + y * size().x);
             if (v->type() == lisp::Value::Type::integer) {
                 buffer[position().x + x][position().y + y] =
-                    v->integer().value_;
+                    lisp::to_integer(v);
             }
         }
     }

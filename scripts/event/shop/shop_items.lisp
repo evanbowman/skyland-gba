@@ -21,7 +21,7 @@
                  (let ((r (car (find-entry rsym))))
                    (let ((cost (get r 2)))
                      ;; Lower limit is 65 percent, the salvage factor.
-                     (/ (* cost 65) 100))))))
+                     (* cost 65/100))))))
 
       (let ((push-result (lambda (sym qty size)
                            (setq ret

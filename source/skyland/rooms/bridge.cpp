@@ -198,11 +198,11 @@ lisp::Value* Bridge::serialize()
 void Bridge::deserialize(lisp::Value* list)
 {
     if (lisp::length(list) >= 4) {
-        __set_health(lisp::get_list(list, 3)->integer().value_);
+        __set_health(lisp::to_integer(lisp::get_list(list, 3)));
     }
 
     if (lisp::length(list) >= 5) {
-        adjust_width(lisp::get_list(list, 4)->integer().value_ - size().x);
+        adjust_width(lisp::to_integer(lisp::get_list(list, 4)) - size().x);
     } else {
         // NOTE: bridges used to be fixed at width 2. For backwards
         // compatibility...

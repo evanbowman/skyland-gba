@@ -161,6 +161,8 @@
       (setq on-dialog-closed nil))
     (exit)))
 
+(global 'floor)
+(setq floor int) ; cast to int rounds down
 
 (defn/c push-pending-event ((turns . int) (script . string))
   (setq pending-events (cons (cons turns script) pending-events)))

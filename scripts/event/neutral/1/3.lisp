@@ -17,7 +17,7 @@
 (let ((val (if (equal (difficulty) difficulty-beginner)
                (+ 900 (choice 500))
              (max (list (+ 500 (choice 500))
-                        (/ (coins) 3))))))
+                        (floor (/ (coins) 3)))))))
   (setq on-converge
         (lambda ()
           (dialog

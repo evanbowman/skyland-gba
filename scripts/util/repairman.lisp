@@ -25,7 +25,7 @@
                     "")
                 (if hull-damage
                     (format "%@ to fix that hull damage... <B:0>"
-                            (int (* 0.75 (float hull-damage))))
+                            (int (* 3/4 hull-damage)))
                     "")
                 "And 200@ for the repair fee. <B:0>"
                 "Want to go ahead with the repairs?")
@@ -33,7 +33,7 @@
         (dialog-opts-reset)
 
         (let ((cost (+ (* 3 weapon-damage)
-                       (int (* 0.75 (float hull-damage)))
+                       (int (* 3/4 hull-damage))
                        200)))
           (dialog-opts-push (format "Yes! (%@)" cost)
                             (lambda ()

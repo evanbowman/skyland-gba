@@ -25,7 +25,7 @@
 
 
 (set-temp 'dec-cost 1500)
-(set-temp 'dec-discount (/ dec-cost 2))
+(set-temp 'dec-discount (floor (/ dec-cost 2)))
 
 
 (defn/temp hide-evidence? ()

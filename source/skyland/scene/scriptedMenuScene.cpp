@@ -71,7 +71,7 @@ static lisp::Value* get_attr(lisp::Value* lat, const char* key)
 
 static int get_int_attr(lisp::Value* lat, const char* key)
 {
-    return get_attr(lat, key)->integer().value_;
+    return lisp::to_integer(get_attr(lat, key));
 }
 
 

@@ -153,14 +153,14 @@ void highscore_island_info_store()
                         return;
                     }
                     auto& rname = get_list(val, 0)->symbol();
-                    auto& rx = get_list(val, 1)->integer();
-                    auto& ry = get_list(val, 2)->integer();
+                    auto rx = to_integer(get_list(val, 1));
+                    auto ry = to_integer(get_list(val, 2));
 
                     auto mt = metaclass_index(rname.name());
                     HighscoreIslandInfo::BlockData bd;
                     bd.type_ = mt + 1; // 0 used as null room
-                    bd.set_xpos(rx.value_);
-                    bd.set_ypos(ry.value_);
+                    bd.set_xpos(rx);
+                    bd.set_ypos(ry);
                     info.blocks_[blockdata_iter++] = bd;
                 });
             }
@@ -171,12 +171,12 @@ void highscore_island_info_store()
                         return;
                     }
 
-                    auto& rx = get_list(val, 0)->integer();
-                    auto& ry = get_list(val, 1)->integer();
+                    auto rx = to_integer(get_list(val, 0));
+                    auto ry = to_integer(get_list(val, 1));
 
                     u8 chr_pos = 0;
-                    chr_pos |= rx.value_ & 0x0f;
-                    chr_pos |= (ry.value_ & 0x0f) << 4;
+                    chr_pos |= rx & 0x0f;
+                    chr_pos |= (ry & 0x0f) << 4;
 
                     info.chrs_[chr_iter++] = chr_pos;
                 });

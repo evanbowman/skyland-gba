@@ -692,6 +692,10 @@ Value* make_string(const char* str);
 Value* make_float(Float::ValueType v);
 
 
+bool to_rational(Value* v, s32& num, s32& div);
+s32 to_integer(Value* v);
+
+
 void apropos(const char* match, Vector<const char*>& out);
 
 
@@ -717,10 +721,10 @@ Value* make_string_from_literal(const char* str);
 
 #define L_STRING(NAME) lisp::make_string(NAME)
 
-#define L_LOAD_INT(STACK_OFFSET) lisp::get_op(STACK_OFFSET)->integer().value_
+#define L_LOAD_INT(STACK_OFFSET) lisp::to_integer(lisp::get_op(STACK_OFFSET))
 
 #define L_LOAD_U8(STACK_OFFSET)                                                \
-    ((u8)lisp::get_op(STACK_OFFSET)->integer().value_)
+    ((u8)lisp::to_integer(lisp::get_op(STACK_OFFSET)))
 
 #define L_LOAD_STRING(STACK_OFFSET) lisp::get_op(STACK_OFFSET)->string().value()
 
@@ -911,6 +915,15 @@ Value* dostring(CharSequence& code,
 Value* dostring(const char* code);
 
 Value* lint_code(CharSequence& code);
+
+
+#define L_EXPECT_RATIONAL(OFFSET)                                              \
+    if (auto t = lisp::get_op((OFFSET))->type();                               \
+        t not_eq lisp::Value::Type::integer and                                \
+        t not_eq lisp::Value::Type::ratio) {                                   \
+        return lisp::make_error(lisp::Error::Code::invalid_argument_type,      \
+                                L_NIL);                                        \
+    }
 
 
 #define L_EXPECT_OP(OFFSET, TYPE)                                              \

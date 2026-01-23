@@ -759,7 +759,7 @@ lisp::Value* Room::serialize()
 void Room::deserialize(lisp::Value* list)
 {
     if (lisp::length(list) >= 4) {
-        __set_health(lisp::get_list(list, 3)->integer().value_);
+        __set_health(lisp::to_integer(lisp::get_list(list, 3)));
     }
 }
 

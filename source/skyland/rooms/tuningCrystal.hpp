@@ -117,12 +117,12 @@ public:
             selected_color_ = 0;
         }
         auto elem = lisp::get_list(opts, selected_color_);
-        energy_glow_color.set(lisp::get_list(elem, 1)->integer().value_);
-        spr_energy_color_1.set(lisp::get_list(elem, 2)->integer().value_);
-        spr_energy_color_2.set(lisp::get_list(elem, 3)->integer().value_);
+        energy_glow_color.set(lisp::to_integer(lisp::get_list(elem, 1)));
+        spr_energy_color_1.set(lisp::to_integer(lisp::get_list(elem, 2)));
+        spr_energy_color_2.set(lisp::to_integer(lisp::get_list(elem, 3)));
         parent()->schedule_repaint();
-        auto freq = lisp::get_list(elem, 5)->integer().value_;
-        auto oct = lisp::get_list(elem, 6)->integer().value_;
+        auto freq = lisp::to_integer(lisp::get_list(elem, 5));
+        auto oct = lisp::to_integer(lisp::get_list(elem, 6));
         Platform::Speaker::NoteDesc n;
         n.regular_.note_ = (Platform::Speaker::Note)freq;
         n.regular_.octave_ = oct;

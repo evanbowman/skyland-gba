@@ -689,7 +689,7 @@ o----------------------------o
 
 o----------------------------o
 
- (coins-add integer)
+ (coins-add rational)
 
  Add integer coins to the
  player's coin count.
@@ -697,7 +697,7 @@ o----------------------------o
 
 o----------------------------o
 
- (coins-set integer)
+ (coins-set rational)
 
  Override coin count.
 
@@ -1124,7 +1124,7 @@ o----------------------------o
 
 o----------------------------o
 
- (score-add integer)
+ (score-add rational)
 
  Increase the player's
  score.

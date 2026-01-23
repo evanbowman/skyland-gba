@@ -445,6 +445,7 @@
 (assert-eq 9 (max (range 10)))
 (assert-eq '(1 0 2 0 3 0) (replace '(1 a 2 b 3 c) symbol? 0))
 
+(assert-eq 5/2 (abs -5/2))
 (assert-eq 5 (abs -5))
 (assert-eq "a 12 3.5 '(1 2 3) " (format "% % % % " 'a 12 3.5 '(1 2 3)))
 (assert-eq 20 (apply + (map int (split "0,1,1,2,3,5,8" ","))))

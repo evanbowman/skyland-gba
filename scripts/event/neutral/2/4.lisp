@@ -97,7 +97,7 @@
 (let ((val (if (equal (difficulty) difficulty-beginner)
                (+ 900 (choice 500))
              (max (list (+ 900 (choice 500))
-                        (/ (coins) 2))))))
+                        (floor (/ (coins) 2)))))))
   (defn on-converge ()
     (dialog
      "<c:Goblin Queen:40>#cackle# You're tressspasssing in my territory! I demand a tribute of "

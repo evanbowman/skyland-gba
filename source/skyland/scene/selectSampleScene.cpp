@@ -233,7 +233,7 @@ ScenePtr SelectSampleScene::update(Time delta)
 
         s8 type_override = -1;
         if (lisp::length(choice) >= 2) {
-            type_override = lisp::get_list(choice, 2)->integer().value_;
+            type_override = lisp::to_integer(lisp::get_list(choice, 2));
         }
 
         APP.set_coins(0);
