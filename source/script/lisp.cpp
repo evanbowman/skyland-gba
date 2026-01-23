@@ -20,6 +20,7 @@
 #include "memory/buffer.hpp"
 #include "memory/pool.hpp"
 #include "number/random.hpp"
+#include "number/ratio.hpp"
 #include "platform/libc.hpp"
 #include "rot13.hpp"
 
@@ -1224,31 +1225,6 @@ Value* make_bytecode_function(Value* bytecode)
     val->function().bytecode_impl_.bytecode_ = compr(bytecode);
     val->hdr_.mode_bits_ = Function::ModeBits::lisp_bytecode_function;
     return val;
-}
-
-
-void reduce_fraction(s32& num, s32& div)
-{
-    if (num == 0) {
-        div = 1;
-        return;
-    }
-
-    if (div < 0) {
-        num = -num;
-        div = -div;
-    }
-
-    s32 a = num < 0 ? -num : num; // abs(num)
-    s32 b = div;
-
-    while (b != 0) {
-        s32 temp = b;
-        b = a % b;
-        a = temp;
-    }
-    num /= a;
-    div /= a;
 }
 
 
@@ -4197,54 +4173,6 @@ Value* repr_signature(Function::Signature sig)
     list.push_back(L_SYM(type_to_string((Value::Type)sig.arg2_type_)));
     list.push_back(L_SYM(type_to_string((Value::Type)sig.arg3_type_)));
     return list.result();
-}
-
-
-void div_rationals(s32& result_num, s32& result_div,
-                   s32 a_num, s32 a_div,
-                   s32 b_num, s32 b_div)
-{
-    // (a/b) / (c/d) = (a/b) * (d/c) = (a*d) / (b*c)
-    result_num = a_num * b_div;
-    result_div = a_div * b_num;
-
-    // Handle sign (denominator must be positive)
-    if (result_div < 0) {
-        result_num = -result_num;
-        result_div = -result_div;
-    }
-}
-
-
-void sub_rationals(s32& result_num, s32& result_div,
-                   s32 a_num, s32 a_div,
-                   s32 b_num, s32 b_div)
-{
-    // a/b - c/d = (a*d - c*b) / (b*d)
-    result_num = a_num * b_div - b_num * a_div;
-    result_div = a_div * b_div;
-}
-
-
-void mul_rationals(s32& result_num, s32& result_div,
-                   s32 a_num, s32 a_div,
-                   s32 b_num, s32 b_div)
-{
-    // (a/b) * (c/d) = (a*c) / (b*d)
-    result_num = a_num * b_num;
-    result_div = a_div * b_div;
-}
-
-
-void add_rationals(s32& result_num, s32& result_div,
-                   s32 a_num, s32 a_div,
-                   s32 b_num, s32 b_div)
-{
-    // Formula: a/b + c/d = (a*d + b*c) / (b*d)
-    result_num = a_num * b_div + b_num * a_div;
-    result_div = a_div * b_div;
-
-    reduce_fraction(result_num, result_div);
 }
 
 

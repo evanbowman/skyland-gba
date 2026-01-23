@@ -79,6 +79,7 @@ set(SOURCES
   ${SOURCE_DIR}/graphics/sprite.cpp
   ${SOURCE_DIR}/number/numeric.cpp
   ${SOURCE_DIR}/number/random.cpp
+  ${SOURCE_DIR}/number/ratio.cpp
   ${SOURCE_DIR}/graphics/view.cpp
   ${SOURCE_DIR}/localization.cpp
   ${SOURCE_DIR}/localization_extended.cpp
