@@ -1736,6 +1736,8 @@ void draw_range_to_matrix(ShadeIntensity matrix[30][20],
 {
     if (has_radar) {
         // 5 tiles wide × 11 tiles tall for radar ranges
+        x -= 1;
+        y -= 1;
         for (int ty = 0; ty < 11; ++ty) {
             for (int tx = 0; tx < 11; ++tx) {
                 int matrix_x = x + tx;
