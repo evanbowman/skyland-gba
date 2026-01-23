@@ -84,6 +84,24 @@ void add_rationals(s32& result_num, s32& result_div,
     // Formula: a/b + c/d = (a*d + b*c) / (b*d)
     result_num = a_num * b_div + b_num * a_div;
     result_div = a_div * b_div;
+}
 
-    reduce_fraction(result_num, result_div);
+
+
+Ratio operator+(const Ratio& lhs, const Ratio& rhs)
+{
+    Ratio result;
+    add_rationals(result.num_, result.div_, lhs.num_, lhs.div_, rhs.num_, rhs.div_);
+    reduce_fraction(result.num_, result.div_);
+    return result;
+}
+
+
+
+Ratio operator-(const Ratio& lhs, const Ratio& rhs)
+{
+    Ratio result;
+    sub_rationals(result.num_, result.div_, lhs.num_, lhs.div_, rhs.num_, rhs.div_);
+    reduce_fraction(result.num_, result.div_);
+    return result;
 }

@@ -35,3 +35,26 @@ void add_rationals(s32& result_num, s32& result_div,
 
 
 void reduce_fraction(s32& num, s32& div);
+
+
+
+struct Ratio
+{
+    s32 num_ = 0;
+    s32 div_ = 1;
+
+    Ratio(s32 num = 0, s32 div = 1) :
+        num_(num), div_(div)
+    {
+    }
+
+    s32 as_integer()
+    {
+        return num_ / div_;
+    }
+};
+
+
+
+Ratio operator+(const Ratio& lhs, const Ratio& rhs);
+Ratio operator-(const Ratio& lhs, const Ratio& rhs);
