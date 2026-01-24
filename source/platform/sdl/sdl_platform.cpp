@@ -238,6 +238,9 @@ bool save_surface_to_bmp(SDL_Surface* surface, const char* filename)
 
 static SDL_Texture* create_point_light_texture(int radius)
 {
+    if (not renderer) {
+        return nullptr;
+    }
     if (radius <= 0) {
         return nullptr;
     }
@@ -522,6 +525,13 @@ static void constrain_window_to_scale()
 
 static void update_viewport()
 {
+    if (not window) {
+        return;
+    }
+    if (not renderer) {
+        return;
+    }
+
     int window_w, window_h;
     SDL_GetWindowSize(window, &window_w, &window_h);
 
@@ -557,6 +567,10 @@ static void update_viewport()
 
 static void toggle_fullscreen()
 {
+    if (not window) {
+        return;
+    }
+
     is_fullscreen = !is_fullscreen;
 
     if (is_fullscreen) {
@@ -614,6 +628,9 @@ static void handle_window_resize(int w, int h)
 
 static void cycle_window_scale(bool increase)
 {
+    if (not window) {
+        return;
+    }
     if (is_fullscreen) {
         return; // Don't change scale in fullscreen
     }
@@ -646,9 +663,10 @@ int main(int argc, char** argv)
         if (str_eq(argv[i], "--help")) {
             std::cout << "usage: skyland [optional-flags] \n"
                       << " --regression        Run test cases, regression "
-                         "tests, and then exit \n"
+                "tests, and then exit \n"
                       << " --validate-scripts  Just run syntax checks on "
-                         "scripts, and then exit"
+                "scripts, and then exit\n"
+                      << " --no-window-system  Run a windowless instance of the game\n"
                       << std::endl;
             return EXIT_SUCCESS;
         }
@@ -664,37 +682,38 @@ int main(int argc, char** argv)
     int initial_width = logical_width * window_scale;
     int initial_height = logical_height * window_scale;
 
-    window = SDL_CreateWindow("Skyland",
-                              SDL_WINDOWPOS_UNDEFINED,
-                              SDL_WINDOWPOS_UNDEFINED,
-                              initial_width,
-                              initial_height,
-                              SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE |
+    if (not extensions.has_startup_opt("--regression") and
+        not extensions.has_startup_opt("--no-window-system")) {
+        window = SDL_CreateWindow("Skyland",
+                                  SDL_WINDOWPOS_UNDEFINED,
+                                  SDL_WINDOWPOS_UNDEFINED,
+                                  initial_width,
+                                  initial_height,
+                                  SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE |
                                   SDL_WINDOW_ALLOW_HIGHDPI);
 
-    if (window == NULL) {
-        fprintf(
-            stderr, "SDL window failed to initialise: %s\n", SDL_GetError());
-        return 1;
+        if (window == NULL) {
+            fprintf(
+                    stderr, "SDL window failed to initialise: %s\n", SDL_GetError());
+            return 1;
+        }
+
+        // Set minimum window size to 1x scale
+        SDL_SetWindowMinimumSize(window, logical_width, logical_height);
+
+        renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+
+        if (renderer == NULL) {
+            fprintf(
+                    stderr, "SDL renderer failed to initialise: %s\n", SDL_GetError());
+            return 1;
+        }
+
+        // Enable integer scaling for crisp pixels
+        SDL_RenderSetIntegerScale(renderer, SDL_TRUE);
+
+        tile_recolor_buffer = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 16, 16);
     }
-
-    // Set minimum window size to 1x scale
-    SDL_SetWindowMinimumSize(window, logical_width, logical_height);
-
-    renderer = SDL_CreateRenderer(
-        window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-
-    if (renderer == NULL) {
-        fprintf(
-            stderr, "SDL renderer failed to initialise: %s\n", SDL_GetError());
-        return 1;
-    }
-
-    // Enable integer scaling for crisp pixels
-    SDL_RenderSetIntegerScale(renderer, SDL_TRUE);
-
-    tile_recolor_buffer = SDL_CreateTexture(
-        renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 16, 16);
 
     rng::critical_state = time(nullptr);
 
@@ -703,8 +722,12 @@ int main(int argc, char** argv)
     __platform__ = &pf;
     start(pf);
 
+    if (renderer) {
     SDL_DestroyRenderer(renderer);
+    }
+    if (window) {
     SDL_DestroyWindow(window);
+    }
     SDL_Quit();
 }
 
@@ -1421,7 +1444,7 @@ u16 Platform::get_palette(Layer layer, u16 x, u16 y)
 
 void Platform::set_raw_tile(Layer layer, u16 x, u16 y, TileDesc val)
 {
-    if (layer == Layer::map_0 and tile0_surface->h == 16) {
+    if (layer == Layer::map_0 and tile0_surface and tile0_surface->h == 16) {
         // We need to metatile...
         // The tilesheet is arranged in 2x2 metatiles:
         //   0 1 4 5 8 9 ...
@@ -1587,6 +1610,10 @@ static void copy_tile_to_surface(SDL_Surface* dst,
 
 static void expand_overlay_surface()
 {
+    if (not renderer) {
+        return;
+    }
+
     if (!overlay_surface) {
         return;
     }
@@ -1641,6 +1668,10 @@ static void expand_overlay_surface()
 TileDesc Platform::map_glyph(const utf8::Codepoint& glyph,
                              const TextureMapping& mapping_info)
 {
+    if (not renderer) {
+        return 495;
+    }
+
     if (not get_gflag(GlobalFlag::glyph_mode)) {
         return 495; // bad_glyph equivalent
     }
@@ -1793,6 +1824,10 @@ void Platform::override_priority(Layer layer, int priority)
 
 void Platform::overwrite_t0_tile(u16 index, const EncodedTile& t)
 {
+    if (not renderer) {
+        return;
+    }
+
     if (!tile0_surface) {
         error("overwrite_t0_tile: tile0_surface not initialized");
         return;
@@ -1896,6 +1931,10 @@ void Platform::overwrite_t0_tile(u16 index, const EncodedTile& t)
 
 void Platform::overwrite_t1_tile(u16 index, const EncodedTile& t)
 {
+    if (not renderer) {
+        return;
+    }
+
     if (!tile1_surface) {
         error("overwrite_t1_tile: tile1_surface not initialized");
         return;
@@ -1999,6 +2038,10 @@ void Platform::overwrite_t1_tile(u16 index, const EncodedTile& t)
 
 void Platform::overwrite_overlay_tile(u16 index, const EncodedTile& t)
 {
+    if (not renderer) {
+        return;
+    }
+
     if (!overlay_surface) {
         error("overwrite_overlay_tile: overlay_surface not initialized");
         return;
@@ -2529,6 +2572,10 @@ void Platform::load_overlay_chunk(TileDesc dst,
                                   u16 count,
                                   const char* image_file)
 {
+    if (not renderer) {
+        return;
+    }
+
     if (!overlay_surface) {
         error("load_overlay_chunk: overlay_surface not initialized");
         return;
@@ -2876,6 +2923,10 @@ SDL_Surface* expand_surface_to_width(SDL_Surface* loaded_surface, int width)
 
 void Platform::load_tile0_texture(const char* name_or_path)
 {
+    if (not renderer) {
+        return;
+    }
+
     auto name = extract_texture_name(name_or_path);
 
     if (tile0_texture) {
@@ -2929,6 +2980,9 @@ void Platform::load_tile0_texture(const char* name_or_path)
 
 void Platform::load_tile1_texture(const char* name_or_path)
 {
+    if (not renderer) {
+        return;
+    }
     auto name = extract_texture_name(name_or_path);
 
     if (tile1_texture) {
@@ -3030,6 +3084,10 @@ static int sprite_texture_height = 0;
 
 void Platform::load_sprite_texture(const char* name)
 {
+    if (not renderer) {
+        return;
+    }
+
     // Clean up old texture if it exists
     if (current_sprite_texture) {
         SDL_DestroyTexture(current_sprite_texture);
@@ -3278,6 +3336,10 @@ std::string current_background_texture;
 
 void Platform::load_background_texture(const char* name)
 {
+    if (not renderer) {
+        return;
+    }
+
     current_background_texture = name;
     auto texture_name = extract_texture_name(name);
 
@@ -3323,6 +3385,10 @@ void Platform::load_background_texture(const char* name)
 
 bool Platform::load_overlay_texture(const char* name)
 {
+    if (not renderer) {
+        return true;
+    }
+
     if (name == last_overlay_texture) {
         return true;
     }
@@ -4200,6 +4266,15 @@ void Platform::Screen::draw(const Sprite& spr)
 
 void Platform::Screen::clear()
 {
+    if (extensions.has_startup_opt("--no-window-system")) {
+        // In windowless mode, without vsync, the game will needlessly burn cpu utilization.
+        std::this_thread::sleep_for(std::chrono::milliseconds(17));
+    }
+
+    if (not renderer) {
+        return;
+    }
+
     rect_draw_queue.clear();
     sprite_draw_list.clear();
     point_lights.clear();
@@ -4289,6 +4364,10 @@ void Platform::Screen::schedule_fade(Float amount, const FadeProperties& props)
 
 void display_fade()
 {
+    if (not renderer) {
+        return;
+    }
+
     if (last_fade_amt == 0) {
         return;
     }
@@ -4311,6 +4390,10 @@ void display_fade()
 
 void draw_rect_group(int prio)
 {
+    if (not renderer) {
+        return;
+    }
+
     for (auto& rect_info : reversed(rect_draw_queue)) {
         if (rect_info.priority not_eq prio) {
             continue;
@@ -4332,6 +4415,10 @@ void draw_rect_group(int prio)
 
 void draw_sprite_group(int prio)
 {
+    if (not renderer) {
+        return;
+    }
+
     // Draw all sprites as colored rectangles or textured
     for (const auto& sprite : reversed(sprite_draw_list)) {
         if (sprite.priority not_eq prio) {
@@ -4461,6 +4548,10 @@ static void draw_parallax_background(
     const ParallaxStrip& strip2, // dark clouds (rows 14-15)
     const ParallaxStrip& strip3) // white clouds (rows 16-19)
 {
+    if (not renderer) {
+        return;
+    }
+
     if (!texture) {
         return;
     }
@@ -4553,6 +4644,10 @@ static void draw_tile_layer(Layer layer,
                             const Vec2<s32>& scroll,
                             const View& view)
 {
+    if (not renderer) {
+        return;
+    }
+
     if (!texture) {
         return;
     }
@@ -4706,6 +4801,10 @@ void SDL_RenderFillCircle(SDL_Renderer* renderer,
 
 void draw_overlay_layer(int y_offset)
 {
+    if (not renderer) {
+        return;
+    }
+
     auto& overlay_tiles = tile_layers_[Layer::overlay];
     for (auto& [pos, tile_info] : overlay_tiles) {
         auto tile_desc = tile_info.tile_desc;
@@ -4764,6 +4863,10 @@ void draw_overlay_layer(int y_offset)
 
 void Platform::Screen::display()
 {
+    if (not renderer) {
+        return;
+    }
+
     if (extensions.has_startup_opt("--validate-scripts") or
         extensions.has_startup_opt("--regression")) {
         return;
@@ -5301,6 +5404,10 @@ StringBuffer<48> Platform::Speaker::current_music()
 
 bool Platform::Speaker::stream_music(const char* filename, Microseconds offset)
 {
+    if (not window) {
+        return true;
+    }
+
     std::string full_path = std::string("scripts") + PATH_DELIMITER + "data" +
                             PATH_DELIMITER + "music" + PATH_DELIMITER +
                             filename;
@@ -5577,6 +5684,10 @@ void Platform::Speaker::play_sound(const char* name,
                                    int priority,
                                    Optional<Vec2<Float>> position)
 {
+    if (not window) {
+        return;
+    }
+
     const char* data = nullptr;
     u32 length = 0;
 
