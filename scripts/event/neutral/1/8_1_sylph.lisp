@@ -42,7 +42,7 @@
     (if temp
         (progn
           (setq temp (get temp (choice (length temp))))
-          (chr-new (player) (car temp) (cdr temp) 'neutral '((icon . 46) (race . 0)))
+          (chr-new (player) (car temp) (cdr temp) 'neutral '((icon . 46) (race . 4)))
           (chr-del (opponent) 0 14)
           (if (or (equal (choice 2) 1) (< (coins) 600))
               (join "The deserter joined your crew!")
