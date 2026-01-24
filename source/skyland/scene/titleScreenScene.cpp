@@ -1093,8 +1093,8 @@ ScenePtr TitleScreenScene::update(Time delta)
             if (not exit_sel_) {
                 clr = highlight_colors;
             }
-            Text::print(no_str->c_str(), {3, 18}, clr);
-            PLATFORM.set_tile(Layer::overlay, 1, 18, exit_sel_ ? 112 : 475);
+            Text::print(no_str->c_str(), {3, 17}, clr);
+            PLATFORM.set_tile(Layer::overlay, 1, 17, exit_sel_ ? 112 : 475);
         }
         {
             auto yes_str = SYSTR(title_exit_yes);
@@ -1103,8 +1103,8 @@ ScenePtr TitleScreenScene::update(Time delta)
                 clr = highlight_colors;
             }
             u8 x = 27 - utf8::len(yes_str->c_str());
-            Text::print(yes_str->c_str(), {x, 18}, clr);
-            PLATFORM.set_tile(Layer::overlay, x - 2, 18, exit_sel_ ? 475 : 112);
+            Text::print(yes_str->c_str(), {x, 17}, clr);
+            PLATFORM.set_tile(Layer::overlay, x - 2, 17, exit_sel_ ? 475 : 112);
         }
         break;
     }
