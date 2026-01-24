@@ -5483,7 +5483,6 @@ BUILTIN_TABLE(
            ListBuilder lat;
            s32 current_num = start_num;
            s32 current_div = start_div;
-
            // Loop while current < end
            while (rational_less(current_num, current_div, end_num, end_div)) {
                lat.push_back(make_ratio(current_num, current_div));
@@ -5498,6 +5497,7 @@ BUILTIN_TABLE(
                              incr_div);
                current_num = new_num;
                current_div = new_div;
+               reduce_fraction(current_num, current_div);
            }
 
            return lat.result();
