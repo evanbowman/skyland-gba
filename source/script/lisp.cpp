@@ -5126,6 +5126,7 @@ BUILTIN_TABLE(
                              op_div);
                accum_num = result_num;
                accum_div = result_div;
+               reduce_fraction(accum_num, accum_div);
            }
 
            return make_ratio(accum_num, accum_div);
