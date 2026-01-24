@@ -274,7 +274,7 @@ struct Wrapped
     enum class Variant : u8 {
         lisp_data,
         userdata
-    } variant_;
+    };
 
     CompressedPtr type_sym_;
     union {

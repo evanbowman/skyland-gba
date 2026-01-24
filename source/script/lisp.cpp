@@ -853,7 +853,7 @@ Value* wrap(void* input, Value* type_sym)
 {
     auto val = alloc_value();
     val->hdr_.type_ = Value::Type::wrapped;
-    val->wrapped().variant_ = Wrapped::Variant::userdata;
+    val->hdr_.mode_bits_ = (u8)Wrapped::Variant::userdata;
     val->wrapped().userdata_ = input;
     val->wrapped().type_sym_ = compr(type_sym);
     return val;
@@ -864,7 +864,7 @@ Value* wrap(Value* input, Value* type_sym)
 {
     auto val = alloc_value();
     val->hdr_.type_ = Value::Type::wrapped;
-    val->wrapped().variant_ = Wrapped::Variant::lisp_data;
+    val->hdr_.mode_bits_ = (u8)Wrapped::Variant::lisp_data;
     val->wrapped().lisp_data_ = compr(input);
     val->wrapped().type_sym_ = compr(type_sym);
     return val;
@@ -2625,7 +2625,7 @@ static void gc_mark_value(Value* value)
 
     switch (value->type()) {
     case Value::Type::wrapped:
-        if (value->wrapped().variant_ == Wrapped::Variant::lisp_data) {
+        if (value->hdr_.mode_bits_ == (u8)Wrapped::Variant::lisp_data) {
             gc_mark_value(dcompr(value->wrapped().lisp_data_));
         }
         gc_mark_value(dcompr(value->wrapped().type_sym_));
@@ -4607,7 +4607,7 @@ BUILTIN_TABLE(
       {SIG1(nil, wrapped),
        [](int argc) {
            L_EXPECT_OP(0, wrapped);
-           if (get_op0()->wrapped().variant_ == Wrapped::Variant::userdata) {
+           if (get_op0()->hdr_.mode_bits_ == (u8)Wrapped::Variant::userdata) {
                return make_error("cannot unwrap userdata!");
            }
            return dcompr(get_op0()->wrapped().lisp_data_);
