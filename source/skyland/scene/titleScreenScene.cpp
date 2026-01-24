@@ -941,8 +941,182 @@ ScenePtr TitleScreenScene::update(Time delta)
         break;
     }
 
-    case State::wait:
+    case State::fade_exit_1: {
+        timer_ += delta;
+        constexpr auto fade_duration = milliseconds(400);
+        if (timer_ > fade_duration) {
+            PLATFORM.screen().schedule_fade(0.6f);
+            state_ = State::exit_prompt;
+            {
+                auto heading_str = SYSTR(title_exit_prompt);
+                u8 x = centered_text_margins(utf8::len(heading_str->c_str()));
+                Text::print(heading_str->c_str(), {x, 2});
+            }
+            timer_ = 0;
+            if (menu_selection_ not_eq 3) {
+                PLATFORM.speaker().set_music_volume(19 - 12);
+            } else {
+                PLATFORM.speaker().set_music_volume(1);
+            }
+            PLATFORM.speaker().set_sounds_volume(19 - 12);
+        } else {
 
+            constexpr int pixels_per_tile = 8;
+            const int y_travel = 2;
+            const auto total_pixels = y_travel * pixels_per_tile;
+
+            const Float percentage = smoothstep(0.f, fade_duration, timer_);
+            const int fractional_pixels = percentage * total_pixels;
+
+            if (menu_selection_ not_eq 3) {
+                PLATFORM.speaker().set_music_volume(19 - 12 * percentage);
+            } else {
+                PLATFORM.speaker().set_music_volume(1);
+            }
+            PLATFORM.speaker().set_sounds_volume(19 - 12 * percentage);
+
+            int y_start = 2;
+            int y_bot = 16;
+            for (int y = y_start; y < y_start + y_travel; ++y) {
+                if ((y - y_start) * 8 < fractional_pixels) {
+                    for (int x = 0; x < 30; ++x) {
+                        PLATFORM.set_tile(Layer::overlay, x, y, 112);
+                    }
+                    for (int x = 0; x < 30; ++x) {
+                        PLATFORM.set_tile(Layer::overlay, x, y_bot - (y - y_start), 112);
+                    }
+                } else if (((y + 1) - y_start) * 8 > fractional_pixels and
+                           fractional_pixels % 8) {
+                    for (int x = 0; x < 30; ++x) {
+                        PLATFORM.set_tile(
+                                          Layer::overlay, x, y, 119 - (fractional_pixels % 8));
+                    }
+                    for (int x = 0; x < 30; ++x) {
+                        PLATFORM.set_tile(Layer::overlay,
+                                          x,
+                                          y_bot - (y - y_start),
+                                          128 - (fractional_pixels % 8));
+                    }
+                    break;
+                }
+            }
+
+            const auto amount = 0.6f * smoothstep(0.f, fade_duration, timer_);
+            PLATFORM.screen().schedule_fade(
+                    amount, {ColorConstant::rich_black, true, true});
+        }
+        break;
+    }
+
+    case State::fade_exit_cancel: {
+        timer_ += delta;
+        constexpr auto fade_duration = milliseconds(100);
+        if (timer_ > fade_duration) {
+            state_ = State::wait;
+            PLATFORM.fill_overlay(0);
+            PLATFORM.screen().schedule_fade(0);
+            put_menu_text();
+            if (menu_selection_ not_eq 3) {
+                PLATFORM.speaker().set_music_volume(Platform::Speaker::music_volume_max);
+            } else {
+                PLATFORM.speaker().set_music_volume(faded_music_volume);
+            }
+            PLATFORM.speaker().set_sounds_volume(Platform::Speaker::music_volume_max);
+        } else {
+            constexpr int pixels_per_tile = 8;
+            const int y_travel = 2;
+            const auto total_pixels = y_travel * pixels_per_tile;
+
+            const Float percentage = 1.f - smoothstep(0.f, fade_duration, timer_);
+            const int fractional_pixels = percentage * total_pixels;
+
+            if (menu_selection_ not_eq 3) {
+                PLATFORM.speaker().set_music_volume(19 - 12 * percentage);
+            }
+            PLATFORM.speaker().set_sounds_volume(19 - 12 * percentage);
+
+            int y_start = 2;
+            int y_bot = 16;
+            for (int y = y_start; y < y_start + y_travel; ++y) {
+                if ((y - y_start) * 8 < fractional_pixels) {
+                    for (int x = 0; x < 30; ++x) {
+                        PLATFORM.set_tile(Layer::overlay, x, y, 112);
+                    }
+                    for (int x = 0; x < 30; ++x) {
+                        PLATFORM.set_tile(Layer::overlay, x, y_bot - (y - y_start), 112);
+                    }
+                } else if (((y + 1) - y_start) * 8 > fractional_pixels and
+                           fractional_pixels % 8) {
+                    for (int x = 0; x < 30; ++x) {
+                        PLATFORM.set_tile(
+                                          Layer::overlay, x, y, 119 - (fractional_pixels % 8));
+                    }
+                    for (int x = 0; x < 30; ++x) {
+                        PLATFORM.set_tile(Layer::overlay,
+                                          x,
+                                          y_bot - (y - y_start),
+                                          128 - (fractional_pixels % 8));
+                    }
+                    break;
+                }
+            }
+
+            const auto amount = 0.6f * (1.f - smoothstep(0.f, fade_duration, timer_));
+            PLATFORM.screen().schedule_fade(amount);
+        }
+        break;
+    }
+
+    case State::exit_prompt: {
+        if (PLATFORM.keyboard().down_transition<Key::action_2>() or
+            (PLATFORM.keyboard().down_transition<Key::action_1>() and not exit_sel_)) {
+            state_ = State::fade_exit_cancel;
+            timer_ = 0;
+            for (int x = 0; x < 30; ++x) {
+                PLATFORM.set_tile(Layer::overlay, x, 18, 112);
+            }
+            break;
+        }
+        if (PLATFORM.keyboard().down_transition<Key::action_1>() and exit_sel_) {
+            PLATFORM_EXTENSION(quit);    // First try to quit if supported...
+            PLATFORM_EXTENSION(restart); // If platform doesn't support quit, try reboot
+        }
+        if (PLATFORM.keyboard().down_transition<Key::left>() or
+            PLATFORM.keyboard().down_transition<Key::right>()) {
+            exit_sel_ = not exit_sel_;
+        }
+        static const auto highlight_colors =
+            Text::OptColors{{custom_color(0xffffff), custom_color(0x406e98)}};
+        {
+            auto no_str = SYSTR(title_exit_no);
+            Text::OptColors clr;
+            if (not exit_sel_) {
+                clr = highlight_colors;
+            }
+            Text::print(no_str->c_str(), {3, 18}, clr);
+            PLATFORM.set_tile(Layer::overlay, 1, 18, exit_sel_ ? 112 : 475);
+        }
+        {
+            auto yes_str = SYSTR(title_exit_yes);
+            Text::OptColors clr;
+            if (exit_sel_) {
+                clr = highlight_colors;
+            }
+            u8 x = 27 - utf8::len(yes_str->c_str());
+            Text::print(yes_str->c_str(), {x, 18}, clr);
+            PLATFORM.set_tile(Layer::overlay, x - 2, 18, exit_sel_ ? 475 : 112);
+        }
+        break;
+    }
+
+    case State::wait:
+        if (PLATFORM.keyboard().down_transition<Key::action_2>()) {
+            text_.reset();
+            redraw_margins();
+            state_ = State::fade_exit_1;
+            timer_ = 0;
+            break;
+        }
         selector_timer_ += delta;
         if (selector_timer_ > milliseconds(100)) {
             selector_timer_ = 0;
@@ -1681,55 +1855,6 @@ void TitleScreenScene::display()
         PLATFORM.screen().draw(sprite);
     } else if (x_scroll_ < -240) {
         pong_.display(x_scroll_);
-
-        Sprite dog_spr;
-        auto view = PLATFORM.screen().get_view();
-        auto c = view.get_center();
-        Vec2<Fixnum> anchor = {Fixnum(163.f), Fixnum((c.y - 55) + 177)};
-        anchor.x -= Fixnum::from_integer(480 + x_scroll_);
-        anchor.y += Fixnum::from_integer(x_scroll_ / 16);
-
-        if (++dog_anim_cnt_ == 6) {
-            dog_anim_cnt_ = 0;
-            ++dog_head_frame_;
-            ++dog_tail_frame_;
-
-            if (dog_head_frame_ > 1) {
-                dog_head_frame_ = 0;
-            }
-
-            if (dog_tail_frame_ > 5) {
-                dog_tail_frame_ = 0;
-            }
-        }
-
-        if (dog_) {
-            dog_spr.set_position(anchor);
-            dog_spr.set_size(Sprite::Size::w32_h32);
-            dog_spr.set_texture_index(32 + dog_head_frame_);
-            PLATFORM.screen().draw(dog_spr);
-
-            anchor.x += 32.0_fixed;
-            dog_spr.set_texture_index(34);
-            dog_spr.set_position(anchor);
-            PLATFORM.screen().draw(dog_spr);
-
-            anchor.y += 32.0_fixed;
-            dog_spr.set_texture_index(36);
-            dog_spr.set_position(anchor);
-            PLATFORM.screen().draw(dog_spr);
-
-            anchor.x -= 32.0_fixed;
-            dog_spr.set_texture_index(35);
-            dog_spr.set_position(anchor);
-            PLATFORM.screen().draw(dog_spr);
-
-            anchor.y -= 28.0_fixed;
-            anchor.x += 42.0_fixed;
-            dog_spr.set_texture_index(37 + dog_tail_frame_);
-            dog_spr.set_position(anchor);
-            PLATFORM.screen().draw(dog_spr);
-        }
     }
     for (auto& effect : APP.effects()) {
         auto spr = effect->sprite();

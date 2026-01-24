@@ -365,6 +365,9 @@ static const Platform::Extensions extensions{
             circle_effect_origin_x = x;
             circle_effect_origin_y = y;
         },
+    .quit = []() {
+        sdl_running = false;
+    },
     .vertical_parallax_enable = [](bool on) { vertical_parallax_enabled = on; },
     .enable_parallax_clouds = [](bool on) { parallax_clouds_enabled = on; },
     .sprite_overlapping_supported = [](bool& result) { result = true; },

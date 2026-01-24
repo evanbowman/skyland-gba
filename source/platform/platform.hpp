@@ -946,6 +946,7 @@ public:
         u32 (*get_stack_usage)();
         u32 (*get_stack_size)();
         void (*restart)();
+        void (*quit)();
         void (*apply_color_correction)(const char* table_name);
         void (*enable_translucence)(const Buffer<Layer, 4>& layers);
 

@@ -6841,7 +6841,6 @@ void Platform::clear_layer(Layer layer)
 }
 
 
-
 static const Platform::Extensions extensions{
     .stack_check = []() -> bool {
         if (not canary_check()) {
@@ -7103,6 +7102,9 @@ static const Platform::Extensions extensions{
     .get_stack_usage = [] { return max_stack_usage(); },
     .get_stack_size = [] { return stack_reserved_size(); },
     .restart = [] { ::restart(); },
+    .quit = []{
+        ::restart();
+    },
     .apply_color_correction =
         [](const char* table_name) {
             if (table_name) {

@@ -861,6 +861,10 @@ enum class SystemString {
     flag,
     flag_fmt,
 
+    title_exit_prompt,
+    title_exit_yes,
+    title_exit_no,
+
     count,
 };
 

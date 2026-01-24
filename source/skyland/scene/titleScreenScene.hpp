@@ -126,6 +126,9 @@ private:
         macro_island,
         macro_island_exit,
         scroll_archives,
+        fade_exit_1,
+        exit_prompt,
+        fade_exit_cancel,
     } state_ = State::fade_in;
 
     int menu_selection_ = 0;
@@ -156,7 +159,7 @@ private:
     u8 dog_head_frame_ = 0;
     u8 dog_tail_frame_ = 0;
     u8 dog_anim_cnt_ = 0;
-    bool dog_ = false;
+    u8 exit_sel_ = false;
 };
 
 

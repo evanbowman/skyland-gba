@@ -237,8 +237,9 @@
 (coins-add 40)
 (assert-eq (coins) 95)
 
-;; This has to be true to get into the regression module.
-(assert-v (is-developer-mode))
+(when (not (equal (device-info 'name) "PC"))
+  ;; This has to be true to get into the regression module.
+  (assert-v (is-developer-mode)))
 
 (assert-eq 15 ((eval-file "/scripts/data/test-eval.lisp") 5))
 
