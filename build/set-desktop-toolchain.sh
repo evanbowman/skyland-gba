@@ -1,6 +1,6 @@
 #!/bin/bash
 
-rm CMakeCache.txt
-rm -r CMakeFiles/
+rm -f CMakeCache.txt
+rm -rf CMakeFiles/
 
 cmake . -DGAMEBOY_ADVANCE=OFF
