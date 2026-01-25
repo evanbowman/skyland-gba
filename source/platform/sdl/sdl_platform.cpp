@@ -359,26 +359,6 @@ std::vector<RectInfo> rect_draw_queue;
 
 
 static const Platform::Extensions extensions{
-    .overlay_circle_effect =
-        [](int radius, int x, int y) {
-            circle_effect_radius = radius;
-            circle_effect_origin_x = x;
-            circle_effect_origin_y = y;
-        },
-    .quit = []() {
-        sdl_running = false;
-    },
-    .vertical_parallax_enable = [](bool on) { vertical_parallax_enabled = on; },
-    .enable_parallax_clouds = [](bool on) { parallax_clouds_enabled = on; },
-    .sprite_overlapping_supported = [](bool& result) { result = true; },
-    .has_startup_opt = [](const char* opt) -> bool {
-        for (int i = 0; i < process_argc; ++i) {
-            if (str_eq(process_argv[i], opt)) {
-                return true;
-            }
-        }
-        return false;
-    },
     .update_parallax_r1 =
         [](u8 scroll) {
             auto& screen = PLATFORM.screen();
@@ -405,14 +385,17 @@ static const Platform::Extensions extensions{
                 parallax_strip3.scroll.y = center.y / 2;
             }
         },
-    .draw_point_light =
-        [](Fixnum x, Fixnum y, int radius, ColorConstant tint, u8 intensity) {
-            if (radius <= 0 or intensity == 0) {
-                return;
-            }
-
-            point_lights.push_back({x, y, radius, tint, intensity});
+    .enable_parallax_clouds = [](bool on) { parallax_clouds_enabled = on; },
+    .vertical_parallax_enable = [](bool on) { vertical_parallax_enabled = on; },
+    .overlay_circle_effect =
+        [](int radius, int x, int y) {
+            circle_effect_radius = radius;
+            circle_effect_origin_x = x;
+            circle_effect_origin_y = y;
         },
+    .quit = []() {
+        sdl_running = false;
+    },
     .enable_translucence =
         [](const Buffer<Layer, 4>& layers) {
             // Reset translucence flags
@@ -428,6 +411,23 @@ static const Platform::Extensions extensions{
                     tile1_translucent = true;
                 }
             }
+        },
+    .sprite_overlapping_supported = [](bool& result) { result = true; },
+    .has_startup_opt = [](const char* opt) -> bool {
+        for (int i = 0; i < process_argc; ++i) {
+            if (str_eq(process_argv[i], opt)) {
+                return true;
+            }
+        }
+        return false;
+    },
+    .draw_point_light =
+        [](Fixnum x, Fixnum y, int radius, ColorConstant tint, u8 intensity) {
+            if (radius <= 0 or intensity == 0) {
+                return;
+            }
+
+            point_lights.push_back({x, y, radius, tint, intensity});
         },
     .draw_rect =
         [](int x, int y, int w, int h, ColorConstant tint, int priority) {

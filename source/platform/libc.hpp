@@ -4,6 +4,7 @@
 
 
 
+#ifdef __GBA__
 extern "C" {
 
 
@@ -33,3 +34,6 @@ int abs(int i);
 
 double atof(const char* s);
 }
+#else
+#include <string.h>
+#endif

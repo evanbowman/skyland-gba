@@ -1163,6 +1163,29 @@ elseif(UNIX)
   add_library(QR
     ${ROOT_DIR}/external/qr/qrcodegen.c)
 
+  execute_process(
+    COMMAND sdl2-config --cflags
+    OUTPUT_VARIABLE SDL2_CFLAGS
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+
+  execute_process(
+    COMMAND sdl2-config --static-libs
+    OUTPUT_VARIABLE SDL2_STATIC_LIBS
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+
+  execute_process(COMMAND pkg-config --libs --static SDL2_image OUTPUT_VARIABLE SDL2_IMAGE_STATIC_LIBS OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+  separate_arguments(SDL2_CFLAGS)
+  separate_arguments(SDL2_STATIC_LIBS)
+  separate_arguments(SDL2_IMAGE_STATIC_LIBS)
+
+  target_compile_options(Skyland PRIVATE ${SDL2_CFLAGS})
+  target_link_libraries(Skyland PRIVATE ${SDL2_STATIC_LIBS})
+  target_link_libraries(Skyland PRIVATE ${SDL2_IMAGE_STATIC_LIBS})
+
+
   target_link_libraries(Skyland PRIVATE
     -lpthread
     QR)
