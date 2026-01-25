@@ -1163,80 +1163,80 @@ elseif(UNIX)
     QR)
 
 elseif(WIN32)
-    # Manually configure SDL2
-    target_include_directories(Skyland PRIVATE 
-        "C:/SDL2/include"
-        "C:/SDL2_image/include"
-    )
-    
-    target_link_directories(Skyland PRIVATE 
-        "C:/SDL2/lib/x64"
-        "C:/SDL2_image/lib/x64"
-    )
-    
-    target_link_libraries(Skyland PRIVATE
-        SDL2
-        SDL2main
-        SDL2_image
-    )
-    # Add /utf-8 flag
-    add_compile_options(/utf-8)
-    
-    # Suppress warning noise
-    add_compile_options(/wd4100 /wd4127 /wd4244 /wd4267 /wd4458)
+  # Manually configure SDL2
+  target_include_directories(Skyland PRIVATE
+    "C:/SDL2/include"
+    "C:/SDL2_image/include"
+  )
 
-    set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP TRUE)
+  target_link_directories(Skyland PRIVATE
+    "C:/SDL2/lib/x64"
+    "C:/SDL2_image/lib/x64"
+  )
 
-    add_custom_target(pkg ALL
-        # Run the Python encoding script
-        COMMAND python ../tools/encode_files.py
-        # Copy individual files
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            ${ROOT_DIR}/boot.ini
-            $<TARGET_FILE_DIR:Skyland>/boot.ini
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            ${ROOT_DIR}/lisp_symtab.dat
-            $<TARGET_FILE_DIR:Skyland>/lisp_symtab.dat
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            ${ROOT_DIR}/lisp_constant_tab.dat
-            $<TARGET_FILE_DIR:Skyland>/lisp_constant_tab.dat
-        # Copy directories
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-            ${ROOT_DIR}/images
-            $<TARGET_FILE_DIR:Skyland>/images
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-            ${ROOT_DIR}/shaders
-            $<TARGET_FILE_DIR:Skyland>/shaders
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-            ${ROOT_DIR}/sounds
-            $<TARGET_FILE_DIR:Skyland>/sounds
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-            ${ROOT_DIR}/scripts
-            $<TARGET_FILE_DIR:Skyland>/scripts
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-            ${ROOT_DIR}/strings
-            $<TARGET_FILE_DIR:Skyland>/strings
-        DEPENDS Skyland
-        COMMENT "Copying resources to Release directory")
+  target_link_libraries(Skyland PRIVATE
+    SDL2
+    SDL2main
+    SDL2_image
+  )
+  # Add /utf-8 flag
+  add_compile_options(/utf-8)
 
-include(InstallRequiredSystemLibraries)
+  # Suppress warning noise
+  add_compile_options(/wd4100 /wd4127 /wd4244 /wd4267 /wd4458)
 
-# Copy each runtime DLL separately
-foreach(lib ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS})
+  set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP TRUE)
+
+  add_custom_target(pkg ALL
+    # Run the Python encoding script
+    COMMAND python ../tools/encode_files.py
+    # Copy individual files
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    ${ROOT_DIR}/boot.ini
+    $<TARGET_FILE_DIR:Skyland>/boot.ini
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    ${ROOT_DIR}/lisp_symtab.dat
+    $<TARGET_FILE_DIR:Skyland>/lisp_symtab.dat
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    ${ROOT_DIR}/lisp_constant_tab.dat
+    $<TARGET_FILE_DIR:Skyland>/lisp_constant_tab.dat
+    # Copy directories
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${ROOT_DIR}/images
+    $<TARGET_FILE_DIR:Skyland>/images
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${ROOT_DIR}/shaders
+    $<TARGET_FILE_DIR:Skyland>/shaders
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${ROOT_DIR}/sounds
+    $<TARGET_FILE_DIR:Skyland>/sounds
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${ROOT_DIR}/scripts
+    $<TARGET_FILE_DIR:Skyland>/scripts
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${ROOT_DIR}/strings
+    $<TARGET_FILE_DIR:Skyland>/strings
+    DEPENDS Skyland
+    COMMENT "Copying resources to Release directory")
+
+  include(InstallRequiredSystemLibraries)
+
+  # Copy each runtime DLL separately
+  foreach(lib ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS})
     add_custom_command(TARGET Skyland POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${lib}"
-            $<TARGET_FILE_DIR:Skyland>
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different
+      "${lib}"
+      $<TARGET_FILE_DIR:Skyland>
     )
-endforeach()
+  endforeach()
 
-    configure_file(${ROOT_DIR}/images/skyland.ico 
-                   ${CMAKE_BINARY_DIR}/skyland.ico COPYONLY)
-    
-    file(WRITE ${CMAKE_BINARY_DIR}/skyland.rc 
-         "IDI_ICON1 ICON DISCARDABLE \"skyland.ico\"")
-    
-    target_sources(Skyland PRIVATE ${CMAKE_BINARY_DIR}/skyland.rc)
+  configure_file(${ROOT_DIR}/images/skyland.ico
+    ${CMAKE_BINARY_DIR}/skyland.ico COPYONLY)
+
+  file(WRITE ${CMAKE_BINARY_DIR}/skyland.rc
+    "IDI_ICON1 ICON DISCARDABLE \"skyland.ico\"")
+
+  target_sources(Skyland PRIVATE ${CMAKE_BINARY_DIR}/skyland.rc)
 
 endif()
 
