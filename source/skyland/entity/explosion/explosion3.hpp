@@ -33,7 +33,7 @@ public:
                u8 half_angle,
                u8 speed_int,
                int priority = 1)
-        : Entity({{}, {}}), half_angle_(half_angle), speed_int_(speed_int)
+        : Entity({{}, {}})
     {
         sprite_.set_position(position);
         sprite_.set_size(Sprite::Size::w16_h16);
@@ -120,8 +120,6 @@ public:
 private:
     Time timer_ = 0;
     Vec2<Fixnum> speed_;
-    u8 half_angle_;
-    u8 speed_int_;
 };
 
 

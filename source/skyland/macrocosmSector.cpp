@@ -84,12 +84,20 @@ void terrain::Sector::repaint()
 
 void terrain::Sector::set_name(const StringBuffer<name_len - 1>& name)
 {
+#if defined(__GBA__) or defined(__linux__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstringop-overflow"
+#pragma GCC diagnostic ignored "-Warray-bounds"
+#endif
     memset(p_.name_, '\0', name_len);
 
     auto out = p_.name_;
     for (char c : name) {
         *(out++) = c;
     }
+#if defined(__GBA__) or defined(__linux__)
+#pragma GCC diagnostic pop
+#endif
 }
 
 
