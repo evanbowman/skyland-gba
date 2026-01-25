@@ -441,6 +441,10 @@ static bool is_path_bad(const char* name)
 
 InitStatus initialize(const InitConfig& conf)
 {
+    auto sample = [](const char* tag) {
+        info(format("%: clk %", tag, PLATFORM.delta_clock().sample()));
+    };
+    sample("start");
     u32 offset = conf.offset_;
 
     if (offset % 2 not_eq 0) {
@@ -457,7 +461,7 @@ InitStatus initialize(const InitConfig& conf)
     disk_capacity -= start_offset;
 
     auto root = load_root();
-
+    sample("loaded root");
     if (memcmp(root.magic_, Root::magic_val, 8) not_eq 0) {
         PLATFORM.erase_save_sector();
 
@@ -475,10 +479,10 @@ InitStatus initialize(const InitConfig& conf)
     offset += sizeof(Root);
 
     bool reformat = false;
-
-
+    sample("begin loop");
+    int rnum = 0;
     while (true) {
-
+        sample("read record");
         if (offset % 2 not_eq 0) {
             info("warning: bad filesystem alignment!");
         }
@@ -530,6 +534,7 @@ InitStatus initialize(const InitConfig& conf)
     // somehow, by, idk, cosmic radiation or something. A successive write to an
     // address in some flash controllers will brick the system, so we want to
     // erase and rewrite the sector in this case.
+    sample("scan disk");
     for (int i = end_offset; i < (int)disk_capacity; ++i) {
         u8 val = 0;
         PLATFORM.read_save_data(&val, 1, i);
@@ -539,8 +544,9 @@ InitStatus initialize(const InitConfig& conf)
             break;
         }
     }
-
+    sample("reformat?");
     if (reformat) {
+        sample("compact");
         compact();
     }
 
@@ -553,8 +559,9 @@ InitStatus initialize(const InitConfig& conf)
                     gap_space));
     };
 
+    sample("stat");
     stat();
-
+    sample("walk...");
     Vector<StringBuffer<256>> bad_files;
     walk([&](const char* name) {
         if (is_path_bad(name)) {
@@ -565,16 +572,17 @@ InitStatus initialize(const InitConfig& conf)
                         file_size(name)));
         }
     });
-
+    sample("unlink stuff");
     for (auto& f : bad_files) {
         unlink_file(f.c_str());
     }
     if (bad_files.size() not_eq 0) {
+        sample("compact to fix bad files...");
         bad_files.clear();
         compact();
         stat();
     }
-
+    sample("init done");
     return already_initialized;
 }
 

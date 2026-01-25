@@ -1277,7 +1277,7 @@ bool Platform::write_save_data(const void* data, u32 length, u32 offset)
                       std::ios_base::out | std::ios_base::binary);
 
     out.write((const char*)save_buffer, ::save_capacity);
-
+    
     return true;
 }
 
@@ -1286,15 +1286,6 @@ bool Platform::write_save_data(const void* data, u32 length, u32 offset)
 bool Platform::read_save_data(void* buffer, u32 data_length, u32 offset)
 {
     memcpy(buffer, save_buffer + offset, data_length);
-
-    std::ifstream in(get_save_file_path(),
-                     std::ios_base::in | std::ios_base::binary);
-
-    if (!in) {
-        return true;
-    }
-
-    in.read((char*)save_buffer, ::save_capacity);
 
     return true;
 }
@@ -4410,6 +4401,7 @@ static SDL_Rect get_overlay_tile_source_rect(TileDesc tile_index)
 static float last_fade_amt;
 static ColorConstant fade_color;
 static bool fade_include_overlay;
+static bool fade_include_tiles;
 
 
 void Platform::Screen::fade(float amount,
@@ -4421,6 +4413,7 @@ void Platform::Screen::fade(float amount,
     last_fade_amt = amount;
     fade_color = k;
     fade_include_overlay = include_overlay;
+    fade_include_tiles = true;
 }
 
 
@@ -4437,6 +4430,7 @@ void Platform::Screen::schedule_fade(Float amount, const FadeProperties& props)
     last_fade_amt = amount;
     fade_color = props.color;
     fade_include_overlay = props.include_overlay;
+    fade_include_tiles = props.include_tiles;
 }
 
 
@@ -4969,6 +4963,10 @@ void Platform::Screen::display()
         }
     }
 
+    if (not fade_include_tiles) {
+        display_fade();
+    }
+
     draw_rect_group(3);
     draw_sprite_group(3);
     draw_tile_layer(Layer::map_1_ext,
@@ -5008,7 +5006,7 @@ void Platform::Screen::display()
     draw_rect_group(1);
     draw_sprite_group(1);
 
-    if (not fade_include_overlay) {
+    if (not fade_include_overlay and fade_include_tiles) {
         display_fade();
     }
 
