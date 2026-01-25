@@ -1054,5 +1054,27 @@ void safecall(Value* fn, u8 argc);
     })
 
 
+#define MAX_NAMED_ARGUMENTS 5
+
+struct ArgBinding
+{
+    Symbol* sym_; // This symbol should be safe to store a pointer to... it's in
+                  // the input source code list, so it's a proper gc root...
+
+    u8 replacement_;
+    u8 type_;
+    bool referenced_in_closure_;
+};
+
+
+struct ArgBindings
+{
+    Buffer<ArgBinding, MAX_NAMED_ARGUMENTS> bindings_;
+    ArgBindings* parent_ = nullptr;
+};
+
+
+ArgBindings perform_argument_substitution(Value* impl);
+
 
 } // namespace lisp

@@ -987,6 +987,7 @@ public:
 
     const Extensions& get_extensions();
 
+    static Platform& create();
 
 private:
     Platform();

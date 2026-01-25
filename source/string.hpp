@@ -338,10 +338,26 @@ bool is_numeric(const StringAdapter<Capacity, Mem>& buf)
 
 
 template <u32 Capacity, typename Mem>
-bool operator==(StringAdapter<Capacity, Mem> buf, const char* str)
+bool operator==(const StringAdapter<Capacity, Mem>& buf, const char* str)
 {
     return str_cmp(str, buf.c_str()) == 0;
 }
+
+
+template <u32 Capacity, typename Mem>
+bool operator==(const char* str, const StringAdapter<Capacity, Mem>& buf)
+{
+    return str_cmp(str, buf.c_str()) == 0;
+}
+
+
+
+template <u32 Capacity, typename Mem>
+bool operator not_eq(StringAdapter<Capacity, Mem> buf, const char* str)
+{
+    return str_cmp(str, buf.c_str()) not_eq 0;
+}
+
 
 
 

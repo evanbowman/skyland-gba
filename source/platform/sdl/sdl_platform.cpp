@@ -8,13 +8,20 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#define WIN32_LEAN_AND_MEAN  // Prevents windows.h from including winsock.h
+#define NOMINMAX  // Prevents windows.h from defining min/max macros
 
 #include "number/random.hpp"
 #include "platform/conf.hpp"
 #include "platform/flash_filesystem.hpp"
 #include "platform/platform.hpp"
+#ifdef _WIN32
+#include <SDL.h>
+#include <SDL_image.h>
+#else
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#endif
 #include <fstream>
 #include <iostream>
 #include <list>
@@ -359,26 +366,6 @@ std::vector<RectInfo> rect_draw_queue;
 
 
 static const Platform::Extensions extensions{
-    .overlay_circle_effect =
-        [](int radius, int x, int y) {
-            circle_effect_radius = radius;
-            circle_effect_origin_x = x;
-            circle_effect_origin_y = y;
-        },
-    .quit = []() {
-        sdl_running = false;
-    },
-    .vertical_parallax_enable = [](bool on) { vertical_parallax_enabled = on; },
-    .enable_parallax_clouds = [](bool on) { parallax_clouds_enabled = on; },
-    .sprite_overlapping_supported = [](bool& result) { result = true; },
-    .has_startup_opt = [](const char* opt) -> bool {
-        for (int i = 0; i < process_argc; ++i) {
-            if (str_eq(process_argv[i], opt)) {
-                return true;
-            }
-        }
-        return false;
-    },
     .update_parallax_r1 =
         [](u8 scroll) {
             auto& screen = PLATFORM.screen();
@@ -405,14 +392,17 @@ static const Platform::Extensions extensions{
                 parallax_strip3.scroll.y = center.y / 2;
             }
         },
-    .draw_point_light =
-        [](Fixnum x, Fixnum y, int radius, ColorConstant tint, u8 intensity) {
-            if (radius <= 0 or intensity == 0) {
-                return;
-            }
-
-            point_lights.push_back({x, y, radius, tint, intensity});
+    .enable_parallax_clouds = [](bool on) { parallax_clouds_enabled = on; },
+    .vertical_parallax_enable = [](bool on) { vertical_parallax_enabled = on; },
+    .overlay_circle_effect =
+        [](int radius, int x, int y) {
+            circle_effect_radius = radius;
+            circle_effect_origin_x = x;
+            circle_effect_origin_y = y;
         },
+    .quit = []() {
+        sdl_running = false;
+    },
     .enable_translucence =
         [](const Buffer<Layer, 4>& layers) {
             // Reset translucence flags
@@ -428,6 +418,23 @@ static const Platform::Extensions extensions{
                     tile1_translucent = true;
                 }
             }
+        },
+    .sprite_overlapping_supported = [](bool& result) { result = true; },
+    .has_startup_opt = [](const char* opt) -> bool {
+        for (int i = 0; i < process_argc; ++i) {
+            if (str_eq(process_argv[i], opt)) {
+                return true;
+            }
+        }
+        return false;
+    },
+    .draw_point_light =
+        [](Fixnum x, Fixnum y, int radius, ColorConstant tint, u8 intensity) {
+            if (radius <= 0 or intensity == 0) {
+                return;
+            }
+
+            point_lights.push_back({x, y, radius, tint, intensity});
         },
     .draw_rect =
         [](int x, int y, int w, int h, ColorConstant tint, int priority) {
@@ -656,6 +663,13 @@ static void cycle_window_scale(bool increase)
 Platform* __platform__ = nullptr;
 
 
+Platform& Platform::create()
+{
+    static Platform pf;
+    __platform__ = &pf;
+    return pf;
+}
+
 
 int main(int argc, char** argv)
 {
@@ -720,9 +734,8 @@ int main(int argc, char** argv)
 
     rng::critical_state = time(nullptr);
 
-    Platform pf;
+    Platform& pf = Platform::create();
 
-    __platform__ = &pf;
     start(pf);
 
     if (renderer) {
@@ -1014,12 +1027,50 @@ void Platform::Keyboard::poll()
 }
 
 
-static std::map<std::string, std::string> files;
+struct AlignedBuffer {
+    char* allocated;  // Original malloc pointer (for freeing)
+    char* aligned;    // Word-aligned pointer (for use)
+    u32 size;
 
+    AlignedBuffer() : allocated(nullptr), aligned(nullptr), size(0) {}
 
+    AlignedBuffer(char* alloc, char* align, u32 sz)
+        : allocated(alloc), aligned(align), size(sz) {}
+
+    ~AlignedBuffer() {
+        free(allocated);
+    }
+
+    // Prevent copying
+    AlignedBuffer(const AlignedBuffer&) = delete;
+    AlignedBuffer& operator=(const AlignedBuffer&) = delete;
+
+    // Allow moving
+    AlignedBuffer(AlignedBuffer&& other) noexcept
+        : allocated(other.allocated), aligned(other.aligned), size(other.size) {
+        other.allocated = nullptr;
+        other.aligned = nullptr;
+        other.size = 0;
+    }
+
+    AlignedBuffer& operator=(AlignedBuffer&& other) noexcept {
+        if (this != &other) {
+            free(allocated);
+            allocated = other.allocated;
+            aligned = other.aligned;
+            size = other.size;
+            other.allocated = nullptr;
+            other.aligned = nullptr;
+            other.size = 0;
+        }
+        return *this;
+    }
+};
+
+static std::map<std::string, AlignedBuffer> files;
 
 std::pair<const char*, u32> Platform::load_file(const char* folder,
-                                                const char* filename) const
+    const char* filename) const
 {
     std::string name;
     if (strlen(folder)) {
@@ -1031,28 +1082,51 @@ std::pair<const char*, u32> Platform::load_file(const char* folder,
     for (char c : name) {
         if (c == '/') {
             path += PATH_DELIMITER;
-        } else {
+        }
+        else {
             path += c;
         }
     }
 
     auto found = files.find(path);
-    if (found == files.end()) {
-        std::fstream file(resource_path() + path);
-        if (not file) {
-            warning(format("missing file %", (resource_path() + path).c_str()));
-        }
-        std::stringstream buffer;
-        buffer << file.rdbuf();
-        files[path] = buffer.str();
-    } else {
-        return {found->second.c_str(), found->second.length()};
+    if (found != files.end()) {
+        return { found->second.aligned, found->second.size };
     }
 
-    found = files.find(path);
-    return {found->second.c_str(), found->second.length()};
-}
+    std::string full_path = resource_path() + path;
+    std::ifstream file(full_path, std::ios::binary);
+    if (!file) {
+        warning(format("missing file %", full_path.c_str()));
+        return { nullptr, 0 };
+    }
 
+    // Get file size
+    file.seekg(0, std::ios::end);
+    u32 size = file.tellg();
+    file.seekg(0, std::ios::beg);
+
+    // Allocate extra bytes: alignment padding + null terminator
+    constexpr size_t alignment = 4;
+    char* allocated = (char*)malloc(size + alignment + 1);
+
+    if (!allocated) {
+        warning("failed to allocate memory");
+        return { nullptr, 0 };
+    }
+
+    // Find aligned position within allocated block
+    uintptr_t addr = (uintptr_t)allocated;
+    uintptr_t aligned_addr = (addr + alignment - 1) & ~(alignment - 1);
+    char* aligned = (char*)aligned_addr;
+
+    // Read file into aligned buffer
+    file.read(aligned, size);
+    aligned[size] = '\0';
+
+    files.emplace(path, AlignedBuffer(allocated, aligned, size));
+
+    return { aligned, size };
+}
 
 
 struct DynamicTextureMapping
@@ -1203,7 +1277,7 @@ bool Platform::write_save_data(const void* data, u32 length, u32 offset)
                       std::ios_base::out | std::ios_base::binary);
 
     out.write((const char*)save_buffer, ::save_capacity);
-
+    
     return true;
 }
 
@@ -1212,15 +1286,6 @@ bool Platform::write_save_data(const void* data, u32 length, u32 offset)
 bool Platform::read_save_data(void* buffer, u32 data_length, u32 offset)
 {
     memcpy(buffer, save_buffer + offset, data_length);
-
-    std::ifstream in(get_save_file_path(),
-                     std::ios_base::in | std::ios_base::binary);
-
-    if (!in) {
-        return true;
-    }
-
-    in.read((char*)save_buffer, ::save_capacity);
 
     return true;
 }
@@ -4042,12 +4107,14 @@ void Platform::Logger::log(Severity level, const char* msg)
 
     while (*msg not_eq '\0') {
         log_data_->push_back(*msg, t);
+        logfile_out << *msg;
         std::cout << *msg;
         ++msg;
     }
 
     log_data_->push_back('\n', t);
     std::cout << '\n';
+    logfile_out << '\n';
 }
 
 
@@ -4334,6 +4401,7 @@ static SDL_Rect get_overlay_tile_source_rect(TileDesc tile_index)
 static float last_fade_amt;
 static ColorConstant fade_color;
 static bool fade_include_overlay;
+static bool fade_include_tiles;
 
 
 void Platform::Screen::fade(float amount,
@@ -4345,6 +4413,7 @@ void Platform::Screen::fade(float amount,
     last_fade_amt = amount;
     fade_color = k;
     fade_include_overlay = include_overlay;
+    fade_include_tiles = true;
 }
 
 
@@ -4361,6 +4430,7 @@ void Platform::Screen::schedule_fade(Float amount, const FadeProperties& props)
     last_fade_amt = amount;
     fade_color = props.color;
     fade_include_overlay = props.include_overlay;
+    fade_include_tiles = props.include_tiles;
 }
 
 
@@ -4893,6 +4963,10 @@ void Platform::Screen::display()
         }
     }
 
+    if (not fade_include_tiles) {
+        display_fade();
+    }
+
     draw_rect_group(3);
     draw_sprite_group(3);
     draw_tile_layer(Layer::map_1_ext,
@@ -4932,7 +5006,7 @@ void Platform::Screen::display()
     draw_rect_group(1);
     draw_sprite_group(1);
 
-    if (not fade_include_overlay) {
+    if (not fade_include_overlay and fade_include_tiles) {
         display_fade();
     }
 

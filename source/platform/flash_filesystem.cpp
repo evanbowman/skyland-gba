@@ -457,7 +457,6 @@ InitStatus initialize(const InitConfig& conf)
     disk_capacity -= start_offset;
 
     auto root = load_root();
-
     if (memcmp(root.magic_, Root::magic_val, 8) not_eq 0) {
         PLATFORM.erase_save_sector();
 
@@ -475,10 +474,8 @@ InitStatus initialize(const InitConfig& conf)
     offset += sizeof(Root);
 
     bool reformat = false;
-
-
+    int rnum = 0;
     while (true) {
-
         if (offset % 2 not_eq 0) {
             info("warning: bad filesystem alignment!");
         }
@@ -539,7 +536,6 @@ InitStatus initialize(const InitConfig& conf)
             break;
         }
     }
-
     if (reformat) {
         compact();
     }
@@ -554,7 +550,6 @@ InitStatus initialize(const InitConfig& conf)
     };
 
     stat();
-
     Vector<StringBuffer<256>> bad_files;
     walk([&](const char* name) {
         if (is_path_bad(name)) {
@@ -565,7 +560,6 @@ InitStatus initialize(const InitConfig& conf)
                         file_size(name)));
         }
     });
-
     for (auto& f : bad_files) {
         unlink_file(f.c_str());
     }
@@ -574,7 +568,6 @@ InitStatus initialize(const InitConfig& conf)
         compact();
         stat();
     }
-
     return already_initialized;
 }
 

@@ -264,7 +264,9 @@ public:
             } else {
                 // We copied the final element into the previous one in the
                 // previous iteration. Simply destroy the final element.
-                position->~T();
+                if constexpr (not std::is_fundamental<T>()) {
+                    position->~T();
+                }
             }
 
             position = next;

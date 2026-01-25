@@ -120,8 +120,8 @@ public:
 private:
     Time timer_ = 0;
     Vec2<Fixnum> speed_;
-    [[maybe_unused]] u8 half_angle_;
-    [[maybe_unused]] u8 speed_int_;
+    u8 half_angle_;
+    u8 speed_int_;
 };
 
 

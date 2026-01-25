@@ -143,7 +143,7 @@ ScenePtr StartAdventureScene::update(Time delta)
         (not(APP.persistent_data().state_flags_.get() &
              PersistentData::permadeath_on));
 
-    auto dont_remind = []() {
+    auto dont_remind = [sv_flag]() {
         APP.gp_.stateflags_.set(sv_flag, true);
         save::store_global_data(APP.gp_);
     };
