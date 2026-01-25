@@ -474,7 +474,6 @@ InitStatus initialize(const InitConfig& conf)
     offset += sizeof(Root);
 
     bool reformat = false;
-    int rnum = 0;
     while (true) {
         if (offset % 2 not_eq 0) {
             info("warning: bad filesystem alignment!");
