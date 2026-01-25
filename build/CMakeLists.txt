@@ -588,10 +588,12 @@ elseif(GAMEBOY_ADVANCE)
   set(EXECUTABLE_NAME SkylandEngine)
   add_executable(${EXECUTABLE_NAME}
     ${SOURCES})
+elseif(WIN32)
+  set(EXECUTABLE_NAME Skyland)
+  add_executable(Skyland WIN32 ${SOURCES})
 else()
   set(EXECUTABLE_NAME Skyland)
-  add_executable(${EXECUTABLE_NAME}
-    ${SOURCES})
+  add_executable(Skyland ${SOURCES})
 endif()
 
 
@@ -1227,6 +1229,15 @@ foreach(lib ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS})
             $<TARGET_FILE_DIR:Skyland>
     )
 endforeach()
+
+    configure_file(${ROOT_DIR}/images/skyland.ico 
+                   ${CMAKE_BINARY_DIR}/skyland.ico COPYONLY)
+    
+    file(WRITE ${CMAKE_BINARY_DIR}/skyland.rc 
+         "IDI_ICON1 ICON DISCARDABLE \"skyland.ico\"")
+    
+    target_sources(Skyland PRIVATE ${CMAKE_BINARY_DIR}/skyland.rc)
+
 endif()
 
 

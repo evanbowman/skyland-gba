@@ -4116,12 +4116,14 @@ void Platform::Logger::log(Severity level, const char* msg)
 
     while (*msg not_eq '\0') {
         log_data_->push_back(*msg, t);
+        logfile_out << *msg;
         std::cout << *msg;
         ++msg;
     }
 
     log_data_->push_back('\n', t);
     std::cout << '\n';
+    logfile_out << '\n';
 }
 
 
