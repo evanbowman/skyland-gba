@@ -92,7 +92,7 @@ static ScenePtr select_menu_help(bool far)
                              state_bit_load(StateBit::sel_menu_help_prompt) or
                              PLATFORM.network_peer().is_connected();
 
-    auto dont_remind = []() {
+    auto dont_remind = [flag]() {
         APP.gp_.stateflags_.set(flag, true);
         save::store_global_data(APP.gp_);
     };
@@ -131,7 +131,7 @@ static ScenePtr move_blocks_setup(bool far)
         state_bit_load(StateBit::move_blocks_help_prompt) or
         APP.game_mode() == App::GameMode::tutorial;
 
-    auto dont_remind = []() {
+    auto dont_remind = [flag]() {
         APP.gp_.stateflags_.set(flag, true);
         save::store_global_data(APP.gp_);
     };
@@ -163,7 +163,7 @@ static ScenePtr set_gamespeed_setup()
                              state_bit_load(StateBit::gamespeed_help_prompt) or
                              APP.game_mode() == App::GameMode::tutorial;
 
-    auto dont_remind = []() {
+    auto dont_remind = [flag]() {
         APP.gp_.stateflags_.set(flag, true);
         save::store_global_data(APP.gp_);
     };

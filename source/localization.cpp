@@ -66,18 +66,15 @@ public:
     }
 };
 
+#ifdef _WIN32
+#define __ORDER_LITTLE_ENDIAN__
+#define __BYTE_ORDER__ __ORDER_LITTLE_ENDIAN__
+#endif
 
 #ifndef __BYTE_ORDER__
 #error "byte order must be defined"
 #endif
 
-
-// FIXME: assumes little endian? Does it matter though, which way we order
-// stuff, as long as it's consistent? Actually it does matter, considering
-// that we're byte-swapping stuff in unicode.hpp
-#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-#error "TODO: fix the utf-8 decoding (below) for big endian"
-#endif
 
 
 // Needs to be a macro because there's no way to pass a str_const as a

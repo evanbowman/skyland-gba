@@ -1,0 +1,375 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
+  </PropertyGroup>
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MinSizeRel|x64">
+      <Configuration>MinSizeRel</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="RelWithDebInfo|x64">
+      <Configuration>RelWithDebInfo</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{CD99D3AD-64FE-33AB-9EC9-6CEB0D6194FB}</ProjectGuid>
+    <WindowsTargetPlatformVersion>10.0.18362.0</WindowsTargetPlatformVersion>
+    <Keyword>Win32Proj</Keyword>
+    <Platform>x64</Platform>
+    <ProjectName>FASTPATH</ProjectName>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\evana\Documents\skyland-beta\build\Debug\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">FASTPATH.dir\Debug\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">FASTPATH</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\evana\Documents\skyland-beta\build\Release\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">FASTPATH.dir\Release\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">FASTPATH</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\evana\Documents\skyland-beta\build\MinSizeRel\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">FASTPATH.dir\MinSizeRel\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">FASTPATH</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\evana\Documents\skyland-beta\build\RelWithDebInfo\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">FASTPATH.dir\RelWithDebInfo\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">FASTPATH</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">.lib</TargetExt>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\evana\Documents\skyland-beta\build\..\source;C:\Users\evana\Documents\skyland-beta\build\..\external;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\evana\Documents\skyland-beta\build\..\source;C:\Users\evana\Documents\skyland-beta\build\..\external;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\evana\Documents\skyland-beta\build\..\source;C:\Users\evana\Documents\skyland-beta\build\..\external;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\evana\Documents\skyland-beta\build\..\source;C:\Users\evana\Documents\skyland-beta\build\..\external;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\evana\Documents\skyland-beta\build\..\source;C:\Users\evana\Documents\skyland-beta\build\..\external;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\evana\Documents\skyland-beta\build\..\source;C:\Users\evana\Documents\skyland-beta\build\..\external;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\evana\Documents\skyland-beta\build\..\source;C:\Users\evana\Documents\skyland-beta\build\..\external;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <Optimization>MinSpace</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR="MinSizeRel";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR=\"MinSizeRel\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\evana\Documents\skyland-beta\build\..\source;C:\Users\evana\Documents\skyland-beta\build\..\external;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\evana\Documents\skyland-beta\build\..\source;C:\Users\evana\Documents\skyland-beta\build\..\external;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\evana\Documents\skyland-beta\build\..\source;C:\Users\evana\Documents\skyland-beta\build\..\external;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR="RelWithDebInfo";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR=\"RelWithDebInfo\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\evana\Documents\skyland-beta\build\..\source;C:\Users\evana\Documents\skyland-beta\build\..\external;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\evana\Documents\skyland-beta\build\..\source;C:\Users\evana\Documents\skyland-beta\build\..\external;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\evana\Documents\skyland-beta\build\CMakeLists.txt">
+      <StdOutEncoding>UTF-8</StdOutEncoding>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Building Custom Rule C:/Users/evana/Documents/skyland-beta/build/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/evana/Documents/skyland-beta/build -BC:/Users/evana/Documents/skyland-beta/build --check-stamp-file C:/Users/evana/Documents/skyland-beta/build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeASMInformation.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeCInformation.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeCXXInformation.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeSystemSpecificInitialize.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Compiler\MSVC-ASM.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Compiler\MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Compiler\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\InstallRequiredSystemLibraries.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Platform\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Platform\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Platform\WindowsPaths.cmake;C:\Users\evana\Documents\skyland-beta\build\CMakeFiles\3.18.1\CMakeASMCompiler.cmake;C:\Users\evana\Documents\skyland-beta\build\CMakeFiles\3.18.1\CMakeCCompiler.cmake;C:\Users\evana\Documents\skyland-beta\build\CMakeFiles\3.18.1\CMakeCXXCompiler.cmake;C:\Users\evana\Documents\skyland-beta\build\CMakeFiles\3.18.1\CMakeRCCompiler.cmake;C:\Users\evana\Documents\skyland-beta\build\CMakeFiles\3.18.1\CMakeSystem.cmake;C:\Users\evana\Documents\skyland-beta\build\dirlocals.in;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\evana\Documents\skyland-beta\build\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Building Custom Rule C:/Users/evana/Documents/skyland-beta/build/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/evana/Documents/skyland-beta/build -BC:/Users/evana/Documents/skyland-beta/build --check-stamp-file C:/Users/evana/Documents/skyland-beta/build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeASMInformation.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeCInformation.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeCXXInformation.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeSystemSpecificInitialize.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Compiler\MSVC-ASM.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Compiler\MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Compiler\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\InstallRequiredSystemLibraries.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Platform\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Platform\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Platform\WindowsPaths.cmake;C:\Users\evana\Documents\skyland-beta\build\CMakeFiles\3.18.1\CMakeASMCompiler.cmake;C:\Users\evana\Documents\skyland-beta\build\CMakeFiles\3.18.1\CMakeCCompiler.cmake;C:\Users\evana\Documents\skyland-beta\build\CMakeFiles\3.18.1\CMakeCXXCompiler.cmake;C:\Users\evana\Documents\skyland-beta\build\CMakeFiles\3.18.1\CMakeRCCompiler.cmake;C:\Users\evana\Documents\skyland-beta\build\CMakeFiles\3.18.1\CMakeSystem.cmake;C:\Users\evana\Documents\skyland-beta\build\dirlocals.in;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\evana\Documents\skyland-beta\build\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">Building Custom Rule C:/Users/evana/Documents/skyland-beta/build/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/evana/Documents/skyland-beta/build -BC:/Users/evana/Documents/skyland-beta/build --check-stamp-file C:/Users/evana/Documents/skyland-beta/build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeASMInformation.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeCInformation.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeCXXInformation.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeSystemSpecificInitialize.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Compiler\MSVC-ASM.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Compiler\MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Compiler\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\InstallRequiredSystemLibraries.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Platform\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Platform\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Platform\WindowsPaths.cmake;C:\Users\evana\Documents\skyland-beta\build\CMakeFiles\3.18.1\CMakeASMCompiler.cmake;C:\Users\evana\Documents\skyland-beta\build\CMakeFiles\3.18.1\CMakeCCompiler.cmake;C:\Users\evana\Documents\skyland-beta\build\CMakeFiles\3.18.1\CMakeCXXCompiler.cmake;C:\Users\evana\Documents\skyland-beta\build\CMakeFiles\3.18.1\CMakeRCCompiler.cmake;C:\Users\evana\Documents\skyland-beta\build\CMakeFiles\3.18.1\CMakeSystem.cmake;C:\Users\evana\Documents\skyland-beta\build\dirlocals.in;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\evana\Documents\skyland-beta\build\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">Building Custom Rule C:/Users/evana/Documents/skyland-beta/build/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/evana/Documents/skyland-beta/build -BC:/Users/evana/Documents/skyland-beta/build --check-stamp-file C:/Users/evana/Documents/skyland-beta/build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeASMInformation.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeCInformation.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeCXXInformation.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeSystemSpecificInitialize.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Compiler\MSVC-ASM.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Compiler\MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Compiler\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\InstallRequiredSystemLibraries.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Platform\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Platform\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Platform\WindowsPaths.cmake;C:\Users\evana\Documents\skyland-beta\build\CMakeFiles\3.18.1\CMakeASMCompiler.cmake;C:\Users\evana\Documents\skyland-beta\build\CMakeFiles\3.18.1\CMakeCCompiler.cmake;C:\Users\evana\Documents\skyland-beta\build\CMakeFiles\3.18.1\CMakeCXXCompiler.cmake;C:\Users\evana\Documents\skyland-beta\build\CMakeFiles\3.18.1\CMakeRCCompiler.cmake;C:\Users\evana\Documents\skyland-beta\build\CMakeFiles\3.18.1\CMakeSystem.cmake;C:\Users\evana\Documents\skyland-beta\build\dirlocals.in;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\evana\Documents\skyland-beta\build\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\room.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\island.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\minimap.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\ice.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\tnt.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\bell.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\core.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\hull.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\lava.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\cloak.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\crane.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\radar.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\synth.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\water.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\arcGun.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\bridge.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\cannon.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\basalt.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\ladder.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\weapon.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\canvas.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\barrier.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\speaker.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\flakGun.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\qrBlock.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\reactor.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\windmill.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\bulkhead.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\nemesis.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\beamGun.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\warhead.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\ballista.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\mycelium.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\radiator.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\workshop.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\droneBay.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\cargoBay.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\chaosCore.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\deflector.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\clumpBomb.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\warEngine.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\infirmary.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\decimator.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\solarCell.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\stairwell.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\ionCannon.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\ionFizzler.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\replicator.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\fireCharge.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\pluginRoom.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\forcefield.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\bronzeHull.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\mirrorHull.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\rocketSilo.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\annihilator.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\incinerator.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\poweredHull.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\stackedHull.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\sparkCannon.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\manufactory.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\missileSilo.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\sylphCannon.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\transporter.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\escapeBeacon.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\phaseShifter.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\commandModule.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\overdriveCore.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\plunderedRoom.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\particleLance.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\resonanceCore.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\weatherEngine.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\rooms\targetingComputer.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\macrocosmSector.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\macrocosmCubeSector.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\macrocosmPillarSector.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\macrocosmPancakeSector.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\macrocosmEngine.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\entity\projectile\beam.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\entity\projectile\flak.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\entity\projectile\missile.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\entity\projectile\cannonball.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\entity\projectile\incineratorBolt.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\entity\projectile\projectile.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\entity\projectile\antimatter.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\entity\projectile\fireBolt.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\entity\projectile\nemesisBlast.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\entity\projectile\ballistaBolt.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\entity\projectile\arcBolt.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\entity\projectile\ionBurst.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\entity\projectile\pluginProjectile.cpp" />
+    <ClCompile Include="C:\Users\evana\Documents\skyland-beta\source\skyland\entity\projectile\decimatorBurst.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="C:\Users\evana\Documents\skyland-beta\build\ZERO_CHECK.vcxproj">
+      <Project>{11FC227C-8D8E-31FE-8B81-91A1DDFA803C}</Project>
+      <Name>ZERO_CHECK</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

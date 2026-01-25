@@ -48,7 +48,7 @@ namespace skyland::time_stream::event
 
 
 enum Type : u8 {
-    __reserved,
+    reserved_value_0,
 
     initial,
 

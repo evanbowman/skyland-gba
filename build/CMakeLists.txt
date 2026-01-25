@@ -353,11 +353,14 @@ add_library(FASTPATH
 
 
 
+  if(WIN32)
+  message("TODO windows compiler flags")
+  else()
 target_compile_options(FASTPATH PRIVATE
   -O3
   -Wsuggest-override
   ${G_COMPILE_FLAGS})
-
+  endif()
 
 
 
@@ -369,14 +372,16 @@ set(LISP_SOURCES
 
 add_library(LISP ${LISP_SOURCES})
 
-
+if(WIN32)
+message("TODO: win32 lisp compiler args")
+else()
 target_compile_options(LISP PRIVATE
   -g
   -O3 # Script execution is a bit of a bottleneck
   -fno-rtti
   -Wsuggest-override
   ${G_COMPILE_FLAGS})
-
+  endif()
 
 
 if(NINTENDO_DS OR GAMEBOY_ADVANCE)
@@ -734,48 +739,9 @@ if(APPLE OR UNIX OR GAMEBOY_ADVANCE OR NINTENDO_DS)
 elseif(WIN32)
 
   set(SHARED_COMPILE_OPTIONS
-    /W4)
+    /W2
+    /utf-8)
 
-  include_directories(${ROOT_DIR}/external/SFML-2.5.1/include/)
-
-  set(SFML_LIB_DIR ${ROOT_DIR}/external/SFML-2.5.1/lib/Release)
-
-  target_link_libraries(${EXECUTABLE_NAME}
-    ${SFML_LIB_DIR}/sfml-graphics.lib
-    ${SFML_LIB_DIR}/sfml-window.lib
-    ${SFML_LIB_DIR}/sfml-system.lib
-    ${SFML_LIB_DIR}/sfml-audio.lib
-    ${SFML_LIB_DIR}/sfml-network.lib)
-
-  add_custom_command(TARGET ${EXECUTABLE_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "${SFML_LIB_DIR}/sfml-graphics-2.dll"
-        $<TARGET_FILE_DIR:${EXECUTABLE_NAME}>)
-
-  add_custom_command(TARGET ${EXECUTABLE_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "${SFML_LIB_DIR}/sfml-audio-2.dll"
-        $<TARGET_FILE_DIR:${EXECUTABLE_NAME}>)
-
-  add_custom_command(TARGET ${EXECUTABLE_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "${SFML_LIB_DIR}/sfml-window-2.dll"
-        $<TARGET_FILE_DIR:${EXECUTABLE_NAME}>)
-
-  add_custom_command(TARGET ${EXECUTABLE_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "${SFML_LIB_DIR}/sfml-network-2.dll"
-        $<TARGET_FILE_DIR:${EXECUTABLE_NAME}>)
-
-  add_custom_command(TARGET ${EXECUTABLE_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "${SFML_LIB_DIR}/sfml-system-2.dll"
-        $<TARGET_FILE_DIR:${EXECUTABLE_NAME}>)
-
-   add_custom_command(TARGET ${EXECUTABLE_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "${ROOT_DIR}/external/SFML-2.5.1/extlibs/bin/x64/openal32.dll"
-        $<TARGET_FILE_DIR:${EXECUTABLE_NAME}>)
 endif()
 
 
@@ -1001,6 +967,10 @@ elseif(GAMEBOY_ADVANCE)
     ${ARM7_THUMB_FLAGS})
 
 
+  if(WIN32)
+    add_compile_options(/utf-8)
+endif()
+
   add_library(ARM_ROUTINES ${SOURCE_DIR}/platform/gba/gba_hotpath.cpp)
 
   target_compile_options(ARM_ROUTINES PRIVATE
@@ -1190,6 +1160,73 @@ elseif(UNIX)
     -lpthread
     QR)
 
+elseif(WIN32)
+    # Manually configure SDL2
+    target_include_directories(Skyland PRIVATE 
+        "C:/SDL2/include"
+        "C:/SDL2_image/include"
+    )
+    
+    target_link_directories(Skyland PRIVATE 
+        "C:/SDL2/lib/x64"
+        "C:/SDL2_image/lib/x64"
+    )
+    
+    target_link_libraries(Skyland PRIVATE
+        SDL2
+        SDL2main
+        SDL2_image
+    )
+    # Add /utf-8 flag
+    add_compile_options(/utf-8)
+    
+    # Suppress warning noise
+    add_compile_options(/wd4100 /wd4127 /wd4244 /wd4267 /wd4458)
+
+    set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP TRUE)
+
+    add_custom_target(pkg ALL
+        # Run the Python encoding script
+        COMMAND python ../tools/encode_files.py
+        # Copy individual files
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            ${ROOT_DIR}/boot.ini
+            $<TARGET_FILE_DIR:Skyland>/boot.ini
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            ${ROOT_DIR}/lisp_symtab.dat
+            $<TARGET_FILE_DIR:Skyland>/lisp_symtab.dat
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            ${ROOT_DIR}/lisp_constant_tab.dat
+            $<TARGET_FILE_DIR:Skyland>/lisp_constant_tab.dat
+        # Copy directories
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${ROOT_DIR}/images
+            $<TARGET_FILE_DIR:Skyland>/images
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${ROOT_DIR}/shaders
+            $<TARGET_FILE_DIR:Skyland>/shaders
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${ROOT_DIR}/sounds
+            $<TARGET_FILE_DIR:Skyland>/sounds
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${ROOT_DIR}/scripts
+            $<TARGET_FILE_DIR:Skyland>/scripts
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${ROOT_DIR}/strings
+            $<TARGET_FILE_DIR:Skyland>/strings
+        DEPENDS Skyland
+        COMMENT "Copying resources to Release directory")
+
+include(InstallRequiredSystemLibraries)
+
+# Copy each runtime DLL separately
+foreach(lib ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS})
+    add_custom_command(TARGET Skyland POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${lib}"
+            $<TARGET_FILE_DIR:Skyland>
+    )
+endforeach()
 endif()
 
 

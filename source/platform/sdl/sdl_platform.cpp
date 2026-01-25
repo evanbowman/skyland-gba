@@ -8,13 +8,20 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#define WIN32_LEAN_AND_MEAN  // Prevents windows.h from including winsock.h
+#define NOMINMAX  // Prevents windows.h from defining min/max macros
 
 #include "number/random.hpp"
 #include "platform/conf.hpp"
 #include "platform/flash_filesystem.hpp"
 #include "platform/platform.hpp"
+#ifdef _WIN32
+#include <SDL.h>
+#include <SDL_image.h>
+#else
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#endif
 #include <fstream>
 #include <iostream>
 #include <list>
@@ -656,6 +663,13 @@ static void cycle_window_scale(bool increase)
 Platform* __platform__ = nullptr;
 
 
+Platform& Platform::create()
+{
+    static Platform pf;
+    __platform__ = &pf;
+    return pf;
+}
+
 
 int main(int argc, char** argv)
 {
@@ -720,9 +734,8 @@ int main(int argc, char** argv)
 
     rng::critical_state = time(nullptr);
 
-    Platform pf;
+    Platform& pf = Platform::create();
 
-    __platform__ = &pf;
     start(pf);
 
     if (renderer) {
@@ -1014,12 +1027,50 @@ void Platform::Keyboard::poll()
 }
 
 
-static std::map<std::string, std::string> files;
+struct AlignedBuffer {
+    char* allocated;  // Original malloc pointer (for freeing)
+    char* aligned;    // Word-aligned pointer (for use)
+    u32 size;
 
+    AlignedBuffer() : allocated(nullptr), aligned(nullptr), size(0) {}
 
+    AlignedBuffer(char* alloc, char* align, u32 sz)
+        : allocated(alloc), aligned(align), size(sz) {}
+
+    ~AlignedBuffer() {
+        free(allocated);
+    }
+
+    // Prevent copying
+    AlignedBuffer(const AlignedBuffer&) = delete;
+    AlignedBuffer& operator=(const AlignedBuffer&) = delete;
+
+    // Allow moving
+    AlignedBuffer(AlignedBuffer&& other) noexcept
+        : allocated(other.allocated), aligned(other.aligned), size(other.size) {
+        other.allocated = nullptr;
+        other.aligned = nullptr;
+        other.size = 0;
+    }
+
+    AlignedBuffer& operator=(AlignedBuffer&& other) noexcept {
+        if (this != &other) {
+            free(allocated);
+            allocated = other.allocated;
+            aligned = other.aligned;
+            size = other.size;
+            other.allocated = nullptr;
+            other.aligned = nullptr;
+            other.size = 0;
+        }
+        return *this;
+    }
+};
+
+static std::map<std::string, AlignedBuffer> files;
 
 std::pair<const char*, u32> Platform::load_file(const char* folder,
-                                                const char* filename) const
+    const char* filename) const
 {
     std::string name;
     if (strlen(folder)) {
@@ -1031,28 +1082,51 @@ std::pair<const char*, u32> Platform::load_file(const char* folder,
     for (char c : name) {
         if (c == '/') {
             path += PATH_DELIMITER;
-        } else {
+        }
+        else {
             path += c;
         }
     }
 
     auto found = files.find(path);
-    if (found == files.end()) {
-        std::fstream file(resource_path() + path);
-        if (not file) {
-            warning(format("missing file %", (resource_path() + path).c_str()));
-        }
-        std::stringstream buffer;
-        buffer << file.rdbuf();
-        files[path] = buffer.str();
-    } else {
-        return {found->second.c_str(), found->second.length()};
+    if (found != files.end()) {
+        return { found->second.aligned, found->second.size };
     }
 
-    found = files.find(path);
-    return {found->second.c_str(), found->second.length()};
-}
+    std::string full_path = resource_path() + path;
+    std::ifstream file(full_path, std::ios::binary);
+    if (!file) {
+        warning(format("missing file %", full_path.c_str()));
+        return { nullptr, 0 };
+    }
 
+    // Get file size
+    file.seekg(0, std::ios::end);
+    u32 size = file.tellg();
+    file.seekg(0, std::ios::beg);
+
+    // Allocate extra bytes: alignment padding + null terminator
+    constexpr size_t alignment = 4;
+    char* allocated = (char*)malloc(size + alignment + 1);
+
+    if (!allocated) {
+        warning("failed to allocate memory");
+        return { nullptr, 0 };
+    }
+
+    // Find aligned position within allocated block
+    uintptr_t addr = (uintptr_t)allocated;
+    uintptr_t aligned_addr = (addr + alignment - 1) & ~(alignment - 1);
+    char* aligned = (char*)aligned_addr;
+
+    // Read file into aligned buffer
+    file.read(aligned, size);
+    aligned[size] = '\0';
+
+    files.emplace(path, AlignedBuffer(allocated, aligned, size));
+
+    return { aligned, size };
+}
 
 
 struct DynamicTextureMapping

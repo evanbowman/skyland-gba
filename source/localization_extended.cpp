@@ -16,9 +16,10 @@
 
 // This file takes quite some time to compile. I practically never change
 // anything in here.
-
-
-
+#ifdef _WIN32
+#define __ORDER_LITTLE_ENDIAN__
+#define __BYTE_ORDER__ __ORDER_LITTLE_ENDIAN__
+#endif
 #ifndef __BYTE_ORDER__
 #error "byte order must be defined"
 #endif
@@ -27,8 +28,10 @@
 // FIXME: assumes little endian? Does it matter though, which way we order
 // stuff, as long as it's consistent? Actually it does matter, considering
 // that we're byte-swapping stuff in unicode.hpp
+#ifndef _WIN32
 #if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
 #error "TODO: fix the utf-8 decoding (below) for big endian"
+#endif
 #endif
 
 
@@ -67,7 +70,9 @@
         }                                                                      \
     }()
 
-
+#ifdef _MSC_VER
+#pragma execution_character_set("utf-8")
+#endif
 
 class str_const
 {

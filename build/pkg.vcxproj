@@ -1,0 +1,307 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
+  </PropertyGroup>
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MinSizeRel|x64">
+      <Configuration>MinSizeRel</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="RelWithDebInfo|x64">
+      <Configuration>RelWithDebInfo</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{40BF0760-307D-30E4-8BC4-9683685D03D9}</ProjectGuid>
+    <WindowsTargetPlatformVersion>10.0.18362.0</WindowsTargetPlatformVersion>
+    <Keyword>Win32Proj</Keyword>
+    <Platform>x64</Platform>
+    <ProjectName>pkg</ProjectName>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\evana\Documents\skyland-beta\build\..\source;C:\Users\evana\Documents\skyland-beta\build\..\external;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\evana\Documents\skyland-beta\build\..\source;C:\Users\evana\Documents\skyland-beta\build\..\external;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\evana\Documents\skyland-beta\build\..\source;C:\Users\evana\Documents\skyland-beta\build\..\external;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\evana\Documents\skyland-beta\build\..\source;C:\Users\evana\Documents\skyland-beta\build\..\external;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\evana\Documents\skyland-beta\build\CMakeFiles\03d65c69f1dd76cb1b1fec98f8ceacae\pkg.rule">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Copying resources to Release directory</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+python ../tools/encode_files.py
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different C:/Users/evana/Documents/skyland-beta/build/../boot.ini C:/Users/evana/Documents/skyland-beta/build/Debug/boot.ini
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different C:/Users/evana/Documents/skyland-beta/build/../lisp_symtab.dat C:/Users/evana/Documents/skyland-beta/build/Debug/lisp_symtab.dat
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different C:/Users/evana/Documents/skyland-beta/build/../lisp_constant_tab.dat C:/Users/evana/Documents/skyland-beta/build/Debug/lisp_constant_tab.dat
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_directory C:/Users/evana/Documents/skyland-beta/build/../images C:/Users/evana/Documents/skyland-beta/build/Debug/images
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_directory C:/Users/evana/Documents/skyland-beta/build/../shaders C:/Users/evana/Documents/skyland-beta/build/Debug/shaders
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_directory C:/Users/evana/Documents/skyland-beta/build/../sounds C:/Users/evana/Documents/skyland-beta/build/Debug/sounds
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_directory C:/Users/evana/Documents/skyland-beta/build/../scripts C:/Users/evana/Documents/skyland-beta/build/Debug/scripts
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_directory C:/Users/evana/Documents/skyland-beta/build/../strings C:/Users/evana/Documents/skyland-beta/build/Debug/strings
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\evana\Documents\skyland-beta\build\Debug\Skyland.exe;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\evana\Documents\skyland-beta\build\CMakeFiles\pkg</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
+      <VerifyInputsAndOutputsExist Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</VerifyInputsAndOutputsExist>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Copying resources to Release directory</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+python ../tools/encode_files.py
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different C:/Users/evana/Documents/skyland-beta/build/../boot.ini C:/Users/evana/Documents/skyland-beta/build/Release/boot.ini
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different C:/Users/evana/Documents/skyland-beta/build/../lisp_symtab.dat C:/Users/evana/Documents/skyland-beta/build/Release/lisp_symtab.dat
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different C:/Users/evana/Documents/skyland-beta/build/../lisp_constant_tab.dat C:/Users/evana/Documents/skyland-beta/build/Release/lisp_constant_tab.dat
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_directory C:/Users/evana/Documents/skyland-beta/build/../images C:/Users/evana/Documents/skyland-beta/build/Release/images
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_directory C:/Users/evana/Documents/skyland-beta/build/../shaders C:/Users/evana/Documents/skyland-beta/build/Release/shaders
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_directory C:/Users/evana/Documents/skyland-beta/build/../sounds C:/Users/evana/Documents/skyland-beta/build/Release/sounds
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_directory C:/Users/evana/Documents/skyland-beta/build/../scripts C:/Users/evana/Documents/skyland-beta/build/Release/scripts
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_directory C:/Users/evana/Documents/skyland-beta/build/../strings C:/Users/evana/Documents/skyland-beta/build/Release/strings
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\evana\Documents\skyland-beta\build\Release\Skyland.exe;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\evana\Documents\skyland-beta\build\CMakeFiles\pkg</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
+      <VerifyInputsAndOutputsExist Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</VerifyInputsAndOutputsExist>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">Copying resources to Release directory</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">setlocal
+python ../tools/encode_files.py
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different C:/Users/evana/Documents/skyland-beta/build/../boot.ini C:/Users/evana/Documents/skyland-beta/build/MinSizeRel/boot.ini
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different C:/Users/evana/Documents/skyland-beta/build/../lisp_symtab.dat C:/Users/evana/Documents/skyland-beta/build/MinSizeRel/lisp_symtab.dat
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different C:/Users/evana/Documents/skyland-beta/build/../lisp_constant_tab.dat C:/Users/evana/Documents/skyland-beta/build/MinSizeRel/lisp_constant_tab.dat
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_directory C:/Users/evana/Documents/skyland-beta/build/../images C:/Users/evana/Documents/skyland-beta/build/MinSizeRel/images
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_directory C:/Users/evana/Documents/skyland-beta/build/../shaders C:/Users/evana/Documents/skyland-beta/build/MinSizeRel/shaders
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_directory C:/Users/evana/Documents/skyland-beta/build/../sounds C:/Users/evana/Documents/skyland-beta/build/MinSizeRel/sounds
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_directory C:/Users/evana/Documents/skyland-beta/build/../scripts C:/Users/evana/Documents/skyland-beta/build/MinSizeRel/scripts
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_directory C:/Users/evana/Documents/skyland-beta/build/../strings C:/Users/evana/Documents/skyland-beta/build/MinSizeRel/strings
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\evana\Documents\skyland-beta\build\MinSizeRel\Skyland.exe;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\evana\Documents\skyland-beta\build\CMakeFiles\pkg</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkObjects>
+      <VerifyInputsAndOutputsExist Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</VerifyInputsAndOutputsExist>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">Copying resources to Release directory</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">setlocal
+python ../tools/encode_files.py
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different C:/Users/evana/Documents/skyland-beta/build/../boot.ini C:/Users/evana/Documents/skyland-beta/build/RelWithDebInfo/boot.ini
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different C:/Users/evana/Documents/skyland-beta/build/../lisp_symtab.dat C:/Users/evana/Documents/skyland-beta/build/RelWithDebInfo/lisp_symtab.dat
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different C:/Users/evana/Documents/skyland-beta/build/../lisp_constant_tab.dat C:/Users/evana/Documents/skyland-beta/build/RelWithDebInfo/lisp_constant_tab.dat
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_directory C:/Users/evana/Documents/skyland-beta/build/../images C:/Users/evana/Documents/skyland-beta/build/RelWithDebInfo/images
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_directory C:/Users/evana/Documents/skyland-beta/build/../shaders C:/Users/evana/Documents/skyland-beta/build/RelWithDebInfo/shaders
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_directory C:/Users/evana/Documents/skyland-beta/build/../sounds C:/Users/evana/Documents/skyland-beta/build/RelWithDebInfo/sounds
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_directory C:/Users/evana/Documents/skyland-beta/build/../scripts C:/Users/evana/Documents/skyland-beta/build/RelWithDebInfo/scripts
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_directory C:/Users/evana/Documents/skyland-beta/build/../strings C:/Users/evana/Documents/skyland-beta/build/RelWithDebInfo/strings
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\evana\Documents\skyland-beta\build\RelWithDebInfo\Skyland.exe;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\evana\Documents\skyland-beta\build\CMakeFiles\pkg</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">false</LinkObjects>
+      <VerifyInputsAndOutputsExist Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">false</VerifyInputsAndOutputsExist>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\evana\Documents\skyland-beta\build\CMakeLists.txt">
+      <StdOutEncoding>UTF-8</StdOutEncoding>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Building Custom Rule C:/Users/evana/Documents/skyland-beta/build/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/evana/Documents/skyland-beta/build -BC:/Users/evana/Documents/skyland-beta/build --check-stamp-file C:/Users/evana/Documents/skyland-beta/build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeASMInformation.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeCInformation.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeCXXInformation.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeSystemSpecificInitialize.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Compiler\MSVC-ASM.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Compiler\MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Compiler\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\InstallRequiredSystemLibraries.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Platform\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Platform\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Platform\WindowsPaths.cmake;C:\Users\evana\Documents\skyland-beta\build\CMakeFiles\3.18.1\CMakeASMCompiler.cmake;C:\Users\evana\Documents\skyland-beta\build\CMakeFiles\3.18.1\CMakeCCompiler.cmake;C:\Users\evana\Documents\skyland-beta\build\CMakeFiles\3.18.1\CMakeCXXCompiler.cmake;C:\Users\evana\Documents\skyland-beta\build\CMakeFiles\3.18.1\CMakeRCCompiler.cmake;C:\Users\evana\Documents\skyland-beta\build\CMakeFiles\3.18.1\CMakeSystem.cmake;C:\Users\evana\Documents\skyland-beta\build\dirlocals.in;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\evana\Documents\skyland-beta\build\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Building Custom Rule C:/Users/evana/Documents/skyland-beta/build/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/evana/Documents/skyland-beta/build -BC:/Users/evana/Documents/skyland-beta/build --check-stamp-file C:/Users/evana/Documents/skyland-beta/build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeASMInformation.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeCInformation.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeCXXInformation.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeSystemSpecificInitialize.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Compiler\MSVC-ASM.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Compiler\MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Compiler\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\InstallRequiredSystemLibraries.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Platform\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Platform\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Platform\WindowsPaths.cmake;C:\Users\evana\Documents\skyland-beta\build\CMakeFiles\3.18.1\CMakeASMCompiler.cmake;C:\Users\evana\Documents\skyland-beta\build\CMakeFiles\3.18.1\CMakeCCompiler.cmake;C:\Users\evana\Documents\skyland-beta\build\CMakeFiles\3.18.1\CMakeCXXCompiler.cmake;C:\Users\evana\Documents\skyland-beta\build\CMakeFiles\3.18.1\CMakeRCCompiler.cmake;C:\Users\evana\Documents\skyland-beta\build\CMakeFiles\3.18.1\CMakeSystem.cmake;C:\Users\evana\Documents\skyland-beta\build\dirlocals.in;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\evana\Documents\skyland-beta\build\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">Building Custom Rule C:/Users/evana/Documents/skyland-beta/build/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/evana/Documents/skyland-beta/build -BC:/Users/evana/Documents/skyland-beta/build --check-stamp-file C:/Users/evana/Documents/skyland-beta/build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeASMInformation.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeCInformation.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeCXXInformation.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeSystemSpecificInitialize.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Compiler\MSVC-ASM.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Compiler\MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Compiler\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\InstallRequiredSystemLibraries.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Platform\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Platform\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Platform\WindowsPaths.cmake;C:\Users\evana\Documents\skyland-beta\build\CMakeFiles\3.18.1\CMakeASMCompiler.cmake;C:\Users\evana\Documents\skyland-beta\build\CMakeFiles\3.18.1\CMakeCCompiler.cmake;C:\Users\evana\Documents\skyland-beta\build\CMakeFiles\3.18.1\CMakeCXXCompiler.cmake;C:\Users\evana\Documents\skyland-beta\build\CMakeFiles\3.18.1\CMakeRCCompiler.cmake;C:\Users\evana\Documents\skyland-beta\build\CMakeFiles\3.18.1\CMakeSystem.cmake;C:\Users\evana\Documents\skyland-beta\build\dirlocals.in;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\evana\Documents\skyland-beta\build\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">Building Custom Rule C:/Users/evana/Documents/skyland-beta/build/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/evana/Documents/skyland-beta/build -BC:/Users/evana/Documents/skyland-beta/build --check-stamp-file C:/Users/evana/Documents/skyland-beta/build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeASMInformation.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeCInformation.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeCXXInformation.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\CMakeSystemSpecificInitialize.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Compiler\MSVC-ASM.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Compiler\MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Compiler\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\InstallRequiredSystemLibraries.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Platform\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Platform\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-3.18\Modules\Platform\WindowsPaths.cmake;C:\Users\evana\Documents\skyland-beta\build\CMakeFiles\3.18.1\CMakeASMCompiler.cmake;C:\Users\evana\Documents\skyland-beta\build\CMakeFiles\3.18.1\CMakeCCompiler.cmake;C:\Users\evana\Documents\skyland-beta\build\CMakeFiles\3.18.1\CMakeCXXCompiler.cmake;C:\Users\evana\Documents\skyland-beta\build\CMakeFiles\3.18.1\CMakeRCCompiler.cmake;C:\Users\evana\Documents\skyland-beta\build\CMakeFiles\3.18.1\CMakeSystem.cmake;C:\Users\evana\Documents\skyland-beta\build\dirlocals.in;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\evana\Documents\skyland-beta\build\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="C:\Users\evana\Documents\skyland-beta\build\CMakeFiles\pkg">
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="C:\Users\evana\Documents\skyland-beta\build\ZERO_CHECK.vcxproj">
+      <Project>{11FC227C-8D8E-31FE-8B81-91A1DDFA803C}</Project>
+      <Name>ZERO_CHECK</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\evana\Documents\skyland-beta\build\Skyland.vcxproj">
+      <Project>{80673419-E4C5-32AF-B351-CC10430E0487}</Project>
+      <Name>Skyland</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

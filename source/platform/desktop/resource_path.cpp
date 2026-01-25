@@ -24,7 +24,7 @@ std::string resource_path()
         const std::string path(buffer);
         const std::size_t last_fwd_slash = path.find_last_of('\\');
         std::string path_without_binary = path.substr(0, last_fwd_slash + 1);
-        result = path_without_binary + "..\\..\\";
+        result = path_without_binary;
     }
     return result;
 }
