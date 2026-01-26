@@ -9,6 +9,13 @@ namespace skyland::weather
 
 
 
+Float ClearSkies::modulate_glow_amount()
+{
+    return 0.2f;
+}
+
+
+
 ColorConstant ClearSkies::fadein_colorize_tone() const
 {
     return custom_color(0x071b2d);

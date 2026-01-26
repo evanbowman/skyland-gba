@@ -109,6 +109,13 @@ void Typhoon::rewind(Time delta)
 
 
 
+Float Typhoon::modulate_glow_amount()
+{
+    return 0.3f;
+}
+
+
+
 void Typhoon::update(Time delta)
 {
     Storm::update(delta);

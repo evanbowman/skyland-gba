@@ -258,4 +258,15 @@ void Beam::on_collision(Entity& entity)
 
 
 
+void Beam::project_glow()
+{
+    APP.environment().render_glow_effect(sprite_.get_position(),
+                                         50 +
+                                             rng::choice<8>(rng::utility_state),
+                                         custom_color(0xafe3f2),
+                                         30);
+}
+
+
+
 } // namespace skyland

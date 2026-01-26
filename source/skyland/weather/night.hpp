@@ -44,6 +44,9 @@ public:
 
 
     static Platform::Screen::Shader get_shader();
+
+
+    Float modulate_glow_amount() override;
 };
 
 

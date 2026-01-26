@@ -1,5 +1,6 @@
 '((color-profile . nil)
   (rumble . "on")
+  (lighting . "off")
   ;; NOTE: key mappings for desktop SDL port. See SDL library documentation for
   ;; scancode strings.
   (key_action1 . "X")

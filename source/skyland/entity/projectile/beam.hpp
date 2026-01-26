@@ -70,6 +70,9 @@ public:
     }
 
 
+    void project_glow() override;
+
+
 private:
     void destroy(bool explosion) override;
 

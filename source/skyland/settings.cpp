@@ -112,6 +112,10 @@ void apply()
         state_bit_store(StateBit::rumble_enabled, true);
     }
 
+    if (settings.get("lighting") == "on") {
+        state_bit_store(StateBit::lighting_enabled, true);
+    }
+
     if (auto map = PLATFORM.get_extensions().map_key) {
 #define GET_S(STR) (settings.get(STR).c_str())
         map(Key::action_1, GET_S("key_action1"));

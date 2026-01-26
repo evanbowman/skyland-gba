@@ -18,6 +18,13 @@ namespace skyland::weather
 
 
 
+Float Night::modulate_glow_amount()
+{
+    return 1.5f;
+}
+
+
+
 void Night::display()
 {
 }

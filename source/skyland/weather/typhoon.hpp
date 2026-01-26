@@ -48,6 +48,9 @@ public:
     EnvironmentId id() const override;
 
 
+    Float modulate_glow_amount() override;
+
+
 private:
     enum class LightningState : u8 {
         none,

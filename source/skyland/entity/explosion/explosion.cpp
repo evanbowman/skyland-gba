@@ -91,6 +91,17 @@ void Explosion::update(Time delta)
 
 
 
+void Explosion::project_glow()
+{
+    APP.environment().render_glow_effect(sprite_.get_position(),
+                                         50 +
+                                             rng::choice<8>(rng::utility_state),
+                                         ColorConstant::aerospace_orange,
+                                         48);
+}
+
+
+
 static const int exp_flash_index_seq[] = {52, 53, 54, 55, 56, 50, 24};
 
 

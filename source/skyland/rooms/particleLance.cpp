@@ -209,11 +209,31 @@ void ParticleLance::display(Platform::Screen& screen)
             Fixnum::from_integer(APP.opponent_island()->terrain().size() * 16);
     }
 
+    const auto cached_dist = dist;
+    const auto cached_pos = pos;
     while (dist >= 16.0_fixed) {
         spr.set_position(pos);
         screen.draw(spr);
         pos.x += 16.0_fixed;
         dist -= 16.0_fixed;
+    }
+
+    if (PLATFORM.get_extensions().draw_point_light) {
+        dist = cached_dist;
+        pos = cached_pos;
+        while (dist >= 16.0_fixed) {
+            spr.set_position(pos);
+            APP.environment().render_glow_effect(
+                {
+                    pos.x + 8.0_fixed,
+                    pos.y + 8.0_fixed,
+                },
+                50 + rng::choice<8>(rng::utility_state),
+                custom_color(0xafe3f2),
+                40);
+            pos.x += 16.0_fixed;
+            dist -= 16.0_fixed;
+        }
     }
 }
 

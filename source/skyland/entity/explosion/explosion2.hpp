@@ -138,6 +138,16 @@ public:
     }
 
 
+    void project_glow() override
+    {
+        APP.environment().render_glow_effect(
+            sprite_.get_position(),
+            50 + rng::choice<8>(rng::utility_state),
+            ColorConstant::aerospace_orange,
+            40);
+    }
+
+
 private:
     Time timer_ = 0;
     Vec2<Fixnum> speed_;

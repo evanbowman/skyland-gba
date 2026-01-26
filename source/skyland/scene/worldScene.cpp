@@ -424,6 +424,19 @@ void WorldScene::display()
     for (auto& bird : APP.birds()) {
         PLATFORM.screen().draw(bird->sprite());
     }
+
+    auto project_glow = [&](auto& entity_list) {
+        for (auto& entity : entity_list) {
+            entity->project_glow();
+        }
+    };
+
+    if (PLATFORM.get_extensions().draw_point_light) {
+        project_glow(APP.effects());
+        project_glow(APP.player_island().projectiles());
+        APP.with_opponent_island(
+            [&](Island& isle) { project_glow(isle.projectiles()); });
+    }
 }
 
 

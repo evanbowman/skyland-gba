@@ -19,6 +19,13 @@ namespace skyland::weather
 
 
 
+Float SlightlyOvercast::modulate_glow_amount()
+{
+    return 0.25f;
+}
+
+
+
 SlightlyOvercast::SlightlyOvercast() : state_("weather-state")
 {
     auto& s = *state_;

@@ -36,6 +36,7 @@ enum class StateBit {
     verbose_boot,
     minimap_on,
     rumble_enabled,
+    lighting_enabled,
     count,
 };
 
