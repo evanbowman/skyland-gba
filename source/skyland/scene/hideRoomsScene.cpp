@@ -124,29 +124,29 @@ ScenePtr HideRoomsScene::update(Time delta)
 {
     player().update(delta);
 
-    if (player().key_down(Key::action_2)) {
+    if (player().button_down(Button::action_2)) {
         return next_();
     }
 
-    if (player().key_down(Key::action_1)) {
+    if (player().button_down(Button::action_1)) {
         auto mti = (*data_)->room_classes_[index_];
         room_set_hidden(mti, not room_hidden(mti));
         repaint();
         changed_ = true;
     }
 
-    auto test_key = [&](Key k) {
-        return player().test_key(k, milliseconds(500), milliseconds(100));
+    auto test_button = [&](Button k) {
+        return player().test_button(k, milliseconds(500), milliseconds(100));
     };
 
     int limit = (int)(*data_)->room_classes_.size();
-    if (test_key(Key::down) and index_ < limit - 1) {
+    if (test_button(Button::down) and index_ < limit - 1) {
         ++index_;
         PLATFORM.speaker().play_sound("click_wooden", 2);
         repaint();
     }
 
-    if (test_key(Key::up) and index_ > 0) {
+    if (test_button(Button::up) and index_ > 0) {
         --index_;
         PLATFORM.speaker().play_sound("click_wooden", 2);
         repaint();

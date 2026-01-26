@@ -488,7 +488,7 @@ BINDING_TABLE({
               push_menu_queue.push_back([rebind] {
                   auto next = make_scene<ControllerSetupModule>();
                   if (rebind) {
-                      next->key_index_ = 0;
+                      next->button_index_ = 0;
                       next->on_select_ = [](lisp::Value* settings) {
                           auto fn = lisp::get_var("on-menu-resp");
                           lisp::push_op(settings);
@@ -883,20 +883,20 @@ BINDING_TABLE({
                   ++str;
                   continue;
               }
-              b.key_seq_.seq_[i] = [&] {
+              b.button_seq_.seq_[i] = [&] {
                   switch (*str) {
                   case 'u':
-                      return Key::up;
+                      return Button::up;
                   case 'd':
-                      return Key::down;
+                      return Button::down;
                   case 'l':
-                      return Key::left;
+                      return Button::left;
                   case 'r':
-                      return Key::right;
+                      return Button::right;
                   case 'a':
-                      return Key::action_1;
+                      return Button::action_1;
                   case 'b':
-                      return Key::action_2;
+                      return Button::action_2;
                   default:
                       Platform::fatal("invalid char in key-bind argument.");
                   }

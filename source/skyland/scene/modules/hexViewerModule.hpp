@@ -172,32 +172,32 @@ public:
     {
         player().update(delta);
 
-        auto test_key = [&](Key k) {
-            return player().test_key(k, milliseconds(500), milliseconds(100));
+        auto test_button = [&](Button k) {
+            return player().test_button(k, milliseconds(500), milliseconds(100));
         };
 
-        if (test_key(Key::down)) {
+        if (test_button(Button::down)) {
             ++row_offset_;
             repaint(row_offset_);
         }
 
-        if (test_key(Key::up) and row_offset_ > 0) {
+        if (test_button(Button::up) and row_offset_ > 0) {
             --row_offset_;
             repaint(row_offset_);
         }
 
-        if (test_key(Key::right)) {
+        if (test_button(Button::right)) {
             row_offset_ += 64;
             repaint(row_offset_);
         }
 
-        if (test_key(Key::left) and row_offset_ >= 64) {
+        if (test_button(Button::left) and row_offset_ >= 64) {
             row_offset_ -= 64;
             repaint(row_offset_);
         }
 
 
-        if (PLATFORM.keyboard().down_transition<Key::action_2>()) {
+        if (PLATFORM.input().down_transition<Button::action_2>()) {
             PLATFORM.fill_overlay(0);
 
             if (next_scene_) {

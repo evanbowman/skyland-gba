@@ -62,7 +62,7 @@ public:
             return make_scene<ReadyScene>();
         }
 
-        if (APP.player().key_down(Key::action_2)) {
+        if (APP.player().button_down(Button::action_2)) {
             if (near_) {
                 return make_scene<ReadyScene>();
             } else {
@@ -70,8 +70,8 @@ public:
             }
         }
 
-        auto test_key = [&](Key k) {
-            return APP.player().test_key(
+        auto test_button = [&](Button k) {
+            return APP.player().test_button(
                 k, milliseconds(500), milliseconds(150));
         };
 
@@ -80,7 +80,7 @@ public:
 
         Room* room = parent->get_room(bridge_loc_);
 
-        if (test_key(Key::left)) {
+        if (test_button(Button::left)) {
             if (room) {
                 if (auto bridge = room->cast<Bridge>()) {
                     if (bridge->resize(-1)) {
@@ -90,7 +90,7 @@ public:
                     }
                 }
             }
-        } else if (test_key(Key::right)) {
+        } else if (test_button(Button::right)) {
             if (room) {
                 if (auto bridge = room->cast<Bridge>()) {
                     if (bridge->resize(1)) {

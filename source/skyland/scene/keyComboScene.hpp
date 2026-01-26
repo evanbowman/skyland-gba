@@ -22,10 +22,10 @@ namespace skyland
 
 
 
-class KeyComboScene : public ActiveWorldScene
+class ButtonComboScene : public ActiveWorldScene
 {
 public:
-    KeyComboScene(bool near) : near_(near)
+    ButtonComboScene(bool near) : near_(near)
     {
     }
 

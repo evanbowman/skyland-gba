@@ -371,13 +371,13 @@ ScenePtr AdventureModeSettingsScene::update(Time delta)
 
     APP.player().update(delta);
 
-    auto test_key = [&](Key k) {
-        return APP.player().test_key(k, milliseconds(500), milliseconds(100));
+    auto test_button = [&](Button k) {
+        return APP.player().test_button(k, milliseconds(500), milliseconds(100));
     };
 
     static const int sel_max = 2;
 
-    if (test_key(Key::up)) {
+    if (test_button(Button::up)) {
         if (sel_ > 0) {
             --sel_;
         } else {
@@ -387,7 +387,7 @@ ScenePtr AdventureModeSettingsScene::update(Time delta)
         repaint();
     }
 
-    if (test_key(Key::down)) {
+    if (test_button(Button::down)) {
         if (sel_ < sel_max) {
             ++sel_;
         } else {
@@ -397,20 +397,20 @@ ScenePtr AdventureModeSettingsScene::update(Time delta)
         repaint();
     }
 
-    if (test_key(Key::left)) {
+    if (test_button(Button::left)) {
         update_field(false);
         PLATFORM.speaker().play_sound("click_wooden", 2);
         repaint();
     }
 
-    if (test_key(Key::right)) {
+    if (test_button(Button::right)) {
         update_field(true);
         PLATFORM.speaker().play_sound("click_wooden", 2);
         repaint();
     }
 
 
-    if (APP.player().key_down(Key::action_1)) {
+    if (APP.player().button_down(Button::action_1)) {
 
         if (APP.faction() == Faction::sylph and not has_completed_adv_mode()) {
             PLATFORM.speaker().play_sound("beep_error", 3);

@@ -102,7 +102,7 @@ ScenePtr HintScene::update(Time delta)
     }
 
     case State::idle:
-        if (APP.player().key_down(Key::action_1)) {
+        if (APP.player().button_down(Button::action_1)) {
             // if (hint_index_ >= (sizeof(hints) / sizeof(HintInfo))) {
             //     hint_index_ = 0;
             // } else {
@@ -113,7 +113,7 @@ ScenePtr HintScene::update(Time delta)
             timer_ = 0;
 
             state_ = State::fade_out;
-        } else if (APP.player().key_down(Key::action_2)) {
+        } else if (APP.player().button_down(Button::action_2)) {
             return make_scene<WorldMapScene>();
         }
         break;

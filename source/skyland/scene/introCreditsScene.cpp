@@ -123,7 +123,7 @@ ScenePtr IntroCreditsScene::update(Time delta)
                                                ColorConstant::rich_black});
         }
 
-        if (timer_ > milliseconds(5500) or key_down<Key::action_2>()) {
+        if (timer_ > milliseconds(5500) or button_down<Button::action_2>()) {
             text_.reset();
             copyright_text_.reset();
             PLATFORM.fill_overlay(0);
@@ -131,7 +131,7 @@ ScenePtr IntroCreditsScene::update(Time delta)
             bird_seq_timer_ = 0;
             bird_seq_timer2_ = 0;
             bird_seq_timer3_ = 0;
-            if (key_down<Key::action_2>()) {
+            if (button_down<Button::action_2>()) {
                 skip_ = true;
             }
         }

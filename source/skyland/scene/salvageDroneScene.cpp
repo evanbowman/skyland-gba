@@ -76,11 +76,11 @@ ScenePtr SalvageDroneScene::update(Time delta)
         return new_scene;
     }
 
-    if (APP.player().key_down(Key::action_2)) {
+    if (APP.player().button_down(Button::action_2)) {
         return make_scene<ReadyScene>();
     }
 
-    if (APP.player().key_down(Key::action_1)) {
+    if (APP.player().button_down(Button::action_1)) {
         for (auto& room : drone_->parent()->rooms()) {
             auto found = room->drone();
             if (found and (*found).get() == drone_.get()) {

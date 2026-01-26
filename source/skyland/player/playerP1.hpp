@@ -49,22 +49,22 @@ public:
     void on_room_plundered(Room& room) override;
 
 
-    bool key_down(Key k) override;
+    bool button_down(Button k) override;
 
 
-    bool key_up(Key k) override;
+    bool button_up(Button k) override;
 
 
-    bool key_pressed(Key k) override;
+    bool button_pressed(Button k) override;
 
 
-    bool key_held(Key k, Time duration) override;
+    bool button_held(Button k, Time duration) override;
 
 
-    void key_held_reset(Key k, Time decrement) override;
+    void button_held_reset(Button k, Time decrement) override;
 
 
-    void key_held_distribute(const Key* include_list) override;
+    void button_held_distribute(const Button* include_list) override;
 
 
     void on_level_start() override;
@@ -117,11 +117,11 @@ private:
     DynamicMemory<AIState, SubBufferMemory> ai_state_;
 
 
-    Time last_key_ = 0;
+    Time last_button_ = 0;
 
     Time last_touch_held_time_ = 0;
 
-    Time key_held_timers_[static_cast<int>(Key::count)];
+    Time button_held_timers_[static_cast<int>(Button::count)];
 };
 
 

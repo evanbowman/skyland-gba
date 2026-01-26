@@ -576,11 +576,11 @@ s16 GlossaryViewerModule::entries_on_current_page()
 
 ScenePtr GlossaryViewerModule::show_categories_impl(Time delta)
 {
-    auto test_key = [&](Key k) {
-        return APP.player().test_key(k, milliseconds(500), milliseconds(100));
+    auto test_button = [&](Button k) {
+        return APP.player().test_button(k, milliseconds(500), milliseconds(100));
     };
 
-    if (test_key(Key::right) and cg_page_ < cg_page_count - 1) {
+    if (test_button(Button::right) and cg_page_ < cg_page_count - 1) {
         cg_cursor_ = 0;
         cg_page_ += 1;
         for (int x = 0; x < 15; ++x) {
@@ -597,7 +597,7 @@ ScenePtr GlossaryViewerModule::show_categories_impl(Time delta)
         show_cg_page_marker();
     }
 
-    if (test_key(Key::left) and cg_page_ > 0) {
+    if (test_button(Button::left) and cg_page_ > 0) {
         cg_page_ -= 1;
         cg_cursor_ = 0;
         for (int x = 0; x < 15; ++x) {
@@ -614,7 +614,7 @@ ScenePtr GlossaryViewerModule::show_categories_impl(Time delta)
         show_cg_page_marker();
     }
 
-    if (test_key(Key::up) and cg_cursor_ > 0) {
+    if (test_button(Button::up) and cg_cursor_ > 0) {
         draw_category_line(cg_cursor_);
         --cg_cursor_;
         PLATFORM.speaker().play_sound("cursor_tick", 0);
@@ -625,7 +625,7 @@ ScenePtr GlossaryViewerModule::show_categories_impl(Time delta)
         PLATFORM.set_tile(Layer::overlay, 1, 4 + cg_cursor_ * 2, 483);
     }
 
-    if (test_key(Key::down) and cg_cursor_ < entries_on_current_page() - 1) {
+    if (test_button(Button::down) and cg_cursor_ < entries_on_current_page() - 1) {
         draw_category_line(cg_cursor_);
         ++cg_cursor_;
         PLATFORM.speaker().play_sound("cursor_tick", 0);
@@ -636,11 +636,11 @@ ScenePtr GlossaryViewerModule::show_categories_impl(Time delta)
         PLATFORM.set_tile(Layer::overlay, 1, 4 + cg_cursor_ * 2, 483);
     }
 
-    if (APP.player().key_down(Key::action_1)) {
+    if (APP.player().button_down(Button::action_1)) {
         state_ = State::category_transition_out;
         PLATFORM.speaker().play_sound("button_wooden", 3);
         timer_ = 0;
-    } else if (APP.player().key_down(Key::action_2)) {
+    } else if (APP.player().button_down(Button::action_2)) {
         state_ = State::fadeout;
         timer_ = 0;
         draw_category_line(cg_cursor_);
@@ -687,27 +687,27 @@ ScenePtr GlossaryViewerModule::update(Time delta)
 
     APP.player().update(delta);
 
-    auto test_key = [&](Key k) {
-        return APP.player().test_key(k, milliseconds(500), milliseconds(100));
+    auto test_button = [&](Button k) {
+        return APP.player().test_button(k, milliseconds(500), milliseconds(100));
     };
 
     switch (state_) {
     case State::quickview_appendix:
     case State::appendix_main:
         if (state_ not_eq State::quickview_appendix) {
-            if ((test_key(Key::down) or test_key(Key::right)) and
+            if ((test_button(Button::down) or test_button(Button::right)) and
                 page_ < appendix_entry_count() - 1) {
                 load_appendix_page(++page_);
                 PLATFORM.speaker().play_sound("cursor_tick", 0);
             }
 
-            if ((test_key(Key::up) or test_key(Key::left)) and page_ > 0) {
+            if ((test_button(Button::up) or test_button(Button::left)) and page_ > 0) {
                 load_appendix_page(--page_);
                 PLATFORM.speaker().play_sound("cursor_tick", 0);
             }
         }
 
-        if (APP.player().key_down(Key::action_2)) {
+        if (APP.player().button_down(Button::action_2)) {
             if (state_ == State::quickview_appendix) {
                 if (next_scene_) {
                     return (*next_scene_)();
@@ -725,7 +725,7 @@ ScenePtr GlossaryViewerModule::update(Time delta)
         break;
 
     case State::filters:
-        if (test_key(Key::up) and filter_cursor_ > 0) {
+        if (test_button(Button::up) and filter_cursor_ > 0) {
             --filter_cursor_;
             PLATFORM.speaker().play_sound("cursor_tick", 0);
             for (int y = 2; y < 20; ++y) {
@@ -734,7 +734,7 @@ ScenePtr GlossaryViewerModule::update(Time delta)
             PLATFORM.set_tile(Layer::overlay, 1, 4 + filter_cursor_ * 2, 483);
         }
 
-        if (test_key(Key::down) and filter_cursor_ < filter_opt_count - 1) {
+        if (test_button(Button::down) and filter_cursor_ < filter_opt_count - 1) {
             ++filter_cursor_;
             PLATFORM.speaker().play_sound("cursor_tick", 0);
             for (int y = 2; y < 20; ++y) {
@@ -744,7 +744,7 @@ ScenePtr GlossaryViewerModule::update(Time delta)
             PLATFORM.set_tile(Layer::overlay, 1, 4 + filter_cursor_ * 2, 483);
         }
 
-        if (APP.player().key_down(Key::action_1)) {
+        if (APP.player().button_down(Button::action_1)) {
 
             for (int x = 0; x < 30; ++x) {
                 for (int y = 0; y < 20; ++y) {
@@ -822,8 +822,8 @@ ScenePtr GlossaryViewerModule::update(Time delta)
                 page_ = 0;
                 load_page((**filter_buf_)[0]);
             }
-        } else if (APP.player().key_down(Key::action_2) or
-                   APP.player().key_down(Key::left)) {
+        } else if (APP.player().button_down(Button::action_2) or
+                   APP.player().button_down(Button::left)) {
             state_ = State::category_transition_in;
             PLATFORM.fill_overlay(112);
             PLATFORM.screen().clear();
@@ -979,18 +979,18 @@ ScenePtr GlossaryViewerModule::update(Time delta)
         break;
 
     case State::view_filtered:
-        if ((test_key(Key::right) or test_key(Key::down)) and
+        if ((test_button(Button::right) or test_button(Button::down)) and
             page_ < (int)(*filter_buf_)->size() - 1) {
             load_page((**filter_buf_)[++page_]);
             PLATFORM.speaker().play_sound("cursor_tick", 0);
         }
 
-        if ((test_key(Key::up) or test_key(Key::left)) and page_ > 0) {
+        if ((test_button(Button::up) or test_button(Button::left)) and page_ > 0) {
             load_page((**filter_buf_)[--page_]);
             PLATFORM.speaker().play_sound("cursor_tick", 0);
         }
 
-        if (APP.player().key_down(Key::action_2)) {
+        if (APP.player().button_down(Button::action_2)) {
             state_ = State::filters;
             for (int x = 0; x < 30; ++x) {
                 for (int y = 0; y < 20; ++y) {
@@ -1002,18 +1002,18 @@ ScenePtr GlossaryViewerModule::update(Time delta)
         break;
 
     case State::view_drones:
-        if ((test_key(Key::right) or test_key(Key::down)) and
+        if ((test_button(Button::right) or test_button(Button::down)) and
             page_ < drone_ms - 1) {
             load_drone_page(++page_);
             PLATFORM.speaker().play_sound("cursor_tick", 0);
         }
 
-        if ((test_key(Key::up) or test_key(Key::left)) and page_ > 0) {
+        if ((test_button(Button::up) or test_button(Button::left)) and page_ > 0) {
             load_drone_page(--page_);
             PLATFORM.speaker().play_sound("cursor_tick", 0);
         }
 
-        if (APP.player().key_down(Key::action_2)) {
+        if (APP.player().button_down(Button::action_2)) {
             if (state_ == State::quickview) {
                 if (next_scene_) {
                     return (*next_scene_)();
@@ -1034,7 +1034,7 @@ ScenePtr GlossaryViewerModule::update(Time delta)
     case State::view:
     case State::quickview:
         if (not inspect_) {
-            if ((test_key(Key::down) or test_key(Key::right)) and
+            if ((test_button(Button::down) or test_button(Button::right)) and
                 page_ < ms - 1 and page_ < plugin_rooms_begin() - 1 and
                 (not filter_end_ or
                  (filter_end_ and filter_end_ - 1 > page_))) {
@@ -1042,7 +1042,7 @@ ScenePtr GlossaryViewerModule::update(Time delta)
                 PLATFORM.speaker().play_sound("cursor_tick", 0);
             }
 
-            if ((test_key(Key::up) or test_key(Key::left)) and page_ > 0 and
+            if ((test_button(Button::up) or test_button(Button::left)) and page_ > 0 and
                 (not filter_begin_ or
                  (filter_begin_ and filter_begin_ < page_))) {
                 load_page(--page_);
@@ -1050,7 +1050,7 @@ ScenePtr GlossaryViewerModule::update(Time delta)
             }
         }
 
-        if (APP.player().key_down(Key::action_2)) {
+        if (APP.player().button_down(Button::action_2)) {
             if (state_ == State::quickview) {
                 if (next_scene_) {
                     return (*next_scene_)();

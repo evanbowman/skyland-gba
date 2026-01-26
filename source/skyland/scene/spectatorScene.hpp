@@ -76,8 +76,8 @@ public:
             set_gamespeed(GameSpeed::normal);
         }
 
-        auto test_key = [&](Key k) {
-            return player().test_key(k, milliseconds(500), milliseconds(100));
+        auto test_button = [&](Button k) {
+            return player().test_button(k, milliseconds(500), milliseconds(100));
         };
 
 
@@ -99,18 +99,18 @@ public:
         }
 
 
-        player().key_held_distribute();
+        player().button_held_distribute();
 
-        if (player().key_down(Key::start)) {
+        if (player().button_down(Button::start)) {
             APP.swap_player<PlayerP1>();
             return make_scene<ReadyScene>();
-        } else if (player().key_down(Key::action_1) or
-                   player().key_down(Key::action_2) or
-                   player().key_down(Key::alt_2)) {
+        } else if (player().button_down(Button::action_1) or
+                   player().button_down(Button::action_2) or
+                   player().button_down(Button::alt_2)) {
             PLATFORM.speaker().play_sound("beep_error", 2);
         }
 
-        if (test_key(Key::left)) {
+        if (test_button(Button::left)) {
             if (cursor_loc.x > 0) {
                 --cursor_loc.x;
                 clear_room_description(room_description_);
@@ -123,7 +123,7 @@ public:
                 near_camera();
                 return null_scene();
             }
-        } else if (test_key(Key::right)) {
+        } else if (test_button(Button::right)) {
             if (cursor_loc.x < island->terrain().size()) {
                 ++cursor_loc.x;
                 clear_room_description(room_description_);
@@ -138,14 +138,14 @@ public:
             }
         }
 
-        if (test_key(Key::up)) {
+        if (test_button(Button::up)) {
             if (cursor_loc.y > construction_zone_min_y) {
                 --cursor_loc.y;
                 clear_room_description(room_description_);
                 describe_room_timer_ = milliseconds(300);
                 PLATFORM.speaker().play_sound("cursor_tick", 0);
             }
-        } else if (test_key(Key::down)) {
+        } else if (test_button(Button::down)) {
             if (cursor_loc.y < 14) {
                 ++cursor_loc.y;
                 clear_room_description(room_description_);

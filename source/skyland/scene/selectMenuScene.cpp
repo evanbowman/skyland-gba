@@ -642,7 +642,7 @@ ScenePtr SelectMenuScene::update(Time delta)
     }
 
     if ((is_far_camera() and not APP.opponent_island()) or
-        player().key_down(Key::action_2)) {
+        player().button_down(Button::action_2)) {
         if (is_far_camera()) {
             return make_scene<InspectP2Scene>();
         } else {
@@ -650,12 +650,12 @@ ScenePtr SelectMenuScene::update(Time delta)
         }
     }
 
-    auto test_key = [&](Key k) {
-        return APP.player().test_key(k, milliseconds(500), milliseconds(100));
+    auto test_button = [&](Button k) {
+        return APP.player().test_button(k, milliseconds(500), milliseconds(100));
     };
 
 
-    if (test_key(Key::right)) {
+    if (test_button(Button::right)) {
         PLATFORM.speaker().play_sound("cursor_tick", 0);
         auto prev_sel = sel_;
         if (opts_->specific_.get(sel_)) {
@@ -678,7 +678,7 @@ ScenePtr SelectMenuScene::update(Time delta)
         }
         PLATFORM.set_tile(Layer::overlay, 0, sel_ + 1, 475);
         redraw_line(sel_, true);
-    } else if (test_key(Key::down)) {
+    } else if (test_button(Button::down)) {
         PLATFORM.speaker().play_sound("cursor_tick", 0);
         if (opts_->specific_.get(sel_)) {
             PLATFORM.set_tile(Layer::overlay, 0, sel_ + 1, 159);
@@ -693,7 +693,7 @@ ScenePtr SelectMenuScene::update(Time delta)
         }
         PLATFORM.set_tile(Layer::overlay, 0, sel_ + 1, 475);
         redraw_line(sel_, true);
-    } else if (test_key(Key::up)) {
+    } else if (test_button(Button::up)) {
         PLATFORM.speaker().play_sound("cursor_tick", 0);
         if (opts_->specific_.get(sel_)) {
             PLATFORM.set_tile(Layer::overlay, 0, sel_ + 1, 159);
@@ -710,7 +710,7 @@ ScenePtr SelectMenuScene::update(Time delta)
         redraw_line(sel_, true);
     }
 
-    if (player().key_down(Key::action_1) or player().key_down(Key::select)) {
+    if (player().button_down(Button::action_1) or player().button_down(Button::select)) {
         if (auto next = opts_->callbacks_[sel_]()) {
             return next;
         } else {

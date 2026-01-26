@@ -32,27 +32,27 @@ ScenePtr AssignWeaponGroupScene::update(Time delta)
 
     auto& cursor_loc = globals().near_cursor_loc_;
 
-    auto test_key = [&](Key k) {
-        return APP.player().test_key(k, milliseconds(500), milliseconds(100));
+    auto test_button = [&](Button k) {
+        return APP.player().test_button(k, milliseconds(500), milliseconds(100));
     };
 
-    APP.player().key_held_distribute();
+    APP.player().button_held_distribute();
 
     switch (state_) {
     case State::select_group:
-        if (APP.player().key_down(Key::action_2)) {
+        if (APP.player().button_down(Button::action_2)) {
             return make_scene<ReadyScene>();
         }
         break;
 
     case State::assign_rooms:
 
-        if (APP.player().key_down(Key::action_2)) {
+        if (APP.player().button_down(Button::action_2)) {
             return make_scene<ReadyScene>();
         }
 
 
-        if (APP.player().key_down(Key::action_1)) {
+        if (APP.player().button_down(Button::action_1)) {
             if (auto room = APP.player_island().get_room(cursor_loc)) {
                 if (room->co_op_locked()) {
                     PLATFORM.speaker().play_sound("beep_error", 2);
@@ -84,25 +84,25 @@ ScenePtr AssignWeaponGroupScene::update(Time delta)
             }
         }
 
-        if (test_key(Key::right)) {
+        if (test_button(Button::right)) {
             if (cursor_loc.x < APP.player_island().terrain().size()) {
                 ++cursor_loc.x;
                 PLATFORM.speaker().play_sound("cursor_tick", 0);
             }
         }
-        if (test_key(Key::down)) {
+        if (test_button(Button::down)) {
             if (cursor_loc.y < 14) {
                 ++cursor_loc.y;
                 PLATFORM.speaker().play_sound("cursor_tick", 0);
             }
         }
-        if (test_key(Key::up)) {
+        if (test_button(Button::up)) {
             if (cursor_loc.y > construction_zone_min_y) {
                 --cursor_loc.y;
                 PLATFORM.speaker().play_sound("cursor_tick", 0);
             }
         }
-        if (test_key(Key::left)) {
+        if (test_button(Button::left)) {
             if (cursor_loc.x > 0) {
                 --cursor_loc.x;
                 PLATFORM.speaker().play_sound("cursor_tick", 0);

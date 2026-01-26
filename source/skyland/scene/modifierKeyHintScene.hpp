@@ -20,7 +20,7 @@ namespace skyland
 
 
 
-class ModifierKeyHintScene : public ActiveWorldScene
+class ModifierButtonHintScene : public ActiveWorldScene
 {
 public:
     ScenePtr update(Time delta) override;

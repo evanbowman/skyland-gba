@@ -180,9 +180,9 @@ ScenePtr MacrocosmFreebuildModule::update(Time delta)
     // }
 
     if (PLATFORM.device_name() == "MacroDesktopDemo" or
-        APP.player().key_down(Key::action_1)) {
+        APP.player().button_down(Button::action_1)) {
 
-        if (APP.player().key_down(Key::action_1)) {
+        if (APP.player().button_down(Button::action_1)) {
             PLATFORM.speaker().play_sound("button_wooden", 3);
         } else {
             size_sel_ = 2;
@@ -195,14 +195,14 @@ ScenePtr MacrocosmFreebuildModule::update(Time delta)
         return next;
     }
 
-    if (APP.player().key_down(Key::up)) {
+    if (APP.player().button_down(Button::up)) {
         if (size_sel_ > 0) {
             --size_sel_;
             PLATFORM.speaker().play_sound("click_wooden", 2);
         }
     }
 
-    if (APP.player().key_down(Key::down)) {
+    if (APP.player().button_down(Button::down)) {
         if (size_sel_ < 2) {
             ++size_sel_;
             PLATFORM.speaker().play_sound("click_wooden", 2);

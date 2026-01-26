@@ -89,14 +89,14 @@ public:
             return scene;
         }
 
-        auto test_key = [&](Key k) {
-            return APP.player().test_key(
+        auto test_button = [&](Button k) {
+            return APP.player().test_button(
                 k, milliseconds(500), milliseconds(150));
         };
 
         auto& cursor_loc = globals().near_cursor_loc_;
 
-        if (test_key(Key::action_2)) {
+        if (test_button(Button::action_2)) {
             if (auto attached = recons_drone_->attached_to()) {
                 if (auto db = attached->cast<DroneBay>()) {
 
@@ -118,7 +118,7 @@ public:
             return make_scene<ReadyScene>();
         }
 
-        if (APP.player().key_down(Key::action_1)) {
+        if (APP.player().button_down(Button::action_1)) {
             if (auto r = APP.player_island().get_room(cursor_loc)) {
                 auto mt = r->metaclass();
                 auto prop = (*mt)->properties();
@@ -162,25 +162,25 @@ public:
             }
         }
 
-        if (test_key(Key::left)) {
+        if (test_button(Button::left)) {
             if (cursor_loc.x > 0) {
                 --cursor_loc.x;
             }
         }
 
-        if (test_key(Key::right)) {
+        if (test_button(Button::right)) {
             if (cursor_loc.x < APP.player_island().terrain().size()) {
                 ++cursor_loc.x;
             }
         }
 
-        if (test_key(Key::up)) {
+        if (test_button(Button::up)) {
             if (cursor_loc.y > construction_zone_min_y) {
                 --cursor_loc.y;
             }
         }
 
-        if (test_key(Key::down)) {
+        if (test_button(Button::down)) {
             if (cursor_loc.y < 14) {
                 ++cursor_loc.y;
             }

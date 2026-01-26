@@ -104,20 +104,20 @@ ScenePtr StartAdventureScene::update(Time delta)
             PLATFORM.set_tile(Layer::overlay, 1, 4, 475);
         }
 
-        if (key_down<Key::up>()) {
+        if (button_down<Button::up>()) {
             if (continue_opt_sel_ == 1) {
                 continue_opt_sel_ = 0;
                 PLATFORM.speaker().play_sound("click_wooden", 2);
             }
         }
-        if (key_down<Key::down>()) {
+        if (button_down<Button::down>()) {
             if (continue_opt_sel_ == 0) {
                 continue_opt_sel_ = 1;
                 PLATFORM.speaker().play_sound("click_wooden", 2);
             }
         }
 
-        if (key_down<Key::action_1>()) {
+        if (button_down<Button::action_1>()) {
             PLATFORM.speaker().play_sound("button_wooden", 3);
             if (continue_opt_sel_ == 1) {
                 loaded_ = false;

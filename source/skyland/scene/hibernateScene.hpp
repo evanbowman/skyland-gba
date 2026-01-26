@@ -43,7 +43,7 @@ public:
 
     ScenePtr update(Time delta) override
     {
-        if (key_down<Key::action_1>()) {
+        if (button_down<Button::action_1>()) {
             text_.reset();
             PLATFORM.screen().display();
             info("enter hibernate...");

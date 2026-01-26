@@ -64,8 +64,8 @@ public:
     enum class DisplayMode {
         animate_in,
         busy,
-        key_released_check1,
-        key_released_check2,
+        button_released_check1,
+        button_released_check2,
         wait,
         done,
         animate_out,
@@ -236,15 +236,15 @@ public:
         if (dialog_scene_.display_mode() not_eq
             BoxedDialogScene::DisplayMode::boolean_choice) {
 
-            // NOTE: the player class implements all of these key_held,
-            // test_key, etc. methods. But we can't use the player
+            // NOTE: the player class implements all of these button_held,
+            // test_button, etc. methods. But we can't use the player
             // implementation here, because we could be in a tutorial, for
-            // example, where the game implements playback with keylogging, so
+            // example, where the game implements playback with buttonlogging, so
             // we need to ask the platform implementation directly what the
-            // keystates are, rather than asking the player class, which may be
-            // pulling keystates from a data file.
-            auto key_held = [&](Key k, int timer_slot, Time held_time) {
-                if (PLATFORM.keyboard().pressed(k)) {
+            // buttonstates are, rather than asking the player class, which may be
+            // pulling buttonstates from a data file.
+            auto button_held = [&](Button k, int timer_slot, Time held_time) {
+                if (PLATFORM.input().pressed(k)) {
                     hold_timers_[timer_slot] += delta;
                 } else {
                     hold_timers_[timer_slot] = 0;
@@ -252,7 +252,7 @@ public:
                 return hold_timers_[timer_slot] >= held_time;
             };
 
-            auto key_held_reset = [&](int timer_slot, Time decr) {
+            auto button_held_reset = [&](int timer_slot, Time decr) {
                 if (hold_timers_[timer_slot] >= decr) {
                     hold_timers_[timer_slot] -= decr;
                 }
@@ -268,10 +268,10 @@ public:
                 v = max;
             }
 
-            auto test_key = [&](Key k, int timer_slot) {
-                if (PLATFORM.keyboard().down_transition(k) or
-                    key_held(k, timer_slot, milliseconds(500))) {
-                    key_held_reset(timer_slot, milliseconds(100));
+            auto test_button = [&](Button k, int timer_slot) {
+                if (PLATFORM.input().down_transition(k) or
+                    button_held(k, timer_slot, milliseconds(500))) {
+                    button_held_reset(timer_slot, milliseconds(100));
                     return true;
                 }
                 return false;
@@ -282,14 +282,14 @@ public:
                     near_camera();
                 } else {
                     auto& cursor_loc = globals().far_cursor_loc_;
-                    if (test_key(Key::right, 0)) {
+                    if (test_button(Button::right, 0)) {
                         if (cursor_loc.x <
                             APP.opponent_island()->terrain().size()) {
                             ++cursor_loc.x;
                             camera_update_timer_ = milliseconds(500);
                         }
                     }
-                    if (test_key(Key::left, 1)) {
+                    if (test_button(Button::left, 1)) {
                         if (cursor_loc.x > 0) {
                             --cursor_loc.x;
                             camera_update_timer_ = milliseconds(500);
@@ -299,18 +299,18 @@ public:
                             camera_update_timer_ = milliseconds(500);
                         }
                     }
-                    if (test_key(Key::up, 2) and cursor_loc.y > 5) {
+                    if (test_button(Button::up, 2) and cursor_loc.y > 5) {
                         --cursor_loc.y;
                         camera_update_timer_ = milliseconds(500);
                     }
-                    if (test_key(Key::down, 3) and cursor_loc.y < 14) {
+                    if (test_button(Button::down, 3) and cursor_loc.y < 14) {
                         ++cursor_loc.y;
                         camera_update_timer_ = milliseconds(500);
                     }
                 }
             } else {
                 auto& cursor_loc = globals().near_cursor_loc_;
-                if (test_key(Key::right, 0)) {
+                if (test_button(Button::right, 0)) {
                     if (cursor_loc.x < APP.player_island().terrain().size()) {
                         ++cursor_loc.x;
                         camera_update_timer_ = milliseconds(500);
@@ -320,17 +320,17 @@ public:
                         camera_update_timer_ = milliseconds(500);
                     }
                 }
-                if (test_key(Key::left, 1)) {
+                if (test_button(Button::left, 1)) {
                     if (cursor_loc.x > 0) {
                         --cursor_loc.x;
                         camera_update_timer_ = milliseconds(500);
                     }
                 }
-                if (test_key(Key::up, 2) and cursor_loc.y > 5) {
+                if (test_button(Button::up, 2) and cursor_loc.y > 5) {
                     --cursor_loc.y;
                     camera_update_timer_ = milliseconds(500);
                 }
-                if (test_key(Key::down, 3) and cursor_loc.y < 14) {
+                if (test_button(Button::down, 3) and cursor_loc.y < 14) {
                     ++cursor_loc.y;
                     camera_update_timer_ = milliseconds(500);
                 }

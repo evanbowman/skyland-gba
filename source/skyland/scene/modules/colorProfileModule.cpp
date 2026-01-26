@@ -96,7 +96,7 @@ void ColorProfileModule::bind_selected_profile()
 
 ScenePtr ColorProfileModule::update(Time delta)
 {
-    if (key_down<Key::action_1>()) {
+    if (button_down<Button::action_1>()) {
         auto v = lisp::get_list(*options_, sel_);
         auto fname = v->cons().cdr();
         if (fname not_eq L_NIL) {
@@ -111,30 +111,30 @@ ScenePtr ColorProfileModule::update(Time delta)
         return make_scene<TitleScreenScene>(3);
     }
 
-    auto test_key = [&](Key k) {
-        return player().test_key(k, milliseconds(500), milliseconds(100));
+    auto test_button = [&](Button k) {
+        return player().test_button(k, milliseconds(500), milliseconds(100));
     };
 
-    if (player().key_down(Key::alt_2) or player().key_down(Key::alt_1)) {
+    if (player().button_down(Button::alt_2) or player().button_down(Button::alt_1)) {
         bind_default();
-    } else if (player().key_up(Key::alt_2) or player().key_up(Key::alt_1)) {
-        if (not(player().key_pressed(Key::alt_2) or
-                player().key_pressed(Key::alt_1))) {
+    } else if (player().button_up(Button::alt_2) or player().button_up(Button::alt_1)) {
+        if (not(player().button_pressed(Button::alt_2) or
+                player().button_pressed(Button::alt_1))) {
             bind_selected_profile();
         }
-    } else if (player().key_pressed(Key::alt_2) or
-               player().key_pressed(Key::alt_1)) {
+    } else if (player().button_pressed(Button::alt_2) or
+               player().button_pressed(Button::alt_1)) {
         return null_scene();
     }
 
-    if (test_key(Key::down)) {
+    if (test_button(Button::down)) {
         if (sel_ < (int)text_.size() - 1) {
             ++sel_;
             PLATFORM.speaker().play_sound("click_wooden", 2);
             bind_selected_profile();
         }
     }
-    if (test_key(Key::up)) {
+    if (test_button(Button::up)) {
         if (sel_ > 0) {
             --sel_;
             PLATFORM.speaker().play_sound("click_wooden", 2);

@@ -101,18 +101,18 @@ public:
 
         show_cursor();
 
-        if (key_down<Key::up>()) {
+        if (button_down<Button::up>()) {
             if (sel_ > 0) {
                 --sel_;
                 PLATFORM.speaker().play_sound("click_wooden", 2);
             }
-        } else if (key_down<Key::down>()) {
+        } else if (button_down<Button::down>()) {
             if (sel_ < (int)opts_->size() - 1) {
                 ++sel_;
                 PLATFORM.speaker().play_sound("click_wooden", 2);
             }
         } else if (opts_->empty() or opts_->size() == 1 or
-                   key_down<Key::action_1>()) {
+                   button_down<Button::action_1>()) {
             if (opts_->size() > 1) {
                 auto path = (*opts_)[sel_].second.c_str();
                 systemstring_bind_file(path);
@@ -384,9 +384,9 @@ public:
 
         settings::apply();
 
-        PLATFORM.keyboard().poll();
+        PLATFORM.input().poll();
 
-        if (PLATFORM.keyboard().pressed<Key::select>()) {
+        if (PLATFORM.input().pressed<Button::select>()) {
             auto fc = FontColors{amber_color, back_color};
             auto fc_inv = FontColors{back_color, amber_color};
 
@@ -413,10 +413,10 @@ public:
 
             while (true) {
                 PLATFORM.screen().clear();
-                PLATFORM.keyboard().poll();
+                PLATFORM.input().poll();
                 PLATFORM.screen().display();
 
-                if (key_down<Key::up>() or key_down<Key::down>()) {
+                if (button_down<Button::up>() or button_down<Button::down>()) {
                     opt = not opt;
                     redraw();
                     PLATFORM.speaker().play_sound("cursor_tick", 0);
@@ -438,7 +438,7 @@ public:
 
 
                 if ((not any_button_pressed and autoboot_timer <= 0) or
-                    key_down<Key::action_1>()) {
+                    button_down<Button::action_1>()) {
                     if (opt == 1) {
                         PLATFORM.fill_overlay(0);
                         PLATFORM.screen().schedule_fade(1.f);

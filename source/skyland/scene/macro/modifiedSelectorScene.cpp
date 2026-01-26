@@ -74,15 +74,15 @@ ScenePtr ModifiedSelectorScene::update(Player& player, macro::EngineImpl& state)
         return scene;
     }
 
-    auto test_key = [&](Key k) {
-        return player.test_key(k, milliseconds(500), milliseconds(100));
+    auto test_button = [&](Button k) {
+        return player.test_button(k, milliseconds(500), milliseconds(100));
     };
 
     auto& sector = state.sector();
 
-    if (player.key_pressed(Key::alt_1) or player.key_pressed(Key::alt_2)) {
+    if (player.button_pressed(Button::alt_1) or player.button_pressed(Button::alt_2)) {
 
-        if (player.key_down(Key::left)) {
+        if (player.button_down(Button::left)) {
             PLATFORM.screen().schedule_fade(0.7f, {custom_color(0x102447)});
             PLATFORM.screen().clear();
             PLATFORM.screen().display();
@@ -91,7 +91,7 @@ ScenePtr ModifiedSelectorScene::update(Player& player, macro::EngineImpl& state)
             PLATFORM.screen().schedule_fade(0.f, {ColorConstant::rich_black});
             draw_compass(state);
             PLATFORM.speaker().play_sound("cursor_tick", 0);
-        } else if (player.key_down(Key::right)) {
+        } else if (player.button_down(Button::right)) {
             PLATFORM.screen().schedule_fade(0.7f, {custom_color(0x102447)});
             PLATFORM.screen().clear();
             PLATFORM.screen().display();
@@ -102,7 +102,7 @@ ScenePtr ModifiedSelectorScene::update(Player& player, macro::EngineImpl& state)
             PLATFORM.screen().schedule_fade(0.f, {ColorConstant::rich_black});
             draw_compass(state);
             PLATFORM.speaker().play_sound("cursor_tick", 0);
-        } else if (test_key(Key::down) and sector.get_z_view() > 0) {
+        } else if (test_button(Button::down) and sector.get_z_view() > 0) {
             bool success = sector.set_z_view(sector.get_z_view() - 1);
             if (not success) {
                 PLATFORM.speaker().play_sound("beep_error", 2);
@@ -112,7 +112,7 @@ ScenePtr ModifiedSelectorScene::update(Player& player, macro::EngineImpl& state)
                 visible_layers_text_->append(state.sector().get_z_view());
                 PLATFORM.speaker().play_sound("cursor_tick", 0);
             }
-        } else if (test_key(Key::up)) {
+        } else if (test_button(Button::up)) {
             bool success = sector.set_z_view(sector.get_z_view() + 1);
             if (not success) {
                 PLATFORM.speaker().play_sound("beep_error", 2);
@@ -122,7 +122,7 @@ ScenePtr ModifiedSelectorScene::update(Player& player, macro::EngineImpl& state)
                 visible_layers_text_->append(state.sector().get_z_view());
                 PLATFORM.speaker().play_sound("cursor_tick", 0);
             }
-        } else if (player.key_down(Key::action_2)) {
+        } else if (player.button_down(Button::action_2)) {
             // PLATFORM.screen().schedule_fade(0.7f, custom_color(0x102447));
             // PLATFORM.screen().clear();
             // PLATFORM.screen().display();
@@ -138,7 +138,7 @@ ScenePtr ModifiedSelectorScene::update(Player& player, macro::EngineImpl& state)
             // sector.render();
             // PLATFORM.screen().schedule_fade(0.f, ColorConstant::rich_black);
             // PLATFORM.speaker().play_sound("cursor_tick", 0);
-        } else if (player.key_down(Key::action_1)) {
+        } else if (player.button_down(Button::action_1)) {
             auto c = sector.cursor();
             if (c.z < sector.size().z - 1) {
                 ++c.z;

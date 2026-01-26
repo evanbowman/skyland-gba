@@ -196,7 +196,7 @@ ScenePtr DlcManagerModule::update(Time delta)
             std::move(buffer), [] { return make_scene<TitleScreenScene>(3); });
     }
 
-    if (APP.player().key_down(Key::right) and
+    if (APP.player().button_down(Button::right) and
         index_ < (*patches_)->list_.size() - 1) {
         ++index_;
 
@@ -204,7 +204,7 @@ ScenePtr DlcManagerModule::update(Time delta)
 
         show();
 
-    } else if (APP.player().key_down(Key::left) and index_ > 0) {
+    } else if (APP.player().button_down(Button::left) and index_ > 0) {
         --index_;
 
         erase_text_.reset();
@@ -212,7 +212,7 @@ ScenePtr DlcManagerModule::update(Time delta)
         show();
     }
 
-    if (APP.player().key_down(Key::action_1)) {
+    if (APP.player().button_down(Button::action_1)) {
         if (not erase_text_) {
             erase_text_.emplace(OverlayCoord{7, 10});
             erase_text_->assign(
@@ -222,7 +222,7 @@ ScenePtr DlcManagerModule::update(Time delta)
         }
     }
 
-    if (APP.player().key_held(Key::action_1, seconds(2))) {
+    if (APP.player().button_held(Button::action_1, seconds(2))) {
         StringBuffer<flash_filesystem::max_path> folder("/dlc/");
         folder += (*patches_)->list_[index_].name_.c_str();
 
@@ -245,12 +245,12 @@ ScenePtr DlcManagerModule::update(Time delta)
 
         flash_filesystem::walk_directory(folder.c_str(), destroy_file);
 
-        APP.player().key_held_reset(Key::action_1, seconds(2));
+        APP.player().button_held_reset(Button::action_1, seconds(2));
 
         return make_scene<DlcManagerModule>();
     }
 
-    if (APP.player().key_down(Key::action_2)) {
+    if (APP.player().button_down(Button::action_2)) {
         return make_scene<TitleScreenScene>(3);
     }
 

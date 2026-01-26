@@ -478,7 +478,7 @@ void App::update(Time delta)
     }
 
 
-    // if (PLATFORM.keyboard().pressed<Key::select>()) {
+    // if (PLATFORM.input().pressed<Key::select>()) {
     //     Platform::fatal(format("% % % % % %",
     //                            t2 - t1,
     //                            t3 - t2,

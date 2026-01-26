@@ -47,7 +47,7 @@ public:
 
 
     Optional<TextView> text_;
-    int key_count_ = 0;
+    int button_count_ = 0;
 
     static Factory factory_;
 };

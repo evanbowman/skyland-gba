@@ -12,78 +12,78 @@ void SandboxSpectatorPlayer::update(Time delta)
 {
     EnemyAI::update(delta);
 
-    for (int i = 0; i < static_cast<int>(Key::count); ++i) {
-        if (PLATFORM.keyboard().pressed(static_cast<Key>(i))) {
-            key_held_timers_[i] += delta;
+    for (int i = 0; i < static_cast<int>(Button::count); ++i) {
+        if (PLATFORM.input().pressed(static_cast<Button>(i))) {
+            button_held_timers_[i] += delta;
         } else {
-            key_held_timers_[i] = 0;
+            button_held_timers_[i] = 0;
         }
     }
 
-    if (PLATFORM.keyboard()
-            .down_transition<Key::up, Key::down, Key::left, Key::right>()) {
+    if (PLATFORM.input()
+            .down_transition<Button::up, Button::down, Button::left, Button::right>()) {
         APP.camera()->reset_default();
     }
 }
 
 
 
-bool SandboxSpectatorPlayer::key_down(Key k)
+bool SandboxSpectatorPlayer::button_down(Button k)
 {
-    return PLATFORM.keyboard().down_transition(k);
+    return PLATFORM.input().down_transition(k);
 }
 
 
 
-bool SandboxSpectatorPlayer::key_up(Key k)
+bool SandboxSpectatorPlayer::button_up(Button k)
 {
-    return PLATFORM.keyboard().up_transition(k);
+    return PLATFORM.input().up_transition(k);
 }
 
 
 
-bool SandboxSpectatorPlayer::key_pressed(Key k)
+bool SandboxSpectatorPlayer::button_pressed(Button k)
 {
-    return PLATFORM.keyboard().pressed(k);
+    return PLATFORM.input().pressed(k);
 }
 
 
 
-bool SandboxSpectatorPlayer::key_held(Key k, Time duration)
+bool SandboxSpectatorPlayer::button_held(Button k, Time duration)
 {
-    return key_held_timers_[static_cast<int>(k)] >= duration;
+    return button_held_timers_[static_cast<int>(k)] >= duration;
 }
 
 
 
-void SandboxSpectatorPlayer::key_held_reset(Key k, Time decrement)
+void SandboxSpectatorPlayer::button_held_reset(Button k, Time decrement)
 {
-    key_held_timers_[static_cast<int>(k)] -= decrement;
+    button_held_timers_[static_cast<int>(k)] -= decrement;
 }
 
 
 
-void SandboxSpectatorPlayer::key_held_distribute(const Key* include_list)
+void SandboxSpectatorPlayer::button_held_distribute(const Button* include_list)
 {
-    // If any key in the include_list is pressed, distribute that key press to
-    // all keys in the include list.
+    // If any button in the include_list is pressed, distribute that button press to
+    // all buttons in the include list.
 
     int max = 0;
 
     auto l = include_list;
 
-    while (*l not_eq Key::null) {
-        if (key_held_timers_[static_cast<int>(*l)] > max) {
-            max = key_held_timers_[static_cast<int>(*l)];
+    while (*l not_eq Button::null) {
+        if (button_held_timers_[static_cast<int>(*l)] > max) {
+            max = button_held_timers_[static_cast<int>(*l)];
         }
         ++l;
     }
 
     l = include_list;
 
-    while (*l not_eq Key::null) {
-        if (PLATFORM.keyboard().pressed(*l)) {
-            key_held_timers_[static_cast<int>(*l)] = max;
+    while (*l not_eq Button::null) {
+        if (PLATFORM.input().pressed(*l)) {
+            button_held_timers_[static_cast<int>(*l)] = max;
         }
         ++l;
     }

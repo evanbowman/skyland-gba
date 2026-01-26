@@ -395,7 +395,7 @@ void CreateBlockScene::show_options(EngineImpl& state)
 
 void CreateBlockScene::adjust_cursor_z(Player& player, macro::EngineImpl& state)
 {
-    if (player.key_down(Key::up)) {
+    if (player.button_down(Button::up)) {
         auto cursor = state.sector().cursor();
         if (cursor.z < state.sector().size().z - 1) {
             cursor.z++;
@@ -415,7 +415,7 @@ void CreateBlockScene::adjust_cursor_z(Player& player, macro::EngineImpl& state)
         }
     }
 
-    if (player.key_down(Key::down)) {
+    if (player.button_down(Button::down)) {
         auto cursor = state.sector().cursor();
         if (cursor.z not_eq 0) {
             cursor.z--;
@@ -444,13 +444,13 @@ ScenePtr CreateBlockScene::update(Player& player, macro::EngineImpl& state)
         return next;
     }
 
-    if (player.key_pressed(Key::alt_1)) {
+    if (player.button_pressed(Button::alt_1)) {
         // ...
     } else {
 
         // adjust_cursor_z(player, state);
 
-        if (player.key_down(Key::right)) {
+        if (player.button_down(Button::right)) {
             if (selector_ < (int)options_.size() - 1) {
                 ++selector_;
             } else {
@@ -460,7 +460,7 @@ ScenePtr CreateBlockScene::update(Player& player, macro::EngineImpl& state)
             PLATFORM.speaker().play_sound("click", 1);
         }
 
-        if (player.key_down(Key::left)) {
+        if (player.button_down(Button::left)) {
             if (selector_ > 0) {
                 --selector_;
             } else {
@@ -472,11 +472,11 @@ ScenePtr CreateBlockScene::update(Player& player, macro::EngineImpl& state)
     }
 
 
-    if (player.key_down(Key::action_1)) {
+    if (player.button_down(Button::action_1)) {
         return onclick(state);
     }
 
-    if (player.key_down(Key::action_2)) {
+    if (player.button_down(Button::action_2)) {
         return make_scene<SelectorScene>();
     }
 
@@ -533,7 +533,7 @@ public:
 
     ScenePtr update(Player& player, macro::EngineImpl& state) override
     {
-        if (key_down<Key::action_1>() or key_down<Key::action_2>()) {
+        if (button_down<Button::action_1>() or button_down<Button::action_2>()) {
             return make_scene<SelectorScene>();
         }
 

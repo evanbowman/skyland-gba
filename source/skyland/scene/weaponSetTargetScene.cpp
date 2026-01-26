@@ -119,14 +119,14 @@ ScenePtr WeaponSetTargetScene::update(Time delta)
     auto& cursor_loc = globals().far_cursor_loc_;
 
 
-    auto test_key = [&](Key k) {
-        return APP.player().test_key(k, milliseconds(500), milliseconds(100));
+    auto test_button = [&](Button k) {
+        return APP.player().test_button(k, milliseconds(500), milliseconds(100));
     };
 
-    APP.player().key_held_distribute();
+    APP.player().button_held_distribute();
 
 
-    if (APP.player().key_down(Key::alt_2) and
+    if (APP.player().button_down(Button::alt_2) and
         group_ not_eq Room::Group::none and
         not PLATFORM.network_peer().is_connected()) {
         firing_mode_ = (firing_mode_ + 1) % 3;
@@ -147,7 +147,7 @@ ScenePtr WeaponSetTargetScene::update(Time delta)
     }
 
 
-    if (not queue_mode_ and APP.player().key_down(Key::select)) {
+    if (not queue_mode_ and APP.player().button_down(Button::select)) {
         if (PLATFORM.network_peer().is_connected()) {
             PLATFORM.speaker().play_sound("beep_error", 3);
             return null_scene();
@@ -158,7 +158,7 @@ ScenePtr WeaponSetTargetScene::update(Time delta)
     }
 
 
-    if (test_key(Key::right)) {
+    if (test_button(Button::right)) {
         if (cursor_loc.x < APP.opponent_island()->terrain().size()) {
             ++cursor_loc.x;
             ++cursor_tics_;
@@ -171,7 +171,7 @@ ScenePtr WeaponSetTargetScene::update(Time delta)
             APP.player().network_sync_cursor(cursor_loc, 2, false);
         }
     }
-    if (test_key(Key::down)) {
+    if (test_button(Button::down)) {
         if (cursor_loc.y < 14) {
             ++cursor_loc.y;
             ++cursor_tics_;
@@ -184,7 +184,7 @@ ScenePtr WeaponSetTargetScene::update(Time delta)
             APP.player().network_sync_cursor(cursor_loc, 2, false);
         }
     }
-    if (test_key(Key::up)) {
+    if (test_button(Button::up)) {
         if (cursor_loc.y > construction_zone_min_y) {
             --cursor_loc.y;
             ++cursor_tics_;
@@ -197,7 +197,7 @@ ScenePtr WeaponSetTargetScene::update(Time delta)
             APP.player().network_sync_cursor(cursor_loc, 2, false);
         }
     }
-    if (test_key(Key::left)) {
+    if (test_button(Button::left)) {
         if (cursor_loc.x > 0) {
             --cursor_loc.x;
             ++cursor_tics_;
@@ -363,19 +363,19 @@ ScenePtr WeaponSetTargetScene::update(Time delta)
         return null_scene();
     };
 
-    if (test_key(Key::start)) {
+    if (test_button(Button::start)) {
         snap();
         camera_update_timer_ = milliseconds(500);
         minimap_repaint_timer_ = milliseconds(100);
     }
-    if (test_key(Key::action_1) or target_queue_.full()) {
+    if (test_button(Button::action_1) or target_queue_.full()) {
         if (auto scene = onclick(cursor_loc)) {
             return scene;
         }
     }
 
 
-    if (APP.player().key_down(Key::action_2)) {
+    if (APP.player().button_down(Button::action_2)) {
         if (near_) {
             if (auto drone = APP.player_island().get_drone(weapon_loc_)) {
                 return drone_exit_scene(drone->get());
@@ -587,7 +587,7 @@ void WeaponSetTargetScene::enter(Scene& prev)
         // Yeah I know, this doesn't look pretty. If we came from a scene where
         // our camera was anchored on the far island, remember to return to the
         // far island. Originally, the WeaponSetTargetScene was only created
-        // when selecting a weapon on the player's island. But then I added key
+        // when selecting a weapon on the player's island. But then I added button
         // combos for assigning a weapon target while the camera was anchored on
         // the opponent's island, so in these cases, we don't want to resume on
         // a state where we're anchored over the player's island, as was the

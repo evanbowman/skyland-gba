@@ -58,7 +58,7 @@ ScenePtr FatalErrorScene::update(Time dt)
 {
     APP.player().update(dt);
 
-    if (APP.player().key_down(Key::action_2)) {
+    if (APP.player().button_down(Button::action_2)) {
         PLATFORM.fill_overlay(0);
         APP.restore_backup();
         PLATFORM.speaker().clear_sounds();

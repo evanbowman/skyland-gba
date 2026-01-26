@@ -166,18 +166,18 @@ public:
     {
         player().update(delta);
 
-        auto test_key = [&](Key k) {
-            return player().test_key(k, milliseconds(500), milliseconds(100));
+        auto test_button = [&](Button k) {
+            return player().test_button(k, milliseconds(500), milliseconds(100));
         };
 
-        if (player().key_down(Key::action_2) or
-            player().key_down(Key::select)) {
+        if (player().button_down(Button::action_2) or
+            player().button_down(Button::select)) {
             auto next = make_scene<FlagDesignerModule>();
             next->editing_ingame_ = editing_ingame_;
             return next;
         }
 
-        if (player().key_down(Key::right)) {
+        if (player().button_down(Button::right)) {
             PLATFORM.speaker().play_sound("click_wooden", 2);
             auto next = make_scene<SurfaceFlagsScene>();
             next->editing_ingame_ = editing_ingame_;
@@ -185,7 +185,7 @@ public:
         }
 
 
-        if (test_key(Key::down)) {
+        if (test_button(Button::down)) {
             if (sel_ < 6) {
                 ++sel_;
                 PLATFORM.speaker().play_sound("click_wooden", 2);
@@ -195,7 +195,7 @@ public:
             }
             PLATFORM.set_tile(Layer::overlay, 3, 4 + sel_ * 2, 86);
         }
-        if (test_key(Key::up)) {
+        if (test_button(Button::up)) {
             if (sel_ > 0) {
                 --sel_;
                 PLATFORM.speaker().play_sound("click_wooden", 2);
@@ -206,7 +206,7 @@ public:
             PLATFORM.set_tile(Layer::overlay, 3, 4 + sel_ * 2, 86);
         }
 
-        if (player().key_down(Key::action_1)) {
+        if (player().button_down(Button::action_1)) {
             switch (sel_) {
             case 0:
                 load_default_flag();
@@ -258,8 +258,8 @@ ScenePtr SurfaceFlagsScene::update(Time delta)
 {
     player().update(delta);
 
-    auto test_key = [&](Key k) {
-        return player().test_key(k, milliseconds(500), milliseconds(100));
+    auto test_button = [&](Button k) {
+        return player().test_button(k, milliseconds(500), milliseconds(100));
     };
 
     auto clear_cursor = [&] {
@@ -283,7 +283,7 @@ ScenePtr SurfaceFlagsScene::update(Time delta)
         cursor_timer_ = milliseconds(200);
     };
 
-    if (player().key_down(Key::action_1)) {
+    if (player().button_down(Button::action_1)) {
         u16 tile = 268 + 180 * page_ + cursor_.x * 4 + cursor_.y * 4 * 9;
 
         auto data = PLATFORM.extract_tile(Layer::overlay, tile);
@@ -331,7 +331,7 @@ ScenePtr SurfaceFlagsScene::update(Time delta)
         return next;
     }
 
-    if (player().key_down(Key::action_2) or player().key_down(Key::select)) {
+    if (player().button_down(Button::action_2) or player().button_down(Button::select)) {
         auto next = make_scene<FlagDesignerModule>();
         next->editing_ingame_ = editing_ingame_;
         PLATFORM.fill_overlay(0);
@@ -340,7 +340,7 @@ ScenePtr SurfaceFlagsScene::update(Time delta)
         return next;
     }
 
-    if (test_key(Key::down)) {
+    if (test_button(Button::down)) {
         if (cursor_.y < 4) {
             clear_cursor();
             PLATFORM.speaker().play_sound("cursor_tick", 0);
@@ -348,7 +348,7 @@ ScenePtr SurfaceFlagsScene::update(Time delta)
         }
     }
 
-    if (test_key(Key::up)) {
+    if (test_button(Button::up)) {
         if (cursor_.y > 0) {
             clear_cursor();
             PLATFORM.speaker().play_sound("cursor_tick", 0);
@@ -357,7 +357,7 @@ ScenePtr SurfaceFlagsScene::update(Time delta)
     }
 
 
-    if (test_key(Key::right)) {
+    if (test_button(Button::right)) {
         if (cursor_.x < 8) {
             clear_cursor();
             PLATFORM.speaker().play_sound("cursor_tick", 0);
@@ -374,13 +374,13 @@ ScenePtr SurfaceFlagsScene::update(Time delta)
     }
 
 
-    if (test_key(Key::left)) {
+    if (test_button(Button::left)) {
         if (cursor_.x > 0) {
             clear_cursor();
             PLATFORM.speaker().play_sound("cursor_tick", 0);
             --cursor_.x;
         } else {
-            if (page_ == 0 and player().key_down(Key::left)) {
+            if (page_ == 0 and player().button_down(Button::left)) {
                 PLATFORM.fill_overlay(0);
                 PLATFORM.screen().clear();
                 PLATFORM.screen().display();
@@ -522,13 +522,13 @@ ScenePtr FlagDesignerModule::update(Time delta)
 {
     APP.player().update(delta);
 
-    if (tool_ == Tool::preset and APP.player().key_down(Key::action_1)) {
+    if (tool_ == Tool::preset and APP.player().button_down(Button::action_1)) {
         auto next = make_scene<FlagTemplateScene>();
         next->editing_ingame_ = editing_ingame_;
         return next;
     }
 
-    if (tool_ == Tool::exit and APP.player().key_down(Key::action_1)) {
+    if (tool_ == Tool::exit and APP.player().button_down(Button::action_1)) {
         if (changed_) {
             APP.custom_flag_image_.save();
         }

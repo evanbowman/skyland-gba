@@ -39,98 +39,98 @@ void PlayerP1::update(Time delta)
     if (APP.game_mode() == App::GameMode::tutorial) {
         StringBuffer<48> out = "(";
 
-        if (PLATFORM.keyboard().down_transition<Key::left>()) {
-            out += stringify(last_key_ / 1000);
+        if (PLATFORM.input().down_transition<Button::left>()) {
+            out += stringify(last_button_ / 1000);
             out += " Left)";
             debug(out.c_str());
-            last_key_ = 0;
-        } else if (PLATFORM.keyboard().down_transition<Key::right>()) {
-            out += stringify(last_key_ / 1000);
+            last_button_ = 0;
+        } else if (PLATFORM.input().down_transition<Button::right>()) {
+            out += stringify(last_button_ / 1000);
             out += " Right)";
             debug(out.c_str());
-            last_key_ = 0;
-        } else if (PLATFORM.keyboard().down_transition<Key::up>()) {
-            out += stringify(last_key_ / 1000);
+            last_button_ = 0;
+        } else if (PLATFORM.input().down_transition<Button::up>()) {
+            out += stringify(last_button_ / 1000);
             out += " Up)";
             debug(out.c_str());
-            last_key_ = 0;
-        } else if (PLATFORM.keyboard().down_transition<Key::down>()) {
-            out += stringify(last_key_ / 1000);
+            last_button_ = 0;
+        } else if (PLATFORM.input().down_transition<Button::down>()) {
+            out += stringify(last_button_ / 1000);
             out += " Down)";
             debug(out.c_str());
-            last_key_ = 0;
-        } else if (PLATFORM.keyboard().down_transition<Key::action_1>()) {
-            out += stringify(last_key_ / 1000);
+            last_button_ = 0;
+        } else if (PLATFORM.input().down_transition<Button::action_1>()) {
+            out += stringify(last_button_ / 1000);
             out += " A)";
             debug(out.c_str());
-            last_key_ = 0;
-        } else if (PLATFORM.keyboard().down_transition<Key::action_2>()) {
-            out += stringify(last_key_ / 1000);
+            last_button_ = 0;
+        } else if (PLATFORM.input().down_transition<Button::action_2>()) {
+            out += stringify(last_button_ / 1000);
             out += " B)";
             debug(out.c_str());
-            last_key_ = 0;
-        } else if (PLATFORM.keyboard().down_transition<Key::alt_1>()) {
-            out += stringify(last_key_ / 1000);
+            last_button_ = 0;
+        } else if (PLATFORM.input().down_transition<Button::alt_1>()) {
+            out += stringify(last_button_ / 1000);
             out += " L-p)";
             debug(out.c_str());
-            last_key_ = 0;
-        } else if (PLATFORM.keyboard().down_transition<Key::alt_2>()) {
-            out += stringify(last_key_ / 1000);
+            last_button_ = 0;
+        } else if (PLATFORM.input().down_transition<Button::alt_2>()) {
+            out += stringify(last_button_ / 1000);
             out += " R)";
             debug(out.c_str());
-            last_key_ = 0;
-        } else if (PLATFORM.keyboard().down_transition<Key::start>()) {
-            out += stringify(last_key_ / 1000);
+            last_button_ = 0;
+        } else if (PLATFORM.input().down_transition<Button::start>()) {
+            out += stringify(last_button_ / 1000);
             out += " Start-p)";
             debug(out.c_str());
-            last_key_ = 0;
-        } else if (PLATFORM.keyboard().down_transition<Key::select>()) {
-            out += stringify(last_key_ / 1000);
+            last_button_ = 0;
+        } else if (PLATFORM.input().down_transition<Button::select>()) {
+            out += stringify(last_button_ / 1000);
             out += " Select)";
             debug(out.c_str());
-            last_key_ = 0;
+            last_button_ = 0;
         }
 
-        if (PLATFORM.keyboard().up_transition<Key::start>()) {
+        if (PLATFORM.input().up_transition<Button::start>()) {
             out = "(";
-            out += stringify(last_key_ / 1000);
+            out += stringify(last_button_ / 1000);
             out += " Start-np)";
             debug(out.c_str());
-            last_key_ = 0;
-        } else if (PLATFORM.keyboard().up_transition<Key::alt_1>()) {
+            last_button_ = 0;
+        } else if (PLATFORM.input().up_transition<Button::alt_1>()) {
             out = "(";
-            out += stringify(last_key_ / 1000);
+            out += stringify(last_button_ / 1000);
             out += " L-np)";
             debug(out.c_str());
-            last_key_ = 0;
+            last_button_ = 0;
         }
 
-        for (auto& timer : key_held_timers_) {
+        for (auto& timer : button_held_timers_) {
             timer = 0;
         }
 
     } else /* not a tutorial level */ {
 
-        // Our tutorial keylogger does not log press&held, so we should not
-        // record held keys unless the keylogger is off.
+        // Our tutorial buttonlogger does not log press&held, so we should not
+        // record held buttons unless the buttonlogger is off.
 
-        for (int i = 0; i < static_cast<int>(Key::count); ++i) {
-            if (PLATFORM.keyboard().pressed(static_cast<Key>(i))) {
-                key_held_timers_[i] += delta;
+        for (int i = 0; i < static_cast<int>(Button::count); ++i) {
+            if (PLATFORM.input().pressed(static_cast<Button>(i))) {
+                button_held_timers_[i] += delta;
             } else {
-                key_held_timers_[i] = 0;
+                button_held_timers_[i] = 0;
             }
         }
 
         update_ai(delta);
 
-        if (PLATFORM.keyboard()
-                .down_transition<Key::up, Key::down, Key::left, Key::right>()) {
+        if (PLATFORM.input()
+                .down_transition<Button::up, Button::down, Button::left, Button::right>()) {
             APP.camera()->reset_default();
         }
     }
 
-    last_key_ += delta;
+    last_button_ += delta;
 }
 
 
@@ -209,62 +209,62 @@ void PlayerP1::on_room_plundered(Room& room)
 
 
 
-bool PlayerP1::key_down(Key k)
+bool PlayerP1::button_down(Button k)
 {
-    return PLATFORM.keyboard().down_transition(k);
+    return PLATFORM.input().down_transition(k);
 }
 
 
 
-bool PlayerP1::key_up(Key k)
+bool PlayerP1::button_up(Button k)
 {
-    return PLATFORM.keyboard().up_transition(k);
+    return PLATFORM.input().up_transition(k);
 }
 
 
 
-bool PlayerP1::key_pressed(Key k)
+bool PlayerP1::button_pressed(Button k)
 {
-    return PLATFORM.keyboard().pressed(k);
+    return PLATFORM.input().pressed(k);
 }
 
 
 
-bool PlayerP1::key_held(Key k, Time duration)
+bool PlayerP1::button_held(Button k, Time duration)
 {
-    return key_held_timers_[static_cast<int>(k)] >= duration;
+    return button_held_timers_[static_cast<int>(k)] >= duration;
 }
 
 
 
-void PlayerP1::key_held_reset(Key k, Time decrement)
+void PlayerP1::button_held_reset(Button k, Time decrement)
 {
-    key_held_timers_[static_cast<int>(k)] -= decrement;
+    button_held_timers_[static_cast<int>(k)] -= decrement;
 }
 
 
 
-void PlayerP1::key_held_distribute(const Key* include_list)
+void PlayerP1::button_held_distribute(const Button* include_list)
 {
-    // If any key in the include_list is pressed, distribute that key press to
-    // all keys in the include list.
+    // If any button in the include_list is pressed, distribute that button press to
+    // all buttons in the include list.
 
     int max = 0;
 
     auto l = include_list;
 
-    while (*l not_eq Key::null) {
-        if (key_held_timers_[static_cast<int>(*l)] > max) {
-            max = key_held_timers_[static_cast<int>(*l)];
+    while (*l not_eq Button::null) {
+        if (button_held_timers_[static_cast<int>(*l)] > max) {
+            max = button_held_timers_[static_cast<int>(*l)];
         }
         ++l;
     }
 
     l = include_list;
 
-    while (*l not_eq Key::null) {
-        if (PLATFORM.keyboard().pressed(*l)) {
-            key_held_timers_[static_cast<int>(*l)] = max;
+    while (*l not_eq Button::null) {
+        if (PLATFORM.input().pressed(*l)) {
+            button_held_timers_[static_cast<int>(*l)] = max;
         }
         ++l;
     }

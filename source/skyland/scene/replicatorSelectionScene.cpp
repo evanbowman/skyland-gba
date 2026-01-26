@@ -119,7 +119,7 @@ ScenePtr ReplicatorSelectionScene::update(Time delta)
 
         Island* island = near_ ? &APP.player_island() : APP.opponent_island();
 
-        if (APP.player().key_down(Key::action_1)) {
+        if (APP.player().button_down(Button::action_1)) {
             exit_countdown_ = milliseconds(500);
             if (auto room = island->get_room(cursor_loc)) {
                 if (room->create_replicant()) {
@@ -130,7 +130,7 @@ ScenePtr ReplicatorSelectionScene::update(Time delta)
         }
     }
 
-    if (APP.player().key_down(Key::action_2)) {
+    if (APP.player().button_down(Button::action_2)) {
         return make_scene<ReadyScene>();
     }
 

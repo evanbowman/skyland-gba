@@ -24,21 +24,21 @@ namespace skyland
 
 
 
-ScenePtr update_modifier_keys();
+ScenePtr update_modifier_buttons();
 
 
 
-ScenePtr ModifierKeyHintScene::update(Time delta)
+ScenePtr ModifierButtonHintScene::update(Time delta)
 {
     if (auto new_scene = ActiveWorldScene::update(delta)) {
         return new_scene;
     }
 
-    if (not player().key_pressed(Key::start)) {
+    if (not player().button_pressed(Button::start)) {
         return make_scene<ReadyScene>();
     }
 
-    if (auto scene = update_modifier_keys()) {
+    if (auto scene = update_modifier_buttons()) {
         return scene;
     }
 
@@ -47,7 +47,7 @@ ScenePtr ModifierKeyHintScene::update(Time delta)
 
 
 
-void ModifierKeyHintScene::enter(Scene& prev)
+void ModifierButtonHintScene::enter(Scene& prev)
 {
     ActiveWorldScene::enter(prev);
 
@@ -97,7 +97,7 @@ void ModifierKeyHintScene::enter(Scene& prev)
 
 
 
-void ModifierKeyHintScene::exit(Scene& next)
+void ModifierButtonHintScene::exit(Scene& next)
 {
     ActiveWorldScene::exit(next);
 

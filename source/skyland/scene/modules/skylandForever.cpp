@@ -191,43 +191,43 @@ ScenePtr SkylandForever::update(Time delta)
         }
     };
 
-    if (APP.player().key_down(Key::right) or
-        APP.player().key_held(Key::right, milliseconds(500))) {
+    if (APP.player().button_down(Button::right) or
+        APP.player().button_held(Button::right, milliseconds(500))) {
         if (parameters_[cursor_] < param_info[cursor_].upper_limit_) {
             parameters_[cursor_] += param_info[cursor_].increment_;
         }
         update_parameter(cursor_);
-        APP.player().key_held_reset(Key::right, milliseconds(80));
+        APP.player().button_held_reset(Button::right, milliseconds(80));
         if (cursor_ == 1) {
             update_env();
         }
     }
 
-    if (APP.player().key_down(Key::left) or
-        APP.player().key_held(Key::left, milliseconds(500))) {
+    if (APP.player().button_down(Button::left) or
+        APP.player().button_held(Button::left, milliseconds(500))) {
         parameters_[cursor_] -= param_info[cursor_].increment_;
 
         if (parameters_[cursor_] < param_info[cursor_].lower_limit_) {
             parameters_[cursor_] = param_info[cursor_].lower_limit_;
         }
         update_parameter(cursor_);
-        APP.player().key_held_reset(Key::left, milliseconds(80));
+        APP.player().button_held_reset(Button::left, milliseconds(80));
         if (cursor_ == 1) {
             update_env();
         }
     }
 
-    if (APP.player().key_down(Key::down) and cursor_ < parameters_.size() - 1) {
+    if (APP.player().button_down(Button::down) and cursor_ < parameters_.size() - 1) {
         ++cursor_;
 
-    } else if (APP.player().key_down(Key::up) and cursor_ > 0) {
+    } else if (APP.player().button_down(Button::up) and cursor_ > 0) {
         --cursor_;
     }
 
-    if (APP.player().key_down(Key::action_1) or APP.player().tap_released()) {
+    if (APP.player().button_down(Button::action_1) or APP.player().tap_released()) {
         PLATFORM.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
         return make_scene<FadeInScene>();
-    } else if (APP.player().key_down(Key::action_2)) {
+    } else if (APP.player().button_down(Button::action_2)) {
         PLATFORM.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
         return make_scene<TitleScreenScene>(3);
     }

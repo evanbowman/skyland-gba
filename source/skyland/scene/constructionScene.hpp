@@ -55,7 +55,7 @@ public:
     void exit(Scene& next) override;
 
 
-    bool camera_update_check_key() override;
+    bool camera_update_check_button() override;
 
 
     ConstructionScene* cast_construction_scene() override

@@ -28,19 +28,19 @@ static const auto sel_colors =
 
 ScenePtr SandboxResetScene::update(Time delta)
 {
-    if (APP.player().key_down(Key::up)) {
+    if (APP.player().button_down(Button::up)) {
         selection_ = true;
         yes_text_->assign(SYSTR(yes)->c_str(), sel_colors);
         no_text_->assign(SYSTR(exit)->c_str());
     }
 
-    if (APP.player().key_down(Key::down)) {
+    if (APP.player().button_down(Button::down)) {
         selection_ = false;
         yes_text_->assign(SYSTR(yes)->c_str());
         no_text_->assign(SYSTR(exit)->c_str(), sel_colors);
     }
 
-    if (APP.player().key_down(Key::action_1)) {
+    if (APP.player().button_down(Button::action_1)) {
         if (selection_) {
             return make_scene<SandboxLoaderModule>();
         } else {

@@ -146,7 +146,7 @@ public:
             return s;
         }
 
-        if (APP.player().key_down(Key::action_1)) {
+        if (APP.player().button_down(Button::action_1)) {
             if (auto r = APP.player_island().get_room(coord_)) {
                 r->apply_damage(1);
 
@@ -158,7 +158,7 @@ public:
             return make_scene<ReadyScene>();
         }
 
-        if (APP.player().key_down(Key::action_2)) {
+        if (APP.player().button_down(Button::action_2)) {
             return make_scene<ReadyScene>();
         }
 

@@ -174,7 +174,7 @@ ScenePtr QRViewerScene::update(Time delta)
         timer_ = 0;
     }
 
-    if (timer_ > milliseconds(300) and player().key_down(Key::action_1)) {
+    if (timer_ > milliseconds(300) and player().button_down(Button::action_1)) {
         exit_ = true;
         tv_.reset();
         next_text_.reset();

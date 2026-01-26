@@ -763,7 +763,7 @@ ScenePtr TitleScreenScene::update(Time delta)
     case State::macro_island_enter:
         timer_ += delta;
 
-        if (PLATFORM.keyboard().pressed<Key::action_1>() or
+        if (PLATFORM.input().pressed<Button::action_1>() or
             APP.player().tap_released()) {
             timer_ = 0;
             state_ = State::macro_island_exit;
@@ -776,8 +776,8 @@ ScenePtr TitleScreenScene::update(Time delta)
             timer_ = amount * milliseconds(550);
         }
 
-        if (APP.player().key_pressed(Key::left) or
-            APP.player().key_pressed(Key::up)) {
+        if (APP.player().button_pressed(Button::left) or
+            APP.player().button_pressed(Button::up)) {
             state_ = State::macro_island_exit;
             repeat_left_ = true;
             const auto amount =
@@ -785,8 +785,8 @@ ScenePtr TitleScreenScene::update(Time delta)
             timer_ = amount * milliseconds(550);
             break;
         }
-        if (APP.player().key_pressed(Key::down) or
-            APP.player().key_pressed(Key::right)) {
+        if (APP.player().button_pressed(Button::down) or
+            APP.player().button_pressed(Button::right)) {
             state_ = State::macro_island_exit;
             repeat_right_ = true;
             const auto amount =
@@ -826,7 +826,7 @@ ScenePtr TitleScreenScene::update(Time delta)
 
     case State::macro_island:
 
-        if (PLATFORM.keyboard().pressed<Key::action_1>() or
+        if (PLATFORM.input().pressed<Button::action_1>() or
             APP.player().tap_released()) {
             timer_ = 0;
             state_ = State::macro_island_exit;
@@ -835,14 +835,14 @@ ScenePtr TitleScreenScene::update(Time delta)
             PLATFORM.speaker().play_sound("button_wooden", 3);
         }
 
-        if (APP.player().key_pressed(Key::left) or
-            APP.player().key_pressed(Key::up)) {
+        if (APP.player().button_pressed(Button::left) or
+            APP.player().button_pressed(Button::up)) {
             timer_ = 0;
             state_ = State::macro_island_exit;
             repeat_left_ = true;
         }
-        if (APP.player().key_pressed(Key::down) or
-            APP.player().key_pressed(Key::right)) {
+        if (APP.player().button_pressed(Button::down) or
+            APP.player().button_pressed(Button::right)) {
             timer_ = 0;
             state_ = State::macro_island_exit;
             repeat_right_ = true;
@@ -1068,8 +1068,8 @@ ScenePtr TitleScreenScene::update(Time delta)
     }
 
     case State::exit_prompt: {
-        if (PLATFORM.keyboard().down_transition<Key::action_2>() or
-            (PLATFORM.keyboard().down_transition<Key::action_1>() and not exit_sel_)) {
+        if (PLATFORM.input().down_transition<Button::action_2>() or
+            (PLATFORM.input().down_transition<Button::action_1>() and not exit_sel_)) {
             state_ = State::fade_exit_cancel;
             timer_ = 0;
             for (int x = 0; x < 30; ++x) {
@@ -1077,12 +1077,12 @@ ScenePtr TitleScreenScene::update(Time delta)
             }
             break;
         }
-        if (PLATFORM.keyboard().down_transition<Key::action_1>() and exit_sel_) {
+        if (PLATFORM.input().down_transition<Button::action_1>() and exit_sel_) {
             PLATFORM_EXTENSION(quit);    // First try to quit if supported...
             PLATFORM_EXTENSION(restart); // If platform doesn't support quit, try reboot
         }
-        if (PLATFORM.keyboard().down_transition<Key::left>() or
-            PLATFORM.keyboard().down_transition<Key::right>()) {
+        if (PLATFORM.input().down_transition<Button::left>() or
+            PLATFORM.input().down_transition<Button::right>()) {
             exit_sel_ = not exit_sel_;
         }
         static const auto highlight_colors =
@@ -1110,7 +1110,7 @@ ScenePtr TitleScreenScene::update(Time delta)
     }
 
     case State::wait:
-        if (PLATFORM.keyboard().down_transition<Key::action_2>()) {
+        if (PLATFORM.input().down_transition<Button::action_2>()) {
             text_.reset();
             redraw_margins();
             state_ = State::fade_exit_1;
@@ -1146,7 +1146,7 @@ ScenePtr TitleScreenScene::update(Time delta)
             }
         }
 
-        if (repeat_action1_ or PLATFORM.keyboard().pressed<Key::action_1>() or
+        if (repeat_action1_ or PLATFORM.input().pressed<Button::action_1>() or
             APP.player().tap_released()) {
             state_ = State::fade_out;
             if (menu_selection_ == 3) {
@@ -1172,8 +1172,8 @@ ScenePtr TitleScreenScene::update(Time delta)
             }
         }
 
-        if (repeat_right_ or APP.player().key_pressed(Key::right) or
-            APP.player().key_pressed(Key::down) or
+        if (repeat_right_ or APP.player().button_pressed(Button::right) or
+            APP.player().button_pressed(Button::down) or
             (APP.player().touch_held(milliseconds(150)) and
              APP.player().touch_velocity().x and
              APP.player().touch_velocity().x * delta < -0.08f)) {
@@ -1209,8 +1209,8 @@ ScenePtr TitleScreenScene::update(Time delta)
                 timer_ = 0;
             }
         }
-        if (repeat_left_ or APP.player().key_pressed(Key::left) or
-            APP.player().key_pressed(Key::up) or
+        if (repeat_left_ or APP.player().button_pressed(Button::left) or
+            APP.player().button_pressed(Button::up) or
             APP.player().touch_velocity().x * delta > 0.08f) {
             repeat_left_ = false;
             if (menu_selection_ == 1) {
@@ -1601,22 +1601,22 @@ ScenePtr TitleScreenScene::update(Time delta)
 
         PLATFORM.screen().schedule_fade(
             0.69f, {ColorConstant::rich_black, false, false});
-        if (APP.player().key_down(Key::action_2)) {
+        if (APP.player().button_down(Button::action_2)) {
             state_ = State::fade_modules_backout;
             timer_ = 0;
             PLATFORM.fill_overlay(0);
             redraw_margins();
         } else if (module_cursor_) {
 
-            auto test_key = [&](Key k) {
-                return APP.player().test_key(
+            auto test_button = [&](Button k) {
+                return APP.player().test_button(
                     k, milliseconds(500), milliseconds(100));
             };
 
             auto click_sound = [&] {
                 PLATFORM.speaker().play_sound("click_wooden", 2);
             };
-            if (test_key(Key::right)) {
+            if (test_button(Button::right)) {
                 if (module_cursor_->x < 2) {
                     module_cursor_->x += 1;
                     click_sound();
@@ -1628,7 +1628,7 @@ ScenePtr TitleScreenScene::update(Time delta)
                     click_sound();
                 }
                 put_module_text();
-            } else if (test_key(Key::left)) {
+            } else if (test_button(Button::left)) {
                 if (module_cursor_->x > 0) {
                     module_cursor_->x -= 1;
                     click_sound();
@@ -1641,17 +1641,17 @@ ScenePtr TitleScreenScene::update(Time delta)
                 }
                 put_module_text();
             }
-            if (test_key(Key::up) and module_cursor_->y > 0) {
+            if (test_button(Button::up) and module_cursor_->y > 0) {
                 module_cursor_->y -= 1;
                 put_module_text();
                 click_sound();
-            } else if (test_key(Key::down) and module_cursor_->y < 1) {
+            } else if (test_button(Button::down) and module_cursor_->y < 1) {
                 module_cursor_->y += 1;
                 put_module_text();
                 click_sound();
             }
 
-            if (APP.player().key_down(Key::action_1)) {
+            if (APP.player().button_down(Button::action_1)) {
 
                 auto index = module_page_ * modules_per_page +
                              module_cursor_->x +

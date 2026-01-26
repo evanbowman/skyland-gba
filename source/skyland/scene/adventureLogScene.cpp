@@ -220,8 +220,8 @@ ScenePtr AdventureLogScene::update(Time delta)
     }
 
     case State::ready: {
-        if (next_ and (APP.player().key_down(Key::action_1) or
-                       APP.player().key_down(Key::action_2))) {
+        if (next_ and (APP.player().button_down(Button::action_1) or
+                       APP.player().button_down(Button::action_2))) {
             state_ = State::fade_out;
             for (int x = 0; x < 30; ++x) {
                 PLATFORM.set_tile(Layer::overlay, x, 0, 90);
@@ -230,7 +230,7 @@ ScenePtr AdventureLogScene::update(Time delta)
             break;
         }
 
-        if (APP.player().key_down(Key::right)) {
+        if (APP.player().button_down(Button::right)) {
 
             auto cnt = logentry_count();
 
@@ -250,7 +250,7 @@ ScenePtr AdventureLogScene::update(Time delta)
             }
         }
 
-        if (APP.player().key_down(Key::left) and page_ > 0) {
+        if (APP.player().button_down(Button::left) and page_ > 0) {
             entries_.clear();
             for (int x = 0; x < 30; ++x) {
                 for (int y = 1; y < 20; ++y) {

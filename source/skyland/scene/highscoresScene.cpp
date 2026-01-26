@@ -467,7 +467,7 @@ static Vector<char> encode_highscore_data()
 
 ScenePtr HighscoresScene::update(Time)
 {
-    if (APP.player().key_pressed(Key::select)) {
+    if (APP.player().button_pressed(Button::select)) {
         return make_scene<ConfiguredURLQRViewerScene>(
             "/scripts/config/leaderboard.lisp",
             "",
@@ -475,8 +475,8 @@ ScenePtr HighscoresScene::update(Time)
             make_deferred_scene<HighscoresScene>());
     }
 
-    if (APP.player().key_pressed(Key::alt_1) and
-        APP.player().key_pressed(Key::alt_2)) {
+    if (APP.player().button_pressed(Button::alt_1) and
+        APP.player().button_pressed(Button::alt_2)) {
         PLATFORM.speaker().play_sound("button_wooden", 3);
 
         auto next = []() {
@@ -525,8 +525,8 @@ ScenePtr HighscoresScene::update(Time)
             gettext);
     }
 
-    if (APP.player().key_down(Key::action_1) or
-        APP.player().key_down(Key::action_2)) {
+    if (APP.player().button_down(Button::action_1) or
+        APP.player().button_down(Button::action_2)) {
 
         for (int i = 0; i < 64; ++i) {
             const auto achievement = achievements::update();

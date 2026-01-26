@@ -233,10 +233,10 @@ ScenePtr SandboxLoaderModule::update(Time delta)
 
     APP.player().update(delta);
 
-    if (APP.player().key_down(Key::action_1) or APP.player().tap_released()) {
+    if (APP.player().button_down(Button::action_1) or APP.player().tap_released()) {
         PLATFORM.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
         return make_scene<FadeInScene>();
-    } else if (APP.player().key_down(Key::action_2)) {
+    } else if (APP.player().button_down(Button::action_2)) {
         cancelled_ = true;
         PLATFORM.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
         return make_scene<TitleScreenScene>(3);
@@ -249,13 +249,13 @@ ScenePtr SandboxLoaderModule::update(Time delta)
         unveil_ = true;
     }
 
-    if (APP.player().key_pressed(Key::left)) {
+    if (APP.player().button_pressed(Button::left)) {
         long_hold_time_[1] += delta;
     } else {
         long_hold_time_[1] = 0;
     }
 
-    if (APP.player().key_pressed(Key::right)) {
+    if (APP.player().button_pressed(Button::right)) {
         long_hold_time_[0] += delta;
     } else {
         long_hold_time_[0] = 0;
@@ -282,8 +282,8 @@ ScenePtr SandboxLoaderModule::update(Time delta)
     };
 
 
-    if (APP.player().key_down(Key::right) or
-        APP.player().key_held(Key::right, milliseconds(500))) {
+    if (APP.player().button_down(Button::right) or
+        APP.player().button_held(Button::right, milliseconds(500))) {
         if (parameters_[cursor_] < param_info[cursor_].upper_limit_) {
             parameters_[cursor_] += param_info[cursor_].increment_;
 
@@ -296,11 +296,11 @@ ScenePtr SandboxLoaderModule::update(Time delta)
             }
         }
         update_parameter(cursor_);
-        APP.player().key_held_reset(Key::right, milliseconds(80));
+        APP.player().button_held_reset(Button::right, milliseconds(80));
     }
 
-    if (APP.player().key_down(Key::left) or
-        APP.player().key_held(Key::left, milliseconds(500))) {
+    if (APP.player().button_down(Button::left) or
+        APP.player().button_held(Button::left, milliseconds(500))) {
         parameters_[cursor_] -= param_info[cursor_].increment_;
         if (long_hold_time_[1] > milliseconds(2000)) {
             parameters_[cursor_] -= param_info[cursor_].increment_ * 9;
@@ -309,7 +309,7 @@ ScenePtr SandboxLoaderModule::update(Time delta)
             parameters_[cursor_] = param_info[cursor_].lower_limit_;
         }
         update_parameter(cursor_);
-        APP.player().key_held_reset(Key::left, milliseconds(80));
+        APP.player().button_held_reset(Button::left, milliseconds(80));
 
         if (long_hold_time_[0] > milliseconds(2000)) {
             parameters_[cursor_] += param_info[cursor_].increment_ * 3;
@@ -320,11 +320,11 @@ ScenePtr SandboxLoaderModule::update(Time delta)
         }
     }
 
-    if (APP.player().key_down(Key::down) and cursor_ < parameters_.size() - 1) {
+    if (APP.player().button_down(Button::down) and cursor_ < parameters_.size() - 1) {
         ++cursor_;
         PLATFORM.speaker().play_sound("click_wooden", 2);
 
-    } else if (APP.player().key_down(Key::up) and cursor_ > 0) {
+    } else if (APP.player().button_down(Button::up) and cursor_ > 0) {
         --cursor_;
         PLATFORM.speaker().play_sound("click_wooden", 2);
     }

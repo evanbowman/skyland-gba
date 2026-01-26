@@ -13,7 +13,7 @@
 
 
 #include "function.hpp"
-#include "platform/key.hpp"
+#include "platform/button.hpp"
 #include "platform/platform.hpp"
 
 
@@ -35,18 +35,18 @@ public:
 
     struct MatchSeq
     {
-        Key seq_[seq_max] = {
-            Key::count,
-            Key::count,
-            Key::count,
-            Key::count,
-            Key::count,
-            Key::count,
-            Key::count,
-            Key::count,
-            Key::count,
-            Key::count,
-            Key::count,
+        Button seq_[seq_max] = {
+            Button::count,
+            Button::count,
+            Button::count,
+            Button::count,
+            Button::count,
+            Button::count,
+            Button::count,
+            Button::count,
+            Button::count,
+            Button::count,
+            Button::count,
         };
     };
 
@@ -56,7 +56,7 @@ public:
 
     struct Binding
     {
-        MatchSeq key_seq_;
+        MatchSeq button_seq_;
         Callback callback_;
     };
 
@@ -73,23 +73,23 @@ public:
             return;
         }
 
-        Key found = Key::count;
-        for (int i = 0; i < (int)Key::count; ++i) {
-            auto k = (Key)i;
-            if (PLATFORM.keyboard().down_transition(k)) {
+        Button found = Button::count;
+        for (int i = 0; i < (int)Button::count; ++i) {
+            auto k = (Button)i;
+            if (PLATFORM.input().down_transition(k)) {
                 found = k;
                 break;
             }
         }
 
-        if (found == Key::count or found == Key::start or found == Key::alt_1 or
-            found == Key::alt_2) {
+        if (found == Button::count or found == Button::start or found == Button::alt_1 or
+            found == Button::alt_2) {
             return;
         }
 
         for (auto it = possibilities_.begin();
              it not_eq possibilities_.end();) {
-            if (bindings_[*it].key_seq_.seq_[seek_state_] == found) {
+            if (bindings_[*it].button_seq_.seq_[seek_state_] == found) {
                 ++it;
             } else {
                 it = possibilities_.erase(it);
@@ -126,7 +126,7 @@ public:
     {
         for (u8 p : possibilities_) {
             Binding& binding = bindings_[p];
-            if (binding.key_seq_.seq_[seek_state_] == Key::count) {
+            if (binding.button_seq_.seq_[seek_state_] == Button::count) {
                 return &binding;
             }
         }

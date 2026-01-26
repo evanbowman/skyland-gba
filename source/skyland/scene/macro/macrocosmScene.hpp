@@ -56,7 +56,7 @@ public:
 
 
     void draw_compass(macro::EngineImpl& state);
-    void draw_keylock(macro::EngineImpl& state);
+    void draw_buttonlock(macro::EngineImpl& state);
 
 
     void drop_ui()

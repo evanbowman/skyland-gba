@@ -174,10 +174,10 @@ ScenePtr ItemShopScene::update(Time delta)
     }
 
     case State::ready:
-        if (player().key_down(Key::action_2)) {
+        if (player().button_down(Button::action_2)) {
             return make_scene<ReadyScene>();
         }
-        if (player().key_down(Key::action_1)) {
+        if (player().button_down(Button::action_1)) {
 
             auto fn = lisp::get_var("on-shop-item-sel");
             if (fn->type() == lisp::Value::Type::function) {
@@ -206,16 +206,16 @@ ScenePtr ItemShopScene::update(Time delta)
             PLATFORM.load_overlay_chunk(tile_mem[i], icon, 16);
             describe_selection();
         };
-        if (player().key_down(Key::down) and cursor_.y == 0) {
+        if (player().button_down(Button::down) and cursor_.y == 0) {
             if (item_slot(cursor_.x, cursor_.y + 1) < items_->size()) {
                 move_cursor(cursor_.x, cursor_.y + 1);
             }
-        } else if (player().key_down(Key::up) and cursor_.y == 1) {
+        } else if (player().button_down(Button::up) and cursor_.y == 1) {
             move_cursor(cursor_.x, cursor_.y - 1);
         }
-        if (player().key_down(Key::left) and cursor_.x == 1) {
+        if (player().button_down(Button::left) and cursor_.x == 1) {
             move_cursor(cursor_.x - 1, cursor_.y);
-        } else if (player().key_down(Key::right) and cursor_.x == 0) {
+        } else if (player().button_down(Button::right) and cursor_.x == 0) {
             if (item_slot(cursor_.x + 1, cursor_.y) < items_->size()) {
                 move_cursor(cursor_.x + 1, cursor_.y);
             }

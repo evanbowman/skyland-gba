@@ -98,7 +98,7 @@ private:
         int upper_limit_;
     };
 
-    Time key_held_timers_[4] = {0, 0, 0, 0};
+    Time button_held_timers_[4] = {0, 0, 0, 0};
 
     static const ParameterInfo param_info[decltype(vs_parameters_)::capacity()];
 };

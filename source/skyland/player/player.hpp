@@ -13,7 +13,7 @@
 
 
 #include "number/numeric.hpp"
-#include "platform/key.hpp"
+#include "platform/button.hpp"
 #include "skyland/coord.hpp"
 #include <optional>
 #include <tuple>
@@ -73,7 +73,7 @@ public:
     }
 
 
-    virtual bool key_up(Key k)
+    virtual bool button_up(Button k)
     {
         return false;
     }
@@ -84,56 +84,56 @@ public:
     }
 
 
-    virtual bool key_down(Key k)
+    virtual bool button_down(Button k)
     {
         return false;
     }
 
 
-    virtual bool key_pressed(Key k)
+    virtual bool button_pressed(Button b)
     {
         return false;
     }
 
 
-    // key_held and key_held_reset should implement some sort of timer-based key
+    // button_held and button_held_reset should implement some sort of timer-based button
     // states.
-    virtual bool key_held(Key k, Time duration)
+    virtual bool button_held(Button b, Time duration)
     {
         return false;
     }
 
 
-    virtual void key_held_reset(Key k, Time decrement)
+    virtual void button_held_reset(Button b, Time decrement)
     {
     }
 
 
-    constexpr static const Key default_key_distribute_include_list[5] =
-        {Key::left, Key::right, Key::up, Key::down, Key::null};
+    constexpr static const Button default_button_distribute_include_list[5] =
+        {Button::left, Button::right, Button::up, Button::down, Button::null};
 
 
-    // Should be implemented to treat all currently pressed keys as held for the
-    // same amount of time as the longest held key. Used to implement smooth
+    // Should be implemented to treat all currently pressed buttons as held for the
+    // same amount of time as the longest held button. Used to implement smooth
     // scroll locking, where we want the scroll lock to continue in a different
     // direction if the player changes direction with the d-pad. E.g. press and
-    // hold to scroll continuously (see test_key()), then change direction, the
+    // hold to scroll continuously (see test_button()), then change direction, the
     // scrolling would halt until the new direction builds up enough inertia to
     // start scrolling continuously, unless we grant the new direction the same
     // scrolling inertia as the previous direction button.
-    virtual void key_held_distribute(
+    virtual void button_held_distribute(
 
-        // Keys to include. Must be terminated by
-        // Key::null.
-        const Key* include_list = default_key_distribute_include_list)
+        // Buttons to include. Must be terminated by
+        // Button::null.
+        const Button* include_list = default_button_distribute_include_list)
     {
     }
 
 
-    bool test_key(Key k, Time held_time, Time held_decrement)
+    bool test_button(Button k, Time held_time, Time held_decrement)
     {
-        if (key_down(k) or key_held(k, held_time)) {
-            key_held_reset(k, held_decrement);
+        if (button_down(k) or button_held(k, held_time)) {
+            button_held_reset(k, held_decrement);
             return true;
         }
         return false;

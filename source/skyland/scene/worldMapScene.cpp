@@ -741,51 +741,51 @@ ScenePtr WorldMapScene::update(Time delta)
 
     switch (state_) {
     case State::deselected:
-        if (APP.player().key_down(Key::select)) {
+        if (APP.player().button_down(Button::select)) {
             state_ = State::plot_moves;
         }
-        if (APP.player().key_down(Key::action_1)) {
+        if (APP.player().button_down(Button::action_1)) {
             state_ = State::selected;
             PLATFORM.speaker().play_sound("button_wooden", 3);
         }
-        if (APP.player().key_down(Key::right) or
-            APP.player().key_down(Key::left)) {
+        if (APP.player().button_down(Button::right) or
+            APP.player().button_down(Button::left)) {
             PLATFORM.speaker().play_sound("click_wooden", 2);
             to_move_state();
         }
-        if (APP.player().key_down(Key::down)) {
+        if (APP.player().button_down(Button::down)) {
             state_ = State::save_selected;
         }
         break;
 
     case State::selected:
-        if (APP.player().key_down(Key::select)) {
+        if (APP.player().button_down(Button::select)) {
             state_ = State::plot_moves;
         }
-        if (APP.player().key_down(Key::action_1)) {
+        if (APP.player().button_down(Button::action_1)) {
             to_move_state();
         }
-        if (APP.player().key_down(Key::right) or
-            APP.player().key_down(Key::left)) {
+        if (APP.player().button_down(Button::right) or
+            APP.player().button_down(Button::left)) {
             PLATFORM.speaker().play_sound("click_wooden", 2);
             to_move_state();
-        } else if (APP.player().key_down(Key::down)) {
+        } else if (APP.player().button_down(Button::down)) {
             state_ = State::save_selected;
         }
-        if (APP.player().key_down(Key::action_2)) {
+        if (APP.player().button_down(Button::action_2)) {
             state_ = State::deselected;
         }
         break;
 
     case State::save_selected:
-        if (APP.player().key_down(Key::up) or
-            APP.player().key_down(Key::action_2)) {
+        if (APP.player().button_down(Button::up) or
+            APP.player().button_down(Button::action_2)) {
             state_ = State::selected;
-        } else if (APP.player().key_down(Key::left)) {
+        } else if (APP.player().button_down(Button::left)) {
             state_ = State::help_selected;
         }
 
-        if (APP.player().key_down(Key::action_1)) {
+        if (APP.player().button_down(Button::action_1)) {
             state_ = State::save_button_depressed;
             save_icon_.emplace(130, OverlayCoord{27, 17});
             timer_ = 0;
@@ -794,16 +794,16 @@ ScenePtr WorldMapScene::update(Time delta)
 
 
     case State::help_selected:
-        if (APP.player().key_down(Key::up) or
-            APP.player().key_down(Key::action_2)) {
+        if (APP.player().button_down(Button::up) or
+            APP.player().button_down(Button::action_2)) {
             state_ = State::selected;
-        } else if (APP.player().key_down(Key::right)) {
+        } else if (APP.player().button_down(Button::right)) {
             state_ = State::save_selected;
-        } else if (APP.player().key_down(Key::left)) {
+        } else if (APP.player().button_down(Button::left)) {
             state_ = State::logbook_selected;
         }
 
-        if (APP.player().key_down(Key::action_1)) {
+        if (APP.player().button_down(Button::action_1)) {
             state_ = State::help_button_depressed;
             help_icon_.emplace(138, OverlayCoord{24, 17});
             timer_ = 0;
@@ -831,14 +831,14 @@ ScenePtr WorldMapScene::update(Time delta)
 
 
     case State::edit_selected:
-        if (APP.player().key_down(Key::up) or
-            APP.player().key_down(Key::action_2)) {
+        if (APP.player().button_down(Button::up) or
+            APP.player().button_down(Button::action_2)) {
             state_ = State::selected;
-        } else if (APP.player().key_down(Key::right)) {
+        } else if (APP.player().button_down(Button::right)) {
             state_ = State::logbook_selected;
         }
 
-        if (APP.player().key_down(Key::action_1)) {
+        if (APP.player().button_down(Button::action_1)) {
             state_ = State::edit_button_depressed;
             edit_icon_.emplace(162, OverlayCoord{18, 17});
             timer_ = 0;
@@ -866,16 +866,16 @@ ScenePtr WorldMapScene::update(Time delta)
 
 
     case State::logbook_selected:
-        if (APP.player().key_down(Key::up) or
-            APP.player().key_down(Key::action_2)) {
+        if (APP.player().button_down(Button::up) or
+            APP.player().button_down(Button::action_2)) {
             state_ = State::selected;
-        } else if (APP.player().key_down(Key::right)) {
+        } else if (APP.player().button_down(Button::right)) {
             state_ = State::help_selected;
-        } else if (APP.player().key_down(Key::left)) {
+        } else if (APP.player().button_down(Button::left)) {
             state_ = State::edit_selected;
         }
 
-        if (APP.player().key_down(Key::action_1)) {
+        if (APP.player().button_down(Button::action_1)) {
             state_ = State::logbook_button_depressed;
             logbook_icon_.emplace(154, OverlayCoord{21, 17});
             timer_ = 0;
@@ -959,18 +959,18 @@ ScenePtr WorldMapScene::update(Time delta)
             PLATFORM.set_tile(Layer::overlay, x - 1, 18, 167);
         }
 
-        if (APP.player().key_down(Key::down)) {
+        if (APP.player().button_down(Button::down)) {
             save_opt_sel_ = 1;
         }
-        if (APP.player().key_down(Key::up)) {
+        if (APP.player().button_down(Button::up)) {
             save_opt_sel_ = 0;
         }
 
-        if (APP.player().key_down(Key::action_2)) {
+        if (APP.player().button_down(Button::action_2)) {
             clr_txt();
             redraw_icons();
             state_ = State::save_selected;
-        } else if (APP.player().key_down(Key::action_1)) {
+        } else if (APP.player().button_down(Button::action_1)) {
             if (save_opt_sel_ == 0) {
                 clr_txt();
                 redraw_icons();
@@ -1003,12 +1003,12 @@ ScenePtr WorldMapScene::update(Time delta)
                 return exit_nav_mode();
             }
         }
-        if (nav_mode_ and APP.player().key_down(Key::select) and
+        if (nav_mode_ and APP.player().button_down(Button::select) and
             navigation_buffer_.size() > 1) {
             state_ = State::save_plot;
             return null_scene();
         }
-        if (APP.player().key_down(Key::action_1)) {
+        if (APP.player().button_down(Button::action_1)) {
             if (nav_mode_) {
                 discretized_range_cache_.reset();
                 for (int i = 0; i < 19; ++i) {
@@ -1095,7 +1095,7 @@ ScenePtr WorldMapScene::update(Time delta)
                 cmix_ = {ColorConstant::stil_de_grain, 200};
             }
 
-        } else if (APP.player().key_down(Key::action_2)) {
+        } else if (APP.player().button_down(Button::action_2)) {
             if (nav_mode_) {
                 return exit_nav_mode();
             }
@@ -1107,7 +1107,7 @@ ScenePtr WorldMapScene::update(Time delta)
             cmix_ = {};
         }
         // auto current = movement_targets_[movement_cursor_];
-        if (APP.player().key_down(Key::left)) {
+        if (APP.player().button_down(Button::left)) {
             Buffer<int, 10> left;
 
             discretized_range_cache_.reset();
@@ -1162,7 +1162,7 @@ ScenePtr WorldMapScene::update(Time delta)
                 }
             }
             render_map_key();
-        } else if (APP.player().key_down(Key::right)) {
+        } else if (APP.player().button_down(Button::right)) {
             Buffer<int, 10> right;
 
             discretized_range_cache_.reset();
@@ -1220,7 +1220,7 @@ ScenePtr WorldMapScene::update(Time delta)
                 }
             }
             render_map_key();
-        } else if (APP.player().key_down(Key::up)) {
+        } else if (APP.player().button_down(Button::up)) {
             Buffer<int, 10> above;
 
             discretized_range_cache_.reset();
@@ -1269,7 +1269,7 @@ ScenePtr WorldMapScene::update(Time delta)
                 }
             }
             render_map_key();
-        } else if (APP.player().key_down(Key::down)) {
+        } else if (APP.player().button_down(Button::down)) {
             Buffer<int, 10> beneath;
 
             discretized_range_cache_.reset();
@@ -1365,7 +1365,7 @@ ScenePtr WorldMapScene::update(Time delta)
     }
 
     case State::wait:
-        if (APP.player().key_down(Key::action_2) and can_abort_move()) {
+        if (APP.player().button_down(Button::action_2) and can_abort_move()) {
             state_ = State::abort_move;
             break;
         }
@@ -1384,7 +1384,7 @@ ScenePtr WorldMapScene::update(Time delta)
 
 
     case State::fade_out: {
-        if (APP.player().key_down(Key::action_2) and can_abort_move()) {
+        if (APP.player().button_down(Button::action_2) and can_abort_move()) {
             state_ = State::abort_move;
             break;
         }
@@ -1425,8 +1425,8 @@ ScenePtr WorldMapScene::update(Time delta)
             state_ = State::deselected;
         } else {
             timer_ += delta;
-            if (APP.player().key_down(Key::action_1) or
-                APP.player().key_down(Key::action_2)) {
+            if (APP.player().button_down(Button::action_1) or
+                APP.player().button_down(Button::action_2)) {
                 fast_ = true;
             }
             if (fast_) {
@@ -1603,8 +1603,8 @@ ScenePtr WorldMapScene::update(Time delta)
         const auto prev_timer = timer_;
         timer_ += delta;
 
-        if (APP.player().key_down(Key::action_1) or
-            APP.player().key_down(Key::action_2)) {
+        if (APP.player().button_down(Button::action_1) or
+            APP.player().button_down(Button::action_2)) {
             timer_ = milliseconds(7450);
         }
 

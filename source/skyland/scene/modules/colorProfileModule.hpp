@@ -59,7 +59,7 @@ private:
     int sel_ = 0;
     int last_sel_ = -1;
 
-    Optional<Key> preview_key_;
+    Optional<Button> preview_button_;
 
     void bind_selected_profile();
 

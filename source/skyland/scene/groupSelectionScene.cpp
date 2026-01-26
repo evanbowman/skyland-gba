@@ -91,8 +91,8 @@ ScenePtr GroupSelectionScene::update(Time delta)
         return scene;
     }
 
-    auto test_key = [&](Key k) {
-        return APP.player().test_key(k, milliseconds(500), milliseconds(100));
+    auto test_button = [&](Button k) {
+        return APP.player().test_button(k, milliseconds(500), milliseconds(100));
     };
 
 
@@ -100,7 +100,7 @@ ScenePtr GroupSelectionScene::update(Time delta)
 
     switch (state_) {
     case State::draw_selection: {
-        if (not APP.player().key_pressed(Key::action_1)) {
+        if (not APP.player().button_pressed(Button::action_1)) {
             if ((**group_selection_).rooms_.empty()) {
                 state_ = State::animate_out;
                 break;
@@ -115,7 +115,7 @@ ScenePtr GroupSelectionScene::update(Time delta)
             }
         }
 
-        if (test_key(Key::left) or left_qd_) {
+        if (test_button(Button::left) or left_qd_) {
             left_qd_ = false;
 
             if (cursor_loc.x > 0) {
@@ -140,7 +140,7 @@ ScenePtr GroupSelectionScene::update(Time delta)
                     (*group_selection_)->sel_br_.x -= 1;
                 }
             }
-        } else if (test_key(Key::right) or right_qd_) {
+        } else if (test_button(Button::right) or right_qd_) {
             right_qd_ = false;
 
             if (cursor_loc.x < APP.player_island().terrain().size()) {
@@ -167,7 +167,7 @@ ScenePtr GroupSelectionScene::update(Time delta)
             }
         }
 
-        if (test_key(Key::up) or up_qd_) {
+        if (test_button(Button::up) or up_qd_) {
             up_qd_ = false;
 
             if (cursor_loc.y > construction_zone_min_y) {
@@ -192,7 +192,7 @@ ScenePtr GroupSelectionScene::update(Time delta)
                     (*group_selection_)->sel_br_.y -= 1;
                 }
             }
-        } else if (test_key(Key::down) or down_qd_) {
+        } else if (test_button(Button::down) or down_qd_) {
             down_qd_ = false;
 
             if (cursor_loc.y < 14) {
@@ -247,23 +247,23 @@ ScenePtr GroupSelectionScene::update(Time delta)
             return make_scene<ReadyScene>();
         }
 
-        if (test_key(Key::left)) {
+        if (test_button(Button::left)) {
             if (cursor_loc.x > 0) {
                 --cursor_loc.x;
                 PLATFORM.speaker().play_sound("cursor_tick", 0);
             }
-        } else if (test_key(Key::right)) {
+        } else if (test_button(Button::right)) {
             if (cursor_loc.x < APP.player_island().terrain().size()) {
                 ++cursor_loc.x;
                 PLATFORM.speaker().play_sound("cursor_tick", 0);
             }
         }
-        if (test_key(Key::up)) {
+        if (test_button(Button::up)) {
             if (cursor_loc.y > construction_zone_min_y) {
                 --cursor_loc.y;
                 PLATFORM.speaker().play_sound("cursor_tick", 0);
             }
-        } else if (test_key(Key::down)) {
+        } else if (test_button(Button::down)) {
             if (cursor_loc.y < 14) {
                 ++cursor_loc.y;
                 PLATFORM.speaker().play_sound("cursor_tick", 0);
@@ -273,19 +273,19 @@ ScenePtr GroupSelectionScene::update(Time delta)
     }
 
     case State::list_actions: {
-        if (test_key(Key::action_2)) {
+        if (test_button(Button::action_2)) {
             state_ = State::animate_out;
             break;
         }
 
-        if (test_key(Key::down)) {
+        if (test_button(Button::down)) {
             ++action_list_index_;
             if (action_list_index_ == 2) {
                 action_list_index_ = 0;
             }
             show_action_list();
             PLATFORM.speaker().play_sound("cursor_tick", 0);
-        } else if (test_key(Key::up)) {
+        } else if (test_button(Button::up)) {
             if (action_list_index_ == 0) {
                 action_list_index_ = 1;
             }
@@ -294,7 +294,7 @@ ScenePtr GroupSelectionScene::update(Time delta)
             PLATFORM.speaker().play_sound("cursor_tick", 0);
         }
 
-        if (test_key(Key::action_1)) {
+        if (test_button(Button::action_1)) {
             switch (action_list_index_) {
             case 0:
                 if (auto err = reject_if_friendly()) {
@@ -339,18 +339,18 @@ ScenePtr GroupSelectionScene::update(Time delta)
     }
 
     case State::pick_group: {
-        if (test_key(Key::action_2)) {
+        if (test_button(Button::action_2)) {
             state_ = State::animate_out;
             break;
         }
 
         Optional<Room::Group> group;
 
-        if (test_key(Key::up)) {
+        if (test_button(Button::up)) {
             group = Room::Group::one;
-        } else if (test_key(Key::left)) {
+        } else if (test_button(Button::left)) {
             group = Room::Group::three;
-        } else if (test_key(Key::right)) {
+        } else if (test_button(Button::right)) {
             group = Room::Group::two;
         }
 

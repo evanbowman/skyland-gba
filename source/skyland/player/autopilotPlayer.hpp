@@ -25,39 +25,39 @@ namespace skyland
 class AutopilotPlayer : public Player
 {
 public:
-    AutopilotPlayer(lisp::Value* keys_list);
+    AutopilotPlayer(lisp::Value* buttons_list);
 
 
     void update(Time delta) override;
 
 
-    bool key_down(Key k) override;
+    bool button_down(Button k) override;
 
 
-    bool key_up(Key k) override;
+    bool button_up(Button k) override;
 
 
-    bool key_pressed(Key k) override;
+    bool button_pressed(Button k) override;
 
 
     void on_room_damaged(Room& room) override;
 
 
 private:
-    lisp::Protected keys_list_;
+    lisp::Protected buttons_list_;
 
-    Time next_key_timeout_ = 0;
-    Optional<Key> next_timeout_key_;
+    Time next_button_timeout_ = 0;
+    Optional<Button> next_timeout_button_;
     bool next_timeout_release_ = false;
 
 
-    Time key_tap_timeout_ = 0;
+    Time button_tap_timeout_ = 0;
 
 
-    Platform::Keyboard::KeyStates prev_;
-    Platform::Keyboard::KeyStates states_;
+    Platform::Input::ButtonStates prev_;
+    Platform::Input::ButtonStates states_;
 
-    Platform::Keyboard::KeyStates taps_;
+    Platform::Input::ButtonStates taps_;
 };
 
 

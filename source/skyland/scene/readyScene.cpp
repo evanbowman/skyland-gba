@@ -225,19 +225,19 @@ public:
 
     ScenePtr update(Time delta)
     {
-        if (key_down<Key::up>()) {
+        if (button_down<Button::up>()) {
             selection_ = true;
             yes_text_->assign(SYSTR(yes)->c_str(), sel_colors);
             no_text_->assign(SYSTR(no)->c_str());
         }
 
-        if (key_down<Key::down>()) {
+        if (button_down<Button::down>()) {
             selection_ = false;
             yes_text_->assign(SYSTR(yes)->c_str());
             no_text_->assign(SYSTR(no)->c_str(), sel_colors);
         }
 
-        if (key_down<Key::action_1>()) {
+        if (button_down<Button::action_1>()) {
             if (selection_) {
                 return make_scene<SelectTutorialScene>();
             } else {
@@ -259,14 +259,14 @@ private:
 
 
 
-ScenePtr update_modifier_keys()
+ScenePtr update_modifier_buttons()
 {
-    if (APP.player().key_down(Key::alt_2)) {
-        return make_scene<KeyComboScene>(true);
-    } else if (APP.player().key_down(Key::action_2) or
-               APP.player().key_down(Key::down)) {
+    if (APP.player().button_down(Button::alt_2)) {
+        return make_scene<ButtonComboScene>(true);
+    } else if (APP.player().button_down(Button::action_2) or
+               APP.player().button_down(Button::down)) {
         return make_scene<AssignWeaponGroupScene>();
-    } else if (APP.player().key_down(Key::up)) {
+    } else if (APP.player().button_down(Button::up)) {
         for (auto& room : APP.player_island().rooms()) {
             if (room->group() == Room::Group::one) {
                 if (auto scene = room->select(room->position())) {
@@ -274,7 +274,7 @@ ScenePtr update_modifier_keys()
                 }
             }
         }
-    } else if (APP.player().key_down(Key::right)) {
+    } else if (APP.player().button_down(Button::right)) {
         for (auto& room : APP.player_island().rooms()) {
             if (room->group() == Room::Group::two) {
                 if (auto scene = room->select(room->position())) {
@@ -282,7 +282,7 @@ ScenePtr update_modifier_keys()
                 }
             }
         }
-    } else if (APP.player().key_down(Key::left)) {
+    } else if (APP.player().button_down(Button::left)) {
         for (auto& room : APP.player_island().rooms()) {
             if (room->group() == Room::Group::three) {
                 if (auto scene = room->select(room->position())) {
@@ -290,10 +290,10 @@ ScenePtr update_modifier_keys()
                 }
             }
         }
-    } else if (APP.player().key_down(Key::action_1)) {
+    } else if (APP.player().button_down(Button::action_1)) {
         auto resume = make_deferred_scene<ReadyScene>();
         return make_scene<SelectWeaponGroupScene>(resume);
-    } else if (APP.player().key_down(Key::select)) {
+    } else if (APP.player().button_down(Button::select)) {
         if (not PLATFORM.network_peer().is_connected()) {
 
             APP.player().reassign_all_weapon_targets();
@@ -401,11 +401,11 @@ ScenePtr ReadyScene::update(Time delta)
 
     auto& cursor_loc = globals().near_cursor_loc_;
 
-    auto test_key = [&](Key k) {
-        return APP.player().test_key(k, milliseconds(500), milliseconds(100));
+    auto test_button = [&](Button k) {
+        return APP.player().test_button(k, milliseconds(500), milliseconds(100));
     };
 
-    APP.player().key_held_distribute();
+    APP.player().button_held_distribute();
 
 
     const auto& mt_prep_seconds = globals().multiplayer_prep_seconds_;
@@ -416,35 +416,35 @@ ScenePtr ReadyScene::update(Time delta)
     };
 
 
-    if (not APP.player().key_pressed(Key::start)) {
+    if (not APP.player().button_pressed(Button::start)) {
 
-        if (tapped_topleft_corner() or APP.player().key_down(Key::alt_2)) {
+        if (tapped_topleft_corner() or APP.player().button_down(Button::alt_2)) {
             return make_scene<ConstructionScene>();
         }
 
         bool cursor_moved = false;
 
-        if (APP.player().key_held(Key::action_1, milliseconds(64))) {
-            if (test_key(Key::left)) {
+        if (APP.player().button_held(Button::action_1, milliseconds(64))) {
+            if (test_button(Button::left)) {
                 auto grp = make_scene<GroupSelectionScene>();
                 grp->left_qd_ = true;
                 return grp;
-            } else if (test_key(Key::right)) {
+            } else if (test_button(Button::right)) {
                 auto grp = make_scene<GroupSelectionScene>();
                 grp->right_qd_ = true;
                 return grp;
-            } else if (test_key(Key::up)) {
+            } else if (test_button(Button::up)) {
                 auto grp = make_scene<GroupSelectionScene>();
                 grp->up_qd_ = true;
                 return grp;
-            } else if (test_key(Key::down)) {
+            } else if (test_button(Button::down)) {
                 auto grp = make_scene<GroupSelectionScene>();
                 grp->down_qd_ = true;
                 return grp;
             }
         }
 
-        if (test_key(Key::left)) {
+        if (test_button(Button::left)) {
             if (cursor_loc.x > 0) {
                 --cursor_loc.x;
                 clear_room_description(room_description_);
@@ -453,7 +453,7 @@ ScenePtr ReadyScene::update(Time delta)
                 sync_cursor();
                 PLATFORM.speaker().play_sound("cursor_tick", 0);
             }
-        } else if (test_key(Key::right)) {
+        } else if (test_button(Button::right)) {
             if (cursor_loc.x < APP.player_island().terrain().size()) {
                 ++cursor_loc.x;
                 clear_room_description(room_description_);
@@ -487,7 +487,7 @@ ScenePtr ReadyScene::update(Time delta)
             }
         }
 
-        if (test_key(Key::up)) {
+        if (test_button(Button::up)) {
             if (cursor_loc.y > construction_zone_min_y) {
                 --cursor_loc.y;
                 clear_room_description(room_description_);
@@ -496,7 +496,7 @@ ScenePtr ReadyScene::update(Time delta)
                 sync_cursor();
                 PLATFORM.speaker().play_sound("cursor_tick", 0);
             }
-        } else if (test_key(Key::down)) {
+        } else if (test_button(Button::down)) {
             if (cursor_loc.y < 14) {
                 ++cursor_loc.y;
                 clear_room_description(room_description_);
@@ -511,7 +511,7 @@ ScenePtr ReadyScene::update(Time delta)
             // PLATFORM.speaker().play_sound("cursor_tick", 0);
         }
 
-        if (await_start_key_ and APP.player().key_up(Key::start) and
+        if (await_start_button_ and APP.player().button_up(Button::start) and
             APP.game_mode() not_eq App::GameMode::multiplayer and
             APP.game_mode() not_eq App::GameMode::co_op) {
             auto next = make_scene<StartMenuScene>(0);
@@ -519,29 +519,29 @@ ScenePtr ReadyScene::update(Time delta)
             return next;
         }
 
-        if (key_down<Key::start>() and not APP.player().key_down(Key::start)) {
+        if (button_down<Button::start>() and not APP.player().button_down(Button::start)) {
 
-            // For tutorial mode: allows the player to raise the start key when
+            // For tutorial mode: allows the player to raise the start button when
             // the tutorial system has taken control of the player object.
             return make_scene<SkipTutorialScene>();
         }
 
     } else /* start pressed */ {
 
-        if (APP.player().key_down(Key::start)) {
-            await_start_key_ = true;
+        if (APP.player().button_down(Button::start)) {
+            await_start_button_ = true;
         }
 
-        if (APP.player().key_held(Key::start, milliseconds(800))) {
-            return make_scene<ModifierKeyHintScene>();
+        if (APP.player().button_held(Button::start, milliseconds(800))) {
+            return make_scene<ModifierButtonHintScene>();
         }
 
-        if (auto scene = update_modifier_keys()) {
+        if (auto scene = update_modifier_buttons()) {
             return scene;
         }
     }
 
-    if (APP.player().key_down(Key::select)) {
+    if (APP.player().button_down(Button::select)) {
         return make_scene<SelectMenuScene>();
     }
 
@@ -613,14 +613,14 @@ ScenePtr ReadyScene::update(Time delta)
         }
     }
 
-    if (APP.player().key_down(Key::action_1)) {
+    if (APP.player().button_down(Button::action_1)) {
         if (auto scene = player_island_onclick(
                 camera_update_timer_, room_description_, cursor_loc)) {
             return scene;
         }
     }
 
-    if (APP.player().key_down(Key::action_2)) {
+    if (APP.player().button_down(Button::action_2)) {
         if (auto room = APP.player_island().get_room(cursor_loc)) {
             const auto props = (*room->metaclass())->properties();
             if (not(props & RoomProperties::salvage_disallowed)) {
@@ -649,18 +649,18 @@ ScenePtr ReadyScene::update(Time delta)
                 return make_scene<SalvageDroneScene>(*drone);
             }
         } else if (not PLATFORM.network_peer().is_connected()) {
-            await_b_key_ = true;
+            await_b_button_ = true;
         }
     }
 
-    if (await_b_key_ and APP.player().key_up(Key::action_2)) {
-        await_b_key_ = false;
+    if (await_b_button_ and APP.player().button_up(Button::action_2)) {
+        await_b_button_ = false;
         if (APP.game_mode() == App::GameMode::tutorial) {
             return make_scene<MoveRoomScene>(true);
         }
     }
-    if (await_b_key_ and
-        APP.player().key_held(Key::action_2, milliseconds(400))) {
+    if (await_b_button_ and
+        APP.player().button_held(Button::action_2, milliseconds(400))) {
         return make_scene<MoveRoomScene>(true);
     }
 

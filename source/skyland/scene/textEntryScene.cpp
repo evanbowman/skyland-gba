@@ -102,8 +102,8 @@ ScenePtr TextEntryScene::update(Time delta)
 {
     player().update(delta);
 
-    auto test_key = [&](Key k) {
-        return player().test_key(k, milliseconds(500), milliseconds(100));
+    auto test_button = [&](Button k) {
+        return player().test_button(k, milliseconds(500), milliseconds(100));
     };
 
     auto row_strlen = strlen(keyboard[keyboard_cursor_.y]);
@@ -113,7 +113,7 @@ ScenePtr TextEntryScene::update(Time delta)
 
     const auto row_width = row_strlen / 2;
 
-    if (test_key(Key::right)) {
+    if (test_button(Button::right)) {
         if (keyboard_cursor_.x < row_width - 1) {
             ++keyboard_cursor_.x;
         } else {
@@ -123,7 +123,7 @@ ScenePtr TextEntryScene::update(Time delta)
         PLATFORM.speaker().play_sound("click_wooden", 2);
     }
 
-    if (test_key(Key::left)) {
+    if (test_button(Button::left)) {
         if (keyboard_cursor_.x > 0) {
             --keyboard_cursor_.x;
         } else {
@@ -133,7 +133,7 @@ ScenePtr TextEntryScene::update(Time delta)
         PLATFORM.speaker().play_sound("click_wooden", 2);
     }
 
-    if (test_key(Key::up)) {
+    if (test_button(Button::up)) {
         if (keyboard_cursor_.y > 0) {
             --keyboard_cursor_.y;
         } else {
@@ -143,7 +143,7 @@ ScenePtr TextEntryScene::update(Time delta)
         PLATFORM.speaker().play_sound("click_wooden", 2);
     }
 
-    if (test_key(Key::down)) {
+    if (test_button(Button::down)) {
         if (keyboard_cursor_.y < 3) {
             ++keyboard_cursor_.y;
         } else {
@@ -153,7 +153,7 @@ ScenePtr TextEntryScene::update(Time delta)
         PLATFORM.speaker().play_sound("click_wooden", 2);
     }
 
-    if (player().key_down(Key::start)) {
+    if (player().button_down(Button::start)) {
         if (state_->buffer_.length() >= (u32)required_chars_) {
             return receiver_(state_->buffer_.c_str());
         } else {
@@ -162,7 +162,7 @@ ScenePtr TextEntryScene::update(Time delta)
     }
 
 
-    if (player().key_down(Key::action_2)) {
+    if (player().button_down(Button::action_2)) {
         if (state_->buffer_.empty()) {
             return null_scene();
         }
@@ -172,7 +172,7 @@ ScenePtr TextEntryScene::update(Time delta)
             state_->buffer_.c_str(),
             FontColors{custom_color(0xffffff), custom_color(0xbd7f14)});
 
-    } else if (player().key_down(Key::action_1)) {
+    } else if (player().button_down(Button::action_1)) {
         if (state_->buffer_.length() == (u32)char_limit_) {
             return receiver_(state_->buffer_.c_str());
         }

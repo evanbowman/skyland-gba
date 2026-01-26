@@ -588,10 +588,10 @@ ScenePtr MacroverseScene::update(Time delta)
 
     case State::show:
 
-        if (APP.player().key_down(Key::action_1)) {
+        if (APP.player().button_down(Button::action_1)) {
             enter_opt_state();
             PLATFORM.speaker().play_sound("button_wooden", 3);
-        } else if (APP.player().key_down(Key::action_2)) {
+        } else if (APP.player().button_down(Button::action_2)) {
             m.bind_sector(initial_sector_);
             clear_description();
             PLATFORM.fill_overlay(0);
@@ -599,7 +599,7 @@ ScenePtr MacroverseScene::update(Time delta)
             PLATFORM.speaker().play_sound("button_wooden", 3);
         }
 
-        if (APP.player().key_down(Key::left)) {
+        if (APP.player().button_down(Button::left)) {
             if (auto s = m.bind_sector({s8(selected_.x - 1), selected_.y})) {
                 selected_ = s->coordinate();
                 describe_selected(m);
@@ -609,7 +609,7 @@ ScenePtr MacroverseScene::update(Time delta)
             }
         }
 
-        if (APP.player().key_down(Key::right)) {
+        if (APP.player().button_down(Button::right)) {
             if (auto s = m.bind_sector({s8(selected_.x + 1), selected_.y})) {
                 selected_ = s->coordinate();
                 describe_selected(m);
@@ -619,7 +619,7 @@ ScenePtr MacroverseScene::update(Time delta)
             }
         }
 
-        if (APP.player().key_down(Key::up)) {
+        if (APP.player().button_down(Button::up)) {
             if (auto s = m.bind_sector({selected_.x, s8(selected_.y - 1)})) {
                 selected_ = s->coordinate();
                 describe_selected(m);
@@ -629,7 +629,7 @@ ScenePtr MacroverseScene::update(Time delta)
             }
         }
 
-        if (APP.player().key_down(Key::down)) {
+        if (APP.player().button_down(Button::down)) {
             if (auto s = m.bind_sector({selected_.x, s8(selected_.y + 1)})) {
                 selected_ = s->coordinate();
                 describe_selected(m);
@@ -641,13 +641,13 @@ ScenePtr MacroverseScene::update(Time delta)
         break;
 
     case State::options_2: {
-        if (APP.player().key_down(Key::down) and
+        if (APP.player().button_down(Button::down) and
             opt_cursor_ < text_objs_.size() - 1) {
             PLATFORM.speaker().play_sound("click_wooden", 2);
             ++opt_cursor_;
         }
 
-        if (APP.player().key_down(Key::up) and opt_cursor_ > 0) {
+        if (APP.player().button_down(Button::up) and opt_cursor_ > 0) {
             PLATFORM.speaker().play_sound("click_wooden", 2);
             --opt_cursor_;
         }
@@ -669,11 +669,11 @@ ScenePtr MacroverseScene::update(Time delta)
             PLATFORM.set_tile(Layer::overlay, x, y, cursor_tile);
         }
 
-        if (APP.player().key_down(Key::action_2)) {
+        if (APP.player().button_down(Button::action_2)) {
             enter_opt_state();
             PLATFORM.speaker().play_sound("click_wooden", 2);
             opt_cursor_ = 2;
-        } else if (APP.player().key_down(Key::action_1)) {
+        } else if (APP.player().button_down(Button::action_1)) {
             PLATFORM.set_tile(Layer::overlay, sel_pos.x, sel_pos.y, 0);
             switch (opt_cursor_) {
             case 0:
@@ -707,13 +707,13 @@ ScenePtr MacroverseScene::update(Time delta)
     }
 
     case State::options: {
-        if (APP.player().key_down(Key::down) and
+        if (APP.player().button_down(Button::down) and
             opt_cursor_ < text_objs_.size() - 1) {
             PLATFORM.speaker().play_sound("click_wooden", 2);
             ++opt_cursor_;
         }
 
-        if (APP.player().key_down(Key::up) and opt_cursor_ > 0) {
+        if (APP.player().button_down(Button::up) and opt_cursor_ > 0) {
             PLATFORM.speaker().play_sound("click_wooden", 2);
             --opt_cursor_;
         }
@@ -735,7 +735,7 @@ ScenePtr MacroverseScene::update(Time delta)
             PLATFORM.set_tile(Layer::overlay, x, y, cursor_tile);
         }
 
-        if (APP.player().key_down(Key::action_2)) {
+        if (APP.player().button_down(Button::action_2)) {
             PLATFORM.set_tile(Layer::overlay, sel_pos.x, sel_pos.y, 0);
             text_objs_.clear();
             describe_selected(m);
@@ -743,7 +743,7 @@ ScenePtr MacroverseScene::update(Time delta)
             opt_cursor_ = 0;
         }
 
-        if (APP.player().key_down(Key::action_1)) {
+        if (APP.player().button_down(Button::action_1)) {
             PLATFORM.set_tile(Layer::overlay, sel_pos.x, sel_pos.y, 0);
             switch (opt_cursor_) {
             case 0:
@@ -808,12 +808,12 @@ ScenePtr MacroverseScene::update(Time delta)
             PLATFORM.set_tile(Layer::overlay, x, y, cursor_tile);
         }
 
-        if (APP.player().key_down(Key::up) or
-            APP.player().key_down(Key::down)) {
+        if (APP.player().button_down(Button::up) or
+            APP.player().button_down(Button::down)) {
             PLATFORM.speaker().play_sound("click_wooden", 2);
         }
 
-        if (APP.player().key_down(Key::action_2)) {
+        if (APP.player().button_down(Button::action_2)) {
             text_objs_.clear();
             opt_cursor_ = 0;
             enter_opt_state();
@@ -821,7 +821,7 @@ ScenePtr MacroverseScene::update(Time delta)
             break;
         }
 
-        if (APP.player().key_down(Key::action_1)) {
+        if (APP.player().button_down(Button::action_1)) {
             PLATFORM.set_tile(Layer::overlay, sel_pos.x, sel_pos.y, 0);
             colony_create_slots_.clear();
             auto push = [&](s8 x, s8 y) {
@@ -891,7 +891,7 @@ ScenePtr MacroverseScene::update(Time delta)
 
     case State::create_colony: {
 
-        if (APP.player().key_down(Key::action_1)) {
+        if (APP.player().button_down(Button::action_1)) {
             if (selected_colony_) {
                 auto cost = m.colony_cost();
                 if (m.sector().productivity() >= cost.second) {
@@ -944,13 +944,13 @@ ScenePtr MacroverseScene::update(Time delta)
             }
         }
 
-        if (APP.player().key_down(Key::action_2)) {
+        if (APP.player().button_down(Button::action_2)) {
             PLATFORM.set_tile(Layer::overlay, 1, 3, 0);
             PLATFORM.set_tile(Layer::overlay, 1, 4, 0);
             enter_opt_state();
         }
 
-        if (APP.player().key_down(Key::left)) {
+        if (APP.player().button_down(Button::left)) {
             for (auto& s : colony_create_slots_) {
                 if (s.x < selected_.x) {
                     selected_colony_ = s;
@@ -959,7 +959,7 @@ ScenePtr MacroverseScene::update(Time delta)
             }
         }
 
-        if (APP.player().key_down(Key::right)) {
+        if (APP.player().button_down(Button::right)) {
             for (auto& s : colony_create_slots_) {
                 if (s.x > selected_.x) {
                     selected_colony_ = s;
@@ -968,7 +968,7 @@ ScenePtr MacroverseScene::update(Time delta)
             }
         }
 
-        if (APP.player().key_down(Key::up)) {
+        if (APP.player().button_down(Button::up)) {
             for (auto& s : colony_create_slots_) {
                 if (s.y < selected_.y) {
                     selected_colony_ = s;
@@ -977,7 +977,7 @@ ScenePtr MacroverseScene::update(Time delta)
             }
         }
 
-        if (APP.player().key_down(Key::down)) {
+        if (APP.player().button_down(Button::down)) {
             for (auto& s : colony_create_slots_) {
                 if (s.y > selected_.y) {
                     selected_colony_ = s;
@@ -993,17 +993,17 @@ ScenePtr MacroverseScene::update(Time delta)
 
         auto cost = m.colony_cost();
 
-        if (APP.player().key_down(Key::left) and (int) shape_ > 0) {
+        if (APP.player().button_down(Button::left) and (int) shape_ > 0) {
             shape_ = (terrain::Sector::Shape)((int)shape_ - 1);
             PLATFORM.speaker().play_sound("click_wooden", 2);
             show_layout_text();
-        } else if (APP.player().key_down(Key::right) and (int) shape_ < 2) {
+        } else if (APP.player().button_down(Button::right) and (int) shape_ < 2) {
             shape_ = (terrain::Sector::Shape)((int)shape_ + 1);
             PLATFORM.speaker().play_sound("click_wooden", 2);
             show_layout_text();
         }
 
-        if (APP.player().key_down(Key::action_1)) {
+        if (APP.player().button_down(Button::action_1)) {
 
             if (m.make_sector(*selected_colony_, shape_)) {
 

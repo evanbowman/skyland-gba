@@ -72,7 +72,7 @@ void ControllerSetupModule::enter(Scene& prev)
 
 
 
-static const char* const key_names[] = {"key_alt1",
+static const char* const button_names[] = {"key_alt1",
                                         "key_up",
                                         "key_left",
                                         "key_down",
@@ -98,32 +98,32 @@ void ControllerSetupModule::repaint()
 #define GET_S(STR) (settings_.get(STR).c_str())
     auto print_align_left = [&](const char* str, OverlayCoord c, int idx) {
         auto clr = text_colors;
-        if (idx not_eq key_index_) {
+        if (idx not_eq button_index_) {
             clr.reset();
         }
         auto len = utf8::len(str);
         c.x -= len;
         Text::print(str, c, clr);
     };
-    print_align_left(GET_S(key_names[0]), {8, 4}, 0);
-    print_align_left(GET_S(key_names[1]), {8, 6}, 1);
-    print_align_left(GET_S(key_names[2]), {8, 8}, 2);
-    print_align_left(GET_S(key_names[3]), {8, 10}, 3);
-    print_align_left(GET_S(key_names[4]), {8, 12}, 4);
+    print_align_left(GET_S(button_names[0]), {8, 4}, 0);
+    print_align_left(GET_S(button_names[1]), {8, 6}, 1);
+    print_align_left(GET_S(button_names[2]), {8, 8}, 2);
+    print_align_left(GET_S(button_names[3]), {8, 10}, 3);
+    print_align_left(GET_S(button_names[4]), {8, 12}, 4);
 
     auto print_align_right = [&](const char* str, OverlayCoord c, int idx) {
         auto clr = text_colors;
-        if (idx not_eq key_index_) {
+        if (idx not_eq button_index_) {
             clr.reset();
         }
         Text::print(str, c, clr);
     };
 
-    print_align_right(GET_S(key_names[5]), {13, 13}, 5);
-    print_align_right(GET_S(key_names[6]), {11, 15}, 6);
-    print_align_right(GET_S(key_names[7]), {22, 4}, 7);
-    print_align_right(GET_S(key_names[8]), {22, 6}, 8);
-    print_align_right(GET_S(key_names[9]), {22, 9}, 9);
+    print_align_right(GET_S(button_names[5]), {13, 13}, 5);
+    print_align_right(GET_S(button_names[6]), {11, 15}, 6);
+    print_align_right(GET_S(button_names[7]), {22, 4}, 7);
+    print_align_right(GET_S(button_names[8]), {22, 6}, 8);
+    print_align_right(GET_S(button_names[9]), {22, 9}, 9);
 }
 
 
@@ -154,18 +154,18 @@ ScenePtr ControllerSetupModule::update(Time delta)
         }
     }
 
-    if (key_index_ > -1) {
+    if (button_index_ > -1) {
         while (true) {
             PLATFORM.screen().clear();
-            if (auto k = PLATFORM.keyboard().check_key()) {
+            if (auto k = PLATFORM.input().check_button()) {
                 if (contains(used_scancodes_, k)) {
                     PLATFORM.speaker().play_sound("beep_error", 3);
                 } else {
-                    settings_.set(key_names[key_index_], k);
-                    ++key_index_;
+                    settings_.set(button_names[button_index_], k);
+                    ++button_index_;
                     repaint();
                     used_scancodes_.push_back(k);
-                    if (key_index_ == 10) {
+                    if (button_index_ == 10) {
                         exit_ = true;
                         PLATFORM.screen().schedule_fade(1.f);
                         if (on_select_) {
@@ -179,8 +179,8 @@ ScenePtr ControllerSetupModule::update(Time delta)
         }
     }
 
-    if (key_index_ > -1 or
-        PLATFORM.keyboard().down_transition<Key::action_2>()) {
+    if (button_index_ > -1 or
+        PLATFORM.input().down_transition<Button::action_2>()) {
         PLATFORM.screen().schedule_fade(1.f);
         if (next_) {
             return (*next_)();

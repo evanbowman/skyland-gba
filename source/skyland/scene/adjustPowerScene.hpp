@@ -59,12 +59,12 @@ public:
 
         auto& cursor_loc = globals().near_cursor_loc_;
 
-        auto test_key = [&](Key k) {
-            return APP.player().test_key(
+        auto test_button = [&](Button k) {
+            return APP.player().test_button(
                 k, milliseconds(500), milliseconds(100));
         };
 
-        APP.player().key_held_distribute();
+        APP.player().button_held_distribute();
 
         auto desc_block = [&] {
             for (int x = 0; x < calc_screen_tiles().x; ++x) {
@@ -102,28 +102,28 @@ public:
             desc_block();
         }
 
-        if (test_key(Key::right)) {
+        if (test_button(Button::right)) {
             if (cursor_loc.x < APP.player_island().terrain().size()) {
                 ++cursor_loc.x;
                 PLATFORM.speaker().play_sound("cursor_tick", 0);
                 desc_block();
             }
         }
-        if (test_key(Key::down)) {
+        if (test_button(Button::down)) {
             if (cursor_loc.y < 14) {
                 ++cursor_loc.y;
                 PLATFORM.speaker().play_sound("cursor_tick", 0);
                 desc_block();
             }
         }
-        if (test_key(Key::up)) {
+        if (test_button(Button::up)) {
             if (cursor_loc.y > construction_zone_min_y) {
                 --cursor_loc.y;
                 PLATFORM.speaker().play_sound("cursor_tick", 0);
                 desc_block();
             }
         }
-        if (test_key(Key::left)) {
+        if (test_button(Button::left)) {
             if (cursor_loc.x > 0) {
                 --cursor_loc.x;
                 PLATFORM.speaker().play_sound("cursor_tick", 0);
@@ -131,7 +131,7 @@ public:
             }
         }
 
-        if (APP.player().key_down(Key::action_1)) {
+        if (APP.player().button_down(Button::action_1)) {
             if (auto room = APP.player_island().get_room(cursor_loc)) {
                 if (room->allows_powerdown()) {
                     if (room->is_powered_down()) {
@@ -156,7 +156,7 @@ public:
             }
         }
 
-        if (APP.player().key_down(Key::action_2)) {
+        if (APP.player().button_down(Button::action_2)) {
             return make_scene<ReadyScene>();
         }
 

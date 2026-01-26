@@ -115,8 +115,8 @@ ScenePtr DeveloperModeModule::update(Time delta)
     }
 
 
-    if (APP.player().key_down(Key::action_1) or
-        APP.player().key_down(Key::action_2)) {
+    if (APP.player().button_down(Button::action_1) or
+        APP.player().button_down(Button::action_2)) {
 
         if (was_developer_mode_ not_eq option_) {
             APP.set_developer_mode(not APP.is_developer_mode());
@@ -130,7 +130,7 @@ ScenePtr DeveloperModeModule::update(Time delta)
         PLATFORM.screen().schedule_fade(1.f);
     }
 
-    if (APP.player().key_down(Key::right) or APP.player().key_down(Key::left)) {
+    if (APP.player().button_down(Button::right) or APP.player().button_down(Button::left)) {
         set_opt(not option_);
     }
 

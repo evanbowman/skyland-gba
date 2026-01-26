@@ -27,7 +27,7 @@
 #include "function.hpp"
 #include "graphics/sprite.hpp"
 #include "graphics/view.hpp"
-#include "key.hpp"
+#include "button.hpp"
 #include "layer.hpp"
 #include "memory/buffer.hpp"
 #include "memory/rc.hpp"
@@ -85,7 +85,7 @@ class Platform
 {
 public:
     class Screen;
-    class Keyboard;
+    class Input;
     class Logger;
     class Speaker;
     class NetworkPeer;
@@ -171,9 +171,9 @@ public:
     }
 
 
-    Keyboard& keyboard()
+    Input& input()
     {
-        return keyboard_;
+        return input_;
     }
 
 
@@ -543,55 +543,55 @@ public:
     ////////////////////////////////////////////////////////////////////////////
 
 
-    class Keyboard
+    class Input
     {
     public:
-        using KeyStates = std::array<bool, int(Key::count)>;
+        using ButtonStates = std::array<bool, int(Button::count)>;
 
         void poll();
 
         void rumble(bool enabled);
 
-        using RestoreState = Bitvector<KeyStates{}.size()>;
+        using RestoreState = Bitvector<ButtonStates{}.size()>;
 
-        const char* check_key();
+        const char* check_button();
 
-        template <Key... k> bool all_pressed() const
+        template <Button... k> bool all_pressed() const
         {
             return (... and states_[int(k)]);
         }
 
-        template <Key... k> bool any_pressed() const
+        template <Button... k> bool any_pressed() const
         {
             return (... or states_[int(k)]);
         }
 
-        template <Key k> bool pressed() const
+        template <Button k> bool pressed() const
         {
             return states_[int(k)];
         }
 
-        bool pressed(Key k) const
+        bool pressed(Button k) const
         {
             return states_[int(k)];
         }
 
-        bool down_transition(Key k) const
+        bool down_transition(Button k) const
         {
             return states_[int(k)] and not prev_[int(k)];
         }
 
-        template <Key... k> bool down_transition() const
+        template <Button... k> bool down_transition() const
         {
             return (... or down_transition_helper<k>());
         }
 
-        bool up_transition(Key k) const
+        bool up_transition(Button k) const
         {
             return not states_[int(k)] and prev_[int(k)];
         }
 
-        template <Key k> bool up_transition() const
+        template <Button k> bool up_transition() const
         {
             return not states_[int(k)] and prev_[int(k)];
         }
@@ -613,14 +613,14 @@ public:
         }
 
     private:
-        template <Key k> bool down_transition_helper() const
+        template <Button k> bool down_transition_helper() const
         {
             return states_[int(k)] and not prev_[int(k)];
         }
 
-        Keyboard()
+        Input()
         {
-            for (int i = 0; i < int(Key::count); ++i) {
+            for (int i = 0; i < int(Button::count); ++i) {
                 states_[i] = false;
                 prev_[i] = false;
             }
@@ -628,8 +628,8 @@ public:
 
         friend class Platform;
 
-        KeyStates prev_;
-        KeyStates states_;
+        ButtonStates prev_;
+        ButtonStates states_;
     };
 
 
@@ -981,7 +981,7 @@ public:
                           ColorConstant tint,
                           int priority);
 
-        void (*map_key)(Key k, const char* key_name);
+        void (*map_button)(Button k, const char* button_name);
     };
 
 
@@ -998,7 +998,7 @@ private:
     DeltaClock delta_clock_;
     RemoteConsole console_;
     Screen screen_;
-    Keyboard keyboard_;
+    Input input_;
     Speaker speaker_;
     Logger logger_;
     Data* data_ = nullptr;
@@ -1046,9 +1046,9 @@ inline void draw_image(TileDesc start_tile,
 }
 
 
-template <Key k> bool key_down()
+template <Button b> bool button_down()
 {
-    return PLATFORM.keyboard().down_transition<k>();
+    return PLATFORM.input().down_transition<b>();
 }
 
 

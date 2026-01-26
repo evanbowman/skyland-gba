@@ -62,15 +62,15 @@ ScenePtr ComposeSynthScene::update(Time delta)
         return scene;
     }
 
-    if (player().key_down(Key::action_2)) {
+    if (player().button_down(Button::action_2)) {
         return make_scene<ReadyScene>();
     }
 
-    auto test_key = [&](Key k) {
-        return player().test_key(k, milliseconds(500), milliseconds(100));
+    auto test_button = [&](Button k) {
+        return player().test_button(k, milliseconds(500), milliseconds(100));
     };
 
-    if (player().key_down(Key::action_1)) {
+    if (player().button_down(Button::action_1)) {
         if (cursor_.x == 0) {
             demo_note();
         }
@@ -93,15 +93,15 @@ ScenePtr ComposeSynthScene::update(Time delta)
         delta);
 
 
-    if (not player().key_pressed(Key::action_1)) {
-        if (test_key(Key::down)) {
+    if (not player().button_pressed(Button::action_1)) {
+        if (test_button(Button::down)) {
             if (cursor_.y < 15) {
                 ++cursor_.y;
                 repaint();
             }
         }
 
-        if (test_key(Key::up)) {
+        if (test_button(Button::up)) {
             if (cursor_.y > 0) {
                 --cursor_.y;
                 repaint();
@@ -109,7 +109,7 @@ ScenePtr ComposeSynthScene::update(Time delta)
         }
     } else if (cursor_.x == 0) {
 
-        if (test_key(Key::down)) {
+        if (test_button(Button::down)) {
 
             if (channel_ == Platform::Speaker::Channel::noise) {
                 if (notes_[cursor_.y].noise_freq_.frequency_select_ == 0 and
@@ -148,7 +148,7 @@ ScenePtr ComposeSynthScene::update(Time delta)
             repaint();
         }
 
-        if (test_key(Key::up)) {
+        if (test_button(Button::up)) {
 
             if (channel_ == Platform::Speaker::Channel::noise) {
                 if (notes_[cursor_.y].noise_freq_.frequency_select_ > 0) {
@@ -189,7 +189,7 @@ ScenePtr ComposeSynthScene::update(Time delta)
 
         if (notes_[cursor_.y].regular_.note_ not_eq
             Platform::Speaker::Note::invalid) {
-            if (test_key(Key::down)) {
+            if (test_button(Button::down)) {
 
                 if (channel_ == Platform::Speaker::Channel::noise) {
                     notes_[cursor_.y].noise_freq_.wide_mode_ =
@@ -209,7 +209,7 @@ ScenePtr ComposeSynthScene::update(Time delta)
                 repaint();
             }
 
-            if (test_key(Key::up)) {
+            if (test_button(Button::up)) {
 
                 if (channel_ == Platform::Speaker::Channel::noise) {
                     notes_[cursor_.y].noise_freq_.wide_mode_ =
@@ -251,7 +251,7 @@ ScenePtr ComposeSynthScene::update(Time delta)
                 break;
             }
         };
-        if (test_key(Key::down)) {
+        if (test_button(Button::down)) {
             auto effect = effect_flags_.load((int)channel_, cursor_.y);
             if ((int)effect < 3) {
                 effect = (Platform::Speaker::Effect)((int)effect + 1);
@@ -267,7 +267,7 @@ ScenePtr ComposeSynthScene::update(Time delta)
                 demo_note();
             }
 
-        } else if (test_key(Key::up)) {
+        } else if (test_button(Button::up)) {
             auto effect = effect_flags_.load((int)channel_, cursor_.y);
             if ((int)effect > 0) {
                 effect = (Platform::Speaker::Effect)((int)effect - 1);
@@ -307,7 +307,7 @@ ScenePtr ComposeSynthScene::update(Time delta)
 
         auto p = effect_parameters_[cursor_.y];
         auto val = 0x0f & (p.value_ >> 4);
-        if (test_key(Key::up)) {
+        if (test_button(Button::up)) {
             if (val > 0) {
                 val -= 1;
             } else {
@@ -323,7 +323,7 @@ ScenePtr ComposeSynthScene::update(Time delta)
                 demo_note();
             }
 
-        } else if (test_key(Key::down)) {
+        } else if (test_button(Button::down)) {
             if (val < upper_limit) {
                 val += 1;
             } else {
@@ -363,7 +363,7 @@ ScenePtr ComposeSynthScene::update(Time delta)
 
         auto p = effect_parameters_[cursor_.y];
         auto val = 0x0f & p.value_;
-        if (test_key(Key::up)) {
+        if (test_button(Button::up)) {
             if (val > 0) {
                 val -= 1;
             } else {
@@ -379,7 +379,7 @@ ScenePtr ComposeSynthScene::update(Time delta)
                 demo_note();
             }
 
-        } else if (test_key(Key::down)) {
+        } else if (test_button(Button::down)) {
             if (val < upper_limit) {
                 val += 1;
             } else {
@@ -399,7 +399,7 @@ ScenePtr ComposeSynthScene::update(Time delta)
 
         auto generic_update_settings =
             [&](Platform::Speaker::ChannelSettings& s) {
-                if (test_key(Key::down)) {
+                if (test_button(Button::down)) {
                     switch (cursor_.y) {
                     case 0:
                         if (s.envelope_step_ == 7) {
@@ -444,7 +444,7 @@ ScenePtr ComposeSynthScene::update(Time delta)
 
                     repaint();
 
-                } else if (test_key(Key::up)) {
+                } else if (test_button(Button::up)) {
                     switch (cursor_.y) {
                     case 0:
                         if (s.envelope_step_ == 0) {
@@ -511,7 +511,7 @@ ScenePtr ComposeSynthScene::update(Time delta)
         }
     }
 
-    if (player().key_down(Key::right) and cursor_.x < 5) {
+    if (player().button_down(Button::right) and cursor_.x < 5) {
         ++cursor_.x;
         if (cursor_.x == 5) {
             resume_y_ = cursor_.y;
@@ -520,7 +520,7 @@ ScenePtr ComposeSynthScene::update(Time delta)
         repaint();
     }
 
-    if (player().key_down(Key::left) and cursor_.x > 0) {
+    if (player().button_down(Button::left) and cursor_.x > 0) {
         if (cursor_.x == 5) {
             cursor_.y = resume_y_;
         }

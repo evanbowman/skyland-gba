@@ -23,7 +23,7 @@ namespace skyland
 
 
 
-void KeyComboScene::enter(Scene& prev)
+void ButtonComboScene::enter(Scene& prev)
 {
     ActiveWorldScene::enter(prev);
 
@@ -47,7 +47,7 @@ void KeyComboScene::enter(Scene& prev)
 
 
 
-void KeyComboScene::exit(Scene& next)
+void ButtonComboScene::exit(Scene& next)
 {
     ActiveWorldScene::exit(next);
 
@@ -57,13 +57,13 @@ void KeyComboScene::exit(Scene& next)
 
 
 
-ScenePtr KeyComboScene::update(Time delta)
+ScenePtr ButtonComboScene::update(Time delta)
 {
     if (auto next = ActiveWorldScene::update(delta)) {
         return next;
     }
 
-    if (APP.player().key_down(Key::start) or
+    if (APP.player().button_down(Button::start) or
         APP.key_callback_processor().seek_state() ==
             KeyCallbackProcessor::seq_max - 1 or
         (APP.key_callback_processor().possibilities() == 1 and
@@ -83,35 +83,35 @@ ScenePtr KeyComboScene::update(Time delta)
 
     APP.key_callback_processor().update();
 
-    Key found = Key::count;
-    for (int i = 0; i < (int)Key::count; ++i) {
-        auto k = (Key)i;
-        if (PLATFORM.keyboard().down_transition(k)) {
+    Button found = Button::count;
+    for (int i = 0; i < (int)Button::count; ++i) {
+        auto k = (Button)i;
+        if (PLATFORM.input().down_transition(k)) {
             found = k;
             break;
         }
     }
 
-    if (found not_eq Key::count and found not_eq Key::alt_1) {
+    if (found not_eq Button::count and found not_eq Button::alt_1) {
 
         text_data_ += [found] {
             switch (found) {
-            case Key::left:
+            case Button::left:
                 return "l-";
 
-            case Key::right:
+            case Button::right:
                 return "r-";
 
-            case Key::up:
+            case Button::up:
                 return "u-";
 
-            case Key::down:
+            case Button::down:
                 return "d-";
 
-            case Key::action_1:
+            case Button::action_1:
                 return "a-";
 
-            case Key::action_2:
+            case Button::action_2:
                 return "b-";
 
             default:

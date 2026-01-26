@@ -255,11 +255,11 @@ ScenePtr RewindScene::update(Time)
 {
     bool speed_changed = false;
 
-    if (APP.player().key_down(Key::up) and speed_ > 0) {
+    if (APP.player().button_down(Button::up) and speed_ > 0) {
         --speed_;
         speed_changed = true;
     }
-    if (APP.player().key_down(Key::down) and speed_ < 2) {
+    if (APP.player().button_down(Button::down) and speed_ < 2) {
         ++speed_;
         speed_changed = true;
     }
@@ -359,10 +359,10 @@ ScenePtr RewindScene::update(Time)
     auto end_timestamp = APP.time_stream().end_timestamp();
 
     if (not APP.opponent_island() or not end_timestamp or
-        APP.player().key_down(Key::alt_1) or
+        APP.player().button_down(Button::alt_1) or
         (exit_requested_ and not is_decimator_firing())) {
 
-        if (APP.player().key_down(Key::alt_1)) {
+        if (APP.player().button_down(Button::alt_1)) {
             if (is_decimator_firing()) {
                 exit_requested_ = true;
                 return null_scene();

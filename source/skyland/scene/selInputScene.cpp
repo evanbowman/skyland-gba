@@ -101,11 +101,11 @@ ScenePtr SelInputScene::update(Time delta)
     }
 
 
-    auto test_key = [&](Key k) {
-        return APP.player().test_key(k, milliseconds(500), milliseconds(150));
+    auto test_button = [&](Button k) {
+        return APP.player().test_button(k, milliseconds(500), milliseconds(150));
     };
 
-    APP.player().key_held_distribute();
+    APP.player().button_held_distribute();
 
 
     if (near_) {
@@ -114,7 +114,7 @@ ScenePtr SelInputScene::update(Time delta)
 
         auto& cursor_loc = globals().near_cursor_loc_;
 
-        if (test_key(Key::left)) {
+        if (test_button(Button::left)) {
             if (cursor_loc.x > 0) {
                 flicker_timer_ = -milliseconds(150);
                 flicker_on_ = false;
@@ -122,7 +122,7 @@ ScenePtr SelInputScene::update(Time delta)
             }
         }
 
-        if (test_key(Key::right)) {
+        if (test_button(Button::right)) {
             if (cursor_loc.x < APP.player_island().terrain().size()) {
                 flicker_timer_ = -milliseconds(150);
                 flicker_on_ = false;
@@ -130,7 +130,7 @@ ScenePtr SelInputScene::update(Time delta)
             }
         }
 
-        if (test_key(Key::up)) {
+        if (test_button(Button::up)) {
             if (cursor_loc.y > construction_zone_min_y) {
                 flicker_timer_ = -milliseconds(150);
                 flicker_on_ = false;
@@ -138,7 +138,7 @@ ScenePtr SelInputScene::update(Time delta)
             }
         }
 
-        if (test_key(Key::down)) {
+        if (test_button(Button::down)) {
             if (cursor_loc.y < 14) {
                 flicker_timer_ = -milliseconds(150);
                 flicker_on_ = false;
@@ -160,25 +160,25 @@ ScenePtr SelInputScene::update(Time delta)
 
         auto& cursor_loc = globals().far_cursor_loc_;
 
-        if (test_key(Key::left)) {
+        if (test_button(Button::left)) {
             if (cursor_loc.x > 0) {
                 --cursor_loc.x;
             }
         }
 
-        if (test_key(Key::right)) {
+        if (test_button(Button::right)) {
             if (cursor_loc.x < APP.opponent_island()->terrain().size()) {
                 ++cursor_loc.x;
             }
         }
 
-        if (test_key(Key::up)) {
+        if (test_button(Button::up)) {
             if (cursor_loc.y > construction_zone_min_y) {
                 --cursor_loc.y;
             }
         }
 
-        if (test_key(Key::down)) {
+        if (test_button(Button::down)) {
             if (cursor_loc.y < 14) {
                 ++cursor_loc.y;
             }
@@ -186,7 +186,7 @@ ScenePtr SelInputScene::update(Time delta)
     }
 
 
-    if (near_ and APP.player().key_down(Key::action_2)) {
+    if (near_ and APP.player().button_down(Button::action_2)) {
         if (APP.player_island().get_room(globals().near_cursor_loc_)) {
             auto next = make_scene<SalvageRoomScene>();
             next->set_next_scene(
@@ -202,7 +202,7 @@ ScenePtr SelInputScene::update(Time delta)
                 PLATFORM.speaker().play_sound("beep_error", 1);
             }
         }
-    } else if (APP.player().key_down(Key::action_1)) {
+    } else if (APP.player().button_down(Button::action_1)) {
 
         auto& cursor_loc =
             near_ ? globals().near_cursor_loc_ : globals().far_cursor_loc_;

@@ -48,7 +48,7 @@ public:
 
     ScenePtr update(Time delta) override
     {
-        if (PLATFORM.keyboard().down_transition(Key::action_1)) {
+        if (PLATFORM.input().down_transition(Button::action_1)) {
             PLATFORM.speaker().play_sound("button_wooden", 3);
             if (selection_) {
                 macrocosm().save();
@@ -59,8 +59,8 @@ public:
             }
         }
 
-        if (PLATFORM.keyboard().down_transition(Key::down) or
-            PLATFORM.keyboard().down_transition(Key::up)) {
+        if (PLATFORM.input().down_transition(Button::down) or
+            PLATFORM.input().down_transition(Button::up)) {
             selection_ = not selection_;
             PLATFORM.speaker().play_sound("click_wooden", 2);
             if (not selection_) {

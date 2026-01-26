@@ -83,7 +83,7 @@ public:
 
     ScenePtr update(Time delta) override
     {
-        if (player().key_down(Key::action_1)) {
+        if (player().button_down(Button::action_1)) {
             if (cursor_ == 0) {
                 opt_1_callback_();
             } else {
@@ -93,7 +93,7 @@ public:
             return next_();
         }
 
-        if (player().key_down(Key::up)) {
+        if (player().button_down(Button::up)) {
             cursor_ = 0;
             t1_->assign(loadstr(opt_1_)->c_str(), sel_colors);
             t2_->assign(loadstr(opt_2_)->c_str());
@@ -102,7 +102,7 @@ public:
             PLATFORM.speaker().play_sound("cursor_tick", 0);
         }
 
-        if (player().key_down(Key::down)) {
+        if (player().button_down(Button::down)) {
             cursor_ = 1;
             t1_->assign(loadstr(opt_1_)->c_str());
             t2_->assign(loadstr(opt_2_)->c_str(), sel_colors);

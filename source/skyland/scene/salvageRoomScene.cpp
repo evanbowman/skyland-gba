@@ -212,7 +212,7 @@ ScenePtr SalvageRoomScene::update(Time delta)
         }
     } else {
 
-        if (APP.player().key_down(Key::action_1)) {
+        if (APP.player().button_down(Button::action_1)) {
             if (auto room = island()->get_room(cursor_loc)) {
 
                 // You cannot salvage an occupied room, doing so would destroy
@@ -279,7 +279,7 @@ ScenePtr SalvageRoomScene::update(Time delta)
 
 
 
-    if (APP.player().key_down(Key::action_2)) {
+    if (APP.player().button_down(Button::action_2)) {
         return exit_scene();
     }
 

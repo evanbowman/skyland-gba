@@ -75,21 +75,21 @@ public:
             return scene;
         }
 
-        if (player.key_pressed(Key::left)) {
-            state.data_->keylock_ = Keylock::improvelock;
-            draw_keylock(state);
-        } else if (player.key_pressed(Key::up)) {
-            state.data_->keylock_ = Keylock::buildlock;
-            draw_keylock(state);
-        } else if (player.key_pressed(Key::right)) {
-            state.data_->keylock_ = Keylock::deletelock;
-            draw_keylock(state);
-        } else if (player.key_pressed(Key::down)) {
-            state.data_->keylock_ = Keylock::nolock;
-            draw_keylock(state);
+        if (player.button_pressed(Button::left)) {
+            state.data_->buttonlock_ = Buttonlock::improvelock;
+            draw_buttonlock(state);
+        } else if (player.button_pressed(Button::up)) {
+            state.data_->buttonlock_ = Buttonlock::buildlock;
+            draw_buttonlock(state);
+        } else if (player.button_pressed(Button::right)) {
+            state.data_->buttonlock_ = Buttonlock::deletelock;
+            draw_buttonlock(state);
+        } else if (player.button_pressed(Button::down)) {
+            state.data_->buttonlock_ = Buttonlock::nolock;
+            draw_buttonlock(state);
         }
 
-        if (not player.key_pressed(Key::alt_1)) {
+        if (not player.button_pressed(Button::alt_1)) {
             return make_scene<SelectorScene>();
         }
 
@@ -147,68 +147,68 @@ ScenePtr SelectorScene::update(Player& player, macro::EngineImpl& state)
     auto& sector = state.sector();
     auto cursor = sector.cursor();
 
-    if (player.key_down(Key::start)) {
-        await_start_key_ = true;
+    if (player.button_down(Button::start)) {
+        await_start_button_ = true;
     }
 
-    if (player.key_pressed(Key::start)) {
-        if (player.key_down(Key::alt_2)) {
+    if (player.button_pressed(Button::start)) {
+        if (player.button_down(Button::alt_2)) {
             return make_scene<KeyComboScene>(true);
         }
     } else {
-        if (await_start_key_ and player.key_up(Key::start)) {
+        if (await_start_button_ and player.button_up(Button::start)) {
             auto next = make_scene<StartMenuScene>(0);
             next->cascade_anim_in_ = true;
             return next;
         }
     }
 
-    auto test_key = [&](Key k) {
-        return player.test_key(k, milliseconds(500), milliseconds(100));
+    auto test_button = [&](Button k) {
+        return player.test_button(k, milliseconds(500), milliseconds(100));
     };
 
 
-    if (player.key_pressed(Key::select) and not state.data_->freebuild_mode_ and
+    if (player.button_pressed(Button::select) and not state.data_->freebuild_mode_ and
         not state.data_->checkers_mode_) {
 
         return make_scene<HelpScene>();
     }
 
-    if (player.key_pressed(Key::alt_1) and state.data_->freebuild_mode_) {
+    if (player.button_pressed(Button::alt_1) and state.data_->freebuild_mode_) {
 
         return make_scene<KeylockScene>();
 
-    } else if (player.key_pressed(Key::alt_1) and
+    } else if (player.button_pressed(Button::alt_1) and
                not state.data_->freebuild_mode_ and
                not state.data_->checkers_mode_) {
 
         return make_scene<MenuOptionsScene>();
 
-    } else if (player.key_down(Key::alt_2)) {
+    } else if (player.button_down(Button::alt_2)) {
 
         return make_scene<ModifiedSelectorScene>();
 
     } else {
 
-        if (test_key(Key::up) and cursor.y > 0) {
+        if (test_button(Button::up) and cursor.y > 0) {
             --cursor.y;
             sector.set_cursor(cursor);
             describe_selected(state);
             PLATFORM.speaker().play_sound("cursor_tick", 0);
             describe_selected(state);
-        } else if (test_key(Key::down) and cursor.y < sector.size().x - 1) {
+        } else if (test_button(Button::down) and cursor.y < sector.size().x - 1) {
             ++cursor.y;
             sector.set_cursor(cursor);
             describe_selected(state);
             PLATFORM.speaker().play_sound("cursor_tick", 0);
             describe_selected(state);
-        } else if (test_key(Key::right) and cursor.x > 0) {
+        } else if (test_button(Button::right) and cursor.x > 0) {
             --cursor.x;
             sector.set_cursor(cursor);
             describe_selected(state);
             PLATFORM.speaker().play_sound("cursor_tick", 0);
             describe_selected(state);
-        } else if (test_key(Key::left) and cursor.x < sector.size().y - 1) {
+        } else if (test_button(Button::left) and cursor.x < sector.size().y - 1) {
             ++cursor.x;
             sector.set_cursor(cursor);
             describe_selected(state);
@@ -217,7 +217,7 @@ ScenePtr SelectorScene::update(Player& player, macro::EngineImpl& state)
         }
     }
 
-    if (player.key_down(Key::action_1)) {
+    if (player.button_down(Button::action_1)) {
         if (state.data_->checkers_mode_) {
 
             if (cursor.z not_eq 2) {
@@ -284,16 +284,16 @@ ScenePtr SelectorScene::update(Player& player, macro::EngineImpl& state)
             }
 
         } else {
-            switch (state.data_->keylock_) {
-            case Keylock::nolock: {
+            switch (state.data_->buttonlock_) {
+            case Buttonlock::nolock: {
                 PLATFORM.speaker().play_sound("cursor_tick", 0);
                 return make_scene<TileOptionsScene>();
             }
 
-            case Keylock::buildlock:
+            case Buttonlock::buildlock:
                 return make_scene<CreateBlockScene>();
 
-            case Keylock::improvelock: {
+            case Buttonlock::improvelock: {
                 auto c = state.sector().cursor();
                 if (c.z > 0) {
                     --c.z;
@@ -308,7 +308,7 @@ ScenePtr SelectorScene::update(Player& player, macro::EngineImpl& state)
                 break;
             }
 
-            case Keylock::deletelock: {
+            case Buttonlock::deletelock: {
                 auto c = state.sector().cursor();
                 if (c.z > 0) {
                     c.z--;

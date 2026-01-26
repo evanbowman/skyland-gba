@@ -127,23 +127,23 @@ ScenePtr HelpScene::update(Time delta)
 {
     player().update(delta);
 
-    auto test_key = [&](Key k) {
-        return APP.player().test_key(k, milliseconds(500), milliseconds(100));
+    auto test_button = [&](Button k) {
+        return APP.player().test_button(k, milliseconds(500), milliseconds(100));
     };
 
-    if (player().key_down(Key::action_1) or player().key_down(Key::action_2)) {
+    if (player().button_down(Button::action_1) or player().button_down(Button::action_2)) {
 
         return make_scene<SelectorScene>();
     }
 
-    if (test_key(Key::right)) {
+    if (test_button(Button::right)) {
         if (page_ < page_count - 1) {
             PLATFORM.speaker().play_sound("cursor_tick", 0);
             show_page(++page_);
         }
     }
 
-    if (test_key(Key::left)) {
+    if (test_button(Button::left)) {
         if (page_ > 0) {
             PLATFORM.speaker().play_sound("cursor_tick", 0);
             show_page(--page_);

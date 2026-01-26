@@ -76,19 +76,19 @@ public:
 
     ScenePtr update(Time delta) override
     {
-        if (APP.player().key_down(Key::up)) {
+        if (APP.player().button_down(Button::up)) {
             if (selected_ not_eq 0) {
                 PLATFORM.speaker().play_sound("click_wooden", 2);
             }
             selected_ = 0;
-        } else if (APP.player().key_down(Key::down)) {
+        } else if (APP.player().button_down(Button::down)) {
             if (selected_ not_eq 1) {
                 PLATFORM.speaker().play_sound("click_wooden", 2);
             }
             selected_ = 1;
         }
 
-        if (APP.player().key_down(Key::action_1)) {
+        if (APP.player().button_down(Button::action_1)) {
             switch (selected_) {
             case 0:
                 state_bit_store(StateBit::easy_mode_rewind_declined, false);

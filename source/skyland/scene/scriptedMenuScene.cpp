@@ -220,31 +220,31 @@ ScenePtr ScriptedMenuScene::update(Time delta)
         return next;
     }
 
-    auto test_key = [&](Key k) {
-        return APP.player().test_key(k, milliseconds(500), milliseconds(100));
+    auto test_button = [&](Button k) {
+        return APP.player().test_button(k, milliseconds(500), milliseconds(100));
     };
 
-    if (test_key(Key::left)) {
+    if (test_button(Button::left)) {
         invoke_hook("on-L");
     }
 
-    if (test_key(Key::right)) {
+    if (test_button(Button::right)) {
         invoke_hook("on-R");
     }
 
-    if (test_key(Key::up)) {
+    if (test_button(Button::up)) {
         invoke_hook("on-U");
     }
 
-    if (test_key(Key::down)) {
+    if (test_button(Button::down)) {
         invoke_hook("on-D");
     }
 
-    if (test_key(Key::action_1)) {
+    if (test_button(Button::action_1)) {
         invoke_hook("on-A");
     }
 
-    if (test_key(Key::action_2)) {
+    if (test_button(Button::action_2)) {
         invoke_hook("on-B");
     }
 

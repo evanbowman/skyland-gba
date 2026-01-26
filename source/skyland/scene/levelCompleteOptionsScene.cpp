@@ -59,7 +59,7 @@ ScenePtr LevelCompleteOptionsScene::update(Time delta)
     switch (state_) {
     case State::select:
         timer_ += delta;
-        if (APP.player().key_down(Key::action_1)) {
+        if (APP.player().button_down(Button::action_1)) {
             timer_ = 0;
             switch (cursor_) {
             case 0:
@@ -75,16 +75,16 @@ ScenePtr LevelCompleteOptionsScene::update(Time delta)
             }
             options_.clear();
             PLATFORM.fill_overlay(0);
-        } else if (APP.player().key_down(Key::action_2)) {
+        } else if (APP.player().button_down(Button::action_2)) {
             state_ = State::fade_resume;
             options_.clear();
             PLATFORM.fill_overlay(0);
             timer_ = 0;
-        } else if (APP.player().key_down(Key::up) and cursor_ > 0) {
+        } else if (APP.player().button_down(Button::up) and cursor_ > 0) {
             --cursor_;
             show_cursor();
 
-        } else if (APP.player().key_down(Key::down) and cursor_ < 1) {
+        } else if (APP.player().button_down(Button::down) and cursor_ < 1) {
             ++cursor_;
             show_cursor();
         }

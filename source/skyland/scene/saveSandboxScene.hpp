@@ -169,21 +169,21 @@ public:
 
     ScenePtr update(Time delta) override
     {
-        if (player().key_down(Key::action_1)) {
+        if (player().button_down(Button::action_1)) {
             return on_selected();
         }
 
-        if (player().key_down(Key::action_2)) {
+        if (player().button_down(Button::action_2)) {
             return make_scene<StartMenuScene>(1);
         }
 
-        if (player().key_down(Key::down)) {
+        if (player().button_down(Button::down)) {
             if (cursor_ < 2) {
                 ++cursor_;
             }
         }
 
-        if (player().key_down(Key::up)) {
+        if (player().button_down(Button::up)) {
             if (cursor_ > 0) {
                 --cursor_;
             }

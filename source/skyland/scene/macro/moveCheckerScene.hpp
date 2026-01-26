@@ -560,8 +560,8 @@ public:
     {
         if (not player_won_) {
             return make_scene<SelectorScene>();
-        } else if (not player_won_ or player.key_down(Key::action_1) or
-                   player.key_down(Key::action_2)) {
+        } else if (not player_won_ or player.button_down(Button::action_1) or
+                   player.button_down(Button::action_2)) {
 
             return make_scene<CheckersModule>();
         }
@@ -685,7 +685,7 @@ public:
 
         auto& sector = state.sector();
 
-        if (player.key_down(Key::action_2) and cancellable_) {
+        if (player.button_down(Button::action_2) and cancellable_) {
             auto& sector = state.sector();
 
             for (auto& slot : slots_) {
@@ -697,7 +697,7 @@ public:
 
             return make_scene<SelectorScene>();
 
-        } else if (player.key_down(Key::action_1)) {
+        } else if (player.button_down(Button::action_1)) {
 
             auto board = CheckerBoard::from_sector(sector);
             auto board_prev = board.data_[piece_loc_.x][piece_loc_.y];
@@ -749,7 +749,7 @@ public:
 
             return make_scene<OpponentMoveCheckerScene>();
 
-        } else if (player.key_down(Key::up)) {
+        } else if (player.button_down(Button::up)) {
             Vec2<u8> pl = {piece_loc_.x, piece_loc_.y};
             for (u32 i = 0; i < slots_.size(); ++i) {
                 auto s = slots_[i];
@@ -760,7 +760,7 @@ public:
                     current_slot_ = i;
                 }
             }
-        } else if (player.key_down(Key::down)) {
+        } else if (player.button_down(Button::down)) {
             Vec2<u8> pl = {piece_loc_.x, piece_loc_.y};
             for (u32 i = 0; i < slots_.size(); ++i) {
                 auto s = slots_[i];
@@ -771,7 +771,7 @@ public:
                     current_slot_ = i;
                 }
             }
-        } else if (player.key_down(Key::right)) {
+        } else if (player.button_down(Button::right)) {
             Vec2<u8> pl = {piece_loc_.x, piece_loc_.y};
             for (u32 i = 0; i < slots_.size(); ++i) {
                 auto s = slots_[i];
@@ -782,7 +782,7 @@ public:
                     current_slot_ = i;
                 }
             }
-        } else if (player.key_down(Key::left)) {
+        } else if (player.button_down(Button::left)) {
             Vec2<u8> pl = {piece_loc_.x, piece_loc_.y};
             for (u32 i = 0; i < slots_.size(); ++i) {
                 auto s = slots_[i];

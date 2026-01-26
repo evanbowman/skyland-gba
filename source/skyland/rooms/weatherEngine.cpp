@@ -84,7 +84,7 @@ public:
     {
         ActiveWorldScene::update(delta);
 
-        if (APP.player().key_down(Key::down)) {
+        if (APP.player().button_down(Button::down)) {
             if (index_ == 7) {
                 index_ = 0;
             } else {
@@ -93,7 +93,7 @@ public:
             set_str();
         }
 
-        if (APP.player().key_down(Key::up)) {
+        if (APP.player().button_down(Button::up)) {
             if (index_ == 0) {
                 index_ = 7;
             } else {
@@ -102,7 +102,7 @@ public:
             set_str();
         }
 
-        if (APP.player().key_down(Key::action_1)) {
+        if (APP.player().button_down(Button::action_1)) {
 
             time_stream::event::WeatherChanged e;
 
@@ -138,7 +138,7 @@ public:
             return make_scene<ReadyScene>();
         }
 
-        if (APP.player().key_down(Key::action_2)) {
+        if (APP.player().button_down(Button::action_2)) {
             return make_scene<ReadyScene>();
         }
 

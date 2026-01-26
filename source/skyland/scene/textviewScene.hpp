@@ -67,7 +67,7 @@ public:
 
     ScenePtr update(Time delta) override
     {
-        if (PLATFORM.keyboard().down_transition(Key::action_2)) {
+        if (PLATFORM.input().down_transition(Button::action_2)) {
             PLATFORM.screen().clear();
             PLATFORM.screen().schedule_fade(
                 1, {ColorConstant::rich_black, {}, true, true});
@@ -113,7 +113,7 @@ public:
         }
 
         case DisplayMode::show:
-            if (PLATFORM.keyboard().pressed<Key::right>()) {
+            if (PLATFORM.input().pressed<Button::right>()) {
                 auto has_more_pages = [&]() -> bool {
                     return text_->parsed() not_eq utf8::len(str_->c_str());
                 };
@@ -126,7 +126,7 @@ public:
                     display_mode_ = DisplayMode::fade_out;
                 }
 
-            } else if (PLATFORM.keyboard().pressed<Key::left>()) {
+            } else if (PLATFORM.input().pressed<Button::left>()) {
                 if (page_ > 0) {
                     PLATFORM.speaker().play_sound("page_flip", 3);
                     dir_ = true;

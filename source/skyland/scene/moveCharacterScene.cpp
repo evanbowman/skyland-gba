@@ -203,7 +203,7 @@ void ModifyCharacterScene::enter(Scene& prev)
 
 ScenePtr ModifyCharacterScene::update(Time delta)
 {
-    if (APP.player().key_down(Key::select)) {
+    if (APP.player().button_down(Button::select)) {
         return null_scene();
     }
 
@@ -233,34 +233,34 @@ ScenePtr ModifyCharacterScene::update(Time delta)
         cursor_loc = &globals().far_cursor_loc_;
     }
 
-    auto test_key = [&](Key k) {
-        return APP.player().test_key(k, milliseconds(500), milliseconds(100));
+    auto test_button = [&](Button k) {
+        return APP.player().test_button(k, milliseconds(500), milliseconds(100));
     };
 
-    APP.player().key_held_distribute();
+    APP.player().button_held_distribute();
 
-    if (test_key(Key::left)) {
+    if (test_button(Button::left)) {
         if (cursor_loc->x > 0) {
             --cursor_loc->x;
             PLATFORM.speaker().play_sound("cursor_tick", 0);
         }
     }
 
-    if (test_key(Key::right)) {
+    if (test_button(Button::right)) {
         if (cursor_loc->x < island->terrain().size()) {
             ++cursor_loc->x;
             PLATFORM.speaker().play_sound("cursor_tick", 0);
         }
     }
 
-    if (test_key(Key::up)) {
+    if (test_button(Button::up)) {
         if (cursor_loc->y > construction_zone_min_y) {
             --cursor_loc->y;
             PLATFORM.speaker().play_sound("cursor_tick", 0);
         }
     }
 
-    if (test_key(Key::down)) {
+    if (test_button(Button::down)) {
         if (cursor_loc->y < 14) {
             ++cursor_loc->y;
             PLATFORM.speaker().play_sound("cursor_tick", 0);
@@ -278,7 +278,7 @@ ScenePtr ModifyCharacterScene::update(Time delta)
         return new_scene;
     }
 
-    if (APP.player().key_down(Key::action_2)) {
+    if (APP.player().button_down(Button::action_2)) {
         if (near_) {
             return make_scene<ReadyScene>();
         } else {
@@ -286,7 +286,7 @@ ScenePtr ModifyCharacterScene::update(Time delta)
         }
     }
 
-    if (APP.player().key_down(Key::action_1) and
+    if (APP.player().button_down(Button::action_1) and
         (*matrix_)[cursor_loc->x][cursor_loc->y]) {
 
         auto sel_chr = [&]() -> Character* {

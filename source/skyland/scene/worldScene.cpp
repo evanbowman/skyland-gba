@@ -448,13 +448,13 @@ static u32 format_power_fraction(Power avail, Power used)
 
 
 
-bool WorldScene::camera_update_check_key()
+bool WorldScene::camera_update_check_button()
 {
-    return APP.player().key_pressed(Key::left) or
-           APP.player().key_pressed(Key::right) or
-           APP.player().key_pressed(Key::up) or
-           APP.player().key_pressed(Key::down) or
-           APP.player().key_pressed(Key::select);
+    return APP.player().button_pressed(Button::left) or
+           APP.player().button_pressed(Button::right) or
+           APP.player().button_pressed(Button::up) or
+           APP.player().button_pressed(Button::down) or
+           APP.player().button_pressed(Button::select);
 }
 
 
@@ -635,7 +635,7 @@ ScenePtr WorldScene::update(Time delta)
     if (APP.game_mode() == App::GameMode::multiplayer) {
         // Pauses unsupported in vs mode...
     } else if (not noreturn_ and
-               (APP.player().key_up(Key::alt_1) or tapped_topright_corner())) {
+               (APP.player().button_up(Button::alt_1) or tapped_topright_corner())) {
         if (APP.game_speed() not_eq GameSpeed::stopped) {
 
             bool can_pause = true;
@@ -692,14 +692,14 @@ ScenePtr WorldScene::update(Time delta)
             }
         }
         APP.player().touch_consume();
-    } else if (not noreturn_ and APP.player().key_pressed(Key::alt_1) and
+    } else if (not noreturn_ and APP.player().button_pressed(Button::alt_1) and
                not PLATFORM.network_peer().is_connected()) {
-        set_gamespeed_keyheld_timer_ += delta;
-        if (set_gamespeed_keyheld_timer_ > milliseconds(300)) {
+        set_gamespeed_buttonheld_timer_ += delta;
+        if (set_gamespeed_buttonheld_timer_ > milliseconds(300)) {
             return make_scene<SetGamespeedScene>();
         }
     } else {
-        set_gamespeed_keyheld_timer_ = 0;
+        set_gamespeed_buttonheld_timer_ = 0;
     }
 
     if (APP.opponent_island()) {
@@ -755,7 +755,7 @@ ScenePtr WorldScene::update(Time delta)
         }
     }
 
-    if (camera_update_check_key()) {
+    if (camera_update_check_button()) {
         camera_update_timer_ = milliseconds(500);
     }
 

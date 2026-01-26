@@ -177,21 +177,21 @@ ScenePtr AchievementViewerModule::update(Time delta)
 
     APP.player().update(delta);
 
-    auto test_key = [&](Key k) {
-        return APP.player().test_key(k, milliseconds(500), milliseconds(100));
+    auto test_button = [&](Button k) {
+        return APP.player().test_button(k, milliseconds(500), milliseconds(100));
     };
 
-    if (test_key(Key::right) and
+    if (test_button(Button::right) and
         // -1 because we skip the first Achievement::none enumeration
         page_ < achievements::count - 2) {
         load_page(++page_);
     }
 
-    if (test_key(Key::left) and page_ > 0) {
+    if (test_button(Button::left) and page_ > 0) {
         load_page(--page_);
     }
 
-    if (APP.player().key_down(Key::action_2)) {
+    if (APP.player().button_down(Button::action_2)) {
         return make_scene<TitleScreenScene>(3);
     }
 

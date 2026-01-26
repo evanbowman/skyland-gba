@@ -117,11 +117,11 @@ ScenePtr CreditsModule::update(Time delta)
 
     switch (state_) {
     case State::idle:
-        if (player().key_down(Key::action_2)) {
+        if (player().button_down(Button::action_2)) {
             state_ = State::fade_out_exit;
         }
-        if (player().key_down(Key::action_1)) {
-            if (player().key_down(Key::action_2)) {
+        if (player().button_down(Button::action_1)) {
+            if (player().button_down(Button::action_2)) {
                 state_ = State::fade_out_exit;
             } else {
                 state_ = State::fade_out_next;

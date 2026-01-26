@@ -83,7 +83,7 @@ void InspectP2Scene::exit(Scene& next)
 
 
 
-ScenePtr update_modifier_keys();
+ScenePtr update_modifier_buttons();
 
 
 
@@ -182,11 +182,11 @@ ScenePtr InspectP2Scene::update(Time delta)
     auto& cursor_loc = globals().far_cursor_loc_;
 
 
-    auto test_key = [&](Key k) {
-        return APP.player().test_key(k, milliseconds(500), milliseconds(100));
+    auto test_button = [&](Button k) {
+        return APP.player().test_button(k, milliseconds(500), milliseconds(100));
     };
 
-    APP.player().key_held_distribute();
+    APP.player().button_held_distribute();
 
 
     auto sync_cursor = [&] {
@@ -195,27 +195,27 @@ ScenePtr InspectP2Scene::update(Time delta)
 
 
 
-    if (APP.player().key_pressed(Key::start)) {
+    if (APP.player().button_pressed(Button::start)) {
 
-        if (APP.player().key_down(Key::start)) {
-            await_start_key_ = true;
+        if (APP.player().button_down(Button::start)) {
+            await_start_button_ = true;
         }
 
-        if (APP.player().key_held(Key::start, milliseconds(800))) {
-            return make_scene<ModifierKeyHintScene>();
+        if (APP.player().button_held(Button::start, milliseconds(800))) {
+            return make_scene<ModifierButtonHintScene>();
         }
 
-        if (auto scene = update_modifier_keys()) {
+        if (auto scene = update_modifier_buttons()) {
             return scene;
         }
 
     } else {
 
-        if (APP.player().key_down(Key::select)) {
+        if (APP.player().button_down(Button::select)) {
             return make_scene<SelectMenuScene>();
         }
 
-        if (test_key(Key::left)) {
+        if (test_button(Button::left)) {
             if (cursor_loc.x > 0) {
                 --cursor_loc.x;
                 clear_room_description(room_description_);
@@ -235,7 +235,7 @@ ScenePtr InspectP2Scene::update(Time delta)
             }
         }
 
-        if (test_key(Key::right)) {
+        if (test_button(Button::right)) {
             if (cursor_loc.x < APP.opponent_island()->terrain().size()) {
                 ++cursor_loc.x;
                 clear_room_description(room_description_);
@@ -245,7 +245,7 @@ ScenePtr InspectP2Scene::update(Time delta)
             }
         }
 
-        if (test_key(Key::up)) {
+        if (test_button(Button::up)) {
             if (cursor_loc.y > construction_zone_min_y) {
                 --cursor_loc.y;
                 clear_room_description(room_description_);
@@ -255,7 +255,7 @@ ScenePtr InspectP2Scene::update(Time delta)
             }
         }
 
-        if (test_key(Key::down)) {
+        if (test_button(Button::down)) {
             if (cursor_loc.y < 14) {
                 ++cursor_loc.y;
                 clear_room_description(room_description_);
@@ -265,7 +265,7 @@ ScenePtr InspectP2Scene::update(Time delta)
             }
         }
 
-        if (await_start_key_ and APP.player().key_up(Key::start) and
+        if (await_start_button_ and APP.player().button_up(Button::start) and
             APP.game_mode() not_eq App::GameMode::multiplayer and
             APP.game_mode() not_eq App::GameMode::co_op) {
             auto next = make_scene<StartMenuScene>(0);
@@ -310,9 +310,9 @@ ScenePtr InspectP2Scene::update(Time delta)
 
 
     if (APP.game_mode() == App::GameMode::sandbox and
-        (tapped_topleft_corner() or APP.player().key_down(Key::alt_2))) {
+        (tapped_topleft_corner() or APP.player().button_down(Button::alt_2))) {
         return make_scene<ConstructionScene>(false);
-    } else if (APP.player().key_down(Key::alt_2)) {
+    } else if (APP.player().button_down(Button::alt_2)) {
 
         PLATFORM.speaker().play_sound("beep_error", 2);
 
@@ -355,7 +355,7 @@ ScenePtr InspectP2Scene::update(Time delta)
         }
     }
 
-    if (APP.player().key_down(Key::action_1)) {
+    if (APP.player().button_down(Button::action_1)) {
         const auto flag_pos = APP.opponent_island()->flag_pos();
         if (auto room = APP.opponent_island()->get_room(cursor_loc)) {
             if (APP.game_mode() == App::GameMode::sandbox or
@@ -381,7 +381,7 @@ ScenePtr InspectP2Scene::update(Time delta)
         }
     }
 
-    if (APP.player().key_down(Key::action_2)) {
+    if (APP.player().button_down(Button::action_2)) {
         if (auto drone = APP.opponent_island()->get_drone(cursor_loc)) {
             if (is_player_island((*drone)->parent())) {
                 return make_scene<SalvageDroneScene>(*drone);
@@ -398,19 +398,19 @@ ScenePtr InspectP2Scene::update(Time delta)
                     return make_scene<NotificationScene>(msg->c_str(), s);
                 }
             } else if (not PLATFORM.network_peer().is_connected()) {
-                await_b_key_ = true;
+                await_b_button_ = true;
             }
         }
     }
 
-    if (await_b_key_ and APP.player().key_up(Key::action_2)) {
-        await_b_key_ = false;
+    if (await_b_button_ and APP.player().button_up(Button::action_2)) {
+        await_b_button_ = false;
         if (APP.game_mode() == App::GameMode::tutorial) {
             return make_scene<MoveRoomScene>(false);
         }
     }
-    if (await_b_key_ and
-        APP.player().key_held(Key::action_2, milliseconds(400))) {
+    if (await_b_button_ and
+        APP.player().button_held(Button::action_2, milliseconds(400))) {
         return make_scene<MoveRoomScene>(false);
     }
 

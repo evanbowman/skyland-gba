@@ -128,8 +128,8 @@ public:
                 Platform::Speaker::music_volume_max);
             return make_scene<IntroCutsceneDoneScene>();
         } else {
-            if (PLATFORM.keyboard().down_transition<Key::action_2>() or
-                PLATFORM.keyboard().down_transition<Key::action_1>()) {
+            if (PLATFORM.input().down_transition<Key::action_2>() or
+                PLATFORM.input().down_transition<Key::action_1>()) {
                 return make_scene<IntroCutsceneDoneScene>();
             }
         }
@@ -238,8 +238,8 @@ public:
     {
         timer_ += delta;
 
-        if (PLATFORM.keyboard().down_transition<Key::action_2>() or
-            PLATFORM.keyboard().down_transition<Key::action_1>()) {
+        if (PLATFORM.input().down_transition<Key::action_2>() or
+            PLATFORM.input().down_transition<Key::action_1>()) {
             return make_scene<IntroCutsceneDoneScene>();
         }
 
@@ -322,8 +322,8 @@ public:
 
     ScenePtr update(Time delta) override
     {
-        if (PLATFORM.keyboard().down_transition<Key::action_2>() or
-            PLATFORM.keyboard().down_transition<Key::action_1>()) {
+        if (PLATFORM.input().down_transition<Key::action_2>() or
+            PLATFORM.input().down_transition<Key::action_1>()) {
             return make_scene<IntroCutsceneDoneScene>();
         }
 
@@ -383,8 +383,8 @@ public:
 
     ScenePtr update(Time delta) override
     {
-        if (PLATFORM.keyboard().down_transition<Key::action_2>() or
-            PLATFORM.keyboard().down_transition<Key::action_1>()) {
+        if (PLATFORM.input().down_transition<Key::action_2>() or
+            PLATFORM.input().down_transition<Key::action_1>()) {
             return make_scene<IntroCutsceneDoneScene>();
         }
 
@@ -487,8 +487,8 @@ public:
 
     ScenePtr update(Time delta) override
     {
-        if (PLATFORM.keyboard().down_transition<Key::action_2>() or
-            PLATFORM.keyboard().down_transition<Key::action_1>()) {
+        if (PLATFORM.input().down_transition<Key::action_2>() or
+            PLATFORM.input().down_transition<Key::action_1>()) {
             return make_scene<IntroCutsceneDoneScene>();
         }
 
@@ -564,8 +564,8 @@ public:
 
     ScenePtr update(Time delta) override
     {
-        if (PLATFORM.keyboard().down_transition<Key::action_2>() or
-            PLATFORM.keyboard().down_transition<Key::action_1>()) {
+        if (PLATFORM.input().down_transition<Key::action_2>() or
+            PLATFORM.input().down_transition<Key::action_1>()) {
             return make_scene<IntroCutsceneDoneScene>();
         }
 
@@ -604,8 +604,8 @@ public:
 
     ScenePtr update(Time delta) override
     {
-        if (PLATFORM.keyboard().down_transition<Key::action_2>() or
-            PLATFORM.keyboard().down_transition<Key::action_1>()) {
+        if (PLATFORM.input().down_transition<Key::action_2>() or
+            PLATFORM.input().down_transition<Key::action_1>()) {
             return make_scene<IntroCutsceneDoneScene>();
         }
 

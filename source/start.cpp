@@ -149,7 +149,7 @@ void start(Platform& pfrm)
     }
 
     while (PLATFORM.is_running()) {
-        PLATFORM.keyboard().poll();
+        PLATFORM.input().poll();
 
         PLATFORM_EXTENSION(feed_watchdog);
 

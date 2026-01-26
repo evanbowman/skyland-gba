@@ -25,7 +25,7 @@ public:
             if (duration_ <= 0) {
                 duration_ = 0;
                 enabled_ = false;
-                PLATFORM.keyboard().rumble(false);
+                PLATFORM.input().rumble(false);
             }
         }
     }
@@ -33,7 +33,7 @@ public:
     void activate(Microseconds duration)
     {
         if (not enabled_) {
-            PLATFORM.keyboard().rumble(true);
+            PLATFORM.input().rumble(true);
         }
         duration_ = std::max(duration, duration_);
         enabled_ = true;

@@ -47,7 +47,7 @@ extern EngineImpl* _bound_state;
 
 
 
-enum Keylock { nolock, buildlock, improvelock, deletelock };
+enum Buttonlock { nolock, buildlock, improvelock, deletelock };
 
 
 
@@ -94,7 +94,7 @@ struct EngineImpl : public Engine
         u8 cropcycle_index_ = 0;
         u32 frames_since_music_ = 0;
 
-        Keylock keylock_ = nolock;
+        Buttonlock buttonlock_ = nolock;
 
         macro::terrain::Type last_created_ = terrain::Type::terrain;
         macro::terrain::Type last_improved_ = terrain::Type::terrain;

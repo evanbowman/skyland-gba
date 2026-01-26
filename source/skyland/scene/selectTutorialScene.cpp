@@ -311,19 +311,19 @@ ScenePtr SelectTutorialScene::update(Time delta)
             return null_scene();
         }
 
-        if (APP.player().key_down(Key::down)) {
+        if (APP.player().button_down(Button::down)) {
             if ((u32)cursor_ < text_.size() - 1) {
                 cursor_++;
             }
         }
 
-        if (APP.player().key_down(Key::up)) {
+        if (APP.player().button_down(Button::up)) {
             if (cursor_) {
                 cursor_--;
             }
         }
 
-        if (APP.player().key_down(Key::right)) {
+        if (APP.player().button_down(Button::right)) {
             if (page_ < page_count_ - 1) {
                 ++page_;
                 show_options();
@@ -333,7 +333,7 @@ ScenePtr SelectTutorialScene::update(Time delta)
             }
         }
 
-        if (APP.player().key_down(Key::left)) {
+        if (APP.player().button_down(Button::left)) {
             if (page_ > 0) {
                 --page_;
                 show_options();
@@ -343,12 +343,12 @@ ScenePtr SelectTutorialScene::update(Time delta)
             }
         }
 
-        if (APP.player().key_down(Key::action_1)) {
+        if (APP.player().button_down(Button::action_1)) {
             state_ = State::fade_out;
             timer_ = 0;
             text_.clear();
             PLATFORM.fill_overlay(0);
-        } else if (APP.player().key_down(Key::action_2)) {
+        } else if (APP.player().button_down(Button::action_2)) {
             text_.clear();
             PLATFORM.fill_overlay(0);
             exit_ = true;

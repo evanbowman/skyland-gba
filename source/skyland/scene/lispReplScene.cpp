@@ -379,8 +379,8 @@ TOP:
 
     player().update(delta);
 
-    auto test_key = [&](Key k) {
-        return player().test_key(k, milliseconds(500), milliseconds(100));
+    auto test_button = [&](Button k) {
+        return player().test_button(k, milliseconds(500), milliseconds(100));
     };
 
     if (auto next = process_script_menu_request()) {
@@ -389,17 +389,17 @@ TOP:
 
     switch (display_mode_) {
     case DisplayMode::completion_list:
-        if (PLATFORM.keyboard().down_transition<Key::down>() and
+        if (PLATFORM.input().down_transition<Button::down>() and
             cpl_->completion_cursor_ < cpl_->completions_.size() - 1) {
             ++cpl_->completion_cursor_;
             repaint_completions();
             PLATFORM.speaker().play_sound("cursor_tick", 1);
-        } else if (PLATFORM.keyboard().down_transition<Key::up>() and
+        } else if (PLATFORM.input().down_transition<Button::up>() and
                    cpl_->completion_cursor_ > 0) {
             --cpl_->completion_cursor_;
             repaint_completions();
             PLATFORM.speaker().play_sound("cursor_tick", 1);
-        } else if (PLATFORM.keyboard().down_transition<Key::action_2>()) {
+        } else if (PLATFORM.input().down_transition<Button::action_2>()) {
             repaint_entry();
             cpl_->completion_strs_.clear();
             cpl_->completions_.clear();
@@ -407,7 +407,7 @@ TOP:
                 clobbered_tiles_ = true;
             }
             display_mode_ = DisplayMode::entry;
-        } else if (PLATFORM.keyboard().down_transition<Key::action_1>()) {
+        } else if (PLATFORM.input().down_transition<Button::action_1>()) {
             *command_ += (cpl_->completion_strs_[cpl_->completion_cursor_] +
                           cpl_->completion_prefix_len_);
             repaint_entry();
@@ -422,7 +422,7 @@ TOP:
         break;
 
     case DisplayMode::entry:
-        if (PLATFORM.keyboard().pressed<Key::alt_2>()) {
+        if (PLATFORM.input().pressed<Button::alt_2>()) {
             auto prev_alt = alt_;
             alt_ = true;
             if (not prev_alt) {
@@ -435,7 +435,7 @@ TOP:
                 repaint_entry();
             }
         }
-        if (PLATFORM.keyboard().down_transition<Key::action_2>()) {
+        if (PLATFORM.input().down_transition<Button::action_2>()) {
             if (command_->empty()) {
                 if (APP.macrocosm()) {
                     return make_scene<macro::SelectorScene>();
@@ -446,13 +446,13 @@ TOP:
             command_->pop_back();
             reset_history_index();
             repaint_entry();
-        } else if (PLATFORM.keyboard().down_transition<Key::action_1>()) {
+        } else if (PLATFORM.input().down_transition<Button::action_1>()) {
             auto& kb = alt_ ? alt_keyboard : keyboard;
             command_->push_back(kb[keyboard_cursor_.y][keyboard_cursor_.x][0]);
             repaint_entry();
             PLATFORM.speaker().play_sound("typewriter", 2);
             reset_history_index();
-        } else if (PLATFORM.keyboard().down_transition<Key::alt_1>()) {
+        } else if (PLATFORM.input().down_transition<Button::alt_1>()) {
             // Try to isolate an identifier from the command buffer, for autocomplete.
 
             auto is_delimiter = [](char c) {
@@ -501,7 +501,7 @@ TOP:
             }
         }
 
-        if (PLATFORM.keyboard().down_transition<Key::start>()) {
+        if (PLATFORM.input().down_transition<Button::start>()) {
 
             PLATFORM.speaker().play_sound("tw_bell", 2);
 
@@ -533,7 +533,7 @@ TOP:
             reset_history_index();
         }
 
-        if (PLATFORM.keyboard().down_transition<Key::select>()) {
+        if (PLATFORM.input().down_transition<Button::select>()) {
             auto history_count = history_.size();
             if (history_count) {
                 if (history_index_ == 0 and history_insert_pos_ < 0) {
@@ -549,7 +549,7 @@ TOP:
                 *command_ += prev;
                 repaint_entry();
             }
-        } else if (PLATFORM.keyboard().down_transition<Key::left>()) {
+        } else if (PLATFORM.input().down_transition<Button::left>()) {
             if (keyboard_cursor_.x == 0) {
                 keyboard_cursor_.x = 5;
             } else {
@@ -557,7 +557,7 @@ TOP:
             }
             PLATFORM.speaker().play_sound("cursor_tick", 1);
             repaint_entry();
-        } else if (PLATFORM.keyboard().down_transition<Key::right>()) {
+        } else if (PLATFORM.input().down_transition<Button::right>()) {
             if (keyboard_cursor_.x == 5) {
                 keyboard_cursor_.x = 0;
             } else {
@@ -565,7 +565,7 @@ TOP:
             }
             PLATFORM.speaker().play_sound("cursor_tick", 1);
             repaint_entry();
-        } else if (PLATFORM.keyboard().down_transition<Key::up>()) {
+        } else if (PLATFORM.input().down_transition<Button::up>()) {
             if (keyboard_cursor_.y == 0) {
                 keyboard_cursor_.y = 6;
             } else {
@@ -573,7 +573,7 @@ TOP:
             }
             PLATFORM.speaker().play_sound("cursor_tick", 1);
             repaint_entry();
-        } else if (PLATFORM.keyboard().down_transition<Key::down>()) {
+        } else if (PLATFORM.input().down_transition<Button::down>()) {
             if (keyboard_cursor_.y == 6) {
                 keyboard_cursor_.y = 0;
             } else {
@@ -587,17 +587,17 @@ TOP:
     case DisplayMode::show_result:
 
         if ((int)command_->length() > calc_screen_tiles().x) {
-            if (test_key(Key::right)) {
+            if (test_button(Button::right)) {
                 ++scroll_counter_;
                 repaint_entry();
-            } else if (test_key(Key::left)) {
+            } else if (test_button(Button::left)) {
                 if (scroll_counter_ > 0) {
                     --scroll_counter_;
                     repaint_entry();
                 }
-            } else if (test_key(Key::up) or test_key(Key::down) or
-                       test_key(Key::start) or test_key(Key::action_1) or
-                       test_key(Key::action_2)) {
+            } else if (test_button(Button::up) or test_button(Button::down) or
+                       test_button(Button::start) or test_button(Button::action_1) or
+                       test_button(Button::action_2)) {
                 display_mode_ = DisplayMode::entry;
                 command_->clear();
                 repaint_entry();
@@ -607,14 +607,14 @@ TOP:
             return null_scene();
         }
 
-        if (PLATFORM.keyboard()
-                .down_transition<Key::action_2,
-                                 Key::action_1,
-                                 Key::start,
-                                 Key::left,
-                                 Key::right,
-                                 Key::up,
-                                 Key::down>()) {
+        if (PLATFORM.input()
+                .down_transition<Button::action_2,
+                                 Button::action_1,
+                                 Button::start,
+                                 Button::left,
+                                 Button::right,
+                                 Button::up,
+                                 Button::down>()) {
 
             display_mode_ = DisplayMode::entry;
             command_->clear();

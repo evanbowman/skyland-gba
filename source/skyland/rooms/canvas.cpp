@@ -307,7 +307,7 @@ ScenePtr Canvas::select_impl(const RoomCoord& cursor)
     }
 
     ret->next_ = [isle, p](const img::Image& img,
-                           const Optional<Key>& overscroll) -> ScenePtr {
+                           const Optional<Button>& overscroll) -> ScenePtr {
         APP.player_island().schedule_repaint();
         if (APP.opponent_island()) {
             APP.opponent_island()->schedule_repaint();
@@ -322,19 +322,19 @@ ScenePtr Canvas::select_impl(const RoomCoord& cursor)
             if (overscroll) {
                 auto p = room->position();
                 switch (*overscroll) {
-                case Key::left:
+                case Button::left:
                     --p.x;
                     break;
 
-                case Key::right:
+                case Button::right:
                     ++p.x;
                     break;
 
-                case Key::up:
+                case Button::up:
                     --p.y;
                     break;
 
-                case Key::down:
+                case Button::down:
                     ++p.y;
                     break;
 

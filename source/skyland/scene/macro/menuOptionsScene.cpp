@@ -137,9 +137,9 @@ ScenePtr MenuOptionsScene::update(Player& player, macro::EngineImpl& state)
         }
     }
 
-    if (player.key_pressed(Key::alt_1) or player.key_pressed(Key::alt_2)) {
+    if (player.button_pressed(Button::alt_1) or player.button_pressed(Button::alt_2)) {
 
-        if (player.key_down(Key::action_1)) {
+        if (player.button_down(Button::action_1)) {
             auto& s = state.sector();
 
             for (u8 z = 0; z < s.size().z; ++z) {
@@ -169,12 +169,12 @@ ScenePtr MenuOptionsScene::update(Player& player, macro::EngineImpl& state)
             message_text_->assign(SYS_CSTR(macro_harvest_not_ready));
         }
 
-        if (player.key_down(Key::right)) {
+        if (player.button_down(Button::right)) {
             PLATFORM.speaker().play_sound("cursor_tick", 0);
             return make_scene<NextTurnScene>();
         }
 
-        if (player.key_down(Key::up)) {
+        if (player.button_down(Button::up)) {
             PLATFORM.speaker().play_sound("cursor_tick", 0);
             PLATFORM.fill_overlay(0);
             return make_scene<ExitIslandScene>();

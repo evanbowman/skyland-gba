@@ -74,8 +74,8 @@ public:
         }
 
         case State::failure:
-            if (PLATFORM.keyboard().down_transition(Key::action_1) or
-                PLATFORM.keyboard().down_transition(Key::action_2)) {
+            if (PLATFORM.input().down_transition(Button::action_1) or
+                PLATFORM.input().down_transition(Button::action_2)) {
                 return make_scene<SelectorScene>();
             }
             break;

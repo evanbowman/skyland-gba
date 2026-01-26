@@ -141,7 +141,7 @@ bool FullscreenDialogScene::advance_text(Time delta, bool sfx)
         text_state_.pos_++;
 
         if (*text_state_.current_word_ == '\0') {
-            display_mode_ = DisplayMode::key_released_check2;
+            display_mode_ = DisplayMode::button_released_check2;
         }
     }
 
@@ -194,7 +194,7 @@ void FullscreenDialogScene::exit(Scene& prev)
             PLATFORM.screen().schedule_fade(
                 Float(i) / (frames - 1),
                 {ColorConstant::rich_black, true, true});
-            PLATFORM.keyboard().poll();
+            PLATFORM.input().poll();
             PLATFORM.screen().clear();
             PLATFORM.screen().display();
         }
@@ -259,9 +259,9 @@ ScenePtr FullscreenDialogScene::update(Time delta)
         const bool text_busy = advance_text(delta, true);
 
         if (not text_busy) {
-            display_mode_ = DisplayMode::key_released_check1;
+            display_mode_ = DisplayMode::button_released_check1;
         } else {
-            if (key_down<Key::action_2>() or key_down<Key::action_1>()) {
+            if (button_down<Button::action_2>() or button_down<Button::action_1>()) {
 
                 while (advance_text(delta, false)) {
                     if (display_mode_ not_eq DisplayMode::busy) {
@@ -270,7 +270,7 @@ ScenePtr FullscreenDialogScene::update(Time delta)
                 }
 
                 if (display_mode_ == DisplayMode::busy) {
-                    display_mode_ = DisplayMode::key_released_check1;
+                    display_mode_ = DisplayMode::button_released_check1;
                 }
             }
         }
@@ -279,7 +279,7 @@ ScenePtr FullscreenDialogScene::update(Time delta)
     case DisplayMode::wait: {
         animate_moretext_icon();
 
-        if (key_down<Key::action_2>() or key_down<Key::action_1>()) {
+        if (button_down<Button::action_2>() or button_down<Button::action_1>()) {
 
             text_state_.timer_ = 0;
 
@@ -289,18 +289,18 @@ ScenePtr FullscreenDialogScene::update(Time delta)
         break;
     }
 
-    case DisplayMode::key_released_check1:
-        // if (key_down<Key::action_2>() or
-        //     key_down<Key::action_1>()) {
+    case DisplayMode::button_released_check1:
+        // if (button_down<Button::action_2>() or
+        //     button_down<Button::action_1>()) {
 
         text_state_.timer_ = seconds(1);
         display_mode_ = DisplayMode::wait;
         // }
         break;
 
-    case DisplayMode::key_released_check2:
-        // if (key_down<Key::action_2>() or
-        //     key_down<Key::action_1>()) {
+    case DisplayMode::button_released_check2:
+        // if (button_down<Button::action_2>() or
+        //     button_down<Button::action_1>()) {
 
         text_state_.timer_ = seconds(1);
         display_mode_ = DisplayMode::done;
@@ -309,7 +309,7 @@ ScenePtr FullscreenDialogScene::update(Time delta)
 
     case DisplayMode::done:
         animate_moretext_icon();
-        if (key_down<Key::action_2>() or key_down<Key::action_1>()) {
+        if (button_down<Button::action_2>() or button_down<Button::action_1>()) {
 
             // if (text_[1] not_eq LocaleString::empty) {
             //     ++text_;
@@ -426,7 +426,7 @@ void FullscreenDialogScene::process_command()
             int frames = 25;
             for (int i = 0; i < frames; ++i) {
                 PLATFORM.screen().schedule_fade(Float(i) / frames);
-                PLATFORM.keyboard().poll();
+                PLATFORM.input().poll();
                 PLATFORM.screen().clear();
                 PLATFORM.screen().display();
             }
@@ -466,7 +466,7 @@ void FullscreenDialogScene::process_command()
         for (int i = 0; i < frames; ++i) {
             PLATFORM.screen().schedule_fade(1 - Float(i) / frames,
                                             {ColorConstant::rich_black});
-            PLATFORM.keyboard().poll();
+            PLATFORM.input().poll();
             PLATFORM.screen().clear();
             PLATFORM.screen().display();
         }

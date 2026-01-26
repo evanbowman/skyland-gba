@@ -380,7 +380,7 @@ void MacrocosmScene::enter(macro::EngineImpl& state, Scene& prev)
     }
 
     draw_compass(state);
-    draw_keylock(state);
+    draw_buttonlock(state);
 
     for (int y = 5; y < 13; y += 2) {
         PLATFORM.set_tile(Layer::overlay, 28, y, 471);
@@ -430,30 +430,30 @@ void MacrocosmScene::draw_compass(macro::EngineImpl& state)
 
 
 
-void MacrocosmScene::draw_keylock(macro::EngineImpl& state)
+void MacrocosmScene::draw_buttonlock(macro::EngineImpl& state)
 {
     int y = 6;
     if (state.data_->freebuild_mode_ or state.data_->checkers_mode_) {
         y = 4;
     }
 
-    switch (state.data_->keylock_) {
-    case Keylock::nolock:
+    switch (state.data_->buttonlock_) {
+    case Buttonlock::nolock:
         PLATFORM.set_tile(Layer::overlay, 27, y, 0);
         PLATFORM.set_tile(Layer::overlay, 28, y, 0);
         break;
 
-    case Keylock::buildlock:
+    case Buttonlock::buildlock:
         PLATFORM.set_tile(Layer::overlay, 27, y, 388);
         PLATFORM.set_tile(Layer::overlay, 28, y, 390);
         break;
 
-    case Keylock::improvelock:
+    case Buttonlock::improvelock:
         PLATFORM.set_tile(Layer::overlay, 27, y, 387);
         PLATFORM.set_tile(Layer::overlay, 28, y, 390);
         break;
 
-    case Keylock::deletelock:
+    case Buttonlock::deletelock:
         PLATFORM.set_tile(Layer::overlay, 27, y, 389);
         PLATFORM.set_tile(Layer::overlay, 28, y, 390);
         break;

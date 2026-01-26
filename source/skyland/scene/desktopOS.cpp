@@ -23,8 +23,6 @@
 namespace skyland
 {
 
-#ifdef __GBA__
-
 
 void __draw_image(TileDesc start_tile,
                   u16 start_x,
@@ -88,9 +86,13 @@ public:
 
 
         Clickable(const Clickable&) = delete;
+        Clickable(Clickable&& other) = delete;
+
+        Clickable& operator=(const Clickable& other) = delete;
+        Clickable& operator=(Clickable&& other) = delete;
 
 
-        ~Clickable()
+        virtual ~Clickable()
         {
             g_os_->unregister_clickable(this);
         }
@@ -144,7 +146,7 @@ public:
     {
     public:
         DropdownMenu(const char* name, u8 x, u8 y)
-            : Clickable({u8(strlen(name) * 8), 8, 0, 0}), name_(name), x_(x),
+            : Clickable({{u8(strlen(name) * 8), 8}, {0, 0}}), name_(name), x_(x),
               y_(y)
         {
             pos().x = Fixnum::from_integer(x * 8);
@@ -184,7 +186,6 @@ public:
             Text::print(name_, {x_, y_}, open_ ? sel_colors : nullopt());
 
             if (open_) {
-
                 u32 longest_opt = 0;
                 for (auto& opt : options_) {
                     auto len = strlen(opt.name());
@@ -230,7 +231,7 @@ public:
         {
         public:
             Option(const char* name, OptionCallback cb, u8 x, u8 y)
-                : Clickable({u8(strlen(name) * 8), 8, 0, 0}), name_(name),
+                : Clickable({{u8(strlen(name) * 8), 8}, {0, 0}}), name_(name),
                   cb_(cb)
             {
                 pos().x = Fixnum::from_integer(x * 8);
@@ -290,7 +291,7 @@ public:
     {
     public:
         DockIcon(const char* name, u8 icon_gfx, Vec2<Fixnum> pos)
-            : Clickable({16, 16, 0, 0}), name_(name), icon_gfx_(icon_gfx)
+            : Clickable({{16, 16}, {0, 0}}), name_(name), icon_gfx_(icon_gfx)
         {
             this->pos() = pos;
             y_pos_ = this->pos().y.as_integer();
@@ -473,7 +474,7 @@ public:
         {
         public:
             CloseButton(Window* window)
-                : Clickable({7, 7, -1, -1}), window_(window)
+                : Clickable({{7, 7}, {-1, -1}}), window_(window)
             {
                 this->pos().x = 3.0_fixed;
                 this->pos().y = 12.0_fixed;
@@ -494,7 +495,7 @@ public:
         {
         public:
             MinimizeButton(Window* window)
-                : Clickable({7, 7, -1, -1}), window_(window)
+                : Clickable({{7, 7}, {-1, -1}}), window_(window)
             {
                 this->pos().x = 14.0_fixed;
                 this->pos().y = 12.0_fixed;
@@ -584,6 +585,8 @@ public:
         {
         }
 
+
+        virtual ~Window() {}
 
     private:
         DockIcon* pkg_;
@@ -858,7 +861,7 @@ public:
         {
         public:
             FileExplorerOption(int index)
-                : Clickable({u8(8 * 28), 7}), index_(index)
+                : Clickable({{u8(8 * 28), 7}, {}}), index_(index)
             {
                 Vec2<Fixnum> pos{16.0_fixed, 25.0_fixed};
                 pos.y += Fixnum::from_integer(8 * index);
@@ -906,9 +909,10 @@ public:
                     pos.x = Fixnum::from_integer(16);
                     pos.y = Fixnum::from_integer((33 - 8) + i * 8);
                     music_opts_.emplace_back(temp.c_str(),
-                                             HitBox::Dimension{20 * 8, 7, 0, 0},
+                                             HitBox::Dimension{{20 * 8, 7}, {0, 0}},
                                              pos,
                                              this);
+                    info(temp);
                     music_names_.push_back(temp.c_str());
                     ++i;
                 }
@@ -969,6 +973,7 @@ public:
                     nm.push_back(' ');
                 }
                 u8 y = u8(4 + i);
+                info(nm);
                 if (alternate) {
                     Text::print(nm.c_str(), {0, y});
                     if (selected_track_ == i) {
@@ -1083,7 +1088,7 @@ public:
         {
         public:
             WindowFocusCapture(TextEditWindow* window)
-                : Clickable({240, 104, 0, 0}), window_(window)
+                : Clickable({{240, 104}, {0, 0}}), window_(window)
             {
                 this->pos().x = 0.0_fixed;
                 this->pos().y = 25.0_fixed;
@@ -1251,10 +1256,10 @@ public:
 
         void update() override
         {
-            if (APP.player().key_down(Key::action_2)) {
+            if (APP.player().button_down(Button::action_2)) {
                 if (interactive_ and impl_ and
                     impl_->mode_ == TextEditorModule::Mode::nav and
-                    not APP.player().key_pressed(Key::alt_1)) {
+                    not APP.player().button_pressed(Button::alt_1)) {
                     interactive_ = false;
                     g_os_->capture_focus(false);
                     g_os_->repaint_windows();
@@ -1262,7 +1267,7 @@ public:
             }
 
             if (interactive_) {
-                if (ignore_click_ and APP.player().key_down(Key::action_1)) {
+                if (ignore_click_ and APP.player().button_down(Button::action_1)) {
                     ignore_click_--;
                 } else {
                     if (impl_) {
@@ -1313,7 +1318,7 @@ public:
         {
         public:
             WindowFocusCapture(LispWindow* window)
-                : Clickable({240, 104, 0, 0}), window_(window)
+                : Clickable({{240, 104}, {0, 0}}), window_(window)
             {
                 this->pos().x = 0.0_fixed;
                 this->pos().y = 25.0_fixed;
@@ -1402,7 +1407,7 @@ public:
 
         void update() override
         {
-            if (APP.player().key_down(Key::action_2)) {
+            if (APP.player().button_down(Button::action_2)) {
                 if (interactive_ and impl_->entry_empty()) {
                     interactive_ = false;
                     g_os_->capture_focus(false);
@@ -1411,7 +1416,7 @@ public:
             }
 
             if (interactive_) {
-                if (ignore_click_ and APP.player().key_down(Key::action_1)) {
+                if (ignore_click_ and APP.player().button_down(Button::action_1)) {
                     ignore_click_--;
                 } else {
                     impl_->update(milliseconds(16));
@@ -1522,7 +1527,7 @@ public:
         {
         public:
             LaunchButton(Window* window)
-                : Clickable({8 * 6, 8, 0, 0}), window_(window)
+                : Clickable({{8 * 6, 8}, {0, 0}})
             {
                 this->pos().x = 168.0_fixed;
                 this->pos().y = 49.0_fixed;
@@ -1533,10 +1538,6 @@ public:
             {
                 g_os_->boot_rom();
             }
-
-
-        private:
-            Window* window_;
         };
 
     private:
@@ -1585,6 +1586,20 @@ public:
     {
         mem_->resume_ = resume;
         g_os_ = this;
+    }
+
+
+    DesktopOS(const DesktopOS&) = delete;
+
+
+    ~DesktopOS()
+    {
+        // FIXME: ordering matters. Reorder the fields in Mem and use the
+        // default destructor for DesktopOS.
+        mem_->clickables_.clear();
+        mem_->dock_icons_.clear();
+        mem_->windows_.clear();
+        mem_->menu_bar_opts_.clear();
     }
 
 
@@ -1699,30 +1714,30 @@ public:
         }
 
         if (not cursor_captured_) {
-            if (player().key_pressed(Key::down)) {
+            if (player().button_pressed(Button::down)) {
                 if (cursor_.y < 159.0_fixed) {
                     cursor_.y += 1.3_fixed;
                 }
             }
-            if (player().key_pressed(Key::up)) {
+            if (player().button_pressed(Button::up)) {
                 if (cursor_.y > 0.0_fixed) {
                     cursor_.y -= 1.3_fixed;
                 }
             }
 
-            if (player().key_pressed(Key::right)) {
+            if (player().button_pressed(Button::right)) {
                 if (cursor_.x < 239.0_fixed) {
                     cursor_.x += 1.3_fixed;
                 }
             }
-            if (player().key_pressed(Key::left)) {
+            if (player().button_pressed(Button::left)) {
                 if (cursor_.x > 0.0_fixed) {
                     cursor_.x -= 1.3_fixed;
                 }
             }
 
             HitBox cursor_hb;
-            cursor_hb.dimension_ = {1, 1, 0, 0};
+            cursor_hb.dimension_ = {{1, 1}, {0, 0}};
             cursor_hb.position_ = &cursor_;
 
             DropdownMenu* dropdown_open = nullptr;
@@ -1766,7 +1781,7 @@ public:
                 }
             }
 
-            if (player().key_down(Key::action_1)) {
+            if (player().button_down(Button::action_1)) {
                 click();
             }
         }
@@ -1786,7 +1801,7 @@ public:
     void click()
     {
         HitBox cursor_hb;
-        cursor_hb.dimension_ = {1, 1, 0, 0};
+        cursor_hb.dimension_ = {{1, 1}, {0, 0}};
         cursor_hb.position_ = &cursor_;
 
         DropdownMenu* dropdown_open = nullptr;
@@ -2015,8 +2030,8 @@ private:
 
     struct Mem
     {
-        Buffer<DockIcon, 8> dock_icons_;
         Buffer<DynamicMemory<Window>, 8> windows_;
+        Buffer<DockIcon, 8> dock_icons_;
         Buffer<Clickable*, 40> clickables_;
         Buffer<DropdownMenu, 4> menu_bar_opts_;
         Optional<DeferredScene> resume_;
@@ -2051,17 +2066,10 @@ void DesktopOS::DropdownMenu::on_hover()
 }
 
 
-#endif
-
-
 
 ScenePtr boot_desktop_os(Optional<DeferredScene> resume)
 {
-#ifdef __GBA__
     return make_scene<DesktopOS>(resume);
-#else
-    return null_scene();
-#endif
 }
 
 

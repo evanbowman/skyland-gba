@@ -46,11 +46,11 @@ ScenePtr CombatDroneSetTargetScene::update(Time delta)
         return exit_scene();
     }
 
-    if (APP.player().key_down(Key::action_2)) {
+    if (APP.player().button_down(Button::action_2)) {
         return exit_scene();
     }
 
-    if (APP.player().key_down(Key::action_1)) {
+    if (APP.player().button_down(Button::action_1)) {
 
         network::packet::DroneSetTarget packet;
         packet.drone_x_ = drone_->position().x;
@@ -66,14 +66,14 @@ ScenePtr CombatDroneSetTargetScene::update(Time delta)
         return exit_scene();
     }
 
-    if (APP.player().key_down(Key::right)) {
+    if (APP.player().button_down(Button::right)) {
         ++selector_;
         if (selector_ >= (int)targets_.size()) {
             selector_ = 0;
         }
     }
 
-    if (APP.player().key_down(Key::left)) {
+    if (APP.player().button_down(Button::left)) {
         --selector_;
         if (selector_ < 0) {
             selector_ = targets_.size() - 1;

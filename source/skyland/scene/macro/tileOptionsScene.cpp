@@ -125,18 +125,18 @@ ScenePtr TileOptionsScene::update(Player& player, macro::EngineImpl& state)
         }
     }
 
-    if (player.key_down(Key::action_1)) {
+    if (player.button_down(Button::action_1)) {
         PLATFORM.speaker().play_sound("button_wooden", 3);
         auto next = options_[selector_]->next_(*this, state);
         last_option_ = options_[selector_];
         return next;
     }
 
-    if (player.key_down(Key::action_2)) {
+    if (player.button_down(Button::action_2)) {
         return make_scene<SelectorScene>();
     }
 
-    if (player.key_down(Key::left)) {
+    if (player.button_down(Button::left)) {
         if (selector_ == 0) {
             selector_ = options_.size() - 1;
         } else {
@@ -146,7 +146,7 @@ ScenePtr TileOptionsScene::update(Player& player, macro::EngineImpl& state)
         PLATFORM.speaker().play_sound("click", 1);
     }
 
-    if (player.key_down(Key::right)) {
+    if (player.button_down(Button::right)) {
         ++selector_;
         selector_ %= options_.size();
         show_options(state);

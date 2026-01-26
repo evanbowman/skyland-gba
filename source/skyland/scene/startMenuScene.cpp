@@ -155,7 +155,7 @@ public:
     {
         auto& sector = state.sector();
 
-        if (player.key_down(Key::left)) {
+        if (player.button_down(Button::left)) {
             PLATFORM.screen().schedule_fade(0.7f, {custom_color(0x102447)});
             PLATFORM.screen().clear();
             PLATFORM.screen().display();
@@ -164,7 +164,7 @@ public:
             PLATFORM.screen().schedule_fade(0.f, {ColorConstant::rich_black});
             draw_compass(state);
             PLATFORM.speaker().play_sound("cursor_tick", 0);
-        } else if (player.key_down(Key::right)) {
+        } else if (player.button_down(Button::right)) {
             PLATFORM.screen().schedule_fade(0.7f, {custom_color(0x102447)});
             PLATFORM.screen().clear();
             PLATFORM.screen().display();
@@ -177,7 +177,7 @@ public:
             PLATFORM.speaker().play_sound("cursor_tick", 0);
         }
 
-        if (player.key_down(Key::action_1)) {
+        if (player.button_down(Button::action_1)) {
             PLATFORM.speaker().play_sound("button_wooden", 3);
             auto& current = state.sector();
             current.generate_terrain(160, 1);
@@ -185,7 +185,7 @@ public:
             current.set_cursor({u8(sz.x / 2), u8(sz.y / 2), u8(sz.z / 2)});
             return null_scene();
         }
-        if (player.key_down(Key::action_2)) {
+        if (player.button_down(Button::action_2)) {
             return make_scene<macro::SelectorScene>();
         }
 
@@ -230,8 +230,8 @@ ScenePtr StartMenuScene::update(Time delta)
 {
     player().update(delta);
 
-    auto test_key = [&](Key k) {
-        return player().test_key(k, milliseconds(500), milliseconds(100));
+    auto test_button = [&](Button k) {
+        return player().test_button(k, milliseconds(500), milliseconds(100));
     };
 
 AGAIN:
@@ -260,7 +260,7 @@ AGAIN:
     }
 
     auto check_button = [&] {
-        if (player().key_down(Key::action_1)) {
+        if (player().button_down(Button::action_1)) {
             PLATFORM.speaker().play_sound("button_wooden", 3);
             const auto mode = data_->on_click_[data_->cursor_].mode_;
             if (mode == kill_menu) {
@@ -808,13 +808,13 @@ AGAIN:
             timer_ = 0;
         }
 
-        if (test_key(Key::down)) {
+        if (test_button(Button::down)) {
             if (data_->cursor_ < data_->text_.size() - 1) {
                 ++data_->cursor_;
                 PLATFORM.speaker().play_sound("click_wooden", 2);
             }
         }
-        if (test_key(Key::up)) {
+        if (test_button(Button::up)) {
             if (data_->cursor_ > 0) {
                 --data_->cursor_;
                 PLATFORM.speaker().play_sound("click_wooden", 2);
@@ -825,17 +825,17 @@ AGAIN:
     }
 
     case State::idle:
-        if (player().key_down(Key::action_2) or player().key_down(Key::start)) {
+        if (player().button_down(Button::action_2) or player().button_down(Button::start)) {
             state_ = State::clear;
         }
         check_button();
-        if (test_key(Key::down)) {
+        if (test_button(Button::down)) {
             if (data_->cursor_ < data_->text_.size() - 1) {
                 ++data_->cursor_;
                 PLATFORM.speaker().play_sound("click_wooden", 2);
             }
         }
-        if (test_key(Key::up)) {
+        if (test_button(Button::up)) {
             if (data_->cursor_ > 0) {
                 --data_->cursor_;
                 PLATFORM.speaker().play_sound("click_wooden", 2);

@@ -58,8 +58,8 @@ private:
     enum class DisplayMode {
         animate_in,
         busy,
-        key_released_check1,
-        key_released_check2,
+        button_released_check1,
+        button_released_check2,
         wait,
         done,
         animate_out,

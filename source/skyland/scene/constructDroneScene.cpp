@@ -164,7 +164,7 @@ ScenePtr ConstructDroneScene::update(Time delta)
 
     auto [templates, template_count] = drone_metatable();
 
-    if (APP.player().key_down(Key::action_1)) {
+    if (APP.player().button_down(Button::action_1)) {
         const auto cost = templates[selector_]->cost();
         if (APP.coins() >= cost) {
             auto mt = &templates[selector_];
@@ -174,12 +174,12 @@ ScenePtr ConstructDroneScene::update(Time delta)
     }
 
 
-    auto test_key = [&](Key k) {
-        return APP.player().test_key(k, milliseconds(500), milliseconds(150));
+    auto test_button = [&](Button k) {
+        return APP.player().test_button(k, milliseconds(500), milliseconds(150));
     };
 
 
-    if (test_key(Key::right)) {
+    if (test_button(Button::right)) {
         if (selector_ < (int)template_count - 1) {
             ++selector_;
             draw();
@@ -189,7 +189,7 @@ ScenePtr ConstructDroneScene::update(Time delta)
         }
     }
 
-    if (test_key(Key::left)) {
+    if (test_button(Button::left)) {
         if (selector_ > 0) {
             --selector_;
             draw();
@@ -199,7 +199,7 @@ ScenePtr ConstructDroneScene::update(Time delta)
         }
     }
 
-    if (APP.player().key_down(Key::action_2)) {
+    if (APP.player().button_down(Button::action_2)) {
         return make_scene<ReadyScene>();
     }
 

@@ -116,18 +116,18 @@ void apply()
         state_bit_store(StateBit::lighting_enabled, true);
     }
 
-    if (auto map = PLATFORM.get_extensions().map_key) {
+    if (auto map = PLATFORM.get_extensions().map_button) {
 #define GET_S(STR) (settings.get(STR).c_str())
-        map(Key::action_1, GET_S("key_action1"));
-        map(Key::action_2, GET_S("key_action2"));
-        map(Key::alt_1,    GET_S("key_alt1"));
-        map(Key::alt_2,    GET_S("key_alt2"));
-        map(Key::start,    GET_S("key_start"));
-        map(Key::select,   GET_S("key_select"));
-        map(Key::up,       GET_S("key_up"));
-        map(Key::down,     GET_S("key_down"));
-        map(Key::left,     GET_S("key_left"));
-        map(Key::right,    GET_S("key_right"));
+        map(Button::action_1, GET_S("key_action1"));
+        map(Button::action_2, GET_S("key_action2"));
+        map(Button::alt_1,    GET_S("key_alt1"));
+        map(Button::alt_2,    GET_S("key_alt2"));
+        map(Button::start,    GET_S("key_start"));
+        map(Button::select,   GET_S("key_select"));
+        map(Button::up,       GET_S("key_up"));
+        map(Button::down,     GET_S("key_down"));
+        map(Button::left,     GET_S("key_left"));
+        map(Button::right,    GET_S("key_right"));
     }
 }
 

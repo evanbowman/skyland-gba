@@ -358,17 +358,17 @@ public:
             flicker_on_ = not flicker_on_;
         }
 
-        if (APP.player().key_down(Key::action_2)) {
+        if (APP.player().button_down(Button::action_2)) {
             return make_scene<ReadyScene>();
         }
 
-        if (APP.player().key_down(Key::down) or
-            APP.player().key_down(Key::up)) {
+        if (APP.player().button_down(Button::down) or
+            APP.player().button_down(Button::up)) {
             menu_opt_ = not menu_opt_;
             repaint_menu_opts();
         }
 
-        if (APP.player().key_down(Key::action_1)) {
+        if (APP.player().button_down(Button::action_1)) {
             if (menu_opt_ == 0) {
                 // cancel
                 return make_scene<ReadyScene>();
@@ -536,11 +536,11 @@ ScenePtr UpgradePromptScene::update(Time delta)
         return next;
     }
 
-    auto test_key = [&](Key k) {
-        return APP.player().test_key(k, milliseconds(500), milliseconds(150));
+    auto test_button = [&](Button k) {
+        return APP.player().test_button(k, milliseconds(500), milliseconds(150));
     };
 
-    if (APP.player().key_down(Key::start)) {
+    if (APP.player().button_down(Button::start)) {
         auto mt = upgrade_to_[upgrade_index_];
         auto next = make_scene<GlossaryViewerModule>(mt);
         next->skip_categories();
@@ -570,17 +570,17 @@ ScenePtr UpgradePromptScene::update(Time delta)
         return make_scene<ReadyScene>();
     }
 
-    if (player().key_down(Key::action_2)) {
+    if (player().button_down(Button::action_2)) {
         return make_scene<ReadyScene>();
     }
 
     if (upgrade_to_.size() > 1) {
-        if (test_key(Key::right)) {
+        if (test_button(Button::right)) {
             ++upgrade_index_;
             upgrade_index_ %= upgrade_to_.size();
             repaint();
         }
-        if (test_key(Key::left)) {
+        if (test_button(Button::left)) {
             if (upgrade_index_ == 0) {
                 upgrade_index_ = upgrade_to_.size() - 1;
             } else {
@@ -590,7 +590,7 @@ ScenePtr UpgradePromptScene::update(Time delta)
         }
     }
 
-    if (player().key_down(Key::action_1)) {
+    if (player().button_down(Button::action_1)) {
         if (auto room = APP.player_island().get_room(target_coord_)) {
 
             auto next = make_deferred_scene<ReadyScene>();

@@ -624,55 +624,55 @@ Platform::DeltaClock::~DeltaClock()
 
 
 
-Optional<Bitvector<int(Key::count)>> missed_keys;
+Optional<Bitvector<int(Button::count)>> missed_buttons;
 
 
 
-static void poll_keys(Platform::Keyboard::KeyStates& k)
+static void poll_buttons(Platform::Input::ButtonStates& k)
 {
     volatile u32* keys = (volatile u32*)0x04000130;
 
-    k[int(Key::action_1)] = ~(*keys) & KEY_A;
-    k[int(Key::action_2)] = ~(*keys) & KEY_B;
-    k[int(Key::start)] = ~(*keys) & KEY_START;
-    k[int(Key::select)] = ~(*keys) & KEY_SELECT;
-    k[int(Key::right)] = ~(*keys) & KEY_RIGHT;
-    k[int(Key::left)] = ~(*keys) & KEY_LEFT;
-    k[int(Key::down)] = ~(*keys) & KEY_DOWN;
-    k[int(Key::up)] = ~(*keys) & KEY_UP;
-    k[int(Key::alt_1)] = ~(*keys) & KEY_L;
-    k[int(Key::alt_2)] = ~(*keys) & KEY_R;
+    k[int(Button::action_1)] = ~(*keys) & KEY_A;
+    k[int(Button::action_2)] = ~(*keys) & KEY_B;
+    k[int(Button::start)] = ~(*keys) & KEY_START;
+    k[int(Button::select)] = ~(*keys) & KEY_SELECT;
+    k[int(Button::right)] = ~(*keys) & KEY_RIGHT;
+    k[int(Button::left)] = ~(*keys) & KEY_LEFT;
+    k[int(Button::down)] = ~(*keys) & KEY_DOWN;
+    k[int(Button::up)] = ~(*keys) & KEY_UP;
+    k[int(Button::alt_1)] = ~(*keys) & KEY_L;
+    k[int(Button::alt_2)] = ~(*keys) & KEY_R;
 }
 
 
 
-const char* Platform::Keyboard::check_key()
+const char* Platform::Input::check_button()
 {
     return nullptr;
 }
 
 
 
-void Platform::Keyboard::poll()
+void Platform::Input::poll()
 {
     set_gflag(GlobalFlag::key_poll_called, true);
 
     std::copy(std::begin(states_), std::end(states_), std::begin(prev_));
 
-    poll_keys(states_);
+    poll_buttons(states_);
 
-    if (UNLIKELY(static_cast<bool>(::missed_keys))) {
-        for (int i = 0; i < (int)Key::count; ++i) {
-            if ((*::missed_keys)[i]) {
+    if (UNLIKELY(static_cast<bool>(::missed_buttons))) {
+        for (int i = 0; i < (int)Button::count; ++i) {
+            if ((*::missed_buttons)[i]) {
                 states_[i] = true;
             }
         }
-        ::missed_keys.reset();
+        ::missed_buttons.reset();
     }
 }
 
 
-void Platform::Keyboard::rumble(bool enabled)
+void Platform::Input::rumble(bool enabled)
 {
     // We have a working RTC chip connected to the cartridge gpio, so do not
     // attempt to write rumble commands.
@@ -2636,16 +2636,16 @@ static void vblank_isr()
     }
 
     if (not get_gflag(GlobalFlag::key_poll_called)) {
-        Platform::Keyboard::KeyStates current_keys;
-        poll_keys(current_keys);
+        Platform::Input::ButtonStates current_keys;
+        poll_buttons(current_keys);
 
-        for (int i = 0; i < (int)Key::count; ++i) {
+        for (int i = 0; i < (int)Button::count; ++i) {
             if (current_keys[i]) {
-                if (not ::missed_keys) {
-                    ::missed_keys.emplace();
-                    ::missed_keys->clear();
+                if (not ::missed_buttons) {
+                    ::missed_buttons.emplace();
+                    ::missed_buttons->clear();
                 }
-                missed_keys->set(i, true);
+                missed_buttons->set(i, true);
             }
         }
     }
@@ -2791,9 +2791,9 @@ void Platform::fatal(const char* msg)
             ::__platform__->remote_console().printline(printer.fmt_.c_str());
         }
 
-        ::__platform__->keyboard().poll();
+        ::__platform__->input().poll();
 
-        if (::__platform__->keyboard().down_transition<Key::action_2>()) {
+        if (::__platform__->input().down_transition<Button::action_2>()) {
 
             if (not verbose_error) {
                 show_verbose_msg();
@@ -3364,23 +3364,23 @@ void Platform::sleep(u32 frames)
     irqDisable(IRQ_TIMER3);
 
     // NOTE: When sleeping for large numbers of frames, we may miss button
-    // presses! So we should keep track of which keys were pressed during the
+    // presses! So we should keep track of which buttons were pressed during the
     // sleep() call.
-    Keyboard temp_kb;
+    Input temp_kb;
 
-    const auto start_keys = keyboard_.dump_state();
+    const auto start_buttons = input_.dump_state();
 
     while (frames--) {
         temp_kb.poll();
-        const auto current_keys = temp_kb.dump_state();
+        const auto current_buttons = temp_kb.dump_state();
 
-        for (int i = 0; i < (int)Key::count; ++i) {
-            if (start_keys[i] not_eq current_keys[i] and current_keys[i]) {
-                if (not ::missed_keys) {
-                    ::missed_keys.emplace();
-                    ::missed_keys->clear();
+        for (int i = 0; i < (int)Button::count; ++i) {
+            if (start_buttons[i] not_eq current_buttons[i] and current_buttons[i]) {
+                if (not ::missed_buttons) {
+                    ::missed_buttons.emplace();
+                    ::missed_buttons->clear();
                 }
-                missed_keys->set(i, true);
+                missed_buttons->set(i, true);
             }
         }
 
@@ -5185,11 +5185,11 @@ void show_health_and_safety_message()
             }
         }
 
-        missed_keys.reset();
-        PLATFORM.keyboard().poll();
+        missed_buttons.reset();
+        PLATFORM.input().poll();
         bool exit = false;
-        for (int i = 0; i < (int)Key::count; ++i) {
-            if (PLATFORM.keyboard().pressed((Key)i)) {
+        for (int i = 0; i < (int)Button::count; ++i) {
+            if (PLATFORM.input().pressed((Button)i)) {
                 exit = true;
                 break;
             }
@@ -7498,7 +7498,7 @@ Platform::Platform()
     }
 
 
-    keyboard().poll();
+    input().poll();
 
     Conf conf;
 
@@ -7696,7 +7696,7 @@ Platform::Platform()
 
 
     if (not filesystem::is_mounted()) {
-        keyboard_.poll();
+        input_.poll();
         fatal("resource bundle missing");
     }
 
@@ -7740,10 +7740,10 @@ Platform::Platform()
     }
 
 
-    if (keyboard().pressed<Key::alt_1>() and
-        keyboard().pressed<Key::alt_2>() and
-        keyboard().pressed<Key::action_1>() and
-        keyboard().pressed<Key::select>()) {
+    if (input().pressed<Button::alt_1>() and
+        input().pressed<Button::alt_2>() and
+        input().pressed<Button::action_1>() and
+        input().pressed<Button::select>()) {
 
         erase_save_sector();
     }

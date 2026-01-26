@@ -57,35 +57,35 @@ StringBuffer<16> get_extension(const StringBuffer<200>& cwd);
 
 ScenePtr CreateFileScene::update(Time delta)
 {
-    if (APP.player().key_down(Key::left)) {
+    if (APP.player().button_down(Button::left)) {
         if (keyboard_cursor_.x > 0) {
             --keyboard_cursor_.x;
         } else {
             keyboard_cursor_.x = 6;
         }
         render_keyboard();
-    } else if (APP.player().key_down(Key::right)) {
+    } else if (APP.player().button_down(Button::right)) {
         if (keyboard_cursor_.x < 6) {
             ++keyboard_cursor_.x;
         } else {
             keyboard_cursor_.x = 0;
         }
         render_keyboard();
-    } else if (APP.player().key_down(Key::up)) {
+    } else if (APP.player().button_down(Button::up)) {
         if (keyboard_cursor_.y > 0) {
             --keyboard_cursor_.y;
         } else {
             keyboard_cursor_.y = 6;
         }
         render_keyboard();
-    } else if (APP.player().key_down(Key::down)) {
+    } else if (APP.player().button_down(Button::down)) {
         if (keyboard_cursor_.y < 6) {
             ++keyboard_cursor_.y;
         } else {
             keyboard_cursor_.y = 0;
         }
         render_keyboard();
-    } else if (APP.player().key_down(Key::action_1)) {
+    } else if (APP.player().button_down(Button::action_1)) {
         const char c = keyboard[keyboard_cursor_.y][keyboard_cursor_.x][0];
         path_.push_back(c);
         auto temp = path_;
@@ -94,7 +94,7 @@ ScenePtr CreateFileScene::update(Time delta)
         }
         entry_->assign(temp.c_str(), text_entry_colors);
 
-    } else if (APP.player().key_down(Key::action_2)) {
+    } else if (APP.player().button_down(Button::action_2)) {
         if (not path_.empty()) {
             path_.pop_back();
             auto temp = path_;
@@ -105,7 +105,7 @@ ScenePtr CreateFileScene::update(Time delta)
         } else {
             // TODO: exit
         }
-    } else if (APP.player().key_down(Key::start)) {
+    } else if (APP.player().button_down(Button::start)) {
         if (not path_.empty()) {
             StringBuffer<100> full_path_(file_path_.c_str());
             full_path_ += path_;

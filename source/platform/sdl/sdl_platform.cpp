@@ -226,7 +226,7 @@ SDL_Color color_to_sdl(ColorConstant k)
 
 
 
-static std::map<SDL_Scancode, Key> keymap;
+static std::map<SDL_Scancode, Button> buttonmap;
 
 
 bool save_surface_to_bmp(SDL_Surface* surface, const char* filename)
@@ -440,29 +440,29 @@ static const Platform::Extensions extensions{
         [](int x, int y, int w, int h, ColorConstant tint, int priority) {
             rect_draw_queue.push_back({x, y, w, h, tint, priority});
         },
-    .map_key =
-        [](Key k, const char* key_name) {
-            if (strlen(key_name) == 0) {
+    .map_button =
+        [](Button k, const char* button_name) {
+            if (strlen(button_name) == 0) {
                 return;
             }
-            SDL_Scancode scancode = SDL_GetScancodeFromName(key_name);
+            SDL_Scancode scancode = SDL_GetScancodeFromName(button_name);
 
             if (scancode == SDL_SCANCODE_UNKNOWN) {
-                warning(format("unknown scancode %", key_name));
+                warning(format("unknown scancode %", button_name));
                 return;
             }
 
             // info(format("mapped % to %", (int)k, (int)scancode));
 
-            // We need to erase the existing mapping for this key
-            for (auto it = keymap.begin(); it not_eq keymap.end();) {
+            // We need to erase the existing mapping for this button
+            for (auto it = buttonmap.begin(); it not_eq buttonmap.end();) {
                 if (it->second == k) {
-                    it = keymap.erase(it);
+                    it = buttonmap.erase(it);
                 } else {
                     ++it;
                 }
             }
-            keymap[scancode] = k;
+            buttonmap[scancode] = k;
         }};
 
 
@@ -695,6 +695,7 @@ int main(int argc, char** argv)
     }
 
     SDL_SetHint(SDL_HINT_VIDEO_HIGHDPI_DISABLED, "0");
+    SDL_ShowCursor(0);
 
     int initial_width = logical_width * window_scale;
     int initial_height = logical_height * window_scale;
@@ -929,13 +930,13 @@ void Platform::set_tile(Layer layer,
 
 
 
-void Platform::Keyboard::rumble(bool enabled)
+void Platform::Input::rumble(bool enabled)
 {
 }
 
 
 
-const char* Platform::Keyboard::check_key()
+const char* Platform::Input::check_button()
 {
     SDL_Event e;
     while (SDL_PollEvent(&e)) {
@@ -957,7 +958,7 @@ const char* Platform::Keyboard::check_key()
 
 
 
-void Platform::Keyboard::poll()
+void Platform::Input::poll()
 {
     std::copy(std::begin(states_), std::end(states_), std::begin(prev_));
 
@@ -1008,16 +1009,16 @@ void Platform::Keyboard::poll()
                 }
             }
             // Note: removed duplicate fullscreen check
-            auto it = keymap.find(e.key.keysym.scancode);
-            if (it != keymap.end()) {
+            auto it = buttonmap.find(e.key.keysym.scancode);
+            if (it != buttonmap.end()) {
                 states_[int(it->second)] = true;
             }
             break;
         }
 
         case SDL_KEYUP: {
-            auto it = keymap.find(e.key.keysym.scancode);
-            if (it != keymap.end()) {
+            auto it = buttonmap.find(e.key.keysym.scancode);
+            if (it != buttonmap.end()) {
                 states_[int(it->second)] = false;
             }
             break;
@@ -1277,7 +1278,7 @@ bool Platform::write_save_data(const void* data, u32 length, u32 offset)
                       std::ios_base::out | std::ios_base::binary);
 
     out.write((const char*)save_buffer, ::save_capacity);
-    
+
     return true;
 }
 
@@ -2340,6 +2341,21 @@ static PngPalette extract_png_palette(const std::string& path)
 #pragma GCC diagnostic ignored "-Wdouble-promotion"
 #endif
 
+
+std::map<std::string, PngPalette> palette_cache;
+
+
+PngPalette load_palette(const std::string& path)
+{
+    auto found_existing = palette_cache.find(path);
+    if (found_existing not_eq palette_cache.end()) {
+        return found_existing->second;
+    }
+
+    palette_cache[path] = extract_png_palette(path);
+}
+
+
 static SDL_Surface* load_png_with_stb(const std::string& path,
                                       const char* name,
                                       ShaderPalette shader_palette)
@@ -3310,7 +3326,7 @@ void Platform::fatal(const char* msg)
                PLATFORM.load_file("", "/lisp_constant_tab.dat"));
 
     auto show_verbose_msg = [&] {
-        PLATFORM.keyboard().poll();
+        PLATFORM.input().poll();
         PLATFORM.screen().clear();
 
         text2.reset();
@@ -3327,7 +3343,7 @@ void Platform::fatal(const char* msg)
 
     while (true) {
         show_verbose_msg();
-        if (PLATFORM.keyboard().down_transition<Key::action_2>()) {
+        if (PLATFORM.input().down_transition<Button::action_2>()) {
             PLATFORM.restart();
         }
     }

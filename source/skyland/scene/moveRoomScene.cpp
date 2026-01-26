@@ -74,7 +74,7 @@ ScenePtr MoveRoomScene::update(Time delta)
     }
 
     case State::prompt: {
-        if (player().key_down(Key::action_2)) {
+        if (player().button_down(Button::action_2)) {
             if (is_far_camera()) {
                 return make_scene<InspectP2Scene>();
             }
@@ -83,7 +83,7 @@ ScenePtr MoveRoomScene::update(Time delta)
 
         const bool skip = not APP.opponent_island();
 
-        if (skip or player().key_down(Key::action_1)) {
+        if (skip or player().button_down(Button::action_1)) {
             if (not skip and APP.coins() < 800) {
                 auto future_scene = make_deferred_scene<ReadyScene>();
                 auto str = SYSTR(construction_insufficient_funds);
@@ -115,10 +115,10 @@ ScenePtr MoveRoomScene::update(Time delta)
     }
 
     case State::move_stuff:
-        if ((player().key_pressed(Key::start) or
-             player().key_pressed(Key::action_1)) and
-            (player().key_down(Key::left) or player().key_down(Key::right) or
-             player().key_down(Key::up) or player().key_down(Key::down))) {
+        if ((player().button_pressed(Button::start) or
+             player().button_pressed(Button::action_1)) and
+            (player().button_down(Button::left) or player().button_down(Button::right) or
+             player().button_down(Button::up) or player().button_down(Button::down))) {
             state_ = State::select_group;
             text_.reset();
             PLATFORM.fill_overlay(0);
@@ -131,10 +131,10 @@ ScenePtr MoveRoomScene::update(Time delta)
             break;
         }
 
-        if (player().key_down(Key::action_2)) {
+        if (player().button_down(Button::action_2)) {
             return make_scene<ReadyScene>();
         }
-        if (player().key_down(Key::action_1)) {
+        if (player().button_down(Button::action_1)) {
             auto cursor_loc = cursor();
             if (auto r = island_->get_room(cursor_loc)) {
                 if (str_eq(r->name(), "mycelium")) {
@@ -165,14 +165,14 @@ ScenePtr MoveRoomScene::update(Time delta)
         break;
 
     case State::move_block:
-        if (player().key_down(Key::action_1) or
-            player().key_down(Key::action_2)) {
+        if (player().button_down(Button::action_1) or
+            player().button_down(Button::action_2)) {
 
             auto cursor_loc = cursor();
             cursor_loc =
                 (cursor_loc.cast<int>() - move_diff_.cast<int>()).cast<u8>();
 
-            if (player().key_down(Key::action_1)) {
+            if (player().button_down(Button::action_1)) {
                 if (auto room = island_->get_room(move_src_)) {
                     for (u32 x = 0; x < room->size().x; ++x) {
                         for (int y = 0; y < room->size().y; ++y) {
@@ -221,8 +221,8 @@ ScenePtr MoveRoomScene::update(Time delta)
         break;
 
     case State::select_group:
-        if (not player().key_pressed(Key::action_1) and
-            not player().key_pressed(Key::start)) {
+        if (not player().button_pressed(Button::action_1) and
+            not player().button_pressed(Button::start)) {
             state_ = State::move_group;
             for (int x = (*group_selection_)->sel_tl_.x;
                  x < (*group_selection_)->sel_tr_.x + 1;
@@ -261,12 +261,12 @@ ScenePtr MoveRoomScene::update(Time delta)
         break;
 
     case State::move_group:
-        if (player().key_down(Key::action_1) or
-            player().key_down(Key::action_2)) {
+        if (player().button_down(Button::action_1) or
+            player().button_down(Button::action_2)) {
             text_.reset();
             PLATFORM.fill_overlay(0);
 
-            if (player().key_down(Key::action_1)) {
+            if (player().button_down(Button::action_1)) {
                 auto offset_x =
                     (*group_selection_)->anchor_.x - this->cursor().x;
                 auto offset_y =
@@ -354,8 +354,8 @@ ScenePtr MoveRoomScene::update(Time delta)
         break;
     }
 
-    auto test_key = [&](Key k) {
-        return APP.player().test_key(k, milliseconds(500), milliseconds(100));
+    auto test_button = [&](Button k) {
+        return APP.player().test_button(k, milliseconds(500), milliseconds(100));
     };
 
     auto& cursor_loc = cursor();
@@ -365,7 +365,7 @@ ScenePtr MoveRoomScene::update(Time delta)
     };
 
     if ((int)state_ > (int)State::prompt) {
-        if (test_key(Key::left)) {
+        if (test_button(Button::left)) {
 
             // if (state_ == State::move_group) {
             //     auto offset_y =
@@ -401,7 +401,7 @@ ScenePtr MoveRoomScene::update(Time delta)
                     }
                 }
             }
-        } else if (test_key(Key::right)) {
+        } else if (test_button(Button::right)) {
 
             // if (state_ == State::move_group) {
             //     auto offset_y =
@@ -439,7 +439,7 @@ ScenePtr MoveRoomScene::update(Time delta)
             }
         }
 
-        if (test_key(Key::up)) {
+        if (test_button(Button::up)) {
 
             // if (state_ == State::move_group) {
             //     auto offset_x =
@@ -475,7 +475,7 @@ ScenePtr MoveRoomScene::update(Time delta)
                     }
                 }
             }
-        } else if (test_key(Key::down)) {
+        } else if (test_button(Button::down)) {
 
             // if (state_ == State::move_group) {
             //     auto offset_x =

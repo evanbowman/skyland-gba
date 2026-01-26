@@ -44,7 +44,7 @@ private:
     Optional<Text> text_;
     Optional<Text> text_2_;
     Optional<Text> paused_text_;
-    bool await_start_key_ = false;
+    bool await_start_button_ = false;
     bool show_island_size_ = false;
     bool paused_ = false;
 

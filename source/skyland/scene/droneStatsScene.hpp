@@ -96,7 +96,7 @@ public:
 
     ScenePtr update(Time delta) override
     {
-        if (APP.player().key_down(Key::action_2)) {
+        if (APP.player().button_down(Button::action_2)) {
             return make_scene<ReadyScene>();
         }
 

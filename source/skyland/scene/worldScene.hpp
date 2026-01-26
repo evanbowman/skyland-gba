@@ -70,7 +70,7 @@ public:
     void set_gamespeed(GameSpeed speed);
 
 
-    virtual bool camera_update_check_key();
+    virtual bool camera_update_check_button();
 
 
     virtual bool hide_chr_icon() const;
@@ -125,7 +125,7 @@ private:
     bool persistent_ui_ = false;
     Time coin_hide_timer_ = 0;
     Time power_hide_timer_ = 0;
-    Time set_gamespeed_keyheld_timer_ = 0;
+    Time set_gamespeed_buttonheld_timer_ = 0;
     Coins last_coins_ = 0;
     Power last_power_supplied_ = 0;
     Power last_power_used_ = 0;

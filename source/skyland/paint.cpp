@@ -467,11 +467,11 @@ void Paint::apply_drag(int xo, int yo, bool record_history)
 
 ScenePtr Paint::update(Time delta)
 {
-    auto test_key = [&](Key k) {
-        return APP.player().test_key(k, milliseconds(500), milliseconds(100));
+    auto test_button = [&](Button k) {
+        return APP.player().test_button(k, milliseconds(500), milliseconds(100));
     };
 
-    if (test_key(Key::alt_1)) {
+    if (test_button(Button::alt_1)) {
         color_--;
         color_ %= 16;
         ready_ = true;
@@ -479,7 +479,7 @@ ScenePtr Paint::update(Time delta)
         flicker_on_ = false;
         cursor_flicker_ = 0;
     }
-    if (test_key(Key::alt_2)) {
+    if (test_button(Button::alt_2)) {
         color_++;
         color_ %= 16;
         ready_ = true;
@@ -504,13 +504,13 @@ ScenePtr Paint::update(Time delta)
 
     switch (mode_) {
     case Mode::draw: {
-        if (APP.player().key_down(Key::action_2)) {
+        if (APP.player().button_down(Button::action_2)) {
             std::swap(tool_, last_tool_);
             show_toolbar();
             return null_scene();
         }
 
-        if (APP.player().key_down(Key::select)) {
+        if (APP.player().button_down(Button::select)) {
             tool_ = (Tool)((int)tool_ + 1);
             if ((int)tool_ > (int)Tool::drag) {
                 tool_ = Tool::pen;
@@ -536,7 +536,7 @@ ScenePtr Paint::update(Time delta)
         };
 
         if (cursor_move_ready) {
-            if (APP.player().key_pressed(Key::right) and
+            if (APP.player().button_pressed(Button::right) and
                 cursor_.x < (width_ - 1)) {
                 ++cursor_.x;
                 ready_ = true;
@@ -544,21 +544,21 @@ ScenePtr Paint::update(Time delta)
                 draw_rulers();
                 on_move(1, 0);
             }
-            if (APP.player().key_pressed(Key::left) and cursor_.x > 0) {
+            if (APP.player().button_pressed(Button::left) and cursor_.x > 0) {
                 --cursor_.x;
                 ready_ = true;
                 cursor_move_tic_ = milliseconds(90);
                 draw_rulers();
                 on_move(-1, 0);
             }
-            if (APP.player().key_pressed(Key::up) and cursor_.y > 0) {
+            if (APP.player().button_pressed(Button::up) and cursor_.y > 0) {
                 --cursor_.y;
                 ready_ = true;
                 cursor_move_tic_ = milliseconds(90);
                 draw_rulers();
                 on_move(0, -1);
             }
-            if (APP.player().key_pressed(Key::down) and
+            if (APP.player().button_pressed(Button::down) and
                 cursor_.y < (height_ - 1)) {
                 ++cursor_.y;
                 ready_ = true;
@@ -567,7 +567,7 @@ ScenePtr Paint::update(Time delta)
                 on_move(0, 1);
             }
         } else {
-            if (APP.player().key_down(Key::right) and
+            if (APP.player().button_down(Button::right) and
                 cursor_.x < (width_ - 1)) {
                 ++cursor_.x;
                 ready_ = true;
@@ -575,21 +575,21 @@ ScenePtr Paint::update(Time delta)
                 draw_rulers();
                 on_move(1, 0);
             }
-            if (APP.player().key_down(Key::left) and cursor_.x > 0) {
+            if (APP.player().button_down(Button::left) and cursor_.x > 0) {
                 --cursor_.x;
                 ready_ = true;
                 cursor_move_tic_ = milliseconds(400);
                 draw_rulers();
                 on_move(-1, 0);
             }
-            if (APP.player().key_down(Key::up) and cursor_.y > 0) {
+            if (APP.player().button_down(Button::up) and cursor_.y > 0) {
                 --cursor_.y;
                 ready_ = true;
                 cursor_move_tic_ = milliseconds(400);
                 draw_rulers();
                 on_move(0, -1);
             }
-            if (APP.player().key_down(Key::down) and
+            if (APP.player().button_down(Button::down) and
                 cursor_.y < (height_ - 1)) {
                 ++cursor_.y;
                 ready_ = true;
@@ -599,11 +599,11 @@ ScenePtr Paint::update(Time delta)
             }
         }
 
-        if (APP.player().key_down(Key::action_1)) {
+        if (APP.player().button_down(Button::action_1)) {
             ready_ = true;
         }
 
-        if (APP.player().key_down(Key::start)) {
+        if (APP.player().button_down(Button::start)) {
             mode_ = Mode::tool_select;
             last_tool_ = tool_;
             flicker_on_ = true;
@@ -619,7 +619,7 @@ ScenePtr Paint::update(Time delta)
             set_pixel(x, y, v);
         };
 
-        if (APP.player().key_pressed(Key::action_1) and ready_) {
+        if (APP.player().button_pressed(Button::action_1) and ready_) {
             switch (tool_) {
             case Tool::drag:
                 break;
@@ -671,7 +671,7 @@ ScenePtr Paint::update(Time delta)
     }
 
     case Mode::tool_select: {
-        if (APP.player().key_down(Key::up)) {
+        if (APP.player().button_down(Button::up)) {
             if (tool_ == (Tool)0) {
                 tool_ = (Tool)(((int)Tool::count) - 1);
             } else {
@@ -679,7 +679,7 @@ ScenePtr Paint::update(Time delta)
             }
             show_toolbar();
         }
-        if (APP.player().key_down(Key::down)) {
+        if (APP.player().button_down(Button::down)) {
             if (tool_ == (Tool)((int)Tool::count - 1)) {
                 tool_ = (Tool)0;
             } else {
@@ -689,21 +689,21 @@ ScenePtr Paint::update(Time delta)
         }
 
         if ((tool_ == Tool::exit or tool_ == Tool::preset) and
-            APP.player().key_down(Key::action_1)) {
+            APP.player().button_down(Button::action_1)) {
             break;
         }
 
-        if (tool_ == Tool::undo and APP.player().key_down(Key::action_1)) {
+        if (tool_ == Tool::undo and APP.player().button_down(Button::action_1)) {
             if (not undo()) {
                 PLATFORM.speaker().play_sound("beep_error", 4);
             }
             break;
         }
 
-        if ((APP.player().key_down(Key::action_1) or
-             APP.player().key_down(Key::action_2) or
-             APP.player().key_down(Key::start))) {
-            if (APP.player().key_down(Key::action_2) or tool_ == Tool::undo or
+        if ((APP.player().button_down(Button::action_1) or
+             APP.player().button_down(Button::action_2) or
+             APP.player().button_down(Button::start))) {
+            if (APP.player().button_down(Button::action_2) or tool_ == Tool::undo or
                 tool_ == Tool::exit) {
                 tool_ = last_tool_;
                 show_toolbar();

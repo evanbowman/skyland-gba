@@ -149,7 +149,7 @@ ScenePtr RegressionModule::update(Time delta)
             Text::print(format("(approx. stack size %)", ssize).c_str(),
                         {1, 5},
                         text_colors);
-            Text::print("press any key to reset...", {1, 7}, text_colors);
+            Text::print("press any button to reset...", {1, 7}, text_colors);
 
             if (auto match = PLATFORM.get_extensions().has_startup_opt) {
                 if (match("--regression")) {
@@ -159,16 +159,16 @@ ScenePtr RegressionModule::update(Time delta)
             }
 
             while (1) {
-                PLATFORM.keyboard().poll();
+                PLATFORM.input().poll();
                 PLATFORM_EXTENSION(feed_watchdog);
 
-                if (PLATFORM.keyboard()
-                        .down_transition<Key::action_1,
-                                         Key::action_2,
-                                         Key::down,
-                                         Key::up,
-                                         Key::left,
-                                         Key::right>()) {
+                if (PLATFORM.input()
+                        .down_transition<Button::action_1,
+                                         Button::action_2,
+                                         Button::down,
+                                         Button::up,
+                                         Button::left,
+                                         Button::right>()) {
                     PLATFORM_EXTENSION(restart);
                 }
 

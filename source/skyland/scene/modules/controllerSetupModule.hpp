@@ -83,7 +83,7 @@ public:
     Optional<TextView> message_overflow_;
     Optional<Text> option_text_;
     bool was_developer_mode_ = false;
-    int key_index_ = -1;
+    int button_index_ = -1;
 
     Vector<StringBuffer<48>> used_scancodes_;
 

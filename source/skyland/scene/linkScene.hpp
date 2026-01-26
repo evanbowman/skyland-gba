@@ -50,10 +50,10 @@ public:
 
     ScenePtr update(Time) override
     {
-        if (key_down<Key::start>()) {
+        if (button_down<Button::start>()) {
             return make_scene<MultiplayerConnectScene>();
         }
-        if (key_down<Key::action_2>()) {
+        if (button_down<Button::action_2>()) {
             return make_scene<TitleScreenScene>();
         }
         return null_scene();

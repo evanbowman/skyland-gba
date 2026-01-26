@@ -287,20 +287,20 @@ ScenePtr CrewStatsScene::update(Time delta)
         PLATFORM.load_overlay_chunk(274, offset, 16, "character_art");
     };
 
-    auto test_key = [&](Key k) {
-        return APP.player().test_key(k, milliseconds(500), milliseconds(100));
+    auto test_button = [&](Button k) {
+        return APP.player().test_button(k, milliseconds(500), milliseconds(100));
     };
 
     switch (state_) {
     case State::regular: {
-        if (APP.player().key_down(Key::action_2) or
-            APP.player().key_down(Key::action_1)) {
+        if (APP.player().button_down(Button::action_2) or
+            APP.player().button_down(Button::action_1)) {
             exit_ = true;
             PLATFORM.fill_overlay(0);
             return null_scene();
         }
 
-        if (APP.player().key_down(Key::right)) {
+        if (APP.player().button_down(Button::right)) {
             if (page_index_ < (int)chrs_.size() - 1) {
                 ++page_index_;
                 show_page();
@@ -308,7 +308,7 @@ ScenePtr CrewStatsScene::update(Time delta)
             }
         }
 
-        if (APP.player().key_down(Key::left)) {
+        if (APP.player().button_down(Button::left)) {
             if (page_index_ > 0) {
                 --page_index_;
                 show_page();
@@ -316,7 +316,7 @@ ScenePtr CrewStatsScene::update(Time delta)
             }
         }
 
-        if (APP.player().key_down(Key::start)) {
+        if (APP.player().button_down(Button::start)) {
             state_ = State::icon_select;
             PLATFORM.set_tile(Layer::overlay, 2, 4, 176);
             PLATFORM.set_tile(Layer::overlay, 2, 5, 177);
@@ -358,12 +358,12 @@ ScenePtr CrewStatsScene::update(Time delta)
     }
 
     case State::icon_select: {
-        if (APP.player().key_down(Key::action_2)) {
+        if (APP.player().button_down(Button::action_2)) {
             state_ = State::regular;
             show_page();
         }
 
-        if (APP.player().key_down(Key::action_1)) {
+        if (APP.player().button_down(Button::action_1)) {
             if (icons().first[icon_sel_] == 19) {
                 state_ = State::regular;
                 show_page();
@@ -378,7 +378,7 @@ ScenePtr CrewStatsScene::update(Time delta)
             show_page();
         }
 
-        if (test_key(Key::down)) {
+        if (test_button(Button::down)) {
             if (icon_sel_ < (int)icons().second - 1) {
                 ++icon_sel_;
             } else {
@@ -388,7 +388,7 @@ ScenePtr CrewStatsScene::update(Time delta)
             show_icon();
         }
 
-        if (test_key(Key::up)) {
+        if (test_button(Button::up)) {
             if (icon_sel_ == 0) {
                 icon_sel_ = icons().second - 1;
             } else {

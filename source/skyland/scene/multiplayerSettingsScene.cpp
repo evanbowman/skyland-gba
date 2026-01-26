@@ -405,28 +405,28 @@ ScenePtr MultiplayerSettingsScene::update(Time delta)
         network::poll_messages(*this);
     }
 
-    if (APP.player().key_pressed(Key::up)) {
-        key_held_timers_[0] += delta;
+    if (APP.player().button_pressed(Button::up)) {
+        button_held_timers_[0] += delta;
     } else {
-        key_held_timers_[0] = 0;
+        button_held_timers_[0] = 0;
     }
 
-    if (APP.player().key_pressed(Key::down)) {
-        key_held_timers_[1] += delta;
+    if (APP.player().button_pressed(Button::down)) {
+        button_held_timers_[1] += delta;
     } else {
-        key_held_timers_[1] = 0;
+        button_held_timers_[1] = 0;
     }
 
-    if (APP.player().key_pressed(Key::left)) {
-        key_held_timers_[2] += delta;
+    if (APP.player().button_pressed(Button::left)) {
+        button_held_timers_[2] += delta;
     } else {
-        key_held_timers_[2] = 0;
+        button_held_timers_[2] = 0;
     }
 
-    if (APP.player().key_pressed(Key::right)) {
-        key_held_timers_[3] += delta;
+    if (APP.player().button_pressed(Button::right)) {
+        button_held_timers_[3] += delta;
     } else {
-        key_held_timers_[3] = 0;
+        button_held_timers_[3] = 0;
     }
 
     if (state_ == State::ready) {
@@ -436,7 +436,7 @@ ScenePtr MultiplayerSettingsScene::update(Time delta)
         return null_scene();
     }
 
-    if (APP.player().key_down(Key::start)) {
+    if (APP.player().button_down(Button::start)) {
         if (not PLATFORM.network_peer().is_host() and
             parameter_sync_timer_ > 0) {
             return null_scene();
@@ -482,8 +482,8 @@ ScenePtr MultiplayerSettingsScene::update(Time delta)
         param_info[player_cursor_].upper_limit_ == 1;
 
 
-    if (APP.player().key_down(Key::right) or
-        key_held_timers_[3] > milliseconds(500)) {
+    if (APP.player().button_down(Button::right) or
+        button_held_timers_[3] > milliseconds(500)) {
         if (vs_parameters_[player_cursor_] <
             param_info[player_cursor_].upper_limit_) {
             vs_parameters_[player_cursor_] +=
@@ -492,15 +492,15 @@ ScenePtr MultiplayerSettingsScene::update(Time delta)
             vs_parameters_[player_cursor_] = not vs_parameters_[player_cursor_];
         }
         update_parameter(player_cursor_);
-        key_held_timers_[3] -= milliseconds(80);
+        button_held_timers_[3] -= milliseconds(80);
 
         network::packet::GameMatchParameterUpdate p;
         p.parameter_id_ = player_cursor_;
         p.value_.set(vs_parameters_[player_cursor_]);
         network::transmit(p);
 
-    } else if (APP.player().key_down(Key::left) or
-               key_held_timers_[2] > milliseconds(500)) {
+    } else if (APP.player().button_down(Button::left) or
+               button_held_timers_[2] > milliseconds(500)) {
         vs_parameters_[player_cursor_] -= param_info[player_cursor_].increment_;
         if (vs_parameters_[player_cursor_] <
             param_info[player_cursor_].lower_limit_) {
@@ -510,14 +510,14 @@ ScenePtr MultiplayerSettingsScene::update(Time delta)
             vs_parameters_[player_cursor_] = not vs_parameters_[player_cursor_];
         }
         update_parameter(player_cursor_);
-        key_held_timers_[2] -= milliseconds(80);
+        button_held_timers_[2] -= milliseconds(80);
 
         network::packet::GameMatchParameterUpdate p;
         p.parameter_id_ = player_cursor_;
         p.value_.set(vs_parameters_[player_cursor_]);
         network::transmit(p);
 
-    } else if (APP.player().key_down(Key::down) and
+    } else if (APP.player().button_down(Button::down) and
                player_cursor_ < settings_text_.size() - 1 and
                vs_parameters_[0] == 0) {
         ++player_cursor_;
@@ -526,7 +526,7 @@ ScenePtr MultiplayerSettingsScene::update(Time delta)
         c.cursor_line_ = player_cursor_;
         network::transmit(c);
 
-    } else if (APP.player().key_down(Key::up) and player_cursor_ > 0) {
+    } else if (APP.player().button_down(Button::up) and player_cursor_ > 0) {
         --player_cursor_;
 
         network::packet::GameMatchSettingsCursor c;

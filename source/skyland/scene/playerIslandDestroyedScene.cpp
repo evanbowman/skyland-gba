@@ -905,7 +905,7 @@ ScenePtr PlayerIslandDestroyedScene::update(Time delta)
     case AnimState::idle:
         coins_.reset();
         power_.reset();
-        if (APP.player().key_down(Key::action_1) or
+        if (APP.player().button_down(Button::action_1) or
             APP.player().tap_released()) {
             timer_ = 0;
             PLATFORM.fill_overlay(0);

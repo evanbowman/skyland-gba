@@ -111,7 +111,7 @@ public:
     }
 
 
-    using OverscrollDir = Key;
+    using OverscrollDir = Button;
 
     Optional<ColorConstant> backdrop_color_;
     Optional<
@@ -135,28 +135,28 @@ public:
 
         if (exit_on_overscroll_ and mode_ == Mode::draw) {
             // Allow scrolling to adjacent canvases:
-            if (APP.player().key_down(Key::right) and
+            if (APP.player().button_down(Button::right) and
                 cursor_.x == (width_ - 1)) {
-                overscroll = Key::right;
+                overscroll = Button::right;
                 cursor_.x = 0;
             }
-            if (APP.player().key_down(Key::left) and cursor_.x == 0) {
-                overscroll = Key::left;
+            if (APP.player().button_down(Button::left) and cursor_.x == 0) {
+                overscroll = Button::left;
                 cursor_.x = width_ - 1;
             }
-            if (APP.player().key_down(Key::up) and cursor_.y == 0) {
-                overscroll = Key::up;
+            if (APP.player().button_down(Button::up) and cursor_.y == 0) {
+                overscroll = Button::up;
                 cursor_.y = height_ - 1;
             }
-            if (APP.player().key_down(Key::down) and
+            if (APP.player().button_down(Button::down) and
                 cursor_.y == (height_ - 1)) {
-                overscroll = Key::down;
+                overscroll = Button::down;
                 cursor_.y = 0;
             }
         }
 
         if (overscroll or
-            (tool_ == Tool::exit and APP.player().key_down(Key::action_1))) {
+            (tool_ == Tool::exit and APP.player().button_down(Button::action_1))) {
 
             if (next_) {
                 auto ret = (*next_)(texture_, overscroll);

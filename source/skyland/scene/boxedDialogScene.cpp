@@ -168,7 +168,7 @@ void BoxedDialogScene::process_command()
         for (int i = 0; i < frames; ++i) {
             PLATFORM.screen().schedule_fade(1 - Float(i) / frames,
                                             {ColorConstant::rich_black});
-            PLATFORM.keyboard().poll();
+            PLATFORM.input().poll();
             PLATFORM.screen().clear();
             PLATFORM.screen().display();
             if (ambience_) {
@@ -195,7 +195,7 @@ void BoxedDialogScene::process_command()
             PLATFORM.screen().schedule_fade(
                 amt,
                 {.color = ColorConstant::rich_black, .include_sprites = false});
-            PLATFORM.keyboard().poll();
+            PLATFORM.input().poll();
             PLATFORM.screen().clear();
             PLATFORM.screen().display();
         }
@@ -314,7 +314,7 @@ bool BoxedDialogScene::advance_text(Time delta, bool sfx)
                 strlen(text_state_.current_word_));
 
             if (not seen_char and *text_state_.current_word_ == '\0') {
-                display_mode_ = DisplayMode::key_released_check2;
+                display_mode_ = DisplayMode::button_released_check2;
                 return true;
             }
         }
@@ -386,7 +386,7 @@ bool BoxedDialogScene::advance_text(Time delta, bool sfx)
         text_state_.pos_++;
 
         if (*text_state_.current_word_ == '\0') {
-            display_mode_ = DisplayMode::key_released_check2;
+            display_mode_ = DisplayMode::button_released_check2;
         }
     }
 
@@ -545,8 +545,8 @@ ScenePtr BoxedDialogScene::update(Time delta)
         data_->coins_->update(delta);
     }
 
-    auto is_action_key_down = [&] {
-        return key_down<Key::action_1>() or
+    auto is_action_button_down = [&] {
+        return button_down<Button::action_1>() or
                state_bit_load(StateBit::regression);
     };
 
@@ -590,10 +590,10 @@ ScenePtr BoxedDialogScene::update(Time delta)
         const bool text_busy = advance_text(delta, true);
 
         if (not text_busy) {
-            display_mode_ = DisplayMode::key_released_check1;
+            display_mode_ = DisplayMode::button_released_check1;
         } else {
             if (text_state_.speed_ == 0 and allow_fastforward_ and
-                (key_down<Key::action_2>() or is_action_key_down())) {
+                (button_down<Button::action_2>() or is_action_button_down())) {
 
                 while (advance_text(delta, false)) {
                     if (display_mode_ not_eq DisplayMode::busy) {
@@ -602,7 +602,7 @@ ScenePtr BoxedDialogScene::update(Time delta)
                 }
 
                 if (display_mode_ == DisplayMode::busy) {
-                    display_mode_ = DisplayMode::key_released_check1;
+                    display_mode_ = DisplayMode::button_released_check1;
                 }
             }
         }
@@ -611,7 +611,7 @@ ScenePtr BoxedDialogScene::update(Time delta)
     case DisplayMode::wait: {
         animate_moretext_icon();
 
-        if (key_down<Key::action_2>() or is_action_key_down()) {
+        if (button_down<Button::action_2>() or is_action_button_down()) {
 
             text_state_.timer_ = 0;
 
@@ -621,16 +621,16 @@ ScenePtr BoxedDialogScene::update(Time delta)
         break;
     }
 
-    case DisplayMode::key_released_check1:
-        // if (key_down<Key::action_2>() or
-        //     key_down<Key::action_1>()) {
+    case DisplayMode::button_released_check1:
+        // if (button_down<Button::action_2>() or
+        //     button_down<Button::action_1>()) {
 
         text_state_.timer_ = seconds(1);
         display_mode_ = DisplayMode::wait;
         // }
         break;
 
-    case DisplayMode::key_released_check2: {
+    case DisplayMode::button_released_check2: {
         text_state_.timer_ = seconds(1);
 
         if (auto opts = get_dialog_opt_list()) {
@@ -768,7 +768,7 @@ ScenePtr BoxedDialogScene::update(Time delta)
             break;
         }
         animate_moretext_icon();
-        if (is_action_key_down() or key_down<Key::action_2>()) {
+        if (is_action_button_down() or button_down<Button::action_2>()) {
             invoke_hook("on-dialog-closed");
             display_mode_ = DisplayMode::animate_out;
         }
@@ -804,13 +804,13 @@ ScenePtr BoxedDialogScene::update(Time delta)
             update_opt_cursor();
         }
 
-        if (key_down<Key::action_2>()) {
+        if (button_down<Button::action_2>()) {
             choice_sel_ = 0;
             PLATFORM.speaker().play_sound("click", 1);
             update_opt_cursor();
         }
 
-        if (key_down<Key::down>()) {
+        if (button_down<Button::down>()) {
             if (choice_sel_ == 0) {
                 choice_sel_ = data_->text_opts_.size() - 1;
             } else {
@@ -820,7 +820,7 @@ ScenePtr BoxedDialogScene::update(Time delta)
             update_opt_cursor();
         }
 
-        if (key_down<Key::up>()) {
+        if (button_down<Button::up>()) {
             if (choice_sel_ == (int)data_->text_opts_.size() - 1) {
                 choice_sel_ = 0;
             } else {
@@ -830,7 +830,7 @@ ScenePtr BoxedDialogScene::update(Time delta)
             update_opt_cursor();
         }
 
-        if (is_action_key_down()) {
+        if (is_action_button_down()) {
             text_state_.timer_ = 0;
 
             if (APP.game_speed() not_eq GameSpeed::stopped) {

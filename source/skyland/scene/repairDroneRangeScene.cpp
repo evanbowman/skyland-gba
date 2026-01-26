@@ -41,7 +41,7 @@ ScenePtr RepairDroneRangeScene::update(Time delta)
         }
     }
 
-    if (APP.player().key_down(Key::action_2)) {
+    if (APP.player().button_down(Button::action_2)) {
         description_.reset();
         PLATFORM.fill_overlay(0);
 

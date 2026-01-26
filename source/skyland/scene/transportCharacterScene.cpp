@@ -110,7 +110,7 @@ ScenePtr TransportCharacterScene::update(Time delta)
         return next;
     }
 
-    if (APP.player().key_down(Key::action_2)) {
+    if (APP.player().button_down(Button::action_2)) {
         return make_scene<ReadyScene>();
     }
 
@@ -121,25 +121,25 @@ ScenePtr TransportCharacterScene::update(Time delta)
     RoomCoord* cursor_loc = nullptr;
     cursor_loc = &globals().far_cursor_loc_;
 
-    if (APP.player().key_down(Key::left)) {
+    if (APP.player().button_down(Button::left)) {
         if (cursor_loc->x > 0) {
             --cursor_loc->x;
         }
     }
 
-    if (APP.player().key_down(Key::right)) {
+    if (APP.player().button_down(Button::right)) {
         if (cursor_loc->x < APP.opponent_island()->terrain().size()) {
             ++cursor_loc->x;
         }
     }
 
-    if (APP.player().key_down(Key::up)) {
+    if (APP.player().button_down(Button::up)) {
         if (cursor_loc->y > construction_zone_min_y) {
             --cursor_loc->y;
         }
     }
 
-    if (APP.player().key_down(Key::down)) {
+    if (APP.player().button_down(Button::down)) {
         if (cursor_loc->y < 14) {
             ++cursor_loc->y;
         }
@@ -151,7 +151,7 @@ ScenePtr TransportCharacterScene::update(Time delta)
         cursor_anim_frame_ = not cursor_anim_frame_;
     }
 
-    if (APP.player().key_down(Key::action_1) and
+    if (APP.player().button_down(Button::action_1) and
         (**matrix_)[cursor_loc->x][cursor_loc->y]) {
 
         for (auto& room : APP.opponent_island()->rooms()) {

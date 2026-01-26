@@ -164,8 +164,8 @@ ScenePtr DataCartModule::update(Time delta)
 
     APP.player().update(delta);
 
-    auto test_key = [&](Key k) {
-        return APP.player().test_key(k, milliseconds(500), milliseconds(100));
+    auto test_button = [&](Button k) {
+        return APP.player().test_button(k, milliseconds(500), milliseconds(100));
     };
 
     if (not PLATFORM.speaker().is_sound_playing("archivist")) {
@@ -203,8 +203,8 @@ ScenePtr DataCartModule::update(Time delta)
             }
             PLATFORM.screen().schedule_fade(amount);
 
-            if (APP.player().key_down(Key::action_1) or
-                APP.player().key_down(Key::action_2) or
+            if (APP.player().button_down(Button::action_1) or
+                APP.player().button_down(Button::action_2) or
                 timer_ > fade_duration) {
                 timer_ = 0;
                 state_ = State::wait_0;
@@ -222,8 +222,8 @@ ScenePtr DataCartModule::update(Time delta)
 
     case State::wait_0:
         timer_ += delta;
-        if (APP.player().key_down(Key::action_1) or
-            APP.player().key_down(Key::action_2) or
+        if (APP.player().button_down(Button::action_1) or
+            APP.player().button_down(Button::action_2) or
             timer_ > milliseconds(1000)) {
             timer_ = 0;
             state_ = State::fade_partial;
@@ -249,26 +249,26 @@ ScenePtr DataCartModule::update(Time delta)
     }
 
     case State::select:
-        if (test_key(Key::right)) {
+        if (test_button(Button::right)) {
             if (cart_index_ < carts_->max_carts() - 1) {
                 ++cart_index_;
                 PLATFORM.speaker().play_sound("cursor_tick", 0);
                 show_cart(cart_index_);
             }
         }
-        if (test_key(Key::left)) {
+        if (test_button(Button::left)) {
             if (cart_index_ > 0) {
                 --cart_index_;
                 PLATFORM.speaker().play_sound("cursor_tick", 0);
                 show_cart(cart_index_);
             }
         }
-        if (APP.player().key_down(Key::action_2)) {
+        if (APP.player().button_down(Button::action_2)) {
             PLATFORM.fill_overlay(0);
             PLATFORM.screen().schedule_fade(
                 1.f, {ColorConstant::rich_black, {}, true, true});
             state_ = State::exit;
-        } else if (APP.player().key_down(Key::action_1)) {
+        } else if (APP.player().button_down(Button::action_1)) {
             if (auto cart = carts_->load(cart_index_)) {
                 state_ = State::anim_out;
                 timer_ = 0;
@@ -371,7 +371,7 @@ ScenePtr DataCartModule::update(Time delta)
 
     case State::booting:
         timer_ += delta;
-        if (test_key(Key::action_2) or timer_ > milliseconds(700)) {
+        if (test_button(Button::action_2) or timer_ > milliseconds(700)) {
             PLATFORM.fill_overlay(0);
             state_ = State::boot;
         }
@@ -422,7 +422,7 @@ public:
 
     ScenePtr update(Time) override
     {
-        if (APP.player().key_down(Key::action_2)) {
+        if (APP.player().button_down(Button::action_2)) {
             PLATFORM.fill_overlay(0);
             auto next = make_scene<DataCartModule>();
             next->skip_dialog_ = true;
@@ -430,7 +430,7 @@ public:
             return next;
         }
 
-        if (APP.player().key_down(Key::action_1)) {
+        if (APP.player().button_down(Button::action_1)) {
             DataCart cart(cart_id_);
             if (auto c = cart.get_content_string("inscription")) {
                 for (int x = 4; x < 26; ++x) {

@@ -134,16 +134,16 @@ bool ConstructionScene::constrain_;
 
 
 
-bool ConstructionScene::camera_update_check_key()
+bool ConstructionScene::camera_update_check_button()
 {
     if (state_ == State::choose_building) {
         return false;
     }
-    return APP.player().key_pressed(Key::left) or
-           APP.player().key_pressed(Key::right) or
-           APP.player().key_pressed(Key::up) or
-           APP.player().key_pressed(Key::down) or
-           APP.player().key_pressed(Key::select);
+    return APP.player().button_pressed(Button::left) or
+           APP.player().button_pressed(Button::right) or
+           APP.player().button_pressed(Button::up) or
+           APP.player().button_pressed(Button::down) or
+           APP.player().button_pressed(Button::select);
 }
 
 
@@ -264,7 +264,7 @@ ScenePtr ConstructionScene::update(Time delta)
         return new_scene;
     }
 
-    if (APP.player().key_down(Key::select)) {
+    if (APP.player().button_down(Button::select)) {
         return make_scene<SelectMenuScene>();
     }
 
@@ -278,9 +278,9 @@ ScenePtr ConstructionScene::update(Time delta)
         flicker_on_ = not flicker_on_;
     }
 
-    if (tapped_topleft_corner() or APP.player().key_down(Key::alt_2) or
+    if (tapped_topleft_corner() or APP.player().button_down(Button::alt_2) or
         (state_ == State::select_loc and
-         APP.player().key_down(Key::action_2))) {
+         APP.player().button_down(Button::action_2))) {
         if (not data_->construction_sites_.empty()) {
             cursor_loc.x = data_->construction_sites_[selector_].x;
             cursor_loc.y = data_->construction_sites_[selector_].y;
@@ -301,8 +301,8 @@ ScenePtr ConstructionScene::update(Time delta)
     }();
 
 
-    auto test_key = [&](Key k) {
-        return APP.player().test_key(k, milliseconds(500), milliseconds(100));
+    auto test_button = [&](Button k) {
+        return APP.player().test_button(k, milliseconds(500), milliseconds(100));
     };
 
     bool sync_cursor = false;
@@ -320,7 +320,7 @@ ScenePtr ConstructionScene::update(Time delta)
             checksum_ = island()->checksum();
         }
 
-        if (test_key(Key::right)) {
+        if (test_button(Button::right)) {
             stack_ = 0;
             if (selector_ < data_->construction_sites_.size() - 1) {
                 ++selector_;
@@ -338,7 +338,7 @@ ScenePtr ConstructionScene::update(Time delta)
                 cursor_loc.y = globals().near_cursor_loc_.y;
                 return make_scene<ConstructionScene>(false);
             }
-        } else if (test_key(Key::left)) {
+        } else if (test_button(Button::left)) {
             stack_ = 0;
             if (selector_ > 0) {
                 --selector_;
@@ -357,7 +357,7 @@ ScenePtr ConstructionScene::update(Time delta)
                 PLATFORM.speaker().play_sound("cursor_tick", 0);
                 return make_scene<ConstructionScene>(true);
             }
-        } else if (test_key(Key::up)) {
+        } else if (test_button(Button::up)) {
             stack_ = 0;
             if (selector_ > 0 and
                 data_->construction_sites_[selector_].x ==
@@ -367,7 +367,7 @@ ScenePtr ConstructionScene::update(Time delta)
                 sync_cursor = true;
                 PLATFORM.speaker().play_sound("cursor_tick", 0);
             }
-        } else if (test_key(Key::down)) {
+        } else if (test_button(Button::down)) {
             stack_ = 0;
             if (selector_ < data_->construction_sites_.size() - 1 and
                 data_->construction_sites_[selector_].x ==
@@ -390,7 +390,7 @@ ScenePtr ConstructionScene::update(Time delta)
 
         if (((tapclick and
               *tapclick == data_->construction_sites_[selector_]) or
-             APP.player().key_down(Key::action_1)) and
+             APP.player().button_down(Button::action_1)) and
             not data_->construction_sites_.empty()) {
 
             tapclick.reset();
@@ -480,7 +480,7 @@ ScenePtr ConstructionScene::update(Time delta)
         break;
 
     case State::choose_building: {
-        if (APP.player().key_down(Key::start)) {
+        if (APP.player().button_down(Button::start)) {
             auto mt = data_->available_buildings_[building_selector_];
             auto next = make_scene<GlossaryViewerModule>(mt);
             category_label_.reset();
@@ -538,7 +538,7 @@ ScenePtr ConstructionScene::update(Time delta)
                 touchscroll_ = 0;
                 scroll_left();
             }
-        } else if (APP.player().key_down(Key::action_2) or
+        } else if (APP.player().button_down(Button::action_2) or
                    (tapclick and
                     *tapclick not_eq data_->construction_sites_[selector_])) {
             find_construction_sites();
@@ -551,7 +551,7 @@ ScenePtr ConstructionScene::update(Time delta)
             last_touch_x_ = 0;
         }
 
-        if (APP.player().key_down(Key::down)) {
+        if (APP.player().button_down(Button::down)) {
             PLATFORM.speaker().play_sound("click", 1);
 
             flicker_on_ = false;
@@ -583,7 +583,7 @@ ScenePtr ConstructionScene::update(Time delta)
             show_current_building_text();
         }
 
-        if (APP.player().key_down(Key::up)) {
+        if (APP.player().button_down(Button::up)) {
             PLATFORM.speaker().play_sound("click", 1);
             const auto current_category =
                 (*load_metaclass(
@@ -627,16 +627,16 @@ ScenePtr ConstructionScene::update(Time delta)
             show_current_building_text();
         }
 
-        if (test_key(Key::right)) {
+        if (test_button(Button::right)) {
             scroll_right();
         }
 
-        if (test_key(Key::left)) {
+        if (test_button(Button::left)) {
             scroll_left();
         }
 
         if (tapclick == data_->construction_sites_[selector_] or
-            APP.player().key_down(Key::action_1)) {
+            APP.player().button_down(Button::action_1)) {
 
             auto mti = data_->available_buildings_[building_selector_];
 
@@ -776,8 +776,8 @@ ScenePtr ConstructionScene::update(Time delta)
     }
 
     case State::insufficient_funds:
-        if (APP.player().key_down(Key::action_2) or
-            APP.player().key_down(Key::action_1)) {
+        if (APP.player().button_down(Button::action_2) or
+            APP.player().button_down(Button::action_1)) {
             find_construction_sites();
             state_ = State::select_loc;
             msg(SYSTR(construction_build)->c_str());
@@ -785,14 +785,14 @@ ScenePtr ConstructionScene::update(Time delta)
         break;
 
     case State::add_terrain:
-        if (APP.player().key_down(Key::action_2)) {
+        if (APP.player().button_down(Button::action_2)) {
             find_construction_sites();
             state_ = State::select_loc;
             msg(SYSTR(construction_build)->c_str());
             break;
         }
 
-        if (APP.player().key_down(Key::action_1)) {
+        if (APP.player().button_down(Button::action_1)) {
             if (APP.coins() < APP.terrain_cost(*island())) {
                 msg(SYSTR(construction_build)->c_str());
                 state_ = State::insufficient_funds;

@@ -31,15 +31,15 @@ ScenePtr FactoryResetModule::update(Time delta)
         text_->assign(SYSTR(factory_reset)->c_str(), {1, 1}, {28, 8});
     }
 
-    if (APP.player().key_down(Key::action_2)) {
+    if (APP.player().button_down(Button::action_2)) {
         text_.reset();
         return make_scene<TitleScreenScene>(3);
     }
 
-    if (APP.player().key_pressed(Key::select) and
-        APP.player().key_down(Key::action_1)) {
-        ++key_count_;
-        if (key_count_ == 5) {
+    if (APP.player().button_pressed(Button::select) and
+        APP.player().button_down(Button::action_1)) {
+        ++button_count_;
+        if (button_count_ == 5) {
             flash_filesystem::destroy();
             PLATFORM.restart();
         }

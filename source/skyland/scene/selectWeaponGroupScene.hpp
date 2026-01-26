@@ -72,7 +72,7 @@ public:
             return next;
         }
 
-        if (APP.player().key_down(Key::up)) {
+        if (APP.player().button_down(Button::up)) {
             for (auto& room : APP.player_island().rooms()) {
                 if (room->group() == Room::Group::one) {
                     if (auto scene = room->select(room->position())) {
@@ -81,7 +81,7 @@ public:
                 }
             }
             return cancel_();
-        } else if (APP.player().key_down(Key::right)) {
+        } else if (APP.player().button_down(Button::right)) {
             for (auto& room : APP.player_island().rooms()) {
                 if (room->group() == Room::Group::two) {
                     if (auto scene = room->select(room->position())) {
@@ -90,7 +90,7 @@ public:
                 }
             }
             return cancel_();
-        } else if (APP.player().key_down(Key::left)) {
+        } else if (APP.player().button_down(Button::left)) {
             for (auto& room : APP.player_island().rooms()) {
                 if (room->group() == Room::Group::three) {
                     if (auto scene = room->select(room->position())) {
@@ -99,7 +99,7 @@ public:
                 }
             }
             return cancel_();
-        } else if (APP.player().key_down(Key::action_2)) {
+        } else if (APP.player().button_down(Button::action_2)) {
             return cancel_();
         }
 
