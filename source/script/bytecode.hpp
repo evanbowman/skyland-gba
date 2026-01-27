@@ -969,6 +969,24 @@ static_assert(sizeof(LoadBuiltin) == sizeof(LoadVar),
               "therefore, the sizes must match.");
 
 
+struct PushRatio
+{
+    Header header_;
+    host_u32 num_;
+    host_u32 div_;
+
+    static const char* name()
+    {
+        return "PUSH_RATIO";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 58;
+    }
+};
+
+
 } // namespace instruction
 
 } // namespace lisp

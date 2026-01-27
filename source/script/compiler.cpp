@@ -109,6 +109,7 @@ inline instruction::Header* load_instruction(ScratchBuffer& buffer, int index)
             MATCH(LoadVarSmall)
             MATCH(PushFloat)
             MATCH(LoadBuiltin)
+            MATCH(PushRatio)
         }
     }
     return nullptr;
@@ -356,8 +357,9 @@ int compile_impl(CompilerContext& ctx,
                  bool tail_expr)
 {
     if (code->type() == Value::Type::ratio) {
-        PLATFORM.fatal("TODO: ratio literals unsupported in bytecode!"
-                       " (you can use the / function instead though)");
+        auto r = append<instruction::PushRatio>(buffer, write_pos);
+        r->num_.set(dcompr(code->ratio().numerator_)->integer().value_);
+        r->div_.set(code->ratio().divisor_);
     } else if (code->type() == Value::Type::nil) {
 
         append<instruction::PushNil>(buffer, write_pos);

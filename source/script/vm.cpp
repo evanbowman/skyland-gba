@@ -219,6 +219,12 @@ TOP:
             break;
         }
 
+        case PushRatio::op(): {
+            auto inst = read<PushRatio>(code, pc);
+            push_op(make_ratio(inst->num_.get(), inst->div_.get()));
+            break;
+        }
+
         case PushInteger::op(): {
             auto inst = read<PushInteger>(code, pc);
             push_op(make_integer(inst->value_.get()));
