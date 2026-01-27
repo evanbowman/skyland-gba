@@ -898,8 +898,8 @@ public:
         {
             u8 i = 0;
             PLATFORM.walk_filesystem([this, &i](const char* path) {
-                if (auto rest = starts_with("/scripts/data/music/",
-                                            StringBuffer<96>(path))) {
+                StringBuffer<96> path_buf(path);
+                if (auto rest = starts_with("/scripts/data/music/", path_buf)) {
                     StringBuffer<48> temp;
                     while (*rest not_eq '.') {
                         temp.push_back(*rest);
@@ -912,7 +912,6 @@ public:
                                              HitBox::Dimension{{20 * 8, 7}, {0, 0}},
                                              pos,
                                              this);
-                    info(temp);
                     music_names_.push_back(temp.c_str());
                     ++i;
                 }
