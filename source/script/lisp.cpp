@@ -6187,6 +6187,16 @@ BUILTIN_TABLE(
                        out += "PUSH_2";
                        break;
 
+                   case PushRatio::op():
+                       i += 1;
+                       out += "PUSH_RATIO(";
+                       out += to_string<32>(((HostInteger<s32>*)(data->data_ + i))->get());
+                       out += "/";
+                       out += to_string<32>(((HostInteger<s32>*)(data->data_ + i + 4))->get());
+                       out += ")";
+                       i += 8;
+                       break;
+
                    case PushInteger::op():
                        i += 1;
                        out += "PUSH_INTEGER(";
