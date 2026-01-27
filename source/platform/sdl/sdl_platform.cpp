@@ -936,6 +936,33 @@ void Platform::Input::rumble(bool enabled)
 
 
 
+Optional<Vec2<int>> Platform::Input::check_mouse()
+{
+    if (not (SDL_GetWindowFlags(window) & SDL_WINDOW_MOUSE_FOCUS)) {
+        return std::nullopt;
+    }
+
+    int x, y;
+    SDL_GetMouseState(&x, &y);
+
+    // Get current window size
+    int current_window_width, current_window_height;
+    SDL_GetWindowSize(window, &current_window_width, &current_window_height);
+
+    // Check if mouse is within window bounds
+    if (x < 0 || y < 0 || x >= current_window_width || y >= current_window_height) {
+        return std::nullopt;
+    }
+
+    // Transform to logical resolution coordinates
+    int rel_x = x * logical_width / current_window_width;
+    int rel_y = y * logical_height / current_window_height;
+
+    return Vec2<int>{rel_x, rel_y};
+}
+
+
+
 const char* Platform::Input::check_button()
 {
     SDL_Event e;
@@ -985,6 +1012,25 @@ void Platform::Input::poll()
                 break;
             }
             break;
+
+        case SDL_MOUSEBUTTONDOWN: {
+            Uint8 clicks = e.button.clicks;
+            if (clicks == 1) {
+                states_[(int)Button::mouse_1] = true;
+            } else if (clicks == 2) {
+                states_[(int)Button::mouse_2] = true;
+            }
+            break;
+        }
+        case SDL_MOUSEBUTTONUP: {
+            Uint8 clicks = e.button.clicks;
+            if (clicks == 1) {
+                states_[(int)Button::mouse_1] = false;
+            } else if (clicks == 2) {
+                states_[(int)Button::mouse_2] = false;
+            }
+            break;
+        }
 
         case SDL_KEYDOWN: {
             // F11 or Cmd+F (macOS) or Alt+Enter for fullscreen
@@ -2352,7 +2398,9 @@ PngPalette load_palette(const std::string& path)
         return found_existing->second;
     }
 
-    palette_cache[path] = extract_png_palette(path);
+    auto pal = extract_png_palette(path);
+    palette_cache[path] = pal;
+    return pal;
 }
 
 

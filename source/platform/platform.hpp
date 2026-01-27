@@ -556,6 +556,8 @@ public:
 
         const char* check_button();
 
+        Optional<Vec2<int>> check_mouse();
+
         template <Button... k> bool all_pressed() const
         {
             return (... and states_[int(k)]);

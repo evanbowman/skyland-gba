@@ -1267,7 +1267,8 @@ public:
             }
 
             if (interactive_) {
-                if (ignore_click_ and APP.player().button_down(Button::action_1)) {
+                if (ignore_click_ and (APP.player().button_down(Button::action_1) or
+                                       APP.player().button_down(Button::mouse_1))) {
                     ignore_click_--;
                 } else {
                     if (impl_) {
@@ -1416,7 +1417,8 @@ public:
             }
 
             if (interactive_) {
-                if (ignore_click_ and APP.player().button_down(Button::action_1)) {
+                if (ignore_click_ and (APP.player().button_down(Button::action_1) or
+                                       APP.player().button_down(Button::mouse_1))) {
                     ignore_click_--;
                 } else {
                     impl_->update(milliseconds(16));
@@ -1714,6 +1716,12 @@ public:
         }
 
         if (not cursor_captured_) {
+
+            if (auto mouse = PLATFORM.input().check_mouse()) {
+                cursor_.x = Fixnum::from_integer(mouse->x);
+                cursor_.y = Fixnum::from_integer(mouse->y);
+            }
+
             if (player().button_pressed(Button::down)) {
                 if (cursor_.y < 159.0_fixed) {
                     cursor_.y += 1.3_fixed;
@@ -1781,7 +1789,8 @@ public:
                 }
             }
 
-            if (player().button_down(Button::action_1)) {
+            if (player().button_down(Button::action_1) or
+                APP.player().button_down(Button::mouse_1)) {
                 click();
             }
         }

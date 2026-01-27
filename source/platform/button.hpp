@@ -22,12 +22,6 @@ enum class Button : u8 {
     // typically to cancel out of menus.
     action_2,
 
-    // Almost all platforms have at least two buttons! But in case there are a
-    // couple more:
-    action_3,
-    action_4,
-
-
     start,
     select,
     left,
