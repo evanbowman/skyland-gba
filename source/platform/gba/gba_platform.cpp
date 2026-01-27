@@ -646,6 +646,13 @@ static void poll_buttons(Platform::Input::ButtonStates& k)
 
 
 
+Optional<Vec2<int>> Platform::Input::check_mouse()
+{
+    return nullopt();
+}
+
+
+
 const char* Platform::Input::check_button()
 {
     return nullptr;
