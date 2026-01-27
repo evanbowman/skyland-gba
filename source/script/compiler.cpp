@@ -356,6 +356,7 @@ int compile_impl(CompilerContext& ctx,
                  int jump_offset,
                  bool tail_expr)
 {
+ TOP:
     if (code->type() == Value::Type::ratio) {
         auto r = append<instruction::PushRatio>(buffer, write_pos);
         r->num_.set(dcompr(code->ratio().numerator_)->integer().value_);
@@ -511,6 +512,15 @@ int compile_impl(CompilerContext& ctx,
 
             jmp->offset_.set(write_pos - jump_offset);
 
+        } else if (fn->type() == Value::Type::symbol and
+                   (str_eq(fn->symbol().name(), "lambda"))) {
+            // A lambda has not yet ben transfomed to it's intermediate
+            // representation. Expand it now...
+            auto body = lat->cons().cdr();
+            perform_argument_substitution(body);
+            lat->cons().set_car(make_symbol("fn"));
+            lat->cons().set_cdr(lat->cons().cdr()->cons().cdr());
+            goto TOP;
         } else if (fn->type() == Value::Type::symbol and
                    (str_eq(fn->symbol().name(), "fn"))) {
 
