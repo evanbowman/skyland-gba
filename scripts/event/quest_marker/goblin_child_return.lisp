@@ -84,30 +84,28 @@
        (chrs (player)))
   (if child
       (defn on-converge ()
-        (dialog "<c:Goblin Chieftain:42>Who approachesss our territory? <B:0> Sssylph!? State your businessss!")
-        (defn on-dialog-closed ()
-          (dialog "<c:Goblin Child:50>Father! FATHER! It'sss me!")
-          (defn on-dialog-closed ()
-            (dialog "<c:Goblin Chieftain:42>My ssson! <B:0> We thought... when the retreat signal came and you weren't aboard... <B:0> #pauses, looking between child and you# You brought him back.")
-            (defn on-dialog-closed ()
-              (map (lambda (chr)
-                     (if (equal id (lookup 'id (cddr chr)))
-                         (chr-del (player) (car chr) (cadr chr))))
-                   (chrs (player)))
-              (coins-add 2000)
-              (adventure-log-add 55 nil)
-              (dialog "<c:Goblin Chieftain:42>#studies you carefully# ...I don't undersstand your reasonsss, Sssylph. But my ssson is alive. That'sss what matters.")
-              (defn on-dialog-closed ()
-                (dialog "<c:Goblin Chieftain:42>Here. #gestures to raiders who bring forward supplies# Payment. We pay our debtsss, even to Sssylph. <B:0> But don't expect thisss to change anything between our people. One act doesn't erase centuriesss.")
-                (setq on-dialog-closed nil)
-                (defn on-dialog-closed ()
-                  (dialog "The goblins have also gifted you a salvaged power supply! Where do you want to place it?")
-                  (setq on-dialog-closed nil)
-                  (run-util-script "place-new-block"
-                                   'chaos-core
-                                   "Place chaos-core:"
-                                   (lambda (x y)
-                                     (exit)))))))))
+        (run-util-script
+         "dialog_sequence"
+         "<c:Goblin Chieftain:42>Who approachesss our territory? <B:0> Sssylph!? State your businessss!"
+         "<c:Goblin Child:50>Father! FATHER! It'sss me!"
+         "<c:Goblin Chieftain:42>My ssson! <B:0> We thought... when the retreat signal came and you weren't aboard... <B:0> #pauses, looking between child and you# You brought him back."
+         (lambda ()
+           (map (lambda (chr)
+                  (if (equal id (lookup 'id (cddr chr)))
+                      (chr-del (player) (car chr) (cadr chr))))
+                (chrs (player)))
+           (adventure-log-add 55 nil))
+         "<c:Goblin Chieftain:42>#studies you carefully# ...I don't undersstand your reasonsss, Sssylph. But my ssson is alive. That'sss what matters."
+         "<c:Goblin Chieftain:42>Here. #gestures to raiders who bring forward supplies# Payment. We pay our debtsss, even to Sssylph. <B:0> But don't expect thisss to change anything between our people. One act doesn't erase centuriesss."
+         (lambda ()
+           (coins-add 2000))
+         "The goblins have also gifted you a salvaged power supply! Where do you want to place it?"
+         (lambda ()
+           (run-util-script "place-new-block"
+                            'chaos-core
+                            "Place chaos-core:"
+                            (lambda (x y)
+                              (exit))))))
 
       (defn on-converge ()
         (dialog "You arrive at the goblin settlement, but the child is no longer aboard your island. The goblins eye your fortress with suspicion and hostility...")
