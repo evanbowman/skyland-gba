@@ -14,33 +14,31 @@
 
 
 (defn on-converge ()
-  (dialog "You arrive, but the princess looks troubled...")
+  (run-util-script
+   "dialog_sequence"
+   "You arrive, but the princess looks troubled..."
+   "<c:Warrior Princess of E. Cay:28>Since shortly after we departed, I haven't been able to contact anyone back home. <B:0> I have instructions, if our kingdom is overrun, to activate the atomics and use them to avenge my people's deaths. Please accept this:"
+   "[You write down the launch codes...]"
+   "<c:Warrior Princess of E. Cay:28>Now, be very careful when moving them..."
+   (lambda ()
+     (foreach (lambda (r)
+                (when (equal (car r) 'cloak)
+                  (room-del (opponent) (get r 1) (get r 2))))
+              (rooms (opponent)))
 
-  (defn on-dialog-closed ()
-    (dialog "<c:Warrior Princess of E. Cay:28>Since shortly after we departed, I haven't been able to contact anyone back home. <B:0> I have instructions, if our kingdom is overrun, to activate the atomics and use them to avenge my people's deaths. Please accept this:")
-    (defn on-dialog-closed ()
-      (dialog "[You write down the launch codes...]")
-      (defn on-dialog-closed ()
-        (dialog "<c:Warrior Princess of E. Cay:28>Now, be very careful when moving them...")
-        (defn on-dialog-closed ()
-          (foreach (lambda (r)
-                     (when (equal (car r) 'cloak)
-                       (room-del (opponent) (get r 1) (get r 2))))
-                   (rooms (opponent)))
+     (alloc-space 'warhead)
 
-          (alloc-space 'warhead)
-
-          (sel-input 'warhead
-                     "Place weapon (1x2)"
-                     (lambda (isle x y)
-                       (foreach (lambda (r)
-                                  (when (equal (car r) 'warhead)
-                                    (room-del (opponent) (get r 1) (get r 2))))
-                                (rooms (opponent)))
-                       (room-new (player) (list 'warhead x y))
-                       (adventure-log-add 64 '())
-                       (sound "build0")
-                       (dialog "You retrieved an atomic missile! There were others, but only one was still functioning.")
-                       (defn on-dialog-closed ()
-                         (dialog "<c:Warrior Princess of E. Cay:28>Those goblins will be sorry they crossed us!")
-                         (setq on-dialog-closed exit)))))))))
+     (sel-input 'warhead
+                "Place weapon (1x2)"
+                (lambda (isle x y)
+                  (foreach (lambda (r)
+                             (when (equal (car r) 'warhead)
+                               (room-del (opponent) (get r 1) (get r 2))))
+                           (rooms (opponent)))
+                  (room-new (player) (list 'warhead x y))
+                  (adventure-log-add 64 '())
+                  (sound "build0")
+                  (dialog "You retrieved an atomic missile! There were others, but only one was still functioning.")
+                  (defn on-dialog-closed ()
+                    (dialog "<c:Warrior Princess of E. Cay:28>Those goblins will be sorry they crossed us!")
+                    (setq on-dialog-closed exit)))))))
