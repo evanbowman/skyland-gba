@@ -531,18 +531,9 @@ int compile_impl(CompilerContext& ctx,
                     ; // TODO: raise error!
             }
 
-            if (str_eq(fn->symbol().name(), "lambda")) {
-                while (1)
-                    ;   // Wait a second... argument substitution should have
-                        // already happened, i.e. the lambda should be
-                        // converted to a fn already. So the code in this
-                        // block is technically unreachable?
-                perform_argument_substitution(lat);
-                lat = lat->cons().cdr(); // Skip over the argument list, now
-                                         // that we've performed substitution.
-            }
-
             auto lambda = append<instruction::PushLambda>(buffer, write_pos);
+
+            auto lambda_start_pos = write_pos;
 
             bool first = true;
 
@@ -568,7 +559,7 @@ int compile_impl(CompilerContext& ctx,
                                          buffer,
                                          write_pos,
                                          lat->cons().car(),
-                                         jump_offset + write_pos,
+                                         jump_offset + lambda_start_pos,
                                          tail_expr);
 
                 lat = lat->cons().cdr();

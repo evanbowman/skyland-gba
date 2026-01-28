@@ -6044,15 +6044,21 @@ BUILTIN_TABLE(
 
                auto data = buffer->databuffer().value();
 
-               const auto start_offset = get_op0()
-                                             ->function()
-                                             .bytecode_impl_.bytecode_offset()
-                                             ->integer()
-                                             .value_;
+               Buffer<s32, 16> start_offsets;
 
-               for (int i = start_offset; i < SCRATCH_BUFFER_SIZE;) {
+               start_offsets.push_back(get_op0()
+                   ->function()
+                   .bytecode_impl_.bytecode_offset()
+                   ->integer()
+                   .value_);
 
-                   const auto offset = to_string<10>(i - start_offset);
+               auto start_offset = [&] {
+                   return start_offsets.back();
+               };
+
+               for (int i = start_offset(); i < SCRATCH_BUFFER_SIZE;) {
+
+                   const auto offset = to_string<10>(i - start_offset());
                    if (offset.length() < 4) {
                        for (u32 i = 0; i < 4 - offset.length(); ++i) {
                            out.push_back('0');
@@ -6254,14 +6260,16 @@ BUILTIN_TABLE(
                        i += 2;
                        break;
 
-                   case PushLambda::op():
+                   case PushLambda::op(): {
                        out += "PUSH_LAMBDA(";
                        out += to_string<32>(
                            ((HostInteger<u16>*)(data->data_ + i + 1))->get());
                        out += ")";
                        i += 3;
+                       start_offsets.push_back(i);
                        ++depth;
                        break;
+                   }
 
                    case PushThis::op():
                        out += PushThis::name();
@@ -6479,6 +6487,7 @@ BUILTIN_TABLE(
                            out += "RET";
                            i += 1;
                        }
+                       start_offsets.pop_back();
                        break;
                    }
 
