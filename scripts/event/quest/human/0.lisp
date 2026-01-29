@@ -65,8 +65,7 @@
               (lambda ()
                 (let ((m (eval-file "/scripts/event/quest/make_quest_marker.lisp")))
                   (if m
-                      (run-util-script
-                       "find-or-create-cargo-bay"
+                      (find-or-create-cargo-bay
                        (lambda (x y)
                          (push 'quests (cons "delivery.lisp" m))
                          (coins-add 500)
@@ -75,7 +74,7 @@
                          (cargo-set (player) x y "parcel")
                          (dialog "<c:Merchant:7>Wonderful! I'll mark the address "
                                  "with an * on your sky chart!")
-                         (run-util-script "pickup-cart" 5
+                         (pickup-cart 5
                                           "Amazed by the picturesque view from the market center, one of your crew members took a photo, and recorded it on a data cartridge..."
                                           exit)))
                       (progn

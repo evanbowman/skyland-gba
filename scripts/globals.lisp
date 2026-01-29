@@ -63,3 +63,16 @@
 (defconstant faction-enable-sylph-mask (bit-shift-left 1 2))
 
 (defconstant default-early-gc-thresh 1000)
+
+
+(global '--autoload-symbols)
+
+(setq --autoload-symbols
+      '(clone-isle
+        core-service
+        find-or-create-cargo-bay
+        find-crew-slot
+        hostile-pickup-cart
+        pickup-cart
+        place-new-block
+        repairman))

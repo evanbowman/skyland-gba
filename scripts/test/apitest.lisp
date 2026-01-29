@@ -303,6 +303,35 @@
 (end-test)
 
 
+(begin-test "autoload")
+
+(apply global --autoload-symbols) ; Define lazy loaded functions for the linter.
+(foreach (lambda (sym)
+           (assert-v (lambda? (--on-autoload sym))))
+         --autoload-symbols)
+
+;; Accessing a variable not in the autoload list should produce an error
+(assert-v (error? autoload-test))
+;; After adding a variable to the autoload list, it should be possible to
+;; reference that value.
+(push-set '--autoload-symbols 'autoload-test)
+(assert-eq 55 (autoload-test 8))
+;; Running gc collects any existing autoload function implementations.
+(gc)
+(assert-v (not (bound? 'autoload-test)))
+(assert-eq 55 (autoload-test 8)) ; loaded again when accessed
+(gc)
+(setq --autoload-symbols (remove --autoload-symbols 'autoload-test))
+(assert-v (error? autoload-test)) ; symbol is no longer registered for autoload
+
+;; Later, when the linter validates this file itself, it will see that
+;; autoload-test is referenced but not bound (we removed it from the autoload
+;; list above). Declare it as a global to suppress this expected error.
+(global 'autoload-test)
+
+(end-test)
+
+
 (regr-print "All tests passed!" 1 3)
 
 (unbind 'begin-test

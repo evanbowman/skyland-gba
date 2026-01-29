@@ -21,8 +21,7 @@
                       (lambda ()
                         (coins-add c)
                         (score-add score-bonus)
-                        (run-util-script
-                         "find-crew-slot"
+                        (find-crew-slot
                         (if (equal (faction) 'goblin)
                           "<c:Goblin:18>Gahh! <B:0> You are out of ssspace! <B:0> Nice friendsss will not leave usss! I'll build an ledarr!"
                           "<c:Goblin:18>Gahh! <B:0> You are out of ssspace! <B:0> Nice humansss will not leave usss! I'll build an ledarr!")
@@ -37,10 +36,9 @@
                                           (cons 'icon (sample '(18 35 36 37 41)))))
                            (adventure-log-add 51 '())
                            (dialog "One of the goblins joined your crew!")
-                           (run-util-script "hostile-pickup-cart"
-                                            8
-                                            "While scanning the goblin fortress' computers, you find some fascinating images of the surface world. You record them on a cartridge..."
-                                            exit)
+                           (hostile-pickup-cart 8
+                                                "While scanning the goblin fortress' computers, you find some fascinating images of the surface world. You record them on a cartridge..."
+                                                exit)
 
                           (exit 2)))))
   (let ((cnt 0)

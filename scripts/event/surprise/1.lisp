@@ -15,7 +15,7 @@
 
 
 (opponent-init 7 'hostile)
-(run-util-script "clone-isle" (player) (opponent))
+(clone-isle (player) (opponent))
 
 (when (< (difficulty) difficulty-hard)
   (foreach (lambda (room)

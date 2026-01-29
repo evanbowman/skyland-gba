@@ -27,8 +27,7 @@
               (lambda ()
                 (let ((m (eval-file "/scripts/event/quest/make_quest_marker.lisp")))
                   (if m
-                      (run-util-script
-                       "find-or-create-cargo-bay"
+                      (find-or-create-cargo-bay
                        (lambda (x y)
                          (push 'quests (cons "loot.lisp" m))
                          (coins-add 500)

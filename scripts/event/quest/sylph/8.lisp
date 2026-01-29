@@ -43,8 +43,7 @@
             (dialog "<c:Conclave Elder:51>The coordinates have been transmitted to your navigation system. <B:0> I will accompany you personally to ensure proper handling of the device.")
             (defn on-dialog-closed ()
               (setq on-dialog-closed nil)
-              (run-util-script
-               "find-crew-slot"
+              (find-crew-slot
                "<c:Conclave Elder:51>Your fortress layout is... unconventional. I will need a position from which to work."
                'ladder
                "Place block (1x2):"

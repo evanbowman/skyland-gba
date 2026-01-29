@@ -85,8 +85,7 @@
       (progn
         (dialog "You cannot afford to pay. The monks become impatient, and cut the transmission.")
         (exit))
-      (run-util-script
-       "find-crew-slot"
+      (find-crew-slot
        "<c:Goblin Monk:41>This is inconvenient, but I suppose we can help you out..."
        'ladder
        "Place block (1x2):"
@@ -99,9 +98,9 @@
          (defn on-dialog-closed ()
            (setq on-dialog-closed nil)
            (dialog "The monk joined your crew!")
-           (run-util-script "pickup-cart" 10
-                            "The Ashwalker Monk reluctantly hands over a datacart that he'd been keeping..."
-                            exit))))))
+           (pickup-cart 10
+                        "The Ashwalker Monk reluctantly hands over a datacart that he'd been keeping..."
+                        exit))))))
 
 
 

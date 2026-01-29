@@ -55,8 +55,7 @@
 
 
 (defn on-dialog-accepted ()
-  (run-util-script
-   "find-crew-slot"
+  (find-crew-slot
    "<c:Sylph Researcher:49>Wait - you're full. Let me help. I can't stay here, the fires are spreading."
    'ladder
    "Place block (1x2):"

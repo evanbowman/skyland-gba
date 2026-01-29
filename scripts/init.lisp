@@ -117,11 +117,6 @@
     (while (not (construction-sites (player) size))
       (terrain-set (player) (+ (terrain (player)) 1)))))
 
-(defn/c run-util-script ((file . string))
-  (let ((varg (cdr $V)))
-    (apply (eval-file (string "/scripts/util/" file ".lisp"))
-           varg)))
-
 
 (defn/c hash (v)
   (cond
@@ -186,3 +181,11 @@
         (bit-or faction-enable-human-mask
                 faction-enable-goblin-mask
                 faction-enable-sylph-mask))
+
+;; The autoload mechanism provides a way to lazy-load infrequently used
+;; symbols. As a final step before raising an undefined variable error, the
+;; interpreter calls on-autoload for a symbol, to attempt to lazy-bind a value
+;; from a file.
+(defn/c --on-autoload (sym)
+  (if (int? (find sym --autoload-symbols))
+      (set-temp sym (eval-file (string "/scripts/autoload/" sym ".lisp")))))

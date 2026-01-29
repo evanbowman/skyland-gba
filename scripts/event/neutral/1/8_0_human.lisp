@@ -33,8 +33,7 @@
 
 
 (defn on-dialog-accepted ()
-  (run-util-script
-   "find-crew-slot"
+  (find-crew-slot
    "<c:Dog:24>BOWOWOWOW!"
    'ladder
    "Place block (1x2):"

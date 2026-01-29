@@ -88,8 +88,7 @@
         (if m
             (progn
               (push 'quests (cons "artifacts.lisp" m))
-              (run-util-script
-               "find-or-create-cargo-bay"
+              (find-or-create-cargo-bay
                (lambda (x y)
                  (adventure-log-add 20 (list fee))
                  (push 'qids qid)

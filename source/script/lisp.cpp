@@ -572,54 +572,31 @@ static void globals_tree_erase(Value* key)
         return;
     }
 
-    auto current = ctx.globals_tree_;
-    auto prev = current;
-    bool erase_left = true;
+    ctx.globals_tree_ = globals_tree_splay(ctx.globals_tree_, key);
 
-    while (current not_eq get_nil()) {
+    if (TKEY(ctx.globals_tree_) != key->symbol().unique_id()) {
+        return;
+    }
 
-        auto current_key = current->cons().car()->cons().car();
+    // Key is now at the root, remove it by joining left and right subtrees
+    Value* left = LST(ctx.globals_tree_);
+    Value* right = RST(ctx.globals_tree_);
 
-        if (current_key->symbol().unique_id() == key->symbol().unique_id()) {
+    if (left == get_nil()) {
+        ctx.globals_tree_ = right;
+    } else if (right == get_nil()) {
+        ctx.globals_tree_ = left;
+    } else {
+        // Both children exist - splay the maximum element of left subtree
+        // to bring it to the root of left subtree (it will have no right child)
+        // This is typically done by splaying with a key larger than all keys
+        left = globals_tree_splay(left, key); // Will end up at rightmost
 
-            Protected erased(current);
-
-            if (current == prev) {
-                ctx.globals_tree_ = get_nil();
-            } else {
-                if (erase_left) {
-                    prev->cons().cdr()->cons().set_car(get_nil());
-                } else {
-                    prev->cons().cdr()->cons().set_cdr(get_nil());
-                }
-            }
-
-            auto reattach_child = [](Value& kvp, Value&) {
-                globals_tree_insert(kvp.cons().car(), kvp.cons().cdr(), true);
-            };
-
-            auto left_child = erased->cons().cdr()->cons().car();
-            if (left_child not_eq get_nil()) {
-                globals_tree_traverse(left_child, reattach_child);
-            }
-
-            auto right_child = erased->cons().cdr()->cons().cdr();
-            if (right_child not_eq get_nil()) {
-                globals_tree_traverse(right_child, reattach_child);
-            }
-
-            return;
-        }
-
-        prev = current;
-
-        if (current_key->symbol().unique_id() < key->symbol().unique_id()) {
-            erase_left = true;
-            current = current->cons().cdr()->cons().car();
-        } else {
-            erase_left = false;
-            current = current->cons().cdr()->cons().cdr();
-        }
+        // Actually, we need to find max of left subtree more explicitly
+        // Splay left tree with the key we're deleting, which will bring
+        // the largest element < key to the root
+        SRST(left, right);
+        ctx.globals_tree_ = left;
     }
 }
 
@@ -1990,7 +1967,10 @@ void lint(Value* expr, Value* variable_list)
                     is_special_form = true;
                 }
 
-                auto fn = get_var(fn_sym);
+                auto fn = L_NIL;
+                if (not is_special_form) {
+                    fn = get_var(fn_sym);
+                }
                 if (fn->type() == Value::Type::function) {
                     int reqd_args = fn->function().sig_.required_args_;
                     if (length(expr) - 1 < reqd_args) {
@@ -2879,8 +2859,16 @@ static int run_gc()
     if (gc_running) {
         return 0;
     }
-
     gc_running = true;
+
+    l_foreach(get_var("--autoload-symbols"), [](Value* sym) {
+        if (sym->type() == Value::Type::symbol) {
+            if (globals_tree_find(sym)) {
+                globals_tree_erase(sym);
+            }
+        }
+    });
+
     gc_mark();
     int collect_count = gc_sweep();
     gc_running = false;
@@ -5913,6 +5901,11 @@ BUILTIN_TABLE(
 
            return get_list(get_op1(), index);
        }}},
+     {"--on-autoload",
+      {SIG1(nil, symbol),
+       [](int argc) {
+           return L_NIL;
+       }}},
      {"read",
       {SIG1(nil, string),
        [](int argc) {
@@ -6784,6 +6777,14 @@ Value* get_var(Value* symbol)
             }
             i += sizeof(ConstantTabEntryHeader) + name_size + value_size;
         }
+    }
+
+    push_op(symbol);
+    funcall(get_var("--on-autoload"), 1);
+    auto result = get_op0();
+    pop_op();
+    if (not is_error(result) and result not_eq L_NIL) {
+        return result;
     }
 
     StringBuffer<31> hint("[var: ");

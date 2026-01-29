@@ -32,7 +32,6 @@
                (room-new (player) (list 'phase-shifter x y))
                (sound "build0")
                (dialog "You picked up a rare piece of Sylph technology! What could it's function be?")
-               (run-util-script "pickup-cart"
-                                9
-                                "One of your crewmembers hands over another item found aboard the Sylph city..."
-                                exit))))
+               (pickup-cart 9
+                            "One of your crewmembers hands over another item found aboard the Sylph city..."
+                            exit))))

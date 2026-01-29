@@ -57,8 +57,7 @@
                     (dialog "A flash of resplendent light emanates from the city... <B:0> the approaching storm clouds recede far into the horizon... <B:0> The Sylph castle seems to have also transported some strange block onto your island... <B:0> Where do you want to place it?")
                     (unbind 'fut)
                     (defn on-dialog-closed ()
-                      (run-util-script "place-new-block"
-                                       'amplifier
+                      (place-new-block 'amplifier
                                        "Place amplifier:"
                                        (lambda (x y)
                                          (exit)))))))))

@@ -47,9 +47,9 @@
   (setq on-converge nil)
   (let ((c (choice 6))
         (end (lambda ()
-               (run-util-script "pickup-cart" 4
-                                "Something else catches your attention. <d:500>.<d:500>.<d:500> a data cartridge!"
-                                exit))))
+               (pickup-cart 4
+                            "Something else catches your attention. <d:500>.<d:500>.<d:500> a data cartridge!"
+                            exit))))
     (cond
      ((equal c 0)
       (let ((amt (+ 200 (choice 400))))

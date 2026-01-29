@@ -100,8 +100,7 @@
            (coins-add 2000))
          "The goblins have also gifted you a salvaged power supply! Where do you want to place it?"
          (lambda ()
-           (run-util-script "place-new-block"
-                            'chaos-core
+           (place-new-block 'chaos-core
                             "Place chaos-core:"
                             (lambda (x y)
                               (exit))))))
