@@ -24,12 +24,9 @@
 
 (setq on-fadein
       (lambda ()
-        (dialog "<c:Goblin:2>Hey King, we've found a defenssselesss cassstle!")
-
-        (setq on-dialog-closed
-              (lambda ()
-                (dialog "<c:Goblin King:3>#cackle# Minionsss, prepare for boarding!")
-                (setq on-dialog-closed nil)))))
+        (dialog-sequence
+         "<c:Goblin:2>Hey King, we've found a defenssselesss cassstle!"
+         "<c:Goblin King:3>#cackle# Minionsss, prepare for boarding!")))
 
 
 

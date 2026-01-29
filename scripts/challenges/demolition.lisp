@@ -4,14 +4,10 @@
 
 
 (defn on-fadein ()
-  (dialog "<c:Goblin King:3>This whole island needs to be demolissshed! That'sss right, every sssingle block! Not one block can remain!")
-  (defn on-dialog-closed ()
-    (dialog
-     "<c:Goblin:2>Hey King, we've finished wiring the island with explosssivesss!")
-    (defn on-dialog-closed ()
-      (dialog
-       "<c:Goblin King:3>Heh. Well, thisss complicatesss thingsss... hahahahaha!")
-      (setq on-dialog-closed nil))))
+  (dialog-sequence
+   "<c:Goblin King:3>This whole island needs to be demolissshed! That'sss right, every sssingle block! Not one block can remain!"
+   "<c:Goblin:2>Hey King, we've finished wiring the island with explosssivesss!"
+   "<c:Goblin King:3>Heh. Well, thisss complicatesss thingsss... hahahahaha!"))
 
 
 (defn challenge-hint ()

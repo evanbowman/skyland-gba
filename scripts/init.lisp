@@ -168,6 +168,20 @@
   (setq pending-events (cons (cons turns script) pending-events)))
 
 
+(defn/c dialog-sequence ()
+  (let ((args $V))
+    (cond
+      ((lambda? (car args))
+       ((car args))
+       (apply dialog-sequence (cdr args)))
+      ((string? (car args))
+       (dialog (car args))
+       (defn on-dialog-closed ()
+         (setq on-dialog-closed nil)
+         (if (cdr args)
+             (apply dialog-sequence (cdr args))))))))
+
+
 (setvar "enabled_factions_bitfield"
         (bit-or faction-enable-human-mask
                 faction-enable-goblin-mask

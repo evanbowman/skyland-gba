@@ -84,8 +84,7 @@
        (chrs (player)))
   (if child
       (defn on-converge ()
-        (run-util-script
-         "dialog_sequence"
+        (dialog-sequence
          "<c:Goblin Chieftain:42>Who approachesss our territory? <B:0> Sssylph!? State your businessss!"
          "<c:Goblin Child:50>Father! FATHER! It'sss me!"
          "<c:Goblin Chieftain:42>My ssson! <B:0> We thought... when the retreat signal came and you weren't aboard... <B:0> #pauses, looking between child and you# You brought him back."

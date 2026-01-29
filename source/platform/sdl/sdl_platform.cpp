@@ -3389,12 +3389,14 @@ void Platform::fatal(const char* msg)
         PLATFORM.screen().display();
     };
 
-    while (true) {
+    while (sdl_running) {
         show_verbose_msg();
         if (PLATFORM.input().down_transition<Button::action_2>()) {
-            PLATFORM.restart();
+            break;
         }
     }
+
+    exit(EXIT_FAILURE);
 }
 
 

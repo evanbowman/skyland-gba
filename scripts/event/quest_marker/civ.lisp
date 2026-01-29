@@ -29,28 +29,22 @@
 
   (if boy
       (defn on-converge ()
-        (dialog "<c:Sylph:21><S:1>Hello, traveller...")
-
-        (defn on-dialog-closed ()
-          (dialog "<c:Orphan Boy:26><S:1>Oh!!! I'm home at last!")
-
-          (defn on-dialog-closed ()
-            (dialog "<c:Sylph:21><S:1>Oh! What have we here?!")
-
-            (defn on-dialog-closed ()
-              (map (lambda (chr)
-                     (if (equal id (lookup 'id (cddr chr)))
-                         (chr-del (player) (car chr) (cadr chr))))
-                   (chrs (player)))
-              (coins-add 2000)
-              (adventure-log-add 55 nil)
-              (dialog "The orphan boy returned to his home!")
-              (defn on-dialog-closed ()
-                (dialog "<c:Sylph:21>Hello, traveller...<B:0> I am very grateful to you for bringing him back! ...")
-                (setq on-dialog-closed (lambda ()
-                                         (on-timeout 500 'fut)
-                                         (setq on-dialog-closed nil)))
-                (defn fut ()
+        (dialog-sequence
+         "<c:Sylph:21><S:1>Hello, traveller..."
+         "<c:Orphan Boy:26><S:1>Oh!!! I'm home at last!"
+         "<c:Sylph:21><S:1>Oh! What have we here?!"
+         (lambda ()
+           (map (lambda (chr)
+                  (if (equal id (lookup 'id (cddr chr)))
+                      (chr-del (player) (car chr) (cadr chr))))
+                (chrs (player)))
+           (coins-add 2000)
+           (adventure-log-add 55 nil))
+         "The orphan boy returned to his home!"
+         "<c:Sylph:21>Hello, traveller...<B:0> I am very grateful to you for bringing him back! ..."
+         (lambda()
+           (on-timeout 500 'fut)
+           (defn fut ()
                   (sound "bell")
                   (sound "thunder_close_1")
                   (effect "lightning" 0 0)
@@ -67,7 +61,7 @@
                                        'amplifier
                                        "Place amplifier:"
                                        (lambda (x y)
-                                         (exit)))))))))))
+                                         (exit)))))))))
 
     (defn on-converge ()
       (dialog "Despite multiple attempts to contact the city, the inhabitants are unresponsive. It's too bad the child isn't aboard your island anymore, maybe he'd know what this was all about...")
