@@ -669,7 +669,15 @@
 (assert-v (equal temp (wrap 30 'widget)))
 (assert-v (not (equal temp (wrap 50 'widget))))
 
+(defn -invoke-widget (w a b c)
+  (if (not (equal a 1))
+      (fatal "wrapped argv bad!"))
+  (+ (unwrap w) a b c))
+
+(assert-eq 36 (temp 1 2 3))
+
 (unbind '-equal-widget
+        '-invoke-widget
         '-decorate-widget)
 
 (end-test)

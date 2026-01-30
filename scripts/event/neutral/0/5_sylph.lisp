@@ -7,7 +7,6 @@
  "<b:/scripts/data/img/destroyed_town.img.bin>"
  "The remnants of a town appear, wrecked by raiders...")
 
-
 (opponent-init 8 'neutral)
 
 (island-configure
@@ -41,28 +40,26 @@
 
 (defn on-converge ()
   (dialog
-   "<c:Sylph Researcher:49>Contact! Finally! <B:0> #clears throat# My apologies. Composure. <B:0> I was here conducting field research into human settlements when raiders attacked! <B:0> I tried to stay hidden, but the building I was in collapsed. By the time I dug myself out, everyone was gone - the villagers, the raiders, everyone.")
-
+   "<c:Sylph Researcher:49>Someone's here! Thank the winds. <B:0> I was conducting field research when raiders attacked. I tried to warn the villagers - they thought I was overreacting. 'Sylph paranoia,' one said. <B:0> When the attack came, I tried to help defend, but... <B:0> I'm a researcher, not a soldier. The building collapsed. Everyone scattered or was taken. <B:0> By the time I dug myself out, I was alone.")
   (setq on-dialog-closed
         (lambda ()
           (dialog "He seems shaken, invite him aboard?")
           (dialog-await-binary-q-w/lore "Welcome aboard!" "Not today."
                                         '(("field research?" .
-                                           "<c:Sylph Researcher:49> We've been documenting how other sky peoples adapt - construction techniques, resource management, social structures. <B:0> The Conclave believes if we understand how humans survive with less... sophisticated technology, we might find solutions to our own problems. <B:0> Observational study only, of course. We don't interfere.")))
+                                           "<c:Sylph Researcher:49>We document adaptation strategies - how humans build efficiently, manage with limited resources. <B:0> The Conclave thought understanding survival methods might help our cities. <B:0> <d:800> I told them their defenses were inadequate. They didn't listen. <B:0> Maybe I didn't explain it right. Maybe they thought I was... condescending.")))
           (setq on-dialog-closed '())))
-
   (setq on-converge nil))
 
 
 (defn on-dialog-accepted ()
   (find-crew-slot
-   "<c:Sylph Researcher:49>Wait - you're full. Let me help. I can't stay here, the fires are spreading."
+   "<c:Sylph Researcher:49>Ah. Full capacity. That's... let me think. <B:0> The structural integrity here is compromised. I can calculate optimal placement for-"
    'ladder
    "Place block (1x2):"
    (lambda (x y _)
      (chr-del (opponent) 1 12)
      (chr-new (player) x y 'neutral '((race . 4) (icon . 49)))
-     (dialog "<c:Sylph Researcher:49>Your assistance is... #breath catches# ...deeply appreciated. <B:0> I will not forget this intervention.")
+     (dialog "<c:Sylph Researcher:49>Thank you. <B:0> <d:600> I keep thinking - if I'd phrased it differently, shown them the calculations in a way they'd understand... <B:0> <d:800> But I presented it like a research paper. To people fighting for survival every day. <B:0> They needed practical help, not observations.")
      (adventure-log-add 15 '())
      (defn on-dialog-closed ()
        (setq on-dialog-closed nil)

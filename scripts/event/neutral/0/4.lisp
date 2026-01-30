@@ -78,7 +78,8 @@
                            ('rocket-bomb "Like a missile-silo, but starts fires! A useful addition!")
                            ('ballista "A special cannon that fires projectiles in a wide arc. How useful!")
                            (else "Wow, a very powerful weapon! <B:0> You're lucky to have found this...")))
-                 (setq on-dialog-closed exit)))
+                 (defn on-dialog-closed ()
+                   (exit-with-commentary "goblin_raid_weapon"))))
     (adventure-log-add 9 (list wpn)))
 
   (defn on-dialog-declined ()

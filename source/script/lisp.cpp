@@ -1753,6 +1753,23 @@ void funcall(Value* obj, u8 argc)
         break;
     }
 
+    case Value::Type::wrapped: {
+        if (obj->hdr_.mode_bits_ == (u8)Wrapped::Variant::userdata) {
+            pop_args();
+            push_op(make_error("cannot invoke wrapped userdata"));
+            break;
+        }
+        auto sym_name = dcompr(obj->wrapped().type_sym_)->symbol().name();
+        if (auto handler = get_var(::format("-invoke-%", sym_name).c_str())) {
+            insert_op(argc, obj);
+            funcall(handler, argc + 1);
+        } else {
+            pop_args();
+            push_op(make_error(::format("missing -invoke-%", sym_name).c_str()));
+        }
+        break;
+    }
+
     default:
         push_op(make_error(Error::Code::value_not_callable, L_NIL));
         break;

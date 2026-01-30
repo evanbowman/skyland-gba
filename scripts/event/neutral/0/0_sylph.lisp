@@ -38,14 +38,14 @@
 
 (defn on-dialog-accepted ()
   (find-crew-slot
-   "<c:Sylph Engineer:48>Wait - you're full up. Let me help. I can optimize your layout, make room."
+   "<c:Sylph Engineer:48>Ah. Full capacity. Expected, really. <B:0> Let me help - I'm quite good at spatial optimization. Professional habit."
    'ladder
    "Place block (1x2):"
    (lambda (x y _)
      (adventure-log-add 7 '())
      (chr-del (opponent) 1 14)
      (chr-new (player) x y 'neutral '((race . 4) (icon . 48)))
-     (dialog "<c:Sylph Engineer:48>Thank you. Truly. <B:0> ... <B:0> Your core is in better shape than I expected. Old human design, yes, but maintained well. <B:0> I can help keep it running. It's... it feels good to have systems to work on again. Purpose. <B:0> Thank you for that.")
+     (dialog "<c:Sylph Engineer:48>Hm. Your core... <B:0> It's human make, yes? Crude by our standards, but... <B:0> <d:800> ...it's working. That's more than I can say for mine. <B:0> I'll keep it running well. <B:0> <d:600> It feels good to have systems to maintain again.")
      (defn on-dialog-closed ()
        (setq on-dialog-closed nil)
        (dialog "The engineer joined your crew!")
