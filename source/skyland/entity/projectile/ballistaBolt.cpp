@@ -110,7 +110,7 @@ void BallistaBolt::update(Time delta)
 
     auto move_rate = milliseconds(state_.interp_ms_ * 10);
 
-    Fixnum interval(Float(state_.timer_) / move_rate);
+    Fixnum interval = Fixnum::create(((s64)state_.timer_ << 40) / move_rate);
 
     auto point = interpolate_fp(wc(next), wc(current), interval);
     sprite_.set_position(point);
@@ -134,6 +134,19 @@ void BallistaBolt::rewind(Time delta)
     state_.timer_ -= delta;
 
     auto move_rate = milliseconds(state_.interp_ms_ * 10);
+    auto current = state_.path_[state_.path_idx_];
+    auto next = state_.path_[std::max(state_.path_idx_ -1, 0)];
+
+    auto wc = [](Vec2<s16> p) {
+        return Vec2<Fixnum>{Fixnum::from_integer(p.x),
+                            Fixnum::from_integer(p.y)};
+    };
+
+    Fixnum interval = Fixnum::create(((s64)(move_rate - state_.timer_) << 40) / move_rate);
+
+    auto point = interpolate_fp(wc(next), wc(current), interval);
+
+    sprite_.set_position(point);
 
     if (state_.timer_ <= 0) {
         state_.timer_ += move_rate;
@@ -144,13 +157,6 @@ void BallistaBolt::rewind(Time delta)
         }
 
         state_.path_idx_--;
-
-        auto wc = [](Vec2<s16> p) {
-            return Vec2<Fixnum>{Fixnum::from_integer(p.x),
-                                Fixnum::from_integer(p.y)};
-        };
-
-        sprite_.set_position(wc(state_.path_[state_.path_idx_]));
     }
 }
 
