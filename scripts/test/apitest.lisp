@@ -341,6 +341,8 @@
 
 (regr-print "Linting all scripts!" 1 3)
 
+(global 'test-delay) ; for the linter
+
 (defn ends-with (str sufx)
   (let ((m1 (string-explode str))
         (m2 (string-explode sufx)))
@@ -383,7 +385,7 @@
          (range 5 10))
 
 
-(assert-eq 6 (lisp-mem-stack-used))
+(assert-eq 9 (lisp-mem-stack-used))
 
 (unbind 'ends-with
         'assert-v

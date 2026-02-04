@@ -356,7 +356,7 @@ int compile_impl(CompilerContext& ctx,
                  int jump_offset,
                  bool tail_expr)
 {
- TOP:
+TOP:
     if (code->type() == Value::Type::ratio) {
         auto r = append<instruction::PushRatio>(buffer, write_pos);
         r->num_.set(dcompr(code->ratio().numerator_)->integer().value_);

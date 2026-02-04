@@ -74,7 +74,7 @@
 
   (dialog "<c:Traveller:23> Hello! I was just talking to your crew! A few weeks ago, some wretched goblins ransacked my island. Outnumbered, I jumped in a transporter and ended up here. Can you help me get back home?")
 
-  (dialog-await-binary-q "Of course!" "I'm kind of busy…")
+  (dialog-setup-binary-q "Of course!" "I'm kind of busy…")
 
   (defn on-dialog-accepted ()
     (let ((m (eval-file "/scripts/event/quest/make_quest_marker.lisp")))

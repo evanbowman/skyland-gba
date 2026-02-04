@@ -23,7 +23,7 @@
 
   (dialog "<c:Surface Keeper:43>The cloudsss thin here... allowing usss to reach the sssky dwellersss. <B:0> Our instruments detect... disturbing energy readingsss in the ruinsss below. <B:0> Something awakensss. We require aid from those who command flying fortressesss.")
 
-  (dialog-await-binary-q "I accept!" "I'm kind of busy…")
+  (dialog-setup-binary-q "I accept!" "I'm kind of busy…")
 
   (defn on-dialog-accepted ()
     (let ((m (eval-file "/scripts/event/quest/make_quest_marker.lisp")))

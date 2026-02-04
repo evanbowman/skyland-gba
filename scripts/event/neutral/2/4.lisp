@@ -104,7 +104,7 @@
      (string val)
      "@! Pay!")
 
-    (dialog-await-binary-q-w/lore
+    (dialog-setup-binary-q-w/lore
      (format "I'll pay… (%@)" val) "No way!"
      '(("Goblin Queen?" . "It's said that she began as a promising Ashwalker Apprentice, studying ancient technology and surface lore. But where other monks sought to contain and guard dangerous artifacts, she saw opportunities for power. She began experimenting with forbidden technologies, particularly the controlled growth of mycelium... <B:0> What should we do?")))
 

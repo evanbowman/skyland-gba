@@ -24,7 +24,7 @@
         (lambda ()
           (dialog "He seems harmless, invite him aboard?")
 
-          (dialog-await-binary-q-w/lore "Welcome aboard!" "Sorry, but no."
+          (dialog-setup-binary-q-w/lore "Welcome aboard!" "Sorry, but no."
                                         '(("Let's chat…" .
                                            "<c:Spotter:45>When rich islandsss passs overhead, I track their movement patterns. Could show you where the fat merchantsss like to hide... <B:0> Need a ssspotter on your crew?")
                                           ("Explain your goggles?" .

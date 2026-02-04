@@ -50,7 +50,7 @@
 (defn on-converge ()
   (dialog "The island's radio appears to be broken. <B:0> Three survivors signal to you that they'd like to come aboard, but it's not clear whether they can be trusted. <B:0> Invite survivors aboard?")
 
-  (dialog-await-y/n)
+  (dialog-setup-y/n)
   (setq on-converge nil))
 
 

@@ -24,7 +24,7 @@
            (string val)
            "@ and make crude gestures. Will you pay?")
 
-          (dialog-await-binary-q-w/lore (format "Pay %@." val) "No way!"
+          (dialog-setup-binary-q-w/lore (format "Pay %@." val) "No way!"
                                         '(("What's an assault ship?" .
                                            "Imperial assault ships were involved in the surface wars. Not many still exist, and not much is known about them. <B:0> The pirates are getting impatient. Pay the bribe?")))
 

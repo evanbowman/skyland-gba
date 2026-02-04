@@ -13,7 +13,7 @@
     (dialog (if (equal cnt 0)
                 "Are you sure you want a hint?"
               "Need another hint?"))
-    (dialog-await-y/n)
+    (dialog-setup-y/n)
 
     (defn on-dialog-accepted ()
       (dialog

@@ -32,18 +32,14 @@
 
 
 (defn on-converge ()
-  (dialog
-   "Looks like a terrible battle happened here... The crew seems to have abandoned the burning island, leaving behind a powerful weapon...")
   (setq on-converge nil)
+  (await (dialog* "Looks like a terrible battle happened here... The crew seems to have abandoned the burning island, leaving behind a powerful weapon..."))
   (alloc-space 'incinerator)
   (adventure-log-add 46 '())
-  (sel-input 'incinerator
-             "Place weapon (2x2)"
-             (lambda (isle x y)
-               (room-new (player) (list 'incinerator x y))
-                 (room-del (opponent) 0 13)
-               (sound "build0")
-               (dialog "A delicate weapon built long ago on the surface... protect it carefully, because you can't build a replacement.")
-               (pickup-cart 7
-                            "Oh! You notice something else..."
-                            exit))))
+  (let ((xy (await (sel-input* 'incinerator "Place weapon (2x2)"))))
+    (room-new (player) (list 'incinerator (car xy) (cdr xy)))
+    (room-del (opponent) 0 13)
+    (sound "build0")
+    (await (dialog* "A delicate weapon built long ago on the surface... protect it carefully, because you can't build a replacement."))
+    (pickup-cart 7 "Oh! You notice something else...")
+    (exit)))

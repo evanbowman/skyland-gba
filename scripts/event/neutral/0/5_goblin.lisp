@@ -46,7 +46,7 @@
         (lambda ()
             (dialog "She seems decent, invite her aboard?")
 
-          (dialog-await-binary-q "Welcome aboard!" "Not today.")
+          (dialog-setup-binary-q "Welcome aboard!" "Not today.")
 
           (setq on-dialog-closed '())))
 

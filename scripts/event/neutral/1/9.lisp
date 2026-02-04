@@ -45,12 +45,12 @@
 (defn on-converge ()
   ;; want drones?
   (dialog "<c:robot:13> 01010111 01100001 01101110 01110100 00100000 01100100 01110010 01101111 01101110 01100101 01110011 00111111?")
-  (dialog-await-y/n)
+  (dialog-setup-y/n)
 
   (defn on-dialog-accepted ()
     ;; less than 2?
     (dialog "<c:robot:13> 00111100 00100000 00110010?")
-    (dialog-await-y/n)
+    (dialog-setup-y/n)
 
     (adventure-log-add 39 '())
 

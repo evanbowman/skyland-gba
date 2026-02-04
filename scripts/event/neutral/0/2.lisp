@@ -27,13 +27,10 @@
     (when (equal (zone) 3)
       (setq amt (+ 800 (choice 900))))
 
-    (dialog
-     "You explore, and discover " (string amt) "@ amongst the ruins!")
-
     (adventure-log-add 11 (list amt))
-
     (coins-add amt)
 
-    (pickup-cart 1
-                 "Just as you're turning to leave, you spot a data cartridge sitting on an unfinished game of checkers."
-                 exit)))
+    (await (dialog* "You explore, and discover " (string amt) "@ amongst the ruins!"))
+
+    (pickup-cart 1 "Just as you're turning to leave, you spot a data cartridge sitting on an unfinished game of checkers.")
+    (exit)))

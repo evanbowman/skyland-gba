@@ -118,15 +118,6 @@ o----------------------------o
 
 o----------------------------o
 
- (collect callback)
-
- Invoke callback until it
- returns a false value, and
- return a list of the results.
-
-
-o----------------------------o
-
  (contains list value)
 
  Check if list contains value.

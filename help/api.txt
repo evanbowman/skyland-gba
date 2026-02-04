@@ -779,6 +779,26 @@ o----------------------------o
 
 o----------------------------o
 
+ (dialog* strings ...)
+
+ The new dialog function,
+ which returns a promise for
+ waiting on the result,
+ rather than invoking dialog
+ callbacks.
+
+ await on dialog* will return
+ the number of the dialog opt
+ selected, if the user was
+ presented with a dialog box.
+
+ NOTE: the callback pushed to
+ dialog-opts will still be
+ invoked as well.
+
+
+o----------------------------o
+
  (has-dialog?)
 
  True if any dialog text has
@@ -1174,6 +1194,23 @@ o----------------------------o
 
 o----------------------------o
 
+ (sel-input* room-sym msg)
+
+ The new sel-input function.
+ Returns a promise object,
+ which can be passed to the
+ await keyword.
+
+ Yields a pair containing xy
+ coords.
+
+ (let ((xy (await
+            (sel-input ...))))
+   ...)
+
+
+o----------------------------o
+
  (sel-input-opponent
   room-sym
   msg
@@ -1383,6 +1420,19 @@ o----------------------------o
  as a list:
 
  '(major minor subminor patch)
+
+
+o----------------------------o
+
+ (wait* milliseconds)
+
+ Returns a promise that
+ resolves after the specified
+ delay in milliseconds.
+ Must be used with await.
+
+ Example:
+   (await (wait* 1000))
 
 
 o----------------------------o

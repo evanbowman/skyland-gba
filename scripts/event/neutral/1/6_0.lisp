@@ -50,96 +50,100 @@
 (flag-show (opponent) flag-id-colonist)
 
 
-(let ((pc (filter (car-equalto? 'power-core)  (rooms (player))))
-      (rc (filter (car-equalto? 'reactor)     (rooms (player))))
-      (sc (filter (car-equalto? 'backup-core) (rooms (player))))
+(defn/temp power-supplies ()
+  (let ((rlat (rooms (player))))
+    (list (cons 'cores (append (filter (car-equalto? 'power-core) rlat)
+                               (filter (car-equalto? 'overdrive-core) rlat)))
+          (cons 'reactors (append (filter (car-equalto? 'reactor) rlat)
+                                  (filter (car-equalto? 'chaos-core) rlat)))
+          (cons 'backups (filter (car-equalto? 'backup-core) rlat)))))
+
+
+
+(let ((info (power-supplies))
       (wpn (sample '(flak-gun fire-charge ballista))))
 
-    (if (not pc)
-        (setq pc (filter (car-equalto? 'overdrive-core) (rooms (player)))))
-
-    (when pc
+    (when (lookup 'cores info)
       (secret 1 14 (string "Notice: Surplus " wpn " in stock!")))
 
-    (if (or sc (and (not rc) (not pc))) ;; Player must have a core and not already have a backup.
+    (if (or (lookup 'backups info) (and (not (lookup 'reactors info))
+                                        (not (lookup 'cores info)))) ;; Player must have a core and not already have a backup.
+        (defn on-converge ()
+          (await (dialog* "<c:Mayor:10>Nice to meet ya! We were having trouble earlier, "
+                          "but we worked it out on our own..."))
+          (exit))
         (progn
-          (defn on-converge ()
-            (dialog "<c:Mayor:10>Nice to meet ya! We were having trouble earlier, but we worked it out on our own...")
-            (exit)))
-        (progn
-          (dialog "A small village radios you... sounds like they're having trouble with their power-core...")
-          (defn on-converge ()
+          (dialog "A small village radios you... "
+                  "sounds like they're having trouble with their power-core...")
 
+          (defn on-converge ()
             (setq on-converge nil)
 
             ;; In case anything changed...
-            (setq pc (filter (car-equalto? 'power-core) (rooms (player))))
-            (setq rc (filter (car-equalto? 'reactor) (rooms (player))))
+            (setq info (power-supplies))
 
-            (dialog
-             "<c:Mayor:10>After a few years of use, our old power supply ran out of atomic fuel, and we're running on this weaker standby-core. Can you help our town by trading one of your own power-cores for our standby? We'll throw in two weapons and three of our crew members to sweeten the deal!")
-            (dialog-await-binary-q "OK, let's trade!" "Sorry, I can't…")
+            (if (dialog-await-binary-q (string "<c:Mayor:10>After a few years of use, our old power "
+                                               "supply ran out of atomic fuel, and we're running on "
+                                               "this weaker standby-core. Can you help our town by "
+                                               "trading one of your own power-cores for our "
+                                               "standby? We'll throw in two weapons and three of our "
+                                               "crew members to sweeten the deal!")
+                                       "OK, let's trade!"
+                                       "Sorry, I can't…")
+                (on-dialog-accepted)
+                (on-dialog-declined)))))
 
-            (setq on-dialog-declined exit)
 
-            (defn on-dialog-accepted ()
-              (let ((c nil))
-                (if pc
-                    (setq c (car pc))
-                    (progn
-                      ;; The player has no power-core, but is instead donating a
-                      ;; reactor. Give a potentially rare weapon!
-                      (setq c (car rc))
-                      (setq wpn (sample '(ballista
-                                          annihilator
-                                          decimator
-                                          rocket-bomb
-                                          warhead
-                                          particle-lance
-                                          incinerator)))))
+    (setq on-dialog-declined exit)
 
-                (room-mut (player) (get c 1) (get c 2) 'backup-core)
-                (room-mut (opponent) 5 11 'power-core)
 
-                (let ((mkch
-                       (lambda ()
-                        (if (not (chr-slots (player)))
-                            (let ((c (construction-sites (player) '(1 . 2))))
-                              (if c
-                                  (room-new (player) `(ladder ,(caar c) ,(cdr (car c)))))))
+    (defn/temp add-weapon ()
+      (alloc-space wpn)
+      (let ((xy (await (sel-input* wpn (string "Place " (rinfo 'name wpn)
+                                               (format " (%x%):"
+                                                       (car (rinfo 'size wpn))
+                                                       (cdr (rinfo 'size wpn))))))))
+        (room-new (player) `(,wpn ,(car xy) ,(cdr xy)))
+        (sound "build0")))
 
-                        (let ((c (chr-slots (player))))
-                          (chr-new (player)
-                                   (caar c)
-                                   (cdr (car c))
-                                   'neutral
-                                   nil)))))
-                  (mkch)
-                  (mkch)
-                  (mkch))
 
-                (alloc-space wpn)
+    (defn/temp add-crewmember ()
+      (if (not (chr-slots (player)))
+          (let ((c (construction-sites (player) '(1 . 2))))
+            (if c
+                (room-new (player) `(ladder ,(caar c) ,(cdr (car c)))))))
 
-                (adventure-log-add 36 (list (rinfo 'name wpn) 3))
+      (let ((slots (chr-slots (player))))
+        (chr-new (player)
+                 (caar slots)
+                 (cdr (car slots))
+                 'neutral
+                 nil)))
 
-                (let ((impl
-                       (lambda (cb)
-                        (let ((resp cb))
 
-                          (sel-input wpn
-                                     (string "Place " (rinfo 'name wpn)
-                                             (format " (%x%):"
-                                                     (car (rinfo 'size wpn))
-                                                     (cdr (rinfo 'size wpn))))
-                                     (lambda (isle x y)
-                                      (room-new (player) `(,wpn ,x ,y))
-                                      (sound "build0")
-                                      (resp)))))))
-                  (impl
-                   (lambda ()
-                    (impl
-                     (lambda ()
-                      (dialog "<c:Mayor:10>Thanks so much for the help!")
-                      (pickup-cart 3
-                                   "<c:Mayor:10>Oh, I almost forgot! When removing the old core, we found some documents left by a mechanic from the last time we replaced a core. <B:0> We have no use for these records, why don't you take them!"
-                                   exit))))))))))))
+    (defn on-dialog-accepted ()
+      (let ((del nil))
+        (if (lookup 'cores info)
+            (setq del (car (lookup 'cores info)))
+            (progn
+              ;; The player has no power-core, but is instead donating a
+              ;; reactor. Give a potentially rare weapon!
+              (setq del (car (lookup 'reactors info)))
+              (setq wpn (sample '(ballista
+                                  annihilator
+                                  decimator
+                                  rocket-bomb
+                                  warhead
+                                  particle-lance
+                                  incinerator)))))
+
+        (room-mut (player) (get del 1) (get del 2) 'backup-core)
+        (room-mut (opponent) 5 11 'power-core)
+
+        (foreach add-crewmember (range 3))
+        (foreach add-weapon (range 2))
+
+        (adventure-log-add 36 (list (rinfo 'name wpn) 3))
+
+        (pickup-cart 3 "<c:Mayor:10>Oh, I almost forgot! When removing the old core, we found some documents left by a mechanic from the last time we replaced a core. <B:0> We have no use for these records, why don't you take them!")
+        (exit))))

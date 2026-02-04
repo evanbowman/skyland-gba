@@ -33,7 +33,7 @@
         (lambda ()
             (dialog "He seems decent, invite him aboard?")
 
-          (dialog-await-binary-q-w/lore "Welcome aboard!" "Not today."
+          (dialog-setup-binary-q-w/lore "Welcome aboard!" "Not today."
                                         '(("what happened?" .
                                            "<c:Castaway:38> We were given ordersss to raid a human ssship. <B:0> Nothing ssspecial. For sssome reason I hesssitated, and was thrown overboard. <B:0> I can make amendsss, I'll show you, I'm ssstill vicious, I ssswear!")))
 

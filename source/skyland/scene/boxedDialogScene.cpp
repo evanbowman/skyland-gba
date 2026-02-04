@@ -769,7 +769,14 @@ ScenePtr BoxedDialogScene::update(Time delta)
         }
         animate_moretext_icon();
         if (is_action_button_down() or button_down<Button::action_2>()) {
-            invoke_hook("on-dialog-closed");
+            if (APP.dialog_receiver_promise()) {
+                auto p = (lisp::Value*)*APP.dialog_receiver_promise();
+                APP.dialog_receiver_promise().reset();
+                lisp::resolve_promise_safe(p, L_NIL);
+                lisp::pop_op();
+            } else {
+                invoke_hook("on-dialog-closed");
+            }
             display_mode_ = DisplayMode::animate_out;
         }
         break;
@@ -843,7 +850,21 @@ ScenePtr BoxedDialogScene::update(Time delta)
 
                 lisp::Value* cb = lisp::get_list(old_dialog_opts, choice_sel_);
 
-                lisp::safecall(cb->cons().cdr(), 0);
+                if (APP.dialog_receiver_promise()) {
+                    // Invoke the callback anyway
+                    lisp::safecall(cb->cons().cdr(), 0);
+                    lisp::pop_op();
+
+                    lisp::Protected p =
+                        (lisp::Value*)*APP.dialog_receiver_promise();
+                    APP.dialog_receiver_promise().reset();
+                    lisp::resolve_promise_safe(
+                        p,
+                        L_INT((lisp::length(old_dialog_opts) - 1) -
+                              choice_sel_));
+                } else {
+                    lisp::safecall(cb->cons().cdr(), 0);
+                }
                 lisp::pop_op();
             }
 

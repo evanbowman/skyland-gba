@@ -82,7 +82,7 @@ struct ValueHeader
         // type system that are distinct from integers and ratios.
         rational,
 
-        __reserved_2,
+        promise,
         __reserved_1,
         __reserved_0,
         count,
@@ -271,13 +271,11 @@ struct Wrapped
     {
     }
 
-    enum class Variant : u8 {
-        lisp_data,
-        userdata
-    };
+    enum class Variant : u8 { lisp_data, userdata };
 
     CompressedPtr type_sym_;
-    union {
+    union
+    {
         CompressedPtr lisp_data_;
         void* userdata_;
     };
@@ -541,6 +539,34 @@ struct Error
 };
 
 
+struct EvalFrame;
+
+
+struct Promise
+{
+    ValueHeader hdr_;
+    u8 eval_stack_elems_;
+    u8 operand_stack_elems_;
+    CompressedPtr eval_stack_;
+    CompressedPtr operand_stack_;
+
+    Value* load_operand(int slot);
+    EvalFrame load_eval_frame(int slot);
+
+    void store_operand(int slot, Value*);
+    void store_eval_frame(int slot, const EvalFrame& frame);
+
+    static ValueHeader::Type type()
+    {
+        return ValueHeader::Type::promise;
+    }
+
+    static constexpr void finalizer(Value*)
+    {
+    }
+};
+
+
 template <ValueHeader::Type T> struct __Reserved
 {
     ValueHeader hdr_;
@@ -646,6 +672,11 @@ struct Value
         return *reinterpret_cast<Wrapped*>(this);
     }
 
+    Promise& promise()
+    {
+        return *reinterpret_cast<Promise*>(this);
+    }
+
     template <typename T> T& expect()
     {
         if (this->type() == T::type()) {
@@ -676,6 +707,13 @@ Value* make_symbol(const char* name,
 Value* make_databuffer(const char* sbr_tag = "");
 Value* make_string(const char* str);
 Value* make_float(Float::ValueType v);
+Value* make_promise();
+
+// NOTE: do not call resolve_promise within a wrapped C++ function passed to
+// lisp. This function can only be called from outside the interpreter, as it
+// clears the current operand stack.
+void resolve_promise(Value* promise, Value* result);
+void resolve_promise_safe(Value* promise, Value* result);
 
 
 bool to_rational(Value* v, s32& num, s32& div);

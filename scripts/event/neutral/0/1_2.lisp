@@ -42,33 +42,31 @@
 
 
 (defn on-converge ()
-  (dialog
-   "While the old empire is now fragmented and most of its weapons systems are offline, "
-   "this automated vessel seems to still be functioning. <B:0>"
-   "The station's computers demand a toll of 600@. Pay?")
-  (dialog-opts-reset)
-  (dialog-await-y/n)
-  (setq on-converge nil))
+  (setq on-converge nil)
+  (if (dialog-await-y/n
+       (string "While the old empire is now fragmented and most of its weapons systems are offline, "
+               "this automated vessel seems to still be functioning. <B:0>"
+               "The station's computers demand a toll of 600@. Pay?"))
+      (on-dialog-accepted)
+      (on-dialog-declined)))
 
 
-(let ((scr
-       (lambda (txt)
-         (dialog txt)
-         (opponent-mode 'hostile))))
-  (setq on-dialog-accepted
-        (lambda ()
-          (if (< (coins) 600)
-              (progn
-                (adventure-log-add 59 '())
-                (scr "Insufficient funds! The station begins charging its weapons!"))
-            (progn
-              (adventure-log-add 60 (list 600))
-              (coins-add -600)
-              (dialog "The station deactivates and allows you to pass.")
-              (exit)))))
+(defn/temp attack-player ((text . string))
+  (opponent-mode 'hostile)
+  (await (dialog* text)))
 
 
-  (setq on-dialog-declined
-        (lambda ()
-          (adventure-log-add 61 '())
-          (scr "The station begins charging its weapons!"))))
+(defn on-dialog-accepted ()
+  (if (< (coins) 600)
+      (progn
+        (adventure-log-add 59 '())
+        (attack-player "Insufficient funds! The station begins charging its weapons!"))
+      (progn
+        (adventure-log-add 60 (list 600))
+        (coins-add -600)
+        (await (dialog* "The station deactivates and allows you to pass."))
+        (exit))))
+
+
+(defn on-dialog-declined ()
+  (attack-player "The station begins charging its weapons!"))

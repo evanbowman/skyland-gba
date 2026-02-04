@@ -14,36 +14,37 @@
 
 
 
-(let ((val (if (equal (difficulty) difficulty-beginner)
+(let ((fee (if (equal (difficulty) difficulty-beginner)
                (+ 900 (choice 500))
              (max (list (+ 500 (choice 500))
                         (floor (/ (coins) 3)))))))
-  (setq on-converge
-        (lambda ()
-          (dialog
-           "<c:Goblin King:3>#cackle# You're tressspasssing in my territory! I demand a tribute of "
-           (string val)
-           "@! Pay!")
 
-          (dialog-await-binary-q "I'll pay…" "No way!")
+  (defn on-converge ()
+    (setq on-converge nil)
+    (if (await (dialog-await-binary-q (string "<c:Goblin King:3>#cackle# "
+                                              "You're tressspasssing in my territory! "
+                                              "I demand a tribute of "
+                                              fee
+                                              "@! Pay!")
+                                      "I'll pay…"
+                                      "No way!"))
+        (on-dialog-accepted)
+        (on-dialog-declined)))
 
-          (setq on-converge nil)))
 
-
-  (setq on-dialog-accepted
-        (lambda ()
-          (if (> val (coins))
-              (progn
-                (opponent-mode 'hostile)
-                (adventure-log-add 32 '())
-                (dialog "<c:Goblin King:3>Thatsss not enough! Letsss sssee if theresss anything we can take!!"))
-            (progn
-              (coins-add (- val))
-              (dialog "The Goblin King rejoices, having successfully extorted "
-                      (string val)
-                      "@.")
-              (adventure-log-add 31 (list val))
-              (exit))))))
+  (defn on-dialog-accepted ()
+    (if (> fee (coins))
+        (progn
+          (opponent-mode 'hostile)
+          (adventure-log-add 32 '())
+          (dialog "<c:Goblin King:3>Thatsss not enough! Letsss sssee if theresss anything we can take!!"))
+        (progn
+          (coins-add (- fee))
+          (await (dialog* "The Goblin King rejoices, having successfully extorted "
+                          (string fee)
+                          "@."))
+          (adventure-log-add 31 (list fee))
+          (exit)))))
 
 
 

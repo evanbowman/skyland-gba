@@ -21,7 +21,7 @@ namespace skyland
 
 
 
-EXT_WORKRAM_DATA s8 test_index = -1;
+EXT_WORKRAM_DATA s8 test_index = -2;
 
 
 
@@ -43,7 +43,7 @@ ScenePtr RegressionModule::update(Time delta)
     Character::__reset_ids();
     rng::critical_state = 5;
 
-    if (test_index == -1) {
+    if (test_index == -2) {
         PLATFORM.screen().schedule_fade(0);
         PLATFORM.screen().schedule_fade(1, {bkg_color});
         PLATFORM.screen().clear();
@@ -83,7 +83,9 @@ ScenePtr RegressionModule::update(Time delta)
                               PLATFORM.set_tile(
                                   Layer::overlay, x, L_LOAD_INT(0), 0);
                           }
-                          Text::print(lisp::get_op(2)->string().value(),
+                          StringBuffer<30> truncated;
+                          truncated = lisp::get_op(2)->string().value();
+                          Text::print(truncated.c_str(),
                                       {(u8)L_LOAD_INT(1), (u8)L_LOAD_INT(0)},
                                       text_colors);
                           PLATFORM.screen().display();
@@ -97,21 +99,65 @@ ScenePtr RegressionModule::update(Time delta)
 
         PLATFORM.screen().clear();
         Text::print("core regression passed!", {1, 1}, text_colors);
-        Text::print("validating tutorials...", {1, 3}, text_colors);
+        Text::print("validating async...", {1, 3}, text_colors);
         PLATFORM.screen().display();
 
-        if (auto match = PLATFORM.get_extensions().has_startup_opt) {
-            if (match("--validate-scripts") and not match("--regression")) {
-                ::exit(EXIT_SUCCESS);
-            }
-        }
+        PLATFORM.sleep(30);
 
+        lisp::set_var(
+            "test-delay", lisp::make_function([](int argc) {
+                L_EXPECT_ARGC(argc, 1);
+                L_EXPECT_RATIONAL(0);
+                auto promise = lisp::make_promise();
+                auto time = L_LOAD_INT(0);
+                // Ok this is an unsafe cast, but the current scene better be the
+                // regression module, or else... how are we in the regression module?
+                ((RegressionModule&)APP.scene())
+                    .async_timers_.emplace_back(promise, time * 1000);
+                return promise;
+            }));
 
-        PLATFORM.sleep(120);
+        APP.invoke_script("/scripts/test/async-test.lisp");
 
         test_index++;
 
-        Character::__reset_ids();
+    } else if (test_index == -1) {
+
+        if (async_timers_.size()) {
+            auto& current = async_timers_[async_timers_.size() - 1];
+            current.time_remaining_ -= delta;
+            if (current.time_remaining_ <= 0) {
+                lisp::Protected promise = (lisp::Value*)current.promise_;
+                auto ret = L_INT(resolve_counter_++);
+                async_timers_.pop_back();
+                lisp::resolve_promise(promise, ret);
+                auto result = lisp::get_op0();
+                if (result->type() == lisp::Value::Type::error) {
+                    lisp::DefaultPrinter p;
+                    lisp::format(result, p);
+                    PLATFORM.fatal(
+                        format<256>("async-test: %", p.data_.c_str()));
+                }
+                lisp::pop_op();
+            }
+        }
+
+        if (is_boolean_true(lisp::get_var("async-done"))) {
+            if (auto match = PLATFORM.get_extensions().has_startup_opt) {
+                if (match("--validate-scripts") and not match("--regression")) {
+                    ::exit(EXIT_SUCCESS);
+                }
+            }
+            Character::__reset_ids();
+            test_index++;
+
+            PLATFORM.screen().clear();
+            Text::print("async regression passed!", {1, 1}, text_colors);
+            Text::print("validating tutorials...", {1, 3}, text_colors);
+            PLATFORM.screen().display();
+
+            PLATFORM.sleep(120);
+        }
 
     } else {
 

@@ -67,8 +67,8 @@ union ValueMemory
     String string_;
     Wrapped wrapped_;
     Ratio ratio_;
+    Promise promise_;
     __Reserved<Value::Type::rational> __reserved_3;
-    __Reserved<Value::Type::__reserved_2> __reserved_2;
     __Reserved<Value::Type::__reserved_1> __reserved_1;
     __Reserved<Value::Type::__reserved_0> __reserved_0;
 };
@@ -84,7 +84,6 @@ static EXT_WORKRAM_DATA int value_remaining_count;
 static EXT_WORKRAM_DATA int early_gc_threshold = early_gc_threshold_min;
 static EXT_WORKRAM_DATA ValueMemory value_pool_data[VALUE_POOL_SIZE];
 static Value* value_pool = nullptr;
-
 
 
 static inline void gc_safepoint()
@@ -213,8 +212,8 @@ constexpr const std::array<FinalizerTableEntry, Value::Type::count> fin_table =
         Float::finalizer,
         Wrapped::finalizer,
         Ratio::finalizer,
+        Promise::finalizer,
         __Reserved<Value::Type::rational>::finalizer,
-        __Reserved<Value::Type::__reserved_2>::finalizer,
         __Reserved<Value::Type::__reserved_1>::finalizer,
         __Reserved<Value::Type::__reserved_0>::finalizer,
 };
@@ -281,6 +280,17 @@ struct Context
 static Optional<Context> bound_context;
 
 
+void reset_operand_stack()
+{
+    bound_context->operand_stack_->clear();
+
+    // Push a few nil onto the operand stack. Allows us to access the first few
+    // elements of the operand stack without performing size checks.
+    push_op(get_nil());
+    push_op(get_nil());
+}
+
+
 static void invoke_finalizer(Value* value);
 void value_pool_free(Value* value);
 
@@ -297,6 +307,15 @@ static void push_callstack(Value* function)
     push_op(function); // GC protect
     bound_context->callstack_ = make_cons(function, bound_context->callstack_);
     pop_op(); // gc unprotect
+}
+
+
+static void reset_callstack()
+{
+    bound_context->current_fn_argc_ = 0;
+    bound_context->arguments_break_loc_ = 0;
+    bound_context->callstack_ = L_NIL;
+    push_callstack(make_string_from_literal("toplevel"));
 }
 
 
@@ -1210,6 +1229,18 @@ Value* make_ratio(s32 num, s32 div)
 }
 
 
+Value* make_promise()
+{
+    auto val = alloc_value();
+    val->hdr_.type_ = Value::Type::promise;
+    val->promise().eval_stack_ = compr(L_NIL);
+    val->promise().operand_stack_ = compr(L_NIL);
+    val->promise().eval_stack_elems_ = 0;
+    val->promise().operand_stack_elems_ = 0;
+    return val;
+}
+
+
 Value* make_cons_safe(Value* car, Value* cdr)
 {
     push_op(car);
@@ -1576,11 +1607,12 @@ const char* type_to_string(ValueHeader::Type tp)
 {
     switch (tp) {
     case Value::Type::count:
-    case Value::Type::__reserved_2:
     case Value::Type::__reserved_1:
     case Value::Type::__reserved_0:
     case Value::Type::nil:
         return "?";
+    case Value::Type::promise:
+        return "promise";
     case Value::Type::rational:
         return "rational";
     case Value::Type::ratio:
@@ -1608,6 +1640,66 @@ const char* type_to_string(ValueHeader::Type tp)
     }
     return "?";
 }
+
+
+struct EvalFrame
+{
+    Value* expr_;
+    enum State : u8 {
+        start,
+        funcall_apply,
+        if_check_branch,
+        while_check_condition,
+        while_body,
+        while_body_discard_result,
+        let_install_bindings,
+        let_body,
+        let_body_discard,
+        let_cleanup,
+        lisp_funcall_setup,
+        lisp_funcall_body,
+        lisp_funcall_body_discard,
+        lisp_funcall_cleanup,
+        await_check_result,
+        await_resume,
+        pop_root,
+        apply_with_list,
+    } state_;
+
+    struct FuncallApplyParams
+    {
+        int argc_;
+    };
+
+    struct InstallLetParams
+    {
+        int binding_count_;
+    };
+
+    struct LispFuncallCleanupParams
+    {
+        int argc_;
+        int saved_break_loc_;
+        u8 saved_argc_;
+    };
+
+    struct AwaitResumeParams
+    {
+        int saved_break_loc_;
+        u8 saved_argc_;
+    };
+
+    union
+    {
+        FuncallApplyParams funcall_apply_;
+        InstallLetParams install_let_;
+        LispFuncallCleanupParams lisp_funcall_cleanup_;
+        AwaitResumeParams await_resume_;
+    };
+};
+
+
+void eval_loop(Vector<EvalFrame>& eval_stack);
 
 
 // The function arguments should be sitting at the top of the operand stack
@@ -1688,38 +1780,30 @@ void funcall(Value* obj, u8 argc)
 
         case Function::ModeBits::lisp_function: {
             PLATFORM_EXTENSION(stack_check);
+            pop_callstack(); // lisp_funcall_setup handles it
 
-            auto& ctx = *bound_context;
-            ctx.lexical_bindings_ =
-                dcompr(obj->function().lisp_impl_.lexical_bindings_);
-            const auto break_loc = ctx.operand_stack_->size() - 1;
-            ctx.arguments_break_loc_ = break_loc;
-            ctx.current_fn_argc_ = argc;
-            if (bound_context->strict_) {
-                CHECK_ARG_TYPES();
-            }
+            // State machine expects prev_bindings and the function itself on
+            // the stack above the args.
+            insert_op(argc, prev_bindings);
+            insert_op(argc, obj);
 
-            auto expression_list = dcompr(obj->function().lisp_impl_.code_);
-            auto result = get_nil();
-            push_op(result);
-            while (expression_list not_eq get_nil()) {
-                if (expression_list->type() not_eq Value::Type::cons) {
-                    break;
-                }
-                pop_op(); // result
-                ctx.arguments_break_loc_ = break_loc;
-                ctx.current_fn_argc_ = argc;
-                eval(expression_list->cons().car()); // new result
-                if (is_error(get_op0())) {
-                    break;
-                }
-                expression_list = expression_list->cons().cdr();
-            }
-            result = get_op0();
-            pop_op(); // result
-            pop_args();
-            push_op(result);
-            break;
+            Vector<EvalFrame> eval_stack;
+
+            eval_stack.push_back(
+                {.expr_ = obj,
+                 .state_ = EvalFrame::lisp_funcall_cleanup,
+                 .lisp_funcall_cleanup_ = {
+                     argc, prev_arguments_break_loc, prev_argc}});
+
+            eval_stack.push_back({.expr_ = obj,
+                                  .state_ = EvalFrame::lisp_funcall_setup,
+                                  .funcall_apply_ = {argc}});
+
+            eval_loop(eval_stack);
+
+            // lisp_funcall_cleanup handles all of the cleanup that would
+            // normally happen at the bottom of funcall.
+            return;
         }
 
         case Function::ModeBits::lisp_bytecode_function: {
@@ -1765,13 +1849,15 @@ void funcall(Value* obj, u8 argc)
             funcall(handler, argc + 1);
         } else {
             pop_args();
-            push_op(make_error(::format("missing -invoke-%", sym_name).c_str()));
+            push_op(
+                make_error(::format("missing -invoke-%", sym_name).c_str()));
         }
         break;
     }
 
     default:
-        push_op(make_error(Error::Code::value_not_callable, L_NIL));
+        pop_args();
+        push_op(make_error(Error::Code::value_not_callable, obj));
         break;
     }
 
@@ -1779,6 +1865,18 @@ void funcall(Value* obj, u8 argc)
     bound_context->lexical_bindings_ = prev_bindings;
     ctx.arguments_break_loc_ = prev_arguments_break_loc;
     ctx.current_fn_argc_ = prev_argc;
+}
+
+
+void resolve_promise_safe(Value* pr, Value* val)
+{
+    resolve_promise(pr, val);
+    if (is_error(get_op0())) {
+        const char* tag = "lisp-fmt-buffer";
+        auto p = allocate<DefaultPrinter>(tag);
+        format(get_op0(), *p);
+        Platform::fatal(p->data_.c_str());
+    }
 }
 
 
@@ -1876,9 +1974,133 @@ long hexdec(unsigned const char* hex)
 }
 
 
+
+bool lint_type_check(Value* expr, u8 expected_type, int slot)
+{
+    auto arg = get_list(expr, slot + 1);
+    if (arg->type() == Value::Type::symbol) {
+        // TODO: track types through variable reference.
+        // For example, if the symbol refers to a function
+        // argument of known type...
+        return true;
+    }
+    if (expected_type == Value::Type::symbol) {
+        // Special case: quoted symbol
+        if (arg->type() == Value::Type::cons) {
+            if (str_eq(arg->cons().car()->symbol().name(), "'") and
+                arg->cons().cdr()->type() == Value::Type::symbol) {
+                return true;
+            }
+        }
+    }
+    auto detected_type = arg->hdr_.type();
+    if (is_list(arg)) {
+        auto first = get_list(arg, 0);
+        if (first->type() == Value::Type::symbol) {
+            auto name = first->symbol().name();
+
+            if (str_eq(name, "lambda") or str_eq(name, "fn")) {
+                // The first element of the list indicates
+                // that the list is a lambda function.
+                detected_type = Value::Type::function;
+            } else {
+                auto builtin = __load_builtin(name);
+                if (builtin.second) {
+                    auto rt = builtin.first.ret_type_;
+                    if (rt == Value::Type::nil) {
+                        // The builtin does not have a
+                        // concrete return type. Static
+                        // analysis cannot be performed
+                        // here.
+                        return true;
+                    } else {
+                        detected_type = (Value::Type)rt;
+                    }
+                } else {
+                    auto v = get_var(first);
+                    if (v->type() == Value::Type::function) {
+                        auto& fn = v->function();
+                        if (fn.sig_.ret_type_ == Value::Type::nil) {
+                            return true;
+                        } else {
+                            detected_type = (Value::Type)fn.sig_.ret_type_;
+                        }
+                    } else {
+                        return true;
+                    }
+                }
+            }
+        } else {
+            // TODO: check return type of function call, if
+            // possible...
+            //
+            // NOTE: this is the specific case where a
+            // function is defined in the first position of
+            // a list, like: ((lambda (x y) ...) args...)
+            // But in this case, we're unlikely to know for
+            // certain what the return type is,
+            // unfortunately.
+            return true;
+        }
+    }
+    if (expected_type == Value::Type::rational and
+        (detected_type == Value::Type::integer or
+         detected_type == Value::Type::ratio)) {
+        // Special case: integers can be promoted to ratios.
+        return true;
+    }
+    return detected_type == expected_type;
+}
+
+
+
+bool lint_find_variable(Value* cv, Value* variable_list, Protected& gvar_list)
+{
+    if (cv->type() == Value::Type::symbol) {
+        bool found = false;
+        l_foreach(variable_list, [cv, &found](Value* v) {
+            if (cv->symbol().unique_id() == v->symbol().unique_id()) {
+                found = true;
+            }
+        });
+        l_foreach(gvar_list, [cv, &found](Value* v) {
+            if (cv->symbol().unique_id() == v->symbol().unique_id()) {
+                found = true;
+            }
+        });
+
+        if (not found) {
+            auto v = get_var(cv);
+            if (v->type() == Value::Type::error) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+
+StringBuffer<128> lint_arg_error(Value* expr, Value* fn, int arg, u8 expected)
+{
+    auto tp = (ValueHeader::Type)expected;
+    return ::format("invalid arg % type for %! "
+                    "expected %, got %",
+                    arg,
+                    val_to_string<64>(fn).c_str(),
+                    type_to_string(tp),
+                    val_to_string<64>(get_list(expr, arg + 1)).c_str());
+}
+
+
+void lint_push_arg_error(Value* expr, Value* fn, int arg, u8 exp)
+{
+    push_op(make_error(lint_arg_error(expr, fn, arg, exp).c_str()));
+}
+
+
 // Checks for undefined variable access, checks to make sure enough function
 // params are supplied, checks the proper structure of special forms, etc...
-void lint(Value* expr, Value* variable_list)
+void lint(Value* expr, Value* variable_list, lisp::Protected& gvar_list)
 {
     Protected var_list(variable_list);
 
@@ -1889,13 +2111,24 @@ void lint(Value* expr, Value* variable_list)
         if (is_list(expr)) {
             auto fn_sym = get_list(expr, 0);
             if (fn_sym->type() == Value::Type::cons and is_list(fn_sym)) {
-                lint(fn_sym, variable_list);
+                lint(fn_sym, variable_list, gvar_list);
                 if (get_op0()->type() == Value::Type::error) {
                     return;
                 }
                 pop_op();
             } else if (fn_sym->type() == Value::Type::symbol) {
                 auto name = fn_sym->symbol().name();
+
+                if (str_eq(name, "setfn") or str_eq(name, "set-temp") or
+                    str_eq(name, "defconstant")) {
+                    auto pair = get_list(expr, 1);
+                    if (pair->type() == Value::Type::cons) {
+                        auto sym = pair->cons().cdr();
+                        if (sym->type() == Value::Type::symbol) {
+                            gvar_list = L_CONS(sym, gvar_list);
+                        }
+                    }
+                }
 
                 if (str_eq(name, "'") or str_eq(name, "`")) {
                     push_op(L_NIL);
@@ -1982,6 +2215,13 @@ void lint(Value* expr, Value* variable_list)
                     is_special_form = true;
                 } else if (str_eq(name, "defconstant")) {
                     is_special_form = true;
+                } else if (str_eq(name, "await")) {
+                    if (not lint_type_check(expr, Value::Type::promise, 0)) {
+                        push_op(make_error(
+                            "await requires input of type promise!"));
+                        return;
+                    }
+                    is_special_form = true;
                 }
 
                 auto fn = L_NIL;
@@ -1999,124 +2239,37 @@ void lint(Value* expr, Value* variable_list)
                     }
                     auto& fn_var = fn->function();
 
-                    auto type_check = [&](auto expected_type, int slot) {
-                        auto arg = get_list(expr, slot + 1);
-                        if (arg->type() == Value::Type::symbol) {
-                            // TODO: track types through variable reference.
-                            // For example, if the symbol refers to a function
-                            // argument of known type...
-                            return true;
-                        }
-                        if (expected_type == Value::Type::symbol) {
-                            // Special case: quoted symbol
-                            if (arg->type() == Value::Type::cons) {
-                                if (str_eq(arg->cons().car()->symbol().name(),
-                                           "'") and
-                                    arg->cons().cdr()->type() ==
-                                        Value::Type::symbol) {
-                                    return true;
-                                }
-                            }
-                        }
-                        auto detected_type = arg->hdr_.type();
-                        if (is_list(arg)) {
-                            auto first = get_list(arg, 0);
-                            if (first->type() == Value::Type::symbol) {
-                                auto name = first->symbol().name();
-                                if (str_eq(name, "lambda") or
-                                    str_eq(name, "fn")) {
-                                    // The first element of the list indicates
-                                    // that the list is a lambda function.
-                                    detected_type = Value::Type::function;
-                                } else {
-                                    auto builtin = __load_builtin(name);
-                                    if (builtin.second) {
-                                        auto rt = builtin.first.ret_type_;
-                                        if (rt == Value::Type::nil) {
-                                            // The builtin does not have a
-                                            // concrete return type. Static
-                                            // analysis cannot be performed
-                                            // here.
-                                            return true;
-                                        } else {
-                                            detected_type = (Value::Type)rt;
-                                        }
-                                    } else {
-                                        auto v = get_var(first);
-                                        if (v->type() ==
-                                            Value::Type::function) {
-                                            auto& fn = v->function();
-                                            if (fn.sig_.ret_type_ ==
-                                                Value::Type::nil) {
-                                                return true;
-                                            } else {
-                                                detected_type =
-                                                    (Value::Type)
-                                                        fn.sig_.ret_type_;
-                                            }
-                                        } else {
-                                            return true;
-                                        }
-                                    }
-                                }
-                            } else {
-                                // TODO: check return type of function call, if
-                                // possible...
-                                //
-                                // NOTE: this is the specific case where a
-                                // function is defined in the first position of
-                                // a list, like: ((lambda (x y) ...) args...)
-                                // But in this case, we're unlikely to know for
-                                // certain what the return type is,
-                                // unfortunately.
-                                return true;
-                            }
-                        }
-                        if (expected_type == Value::Type::rational and
-                            (detected_type == Value::Type::integer or
-                             detected_type == Value::Type::ratio)) {
-                            // Special case: integers can be promoted to ratios.
-                            return true;
-                        }
-                        return detected_type == expected_type;
-                    };
 
-                    auto arg_error = [&](int arg, u8 expected) {
-                        auto tp = (ValueHeader::Type)expected;
-                        return ::format(
-                            "invalid arg % type for %! "
-                            "expected %, got %",
-                            arg,
-                            val_to_string<64>(fn).c_str(),
-                            type_to_string(tp),
-                            val_to_string<64>(get_list(expr, arg + 1)).c_str());
-                    };
-
-                    auto push_arg_error = [&](int arg, u8 exp) {
-                        push_op(make_error(arg_error(arg, exp).c_str()));
-                    };
 
                     if (fn_var.sig_.arg0_type_ not_eq ValueHeader::Type::nil) {
-                        if (not type_check(fn_var.sig_.arg0_type_, 0)) {
-                            push_arg_error(0, fn_var.sig_.arg0_type_);
+                        if (not lint_type_check(
+                                expr, fn_var.sig_.arg0_type_, 0)) {
+                            lint_push_arg_error(
+                                expr, fn, 0, fn_var.sig_.arg0_type_);
                             return;
                         }
                     }
                     if (fn_var.sig_.arg1_type_ not_eq ValueHeader::Type::nil) {
-                        if (not type_check(fn_var.sig_.arg1_type_, 1)) {
-                            push_arg_error(1, fn_var.sig_.arg1_type_);
+                        if (not lint_type_check(
+                                expr, fn_var.sig_.arg1_type_, 1)) {
+                            lint_push_arg_error(
+                                expr, fn, 1, fn_var.sig_.arg1_type_);
                             return;
                         }
                     }
                     if (fn_var.sig_.arg2_type_ not_eq ValueHeader::Type::nil) {
-                        if (not type_check(fn_var.sig_.arg2_type_, 2)) {
-                            push_arg_error(2, fn_var.sig_.arg2_type_);
+                        if (not lint_type_check(
+                                expr, fn_var.sig_.arg2_type_, 2)) {
+                            lint_push_arg_error(
+                                expr, fn, 2, fn_var.sig_.arg2_type_);
                             return;
                         }
                     }
                     if (fn_var.sig_.arg3_type_ not_eq ValueHeader::Type::nil) {
-                        if (not type_check(fn_var.sig_.arg3_type_, 3)) {
-                            push_arg_error(3, fn_var.sig_.arg3_type_);
+                        if (not lint_type_check(
+                                expr, fn_var.sig_.arg3_type_, 3)) {
+                            lint_push_arg_error(
+                                expr, fn, 3, fn_var.sig_.arg3_type_);
                             return;
                         }
                     }
@@ -2126,29 +2279,11 @@ void lint(Value* expr, Value* variable_list)
                 }
             }
 
-            auto find_variable = [&](Value* cv) {
-                if (cv->type() == Value::Type::symbol) {
-                    bool found = false;
-                    l_foreach(variable_list, [cv, &found](Value* v) {
-                        if (cv->symbol().unique_id() ==
-                            v->symbol().unique_id()) {
-                            found = true;
-                        }
-                    });
 
-                    if (not found) {
-                        auto v = get_var(cv);
-                        if (v->type() == Value::Type::error) {
-                            return false;
-                        }
-                    }
-                }
-                return true;
-            };
 
             if (not is_special_form) {
                 auto cv = expr->cons().car();
-                if (not find_variable(cv)) {
+                if (not lint_find_variable(cv, variable_list, gvar_list)) {
                     push_op(make_error(::format("invalid variable access: %",
                                                 val_to_string<32>(cv).c_str())
                                            .c_str()));
@@ -2173,7 +2308,8 @@ void lint(Value* expr, Value* variable_list)
                                 return;
                             }
 
-                            if (not find_variable(set_sym)) {
+                            if (not lint_find_variable(
+                                    set_sym, variable_list, gvar_list)) {
                                 push_op(make_error(
                                     ::format("set for unknown variable %",
                                              set_sym->symbol().name())
@@ -2190,14 +2326,14 @@ void lint(Value* expr, Value* variable_list)
 
                 auto cv = current->cons().car();
 
-                if (not find_variable(cv)) {
+                if (not lint_find_variable(cv, variable_list, gvar_list)) {
                     push_op(make_error(::format("invalid variable access: %",
                                                 cv->symbol().name())
                                            .c_str()));
                     return;
                 }
 
-                lint(cv, variable_list);
+                lint(cv, variable_list, gvar_list);
 
                 if (get_op0()->type() == Value::Type::error) {
                     return;
@@ -2248,6 +2384,7 @@ Value* lint_code(CharSequence& code)
     Protected result(get_nil());
 
     Protected varlist = L_NIL;
+    Protected gvar_list = L_NIL;
 
     while (true) {
         const auto last_i = i;
@@ -2283,7 +2420,7 @@ Value* lint_code(CharSequence& code)
                 }
             }
         }
-        lint(reader_result, varlist);
+        lint(reader_result, varlist, gvar_list);
         auto expr_result = get_op0();
         result.set(expr_result);
         pop_op(); // expression result
@@ -2348,7 +2485,9 @@ Value* dostring(CharSequence& code,
 
     if (bound_context->strict_ and
         bound_context->operand_stack_->size() not_eq prev_stk) {
-        PLATFORM.fatal("stack spill!");
+        PLATFORM.fatal(::format("stack spill! % %",
+                                bound_context->operand_stack_->size(),
+                                prev_stk));
     }
 
     return result;
@@ -2381,8 +2520,11 @@ void format_impl(Value* value, Printer& p, int depth, bool skip_quotes = false)
 
         break;
 
+    case lisp::Value::Type::promise:
+        p.put_str("#promise");
+        break;
+
     case lisp::Value::Type::rational:
-    case lisp::Value::Type::__reserved_2:
     case lisp::Value::Type::__reserved_1:
     case lisp::Value::Type::__reserved_0:
         break;
@@ -2600,6 +2742,8 @@ static void gc_mark_value(Value* value)
         return;
     }
 
+    value->hdr_.mark_bit_ = true;
+
     switch (value->type()) {
     case Value::Type::wrapped:
         if (value->hdr_.mode_bits_ == (u8)Wrapped::Variant::lisp_data) {
@@ -2618,6 +2762,18 @@ static void gc_mark_value(Value* value)
             gc_mark_value((dcompr(value->function().bytecode_impl_.bytecode_)));
             gc_mark_value(
                 (dcompr(value->function().bytecode_impl_.lexical_bindings_)));
+        }
+        break;
+
+    case Value::Type::promise:
+        gc_mark_value(dcompr(value->promise().eval_stack_));
+        gc_mark_value(dcompr(value->promise().operand_stack_));
+        for (int i = 0; i < value->promise().eval_stack_elems_; ++i) {
+            auto frame = value->promise().load_eval_frame(i);
+            gc_mark_value(frame.expr_);
+        }
+        for (int i = 0; i < value->promise().operand_stack_elems_; ++i) {
+            gc_mark_value(value->promise().load_operand(i));
         }
         break;
 
@@ -2657,8 +2813,6 @@ static void gc_mark_value(Value* value)
     default:
         break;
     }
-
-    value->hdr_.mark_bit_ = true;
 }
 
 
@@ -2754,6 +2908,11 @@ void DataBuffer::finalizer(Value* buffer)
 
 int compact_string_memory()
 {
+    if (not scratch_buffers_remaining()) {
+        // We cannot allocate a databuffer to compact into if we're oom.
+        return 0;
+    }
+
     // The interpreter uses bump allocation when allocating strings. This can
     // cause fragmentation, and after collecting lisp objects, we should squeeze
     // the resulting gaps out of the memory region used for storing strings.
@@ -3275,9 +3434,6 @@ FINAL:
 }
 
 
-static void eval_let(Value* code);
-
-
 static void macroexpand();
 
 
@@ -3317,6 +3473,9 @@ static void macroexpand_macro()
     pop_op();
     push_op(result.result());
 }
+
+
+static void eval_let_recursive(Value*);
 
 
 // Argument: list on operand stack
@@ -3395,7 +3554,7 @@ static void macroexpand()
                 synthetic_let.push_front(macro->cons().cdr()->cons().car());
                 synthetic_let.push_front(builder.result());
 
-                eval_let(synthetic_let.result());
+                eval_let_recursive(synthetic_let.result());
 
                 auto result = get_op0();
                 pop_op(); // result of eval_let()
@@ -3550,39 +3709,9 @@ u32 read(CharSequence& code, int offset)
 }
 
 
-static void eval_while(Value* code)
-{
-    Protected result(get_nil());
-
-    if (code->type() not_eq Value::Type::cons) {
-        push_op(lisp::make_error(Error::Code::mismatched_parentheses, L_NIL));
-        return;
-    }
-
-    auto cond = code->cons().car();
-
-    while (true) {
-
-        eval(cond);
-        auto test = get_op0();
-        pop_op();
-
-        if (not is_boolean_true(test)) {
-            break;
-        }
-
-        l_foreach(code->cons().cdr(), [&](Value* val) {
-            eval(val);
-            result.set(get_op0());
-            pop_op();
-        });
-    }
-
-    push_op(result);
-}
-
-
-static void eval_let(Value* code)
+// The old recursive implementation of eval_let. Our new eval implementation is
+// stack-based, but we still need this older implementation in some cases.
+static void eval_let_recursive(Value* code)
 {
     // Overview:
     // Push the previous values of all of the let binding vars onto the stack.
@@ -3676,78 +3805,9 @@ static void eval_macro(Value* code)
 }
 
 
-static void eval_defconstant(Value* code)
-{
-    if (code->cons().car()->type() not_eq lisp::Value::Type::symbol) {
-        // FIXME!
-        PLATFORM.fatal("invalid defconstant syntax!");
-    }
-
-    if (bound_context->external_constant_tab_) {
-        // We will load the value from our constant table, so there's no need to
-        // do anything when we encounter a defconstant line.
-    } else {
-        // We don't have an external constant table defined. Instead, we'll need
-        // to load the variable into memory.
-        eval(code->cons().cdr()->cons().car()); // The constant value...
-
-        // TODO: load and check for a precomputed constant table, and don't
-        // store values in memory.
-        set_var(code->cons().car(), get_op0(), true);
-
-        pop_op(); // eval result.
-    }
-
-    push_op(get_nil());
-}
-
-
-static void eval_if(Value* code)
-{
-    if (code->type() not_eq Value::Type::cons) {
-        push_op(lisp::make_error(Error::Code::mismatched_parentheses, L_NIL));
-        return;
-    }
-
-    auto cond = code->cons().car();
-
-    auto true_branch = get_nil();
-    auto false_branch = get_nil();
-
-    if (code->cons().cdr()->type() == Value::Type::cons) {
-        true_branch = code->cons().cdr()->cons().car();
-
-        if (code->cons().cdr()->cons().cdr()->type() == Value::Type::cons) {
-            false_branch = code->cons().cdr()->cons().cdr()->cons().car();
-        }
-    }
-
-    eval(cond);
-    if (is_boolean_true(get_op0())) {
-        eval(true_branch);
-    } else {
-        eval(false_branch);
-    }
-
-    auto result = get_op0();
-    pop_op(); // result
-    pop_op(); // cond
-    push_op(result);
-}
-
-
-static void eval_function(Value* code)
-{
-    push_op(make_lisp_function(code));
-}
-
-
-static void eval_argumented_function(Value* code)
-{
-    push_op(make_lisp_argumented_function(code));
-}
-
-
+// NOTE: eval_quasiquote is implemented recursively, unlike the rest of
+// eval(). Quasiquote is fairly complex, and typically there's no need to yield
+// execution or capture continuations within quasiquote expansion...
 static void eval_quasiquote(Value* code)
 {
     ListBuilder builder;
@@ -3810,156 +3870,787 @@ static void eval_quasiquote(Value* code)
 }
 
 
-
-#if defined(__GBA__) or defined(__APPLE__)
-#define STANDARD_FORMS                                                         \
-    MAPBOX_ETERNAL_CONSTEXPR const auto standard_forms =                       \
-        mapbox::eternal::hash_map<mapbox::eternal::string, EvalCB>
-#else
-#define STANDARD_FORMS                                                         \
-    const auto standard_forms = std::unordered_map<std::string, EvalCB>
-#endif
-
-
-using EvalCB = void (*)(Value*);
-// clang-format off
-STANDARD_FORMS({
-        {"if", [](Value* code) {
-            eval_if(code->cons().cdr());
-            auto result = get_op0();
-            pop_op(); // result
-            pop_op(); // code
-            push_op(result);
-        }},
-        {"lambda", [](Value* code) {
-            eval_argumented_function(code->cons().cdr());
-            // NOTE: evaluating an argumented function is destructive. Once
-            // we've evaluated an argumented function once, the function body is
-            // converted to an intermediate representation, and we adjust the
-            // head position in the list and splice out the argument list so
-            // that next time we reach the same function, we evaluate it in the
-            // lower level intermediate representation rather than performing
-            // argument substition again. In fact, re-substituting arguments in
-            // an already argument-substituted function creates re-entrancy
-            // bugs, and if it didn't, I wouldn't be fixing this, so it's not
-            // purely an optmization issue.
-            code->cons().set_car(make_symbol("fn"));
-            code->cons().set_cdr(code->cons().cdr()->cons().cdr());
-            auto result = get_op0();
-            pop_op(); // result
-            pop_op(); // code
-            push_op(result);
-            return;
-        }},
-        {"fn", [](Value* code) {
-            eval_function(code->cons().cdr());
-            auto result = get_op0();
-            pop_op(); // result
-            pop_op(); // code
-            push_op(result);
-        }},
-        {"'", [](Value* code) {
-            pop_op(); // code
-            push_op(code->cons().cdr());
-        }},
-        {"`", [](Value* code) {
-            eval_quasiquote(code->cons().cdr());
-            auto result = get_op0();
-            pop_op(); // result
-            pop_op(); // code
-            push_op(result);
-        }},
-        {"let", [](Value* code) {
-            eval_let(code->cons().cdr());
-            auto result = get_op0();
-            pop_op();
-            pop_op();
-            push_op(result);
-        }},
-        {"macro", [](Value* code) {
-            eval_macro(code->cons().cdr());
-            pop_op();
-        }},
-        {"while", [](Value* code) {
-            eval_while(code->cons().cdr());
-            auto result = get_op0();
-            pop_op();
-            pop_op();
-            push_op(result);
-        }},
-        {"defconstant", [](Value* code) {
-            eval_defconstant(code->cons().cdr());
-            auto result = get_op0();
-            pop_op();
-            pop_op();
-            push_op(result);
-        }}
-    });
-
-
-
-void eval(Value* code)
+Value* Promise::load_operand(int slot)
 {
-    // NOTE: just to protect this from the GC, in case the user didn't bother to
-    // do so.
-    push_op(code);
+    char* mem = dcompr(operand_stack_)->databuffer().value()->data_;
+    Value* result;
+    memcpy(&result, mem + slot * sizeof(result), sizeof(result));
+    return result;
+}
 
+
+void Promise::store_operand(int slot, Value* v)
+{
+    char* mem = dcompr(operand_stack_)->databuffer().value()->data_;
+    memcpy(mem + slot * sizeof(Value*), &v, sizeof(v));
+}
+
+
+EvalFrame Promise::load_eval_frame(int slot)
+{
+    char* mem = dcompr(eval_stack_)->databuffer().value()->data_;
+    EvalFrame result;
+    memcpy(&result, mem + slot * sizeof(result), sizeof(result));
+    return result;
+}
+
+
+void Promise::store_eval_frame(int slot, const EvalFrame& frame)
+{
+    char* mem = dcompr(eval_stack_)->databuffer().value()->data_;
+    memcpy(mem + slot * sizeof(frame), &frame, sizeof frame);
+}
+
+
+
+void setup_promise(Promise& pr, Vector<EvalFrame>& eval_stack)
+{
+    static_assert(sizeof(Context::OperandStack) <= SCRATCH_BUFFER_SIZE);
+    // NOTE: checked in can_suspend instead.
+    // static_assert(sizeof(EvalFrame) * 256 < SCRATCH_BUFFER_SIZE);
+
+    pr.operand_stack_ = compr(make_databuffer("op-stack-copy"));
+    pr.eval_stack_ = compr(make_databuffer("ev-stack-copy"));
+    pr.operand_stack_elems_ = bound_context->operand_stack_->size();
+    pr.eval_stack_elems_ = eval_stack.size();
+
+    for (u32 i = 0; i < bound_context->operand_stack_->size(); ++i) {
+        pr.store_operand(i, (*bound_context->operand_stack_)[i]);
+    }
+    for (u32 i = 0; i < eval_stack.size(); ++i) {
+        pr.store_eval_frame(i, eval_stack[i]);
+    }
+}
+
+
+void eval_loop(Vector<EvalFrame>& eval_stack);
+
+
+void resolve_promise(Value* pr, Value* result)
+{
+    if (pr->type() not_eq Value::Type::promise) {
+        error("invalid argument to resolve_promise");
+    }
+
+    auto& promise = pr->promise();
+    if (promise.eval_stack_elems_ == 0 or promise.operand_stack_elems_ == 0 or
+        dcompr(promise.operand_stack_) == L_NIL or
+        dcompr(promise.eval_stack_) == L_NIL) {
+        info("broken promise!");
+        // Uninitialized promise! Nowhere for the result to go!?
+        return;
+    }
+
+    bound_context->operand_stack_->clear();
+    for (int i = 0; i < promise.operand_stack_elems_; ++i) {
+        bound_context->operand_stack_->push_back(promise.load_operand(i));
+    }
+
+    Vector<EvalFrame> eval_stack;
+    for (int i = 0; i < promise.eval_stack_elems_; ++i) {
+        eval_stack.push_back(promise.load_eval_frame(i));
+    }
+
+    pop_op();        // pop the promise
+    push_op(result); // replace promise on stack with result
+    eval_loop(eval_stack);
+
+    // Because only this promise value retained references to these two
+    // databuffers, they can be collected prematurely to free up databuffer
+    // memory. Otherwise, scratch buffers will accumulate in discarded promise
+    // values until the gc runs, wasting a lot of memory.
+    collect_value(dcompr(promise.operand_stack_));
+    collect_value(dcompr(promise.eval_stack_));
+    promise.operand_stack_ = compr(L_NIL);
+    promise.eval_stack_ = compr(L_NIL);
+    promise.operand_stack_elems_ = 0;
+    promise.eval_stack_elems_ = 0;
+
+    // info(stringify(bound_context->operand_stack_->size()));
+}
+
+
+bool can_suspend(Vector<EvalFrame>& eval_stack, StringBuffer<48>& agitant)
+{
+    static const u32 max_eval_suspend_stack =
+        SCRATCH_BUFFER_SIZE / sizeof(EvalFrame);
+
+    if (eval_stack.size() > max_eval_suspend_stack) {
+        agitant = "eval stack too deep";
+        return false;
+    }
+
+    if (bound_context->operand_stack_->size() > 255) {
+        agitant = "operand stack too deep";
+        return false;
+    }
+
+    if (length(bound_context->callstack_) == 1) {
+        if (bound_context->callstack_->cons().car()->type() not_eq
+            lisp::Value::Type::function) {
+            agitant = "cannot suspend from toplevel";
+            // We're at the toplevel, and cannot suspend
+            return false;
+        }
+    }
+
+    bool can_suspend = true;
+    l_foreach(bound_context->callstack_, [&](Value* v) {
+        if (v->type() == Value::Type::function) {
+            if (v->hdr_.mode_bits_ not_eq Function::ModeBits::lisp_function) {
+                can_suspend = false;
+                agitant = val_to_string<48>(v);
+            }
+        }
+    });
+    if (not can_suspend) {
+        return false;
+    }
+    return true;
+}
+
+
+void eval(Value* code_root)
+{
+    push_op(code_root); // gc protect
+
+    Vector<EvalFrame> eval_stack;
+    eval_stack.push_back({code_root, EvalFrame::pop_root});
+    eval_stack.push_back({code_root, EvalFrame::start});
+
+    eval_loop(eval_stack);
+}
+
+
+#ifdef __GBA__
+__attribute__((always_inline))
+#endif
+static inline void
+eval_iter_start(EvalFrame& frame, Vector<EvalFrame>& eval_stack)
+{
     gc_safepoint();
 
+#define PUSH_ERR(V, C) push_op(make_error((V), (C)))
+
+    auto code = frame.expr_;
     if (code->type() == Value::Type::symbol) {
-        pop_op();
         push_op(get_var(code));
     } else if (code->type() == Value::Type::cons) {
+        auto code = frame.expr_;
         auto form = code->cons().car();
         if (form->type() == Value::Type::symbol) {
-            auto std_form = standard_forms.find(form->symbol().name());
-            if (std_form not_eq standard_forms.end()) {
-                std_form->second(code);
+            auto name = form->symbol().name();
+            if (str_eq(name, "if")) {
+                auto if_code = code->cons().cdr();
+
+                if (if_code->type() != Value::Type::cons) {
+                    PUSH_ERR(Error::Code::mismatched_parentheses, L_NIL);
+                    return;
+                }
+
+                auto cond = if_code->cons().car();
+                eval_stack.push_back({code, EvalFrame::if_check_branch});
+                eval_stack.push_back({cond, EvalFrame::start});
+                return;
+
+            } else if (str_eq(name, "while")) {
+                auto while_code = code->cons().cdr();
+
+                if (while_code->type() != Value::Type::cons) {
+                    PUSH_ERR(Error::Code::mismatched_parentheses, L_NIL);
+                    return;
+                }
+
+                eval_stack.push_back({code, EvalFrame::while_check_condition});
+                eval_stack.push_back(
+                    {while_code->cons().car(), EvalFrame::start});
+                return;
+
+            } else if (str_eq(name, "let")) {
+                auto let_code = code->cons().cdr();
+
+                if (let_code->type() != Value::Type::cons) {
+                    PUSH_ERR(Error::Code::mismatched_parentheses, L_NIL);
+                    return;
+                }
+
+                auto bindings = let_code->cons().car();
+                int binding_count = length(bindings);
+
+                eval_stack.push_back({.expr_ = code,
+                                      .state_ = EvalFrame::let_install_bindings,
+                                      .install_let_ = {binding_count}});
+
+                Buffer<Value*, 32> binding_exprs;
+                auto b = bindings;
+                while (b != get_nil()) {
+                    auto binding = b->cons().car();
+                    auto value_expr = binding->cons().cdr()->cons().car();
+                    binding_exprs.push_back(value_expr);
+                    b = b->cons().cdr();
+                }
+
+                for (auto expr : reversed(binding_exprs)) {
+                    eval_stack.push_back({expr, EvalFrame::start});
+                }
+                return;
+            } else if (str_eq(name, "lambda")) {
+                push_op(make_lisp_argumented_function(code->cons().cdr()));
+                // NOTE: evaluating an argumented function is
+                // destructive. Once we've evaluated an argumented
+                // function once, the function body is converted to an
+                // intermediate representation, and we adjust the head
+                // position in the list and splice out the argument list
+                // so that next time we reach the same function, we
+                // evaluate it in the lower level intermediate
+                // representation rather than performing argument
+                // substition again. In fact, re-substituting arguments
+                // in an already argument-substituted function creates
+                // re-entrancy bugs, and if it didn't, I wouldn't be
+                // fixing this, so it's not purely an optmization issue.
+                code->cons().set_car(make_symbol("fn"));
+                code->cons().set_cdr(code->cons().cdr()->cons().cdr());
+                return;
+            } else if (str_eq(name, "fn")) {
+                push_op(make_lisp_function(code->cons().cdr()));
+                return;
+            } else if (str_eq(name, "'")) {
+                push_op(code->cons().cdr());
+                return;
+            } else if (str_eq(name, "`")) {
+                eval_quasiquote(code->cons().cdr());
+                return;
+            } else if (str_eq(name, "macro")) {
+                eval_macro(code->cons().cdr());
+                return;
+            } else if (str_eq(name, "defconstant")) {
+                if (not bound_context->external_constant_tab_) {
+                    PLATFORM.fatal("missing constant tab!");
+                }
+                push_op(L_NIL);
+                return;
+            } else if (str_eq(name, "await")) {
+                eval_stack.push_back({code, EvalFrame::await_check_result});
+                eval_stack.push_back(
+                    {code->cons().cdr()->cons().car(), EvalFrame::start});
+                return;
+            } else if (str_eq(name, "apply")) {
+                if (length(code) < 3) {
+                    push_op(make_error("insufficent args to apply"));
+                    return;
+                }
+                auto fn_expr = code->cons().cdr()->cons().car();
+                auto args_list_expr =
+                    code->cons().cdr()->cons().cdr()->cons().car();
+
+                eval_stack.push_back({code, EvalFrame::apply_with_list});
+                eval_stack.push_back({args_list_expr, EvalFrame::start});
+                eval_stack.push_back({fn_expr, EvalFrame::start});
                 return;
             }
         }
-
-        eval(code->cons().car());
-        Protected function(get_op0());
-        pop_op();
-
-        int argc = 0;
-
-        auto clear_args = [&] {
-            while (argc) {
-                pop_op();
-                --argc;
-            }
-        };
-
+        push_op(bound_context->lexical_bindings_);
+        auto funcall_expr = code->cons().car();
         auto arg_list = code->cons().cdr();
+        const int argc = length(arg_list);
+        eval_stack.push_back({.expr_ = code,
+                              .state_ = EvalFrame::funcall_apply,
+                              .funcall_apply_ = {argc}});
+        Buffer<Value*, 32> tmp_buf;
         while (true) {
             if (arg_list == get_nil()) {
                 break;
             }
             if (arg_list->type() not_eq Value::Type::cons) {
-                clear_args();
-                pop_op();
-                push_op(make_error(Error::Code::value_not_callable, arg_list));
-                return;
+                // TODO: raise error!!!!!!
             }
-
-            eval(arg_list->cons().car());
-            ++argc;
-
+            tmp_buf.push_back(arg_list->cons().car()); // todo: check full
             arg_list = arg_list->cons().cdr();
         }
-
-        funcall(function, argc);
-        auto result = get_op0();
-        if (result->type() == Value::Type::error and
-            dcompr(result->error().context_) == L_NIL) {
-            result->error().context_ = compr(code);
+        for (auto arg : reversed(tmp_buf)) {
+            eval_stack.push_back({arg, EvalFrame::start});
         }
-        pop_op(); // result
-        pop_op(); // protected expr (see top)
-        push_op(result);
-        return;
+        eval_stack.push_back({funcall_expr, EvalFrame::start});
+    } else {
+        // If the value is not a symbol or list, it must be a different literal
+        // type.
+        push_op(frame.expr_);
+    }
+}
+
+
+void eval_loop(Vector<EvalFrame>& eval_stack)
+{
+    const u32 op_stack_init = bound_context->operand_stack_->size();
+
+    while (eval_stack.size() not_eq 0) {
+        EvalFrame frame = eval_stack.back();
+        eval_stack.pop_back();
+
+        switch (frame.state_) {
+        case EvalFrame::State::pop_root: {
+            auto result = get_op0();
+            pop_op(); // result
+            pop_op(); // code_root, pushed by eval
+            push_op(result);
+            break;
+        }
+
+        case EvalFrame::State::start: {
+            eval_iter_start(frame, eval_stack);
+            break;
+        }
+
+        case EvalFrame::State::if_check_branch: {
+            auto test_result = get_op0();
+            pop_op();
+
+
+            auto if_code = frame.expr_->cons().cdr();
+            if (if_code->cons().cdr()->type() not_eq Value::Type::cons) {
+                push_op(make_error("if statement with no body!"));
+                break;
+            }
+
+            Value* branch_to_eval;
+            if (is_boolean_true(test_result)) {
+                if (if_code->cons().cdr()->type() == Value::Type::cons) {
+                    branch_to_eval = if_code->cons().cdr()->cons().car();
+                } else {
+                    branch_to_eval = get_nil();
+                }
+            } else {
+                auto rest = if_code->cons().cdr();
+                if (rest->type() == Value::Type::cons &&
+                    rest->cons().cdr()->type() == Value::Type::cons) {
+                    branch_to_eval = rest->cons().cdr()->cons().car();
+                } else {
+                    branch_to_eval = get_nil();
+                }
+            }
+
+            // Eval the chosen branch
+            eval_stack.push_back({branch_to_eval, EvalFrame::start});
+            break;
+        }
+
+        case EvalFrame::State::while_check_condition: {
+            // Condition result is on operand stack
+            auto test = get_op0();
+            pop_op();
+
+            if (!is_boolean_true(test)) {
+                push_op(get_nil());
+                break;
+            }
+
+            // Condition is true, need to eval body then loop back
+            auto while_code = frame.expr_->cons().cdr();
+            auto body = while_code->cons().cdr();
+
+            // After body completes, loop back to test condition again
+            eval_stack.push_back(
+                {frame.expr_, EvalFrame::while_check_condition});
+            eval_stack.push_back({while_code->cons().car(), EvalFrame::start});
+
+            // Now eval all body expressions
+            // We need to eval them in sequence, keeping only the last result
+            eval_stack.push_back({body, EvalFrame::while_body});
+            break;
+        }
+
+        case EvalFrame::State::await_check_result: {
+            auto result = get_op0();
+            if (result->type() not_eq Value::Type::promise) {
+                pop_op();
+                push_op(make_error("await expects a promise object!"));
+            } else {
+                StringBuffer<48> agitant;
+                if (can_suspend(eval_stack, agitant)) {
+                    ListBuilder lat;
+                    lat.push_back(bound_context->lexical_bindings_);
+                    lat.push_back(bound_context->callstack_);
+                    eval_stack.push_back(
+                        {.expr_ = lat.result(),
+                         .state_ = EvalFrame::await_resume,
+                         .await_resume_ = {bound_context->arguments_break_loc_,
+                                           bound_context->current_fn_argc_}});
+                    // Execution suspended. Prior to resume, the interpreter
+                    // will expect the caller to pop the promise and push the
+                    // result in the captured execution context.
+                    setup_promise(result->promise(), eval_stack);
+                    while (bound_context->operand_stack_->size() >
+                           op_stack_init) {
+                        pop_op();
+                    }
+                    push_op(L_NIL);
+                    bound_context->lexical_bindings_ = L_NIL;
+                    reset_callstack();
+                    return;
+                } else {
+                    pop_op(); // The promise
+                    push_op(make_error(
+                        ::format("suspend failed due to: %", agitant.c_str())
+                            .c_str()));
+                }
+            }
+            break;
+        }
+
+        case EvalFrame::State::await_resume: {
+            // Restore all the saved state
+            auto saved_list = frame.expr_;
+            bound_context->lexical_bindings_ = saved_list->cons().car();
+            bound_context->callstack_ = saved_list->cons().cdr()->cons().car();
+            bound_context->arguments_break_loc_ =
+                frame.await_resume_.saved_break_loc_;
+            bound_context->current_fn_argc_ = frame.await_resume_.saved_argc_;
+            break;
+        }
+
+        case EvalFrame::State::while_body: {
+            auto body = frame.expr_;
+
+            if (body == get_nil()) {
+                // No body!?
+                push_op(get_nil());
+                break;
+            }
+
+            auto first_expr = body->cons().car();
+            auto rest = body->cons().cdr();
+
+            if (rest == get_nil()) {
+                eval_stack.push_back(
+                    {first_expr, EvalFrame::while_body_discard_result});
+                eval_stack.push_back({first_expr, EvalFrame::start});
+            } else {
+                eval_stack.push_back({rest, EvalFrame::while_body});
+                eval_stack.push_back(
+                    {first_expr, EvalFrame::while_body_discard_result});
+                eval_stack.push_back({first_expr, EvalFrame::start});
+            }
+            break;
+        }
+
+        case EvalFrame::State::while_body_discard_result: {
+            // Discard the result of this body expression (we only want the last one)
+            pop_op();
+            break;
+        }
+
+        case EvalFrame::State::let_install_bindings: {
+            // Operand stack now has: [value1 value2 value3 ...]
+            // Build the binding list
+
+            auto let_code = frame.expr_->cons().cdr();
+            auto bindings = let_code->cons().car();
+
+            ListBuilder binding_list_builder;
+
+            // Pop values in reverse order and pair with symbols
+            Buffer<Value*, 32> values;
+            for (int i = 0; i < frame.install_let_.binding_count_; i++) {
+                values.push_back(get_op0());
+                pop_op();
+            }
+
+            auto b = bindings;
+            for (int i = values.size() - 1; i >= 0; i--) {
+                auto binding = b->cons().car();
+                auto sym = binding->cons().car();
+                binding_list_builder.push_back(make_cons(sym, values[i]));
+                b = b->cons().cdr();
+            }
+
+            // Install bindings
+            auto new_binding_list = make_cons(binding_list_builder.result(),
+                                              bound_context->lexical_bindings_);
+            bound_context->lexical_bindings_ = new_binding_list;
+
+            // After body, cleanup bindings
+            eval_stack.push_back({frame.expr_, EvalFrame::let_cleanup});
+
+            // Eval body
+            auto body = let_code->cons().cdr();
+            eval_stack.push_back({body, EvalFrame::let_body});
+            break;
+        }
+
+        case EvalFrame::State::let_body: {
+            // Similar to while_body - eval each expression, keep last result
+            auto body = frame.expr_;
+
+            if (body == get_nil()) {
+                push_op(get_nil());
+                break;
+            }
+
+            auto first = body->cons().car();
+            auto rest = body->cons().cdr();
+
+            if (get_op0()->type() == Value::Type::error) {
+                // Stop parsing expressions
+            } else if (rest == get_nil()) {
+                eval_stack.push_back({first, EvalFrame::start});
+            } else {
+                eval_stack.push_back({rest, EvalFrame::let_body});
+                eval_stack.push_back({first, EvalFrame::let_body_discard});
+                eval_stack.push_back({first, EvalFrame::start});
+            }
+            break;
+        }
+
+        case EvalFrame::State::let_body_discard: {
+            auto result = get_op0();
+            if (is_error(result)) {
+                // Don't discard errors
+                break;
+            }
+            pop_op();
+            break;
+        }
+
+        case EvalFrame::State::let_cleanup: {
+            // Restore previous bindings
+            bound_context->lexical_bindings_ =
+                bound_context->lexical_bindings_->cons().cdr();
+            // Result already on stack
+            break;
+        }
+
+        case EvalFrame::State::lisp_funcall_body: {
+            auto expression_list = frame.expr_;
+
+            if (expression_list == get_nil()) {
+                push_op(get_nil());
+                break;
+            }
+
+            if (expression_list->type() != Value::Type::cons) {
+                push_op(make_error(Error::Code::mismatched_parentheses, L_NIL));
+                break;
+            }
+
+            auto first = expression_list->cons().car();
+            auto rest = expression_list->cons().cdr();
+
+            if (get_op0()->type() == Value::Type::error) {
+                // Stop parsing expressions
+            } else if (rest == get_nil()) {
+                // Last expression
+                eval_stack.push_back({first, EvalFrame::start});
+            } else {
+                // More expressions
+                eval_stack.push_back({rest, EvalFrame::lisp_funcall_body});
+                eval_stack.push_back(
+                    {first, EvalFrame::lisp_funcall_body_discard});
+                eval_stack.push_back({first, EvalFrame::start});
+            }
+            break;
+        }
+
+        case EvalFrame::State::lisp_funcall_body_discard: {
+            auto result = get_op0();
+            if (is_error(result)) {
+                // Don't discard errors
+                break;
+            }
+            pop_op();
+            break;
+        }
+
+        case EvalFrame::State::lisp_funcall_setup: {
+            auto fn = frame.expr_;
+            int argc = frame.funcall_apply_.argc_;
+
+            PLATFORM_EXTENSION(stack_check);
+
+            // Stack is currently: [... saved_bindings function arg1 arg2 arg3]
+
+            bound_context->lexical_bindings_ =
+                dcompr(fn->function().lisp_impl_.lexical_bindings_);
+
+            const auto break_loc = bound_context->operand_stack_->size() - 1;
+            bound_context->arguments_break_loc_ = break_loc;
+            bound_context->current_fn_argc_ = argc;
+
+            push_callstack(fn);
+
+            auto expression_list = dcompr(fn->function().lisp_impl_.code_);
+
+            if (expression_list == get_nil()) {
+                push_op(get_nil());
+            } else {
+                eval_stack.push_back(
+                    {expression_list, EvalFrame::lisp_funcall_body});
+            }
+            break;
+        }
+
+        case EvalFrame::State::lisp_funcall_cleanup: {
+            int argc = frame.lisp_funcall_cleanup_.argc_;
+
+            pop_callstack();
+
+            // Stack is: [... saved_bindings function arg1 arg2 ... argN result]
+
+            auto result = get_op0();
+            pop_op();
+
+            for (int i = 0; i < argc; ++i) {
+                pop_op();
+            }
+
+            pop_op();
+
+            auto saved_bindings = get_op0();
+            pop_op();
+            bound_context->lexical_bindings_ = saved_bindings;
+
+            bound_context->arguments_break_loc_ =
+                frame.lisp_funcall_cleanup_.saved_break_loc_;
+            bound_context->current_fn_argc_ =
+                frame.lisp_funcall_cleanup_.saved_argc_;
+
+            push_op(result);
+            break;
+        }
+
+        case EvalFrame::State::apply_with_list: {
+            // args_list is on stack, function is below it
+            auto args_list = get_op0();
+            pop_op();
+            auto fn = get_op0();
+            pop_op();
+
+            if (not is_list(args_list)) {
+                push_op(make_error("parameter passed to apply is not list"));
+                break;
+            }
+
+            push_op(bound_context->lexical_bindings_);
+            push_op(fn);
+
+            int argc = 0;
+            while (args_list != get_nil()) {
+                push_op(args_list->cons().car());
+                argc++;
+                args_list = args_list->cons().cdr();
+            }
+
+            eval_stack.push_back({.expr_ = frame.expr_,
+                                  .state_ = EvalFrame::funcall_apply,
+                                  .funcall_apply_ = {argc}});
+            break;
+        }
+
+        case EvalFrame::State::funcall_apply: {
+            int argc = frame.funcall_apply_.argc_;
+            auto fn = get_op(argc); // Function is below arguments on stack
+
+            if (fn->type() == Value::Type::function &&
+                fn->hdr_.mode_bits_ == Function::ModeBits::lisp_function) {
+
+                if (fn->function().sig_.required_args_ > argc) {
+                    for (int i = 0; i < argc; ++i) {
+                        pop_op();
+                    }
+                    pop_op();
+                    auto saved_bindings = get_op0();
+                    pop_op(); // saved bindings
+                    bound_context->lexical_bindings_ = saved_bindings;
+                    push_op(make_error(Error::Code::invalid_argc, fn));
+                    break;
+                }
+
+                if (bound_context->strict_) {
+                    auto arg_error = [&](auto exp_type, auto got_type) {
+                        return ::format<256>(
+                            "invalid arg type for %! expected %, got %",
+                            val_to_string<64>(fn).c_str(),
+                            type_to_string((ValueHeader::Type)exp_type),
+                            type_to_string((ValueHeader::Type)got_type));
+                    };
+
+                    auto pop_args = [argc] {
+                        for (int i = 0; i < argc; ++i) {
+                            pop_op();
+                        }
+                    };
+
+                    auto& ctx = *bound_context;
+                    auto saved_break_loc = ctx.arguments_break_loc_;
+                    auto saved_argc = ctx.current_fn_argc_;
+
+                    const auto break_loc = ctx.operand_stack_->size() - 1;
+                    ctx.arguments_break_loc_ = break_loc;
+                    ctx.current_fn_argc_ = argc;
+
+#define CHECK_ARG_TYPE_INL(ARG, FIELD)                                         \
+    if (fn->function().sig_.FIELD not_eq Value::Type::nil and                  \
+        get_arg(ARG)->type() not_eq fn->function().sig_.FIELD and              \
+        not(get_arg(ARG)->type() == Value::Type::nil and                       \
+            fn->function().sig_.FIELD == Value::Type::cons) and                \
+        not(get_arg(ARG)->type() == Value::Type::rational and                  \
+            (fn->function().sig_.FIELD == Value::Type::integer or              \
+             fn->function().sig_.FIELD == Value::Type::ratio))) {              \
+        pop_args();                                                            \
+        pop_op();                                                              \
+        pop_op();                                                              \
+        ctx.arguments_break_loc_ = saved_break_loc;                            \
+        ctx.current_fn_argc_ = saved_argc;                                     \
+        push_op(make_error(                                                    \
+            arg_error(fn->function().sig_.FIELD, get_arg(ARG)->type())         \
+                .c_str()));                                                    \
+        break;                                                                 \
+    }
+
+                    if (argc > 3) {
+                        CHECK_ARG_TYPE_INL(0, arg0_type_);
+                        CHECK_ARG_TYPE_INL(1, arg1_type_);
+                        CHECK_ARG_TYPE_INL(2, arg2_type_);
+                        CHECK_ARG_TYPE_INL(3, arg3_type_);
+                    } else if (argc > 2) {
+                        CHECK_ARG_TYPE_INL(0, arg0_type_);
+                        CHECK_ARG_TYPE_INL(1, arg1_type_);
+                        CHECK_ARG_TYPE_INL(2, arg2_type_);
+                    } else if (argc > 1) {
+                        CHECK_ARG_TYPE_INL(0, arg0_type_);
+                        CHECK_ARG_TYPE_INL(1, arg1_type_);
+                    } else if (argc > 0) {
+                        CHECK_ARG_TYPE_INL(0, arg0_type_);
+                    }
+
+                    ctx.arguments_break_loc_ = saved_break_loc;
+                    ctx.current_fn_argc_ = saved_argc;
+                }
+
+                EvalFrame cleanup_frame = {
+                    .expr_ = fn,
+                    .state_ = EvalFrame::lisp_funcall_cleanup,
+                    .lisp_funcall_cleanup_ = {
+                        argc,
+                        bound_context->arguments_break_loc_,
+                        bound_context->current_fn_argc_}};
+                eval_stack.push_back(cleanup_frame);
+
+                eval_stack.push_back({.expr_ = fn,
+                                      .state_ = EvalFrame::lisp_funcall_setup,
+                                      .funcall_apply_ = {argc}});
+
+            } else {
+                // Non-lisp function - use regular funcall
+                funcall(fn, argc);
+                auto result = get_op0();
+                pop_op(); // result
+                pop_op(); // function on stack
+                pop_op(); // lexical bindings, ignored
+                push_op(result);
+            }
+            break;
+        }
+        }
     }
 }
 
@@ -4006,9 +4697,11 @@ bool is_equal(Value* lhs, Value* rhs)
         return is_equal(lhs->cons().car(), rhs->cons().car()) and
                is_equal(lhs->cons().cdr(), rhs->cons().cdr());
 
+    case Value::Type::promise:
+        return lhs == rhs;
+
     case Value::Type::count:
     case Value::Type::rational:
-    case Value::Type::__reserved_2:
     case Value::Type::__reserved_1:
     case Value::Type::__reserved_0:
     case Value::Type::nil:
@@ -4019,7 +4712,7 @@ bool is_equal(Value* lhs, Value* rhs)
     case Value::Type::ratio:
         return is_equal(dcompr(lhs->ratio().numerator_),
                         dcompr(rhs->ratio().numerator_)) and
-            lhs->ratio().divisor_ == rhs->ratio().divisor_;
+               lhs->ratio().divisor_ == rhs->ratio().divisor_;
         break;
 
     case Value::Type::wrapped: {
@@ -4163,8 +4856,7 @@ s32 to_integer(Value* v)
         return v->integer().value_;
     } else if (v->type() == Value::Type::ratio) {
         auto& ratio = v->ratio();
-        return dcompr(ratio.numerator_)->integer().value_ /
-            ratio.divisor_;
+        return dcompr(ratio.numerator_)->integer().value_ / ratio.divisor_;
     }
     if (bound_context->strict_) {
         PLATFORM.fatal(::format("cannot convert % to integer!",
@@ -4180,14 +4872,13 @@ bool to_rational(Value* v, s32& num, s32& div)
         num = v->integer().value_;
         div = 1;
         return true;
-    }
-    else if (v->type() == Value::Type::ratio) {
+    } else if (v->type() == Value::Type::ratio) {
         auto& ratio = v->ratio();
         num = dcompr(ratio.numerator_)->integer().value_;
         div = ratio.divisor_;
         return true;
     }
-    return false;  // Not a rational type
+    return false; // Not a rational type
 }
 
 
@@ -4238,8 +4929,7 @@ static bool is_numeric(Value* v)
 {
     return v->type() == Value::Type::rational ||
            v->type() == Value::Type::integer ||
-           v->type() == Value::Type::ratio ||
-           v->type() == Value::Type::fp;
+           v->type() == Value::Type::ratio || v->type() == Value::Type::fp;
 }
 
 
@@ -4856,27 +5546,6 @@ BUILTIN_TABLE(
            });
 
            return list.result();
-       }}},
-     {"collect",
-      {SIG1(cons, function),
-       [](int argc) {
-           L_EXPECT_OP(0, function);
-
-           ListBuilder res;
-
-           funcall(get_op0(), 0);
-           Protected c = get_op0();
-           pop_op();
-
-           while (is_boolean_true(c)) {
-               res.push_back(c);
-
-               funcall(get_op0(), 0);
-               c = get_op0();
-               pop_op();
-           }
-
-           return res.result();
        }}},
      {"length",
       {SIG1(integer, nil),
@@ -5755,22 +6424,6 @@ BUILTIN_TABLE(
            }
            return L_NIL;
        }}},
-     {"foreach",
-      {SIG2(nil, function, cons),
-       [](int argc) {
-           L_EXPECT_OP(1, function);
-           L_EXPECT_OP(0, cons);
-
-           auto fn = get_op1();
-
-           l_foreach(get_op0(), [&](Value* val) {
-               push_op(val);
-               funcall(fn, 1);
-               pop_op(); // result
-           });
-
-           return L_NIL;
-       }}},
      {"map",
       {SIG2(cons, function, cons),
        [](int argc) {
@@ -5825,6 +6478,9 @@ BUILTIN_TABLE(
                result.push_back(fc_result);
                pop_op();
 
+               if (is_error(fc_result)) {
+                   return fc_result;
+               }
 
                ++index;
            }
@@ -5918,11 +6574,7 @@ BUILTIN_TABLE(
 
            return get_list(get_op1(), index);
        }}},
-     {"--on-autoload",
-      {SIG1(nil, symbol),
-       [](int argc) {
-           return L_NIL;
-       }}},
+     {"--on-autoload", {SIG1(nil, symbol), [](int argc) { return L_NIL; }}},
      {"read",
       {SIG1(nil, string),
        [](int argc) {
@@ -5941,7 +6593,8 @@ BUILTIN_TABLE(
                return make_error("lint expects list parameter!");
            }
 
-           lint(get_op0(), L_NIL);
+           Protected gvar_list(L_NIL);
+           lint(get_op0(), L_NIL, gvar_list);
            auto result = get_op0();
            pop_op();
            return result;
@@ -6057,14 +6710,12 @@ BUILTIN_TABLE(
                Buffer<s32, 16> start_offsets;
 
                start_offsets.push_back(get_op0()
-                   ->function()
-                   .bytecode_impl_.bytecode_offset()
-                   ->integer()
-                   .value_);
+                                           ->function()
+                                           .bytecode_impl_.bytecode_offset()
+                                           ->integer()
+                                           .value_);
 
-               auto start_offset = [&] {
-                   return start_offsets.back();
-               };
+               auto start_offset = [&] { return start_offsets.back(); };
 
                for (int i = start_offset(); i < SCRATCH_BUFFER_SIZE;) {
 
@@ -6206,9 +6857,11 @@ BUILTIN_TABLE(
                    case PushRatio::op():
                        i += 1;
                        out += "PUSH_RATIO(";
-                       out += to_string<32>(((HostInteger<s32>*)(data->data_ + i))->get());
+                       out += to_string<32>(
+                           ((HostInteger<s32>*)(data->data_ + i))->get());
                        out += "/";
-                       out += to_string<32>(((HostInteger<s32>*)(data->data_ + i + 4))->get());
+                       out += to_string<32>(
+                           ((HostInteger<s32>*)(data->data_ + i + 4))->get());
                        out += ")";
                        i += 8;
                        break;
@@ -6936,17 +7589,13 @@ void init(Optional<std::pair<const char*, u32>> external_symtab,
 
     ctx->tree_nullnode_ = L_CONS(get_nil(), L_CONS(get_nil(), get_nil()));
 
-    // Push a few nil onto the operand stack. Allows us to access the first few
-    // elements of the operand stack without performing size checks.
-    push_op(get_nil());
-    push_op(get_nil());
-
+    reset_operand_stack();
 
     if (dcompr(compr(get_nil())) not_eq get_nil()) {
         PLATFORM.fatal("pointer compression test failed 1");
     }
 
-    push_callstack(make_string_from_literal("toplevel"));
+    reset_callstack();
 
     for (int i = 0; i < MAX_NAMED_ARGUMENTS; ++i) {
         ctx->argument_symbols_[i] = make_symbol(::format("$%", i).c_str());

@@ -29,7 +29,7 @@
      (else "My people value knowledge above all else. Your journey may provide... useful data. <B:0>"))
    " Do you require additional crew?")
 
-  (dialog-await-binary-q
+  (dialog-setup-binary-q
    (format "Recruit? %@" (* 400 (zone)))
    "No thanks.")
 

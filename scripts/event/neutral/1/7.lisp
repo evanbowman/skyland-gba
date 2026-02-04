@@ -43,49 +43,37 @@
 (flag-show (opponent) flag-id-colonist)
 
 
+(defn/temp depart ()
+  (pickup-cart 4 "Something else catches your attention. <d:500>.<d:500>.<d:500> a data cartridge!")
+  (exit))
+
+
 (defn on-converge ()
   (setq on-converge nil)
-  (let ((c (choice 6))
-        (end (lambda ()
-               (pickup-cart 4
-                            "Something else catches your attention. <d:500>.<d:500>.<d:500> a data cartridge!"
-                            exit))))
-    (cond
-     ((equal c 0)
-      (let ((amt (+ 200 (choice 400))))
-        (coins-add amt)
-        (dialog
-         (format
-          "Looks like someone already got here first. You collect %@."
-          amt))
-        (adventure-log-add 38 (list amt))
-        (end)))
-     (true
-      (let ((opts '(power-core
-                    infirmary
-                    manufactory
-                    incinerator
-                    warhead
-                    particle-lance
-                    beam-gun
-                    deflector
-                    splitter)))
-        (let ((pick (sample opts)))
-          (dialog
-           "After boarding, you find a completely intact "
-           (rinfo 'name pick)
-           ". Your crew asks you where to install it...")
-          (adventure-log-add 38 (rinfo 'name pick))
-          (defn on-dialog-closed ()
-            (setq on-dialog-closed nil)
+  (case (choice 6)
+    (0 (let ((amt (+ 200 (choice 400))))
+         (coins-add amt)
+         (await (dialog* (format "Looks like someone already got here first. You collect %@."
+                                 amt)))
+         (adventure-log-add 38 (list amt))
+         (depart)))
+    (else (let ((pick (sample '(power-core
+                                infirmary
+                                manufactory
+                                incinerator
+                                warhead
+                                particle-lance
+                                beam-gun
+                                deflector
+                                splitter))))
+            (await (dialog* "After boarding, you find a completely intact "
+                            (rinfo 'name pick)
+                            ". Your crew asks you where to install it..."))
             (alloc-space pick)
-            (sel-input
-             pick
-             (format "Pick a slot (%x%)"
-                     (car (rinfo 'size pick))
-                     (cdr (rinfo 'size pick)))
-             (lambda (isle x y)
-               (room-new (player) `(,pick ,x ,y))
-               (sound "build0")
-               (dialog "All done!")
-               (end))))))))))
+            (let ((xy (await (sel-input* pick (format "Pick a slot (%x%)"
+                                                      (car (rinfo 'size pick))
+                                                      (cdr (rinfo 'size pick)))))))
+              (room-new (player) `(,pick ,(car xy) ,(cdr xy)))
+              (sound "build0")
+              (await (dialog* "All done!"))
+              (depart))))))

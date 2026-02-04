@@ -72,21 +72,21 @@
 (chr-new (opponent) 1 14 'neutral 0)
 
 
-(setq on-converge
-      (lambda ()
-        (dialog "One of the mercenaries offers to join you crew, for a cost of "
-                (string (* 400 (zone)))
-                "@. Accept offer?")
-
-        (dialog-await-y/n)
-        (setq on-converge nil)))
+(defn on-converge ()
+  (setq on-converge nil)
+  (if (dialog-await-y/n (string "One of the mercenaries offers to join you crew, for a cost of "
+                                (* 400 (zone))
+                                "@. Accept offer?"))
+      (on-dialog-accepted)
+      (on-dialog-declined)))
 
 
 (defn on-dialog-accepted ()
   (let ((dest (chr-slots (player))))
     (if (> (* 400 (zone)) (coins))
         (progn
-          (dialog "You cannot afford to pay. The mercenaries become impatient, and cut the transmission.")
+          (await (dialog* "You cannot afford to pay. "
+                          "The mercenaries become impatient, and cut the transmission."))
           (exit))
       (if dest
           (progn
@@ -94,23 +94,19 @@
             (setq dest (sample dest))
             (chr-new (player) (car dest) (cdr dest) 'neutral '((race . 0) (icon . 17)))
             (chr-del (opponent) 0 14)
-            (dialog "<c:Mercenary:17> Ahoy! Ready to knock some heads!?")
-            (defn on-dialog-closed ()
-              (setq on-dialog-closed nil)
-              (dialog "The mercenary joined your crew!")
-              (exit))
+            (await (dialog* "<c:Mercenary:17> Ahoy! Ready to knock some heads!?"))
+            (await (dialog* "The mercenary joined your crew!"))
+            (exit)
             (adventure-log-add 27 (list (* 400 (zone)))))
         (progn
-          (dialog "Sadly, there's no room...")
+          (await (dialog* "Sadly, there's no room..."))
           (exit))))))
 
 
-
-(setq on-dialog-declined
-      (lambda ()
-        (dialog "The mercenaries became angry, and cut the transmission.")
-        (adventure-log-add 28 '())
-        (exit)))
+(defn on-dialog-declined ()
+  (await (dialog* "The mercenaries became angry, and cut the transmission."))
+  (adventure-log-add 28 '())
+  (exit))
 
 
 (adv-var-store 'mercenary-event true)

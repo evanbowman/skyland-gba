@@ -27,7 +27,7 @@
         (dialog "You see a survivor amongst the wreckage. You cannot be sure whether the"
                 " survivor is trustworthy. Invite survivor aboard?")
 
-        (dialog-await-y/n)
+        (dialog-setup-y/n)
         (setq on-converge nil)))
 
 

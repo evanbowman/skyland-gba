@@ -104,7 +104,7 @@
                       (on-timeout 15000 'fut))
                     (progn
                       (dialog "<c:Scavenger:35>Sorry, that's not enough! Do you want to sssalvage some ssstuff to come up with the ressourcesss for payment? I'll check back in in 15 seconds?")
-                      (dialog-await-y/n)
+                      (dialog-setup-y/n)
                       (setq on-dialog-accepted (lambda () (on-timeout 15000 'fut)))
                       (setq on-dialog-declined (lambda () (unbind 'fut) (exit))))))
               (progn
