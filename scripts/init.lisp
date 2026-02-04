@@ -64,6 +64,7 @@
 (defn/c dialog-opts-push ((name . string) (cb . lambda))
   (setq dialog-opts (cons (cons name cb) dialog-opts)))
 
+
 ;; For backwards compatibility. The old dialog api had a function for setting up
 ;; a yes/no question box, and the engine would then invoke on-dialog-accepted
 ;; and on-dialog-declined callbacks. But, eventually, I wanted more control over
@@ -71,13 +72,19 @@
 ;; options. This helper function exists for when only a simple yes/no choice is
 ;; needed, but the dialog-opts-reset and dialog-opts-push functions may be
 ;; called manually for more fine-grained control over dialog settings.
-(defn/c dialog-await-y/n ()
-  (dialog-await-binary-q "yes" "no"))
+(defn/c dialog-setup-y/n ()
+  (dialog-setup-binary-q "yes" "no"))
 
-(defn/c dialog-await-binary-q ((txt1 . string) (txt2 . string))
+;; NOTE: These two functions defined as non-bytecode-complied to allow nested
+;; functions on-dialog-accpted/declined to use await syntax.
+(defn --try-dialog-accept () (if on-dialog-accepted (on-dialog-accepted)))
+(defn --try-dialog-decline () (if on-dialog-declined (on-dialog-declined)))
+
+
+(defn/c dialog-setup-binary-q ((txt1 . string) (txt2 . string))
   (dialog-opts-reset)
-  (dialog-opts-push txt1 (lambda () (if on-dialog-accepted (on-dialog-accepted))))
-  (dialog-opts-push txt2 (lambda () (if on-dialog-declined (on-dialog-declined)))))
+  (dialog-opts-push txt1 --try-dialog-accept)
+  (dialog-opts-push txt2 --try-dialog-decline))
 
 
 ;; This fairly niche function opens a box of options. The first option being the
@@ -85,9 +92,9 @@
 ;; be a bunch of worldbuilding questions. If you select a middle option, the
 ;; game will show the text, and then re-display the query box of options, with
 ;; the previously selected one removed.
-(defn/c dialog-await-binary-q-w/lore ((txty . string) (txtn . string) lore)
+(defn/c dialog-setup-binary-q-w/lore ((txty . string) (txtn . string) lore)
   (dialog-opts-reset)
-  (dialog-opts-push txty (lambda () (if on-dialog-accepted (on-dialog-accepted))))
+  (dialog-opts-push txty --try-dialog-accept)
 
   (let ((lr lore)
         (ty txty)
@@ -102,7 +109,30 @@
                                        (dialog str))))))
              lore))
 
-  (dialog-opts-push txtn (lambda () (if on-dialog-declined (on-dialog-declined)))))
+  (dialog-opts-push txtn --try-dialog-decline))
+
+
+
+(defn/c dialog-choice* ((text . string) choices)
+  (dialog-opts-reset)
+  (foreach (lambda (c)
+             (dialog-opts-push c (lambda () nil)))
+           choices)
+  (dialog* text))
+
+
+(defn dialog-await-binary-q ((text . string) y n)
+  (equal 0 (await (dialog-choice* text (list y n)))))
+
+(defn dialog-await-y/n ((text . string))
+  (dialog-await-binary-q text "yes" "no"))
+
+
+(defn foreach ((cb . lambda) (lat . pair))
+  (let ((l lat))
+    (while l
+      (cb (car l))
+      (setq l (cdr l)))))
 
 
 ;; shortcut accessors for room metadata
@@ -161,20 +191,6 @@
 
 (defn/c push-pending-event ((turns . int) (script . string))
   (setq pending-events (cons (cons turns script) pending-events)))
-
-
-(defn/c dialog-sequence ()
-  (let ((args $V))
-    (cond
-      ((lambda? (car args))
-       ((car args))
-       (apply dialog-sequence (cdr args)))
-      ((string? (car args))
-       (dialog (car args))
-       (defn on-dialog-closed ()
-         (setq on-dialog-closed nil)
-         (if (cdr args)
-             (apply dialog-sequence (cdr args))))))))
 
 
 (setvar "enabled_factions_bitfield"

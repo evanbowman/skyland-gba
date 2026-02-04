@@ -21,7 +21,7 @@
       (lambda ()
         (dialog
          "<c:Raider:39>Sssnatched some valuable cargo from a merchant fleet, but our ship took heavy damage in the fight. With that ssstorm approaching, we won't make it to the black market in time. Help usss deliver the goods? We'll sssplit the profit, and our contact paysss well!")
-        (dialog-await-binary-q "I accept!" "Sorry, but no.")
+        (dialog-setup-binary-q "I accept!" "Sorry, but no.")
 
         (setq on-dialog-accepted
               (lambda ()

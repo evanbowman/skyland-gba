@@ -322,6 +322,12 @@ public:
     }
 
 
+    Optional<lisp::Protected>& dialog_receiver_promise()
+    {
+        return dialog_receiver_promise_;
+    }
+
+
     Optional<DialogBuffer>& dialog_buffer()
     {
         return dialog_buffer_;
@@ -525,6 +531,7 @@ private:
         environment_;
 
     Optional<DialogBuffer> dialog_buffer_;
+    Optional<lisp::Protected> dialog_receiver_promise_;
 
     EntityList<Entity> effects_;
     EntityList<Bird> birds_;

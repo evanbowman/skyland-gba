@@ -76,6 +76,46 @@ namespace skyland
 
 
 
+class TimedWaitEntity : public Entity
+{
+public:
+    TimedWaitEntity(Time delay, lisp::Value* promise)
+        : Entity({}), promise_(promise), delay_(delay)
+    {
+        sprite_.set_alpha(Sprite::Alpha::transparent);
+    }
+
+
+    void update(Time delta) override
+    {
+        delay_ -= delta;
+        if (delay_ <= 0) {
+            lisp::resolve_promise_safe(promise_, L_NIL);
+            lisp::pop_op();
+            this->kill();
+        }
+    }
+
+
+    void rewind(Time delta) override
+    {
+        delay_ += delta;
+    }
+
+
+    bool entity_oom_deletable() const override
+    {
+        return false;
+    }
+
+
+private:
+    lisp::Protected promise_;
+    Time delay_;
+};
+
+
+
 extern Sound cannon_sound;
 extern Sound missile_sound;
 
@@ -947,6 +987,34 @@ BINDING_TABLE({
 
           return L_NIL;
       }}},
+    {"dialog*",
+     {SIG1(promise, string),
+      [](int argc) {
+          if (APP.dialog_receiver_promise() and APP.is_developer_mode()) {
+              PLATFORM.fatal("broken promise!");
+          }
+          for (int i = argc - 1; i > -1; --i) {
+              if (not APP.dialog_buffer()) {
+                  APP.dialog_buffer().emplace(
+                      allocate<DialogString>("dialog-buffer"));
+              }
+
+              if (lisp::get_op(i)->type() not_eq lisp::Value::Type::string) {
+                  if (lisp::get_op((i)) == L_NIL) {
+                      return lisp::get_op((i));
+                  } else {
+                      return lisp::make_error(
+                          lisp::Error::Code::invalid_argument_type, L_NIL);
+                  }
+              }
+
+              **APP.dialog_buffer() += lisp::get_op(i)->string().value();
+          }
+
+          auto pr = lisp::make_promise();
+          APP.dialog_receiver_promise() = pr;
+          return pr;
+      }}},
     {"fire-new",
      {SIG3(nil, wrapped, rational, rational),
       [](int argc) {
@@ -1131,6 +1199,17 @@ BINDING_TABLE({
 
           return L_NIL;
       }}},
+    {"wait*",
+     {SIG1(promise, rational),
+      [](int argc) {
+          L_EXPECT_RATIONAL(0);
+          Time delay = 1000 * L_LOAD_INT(0);
+          auto pr = lisp::make_promise();
+          if (auto ent = alloc_entity<TimedWaitEntity>(delay, pr)) {
+              APP.effects().push(std::move(ent));
+          }
+          return pr;
+      }}},
     {"on-timeout",
      {SIG2(nil, rational, symbol),
       [](int argc) {
@@ -1227,7 +1306,8 @@ BINDING_TABLE({
      {SIG1(string, wrapped),
       [](int argc) {
           L_EXPECT_OP(0, wrapped);
-          auto p = lisp::get_list(dcompr(lisp::get_op0()->wrapped().lisp_data_), 0);
+          auto p =
+              lisp::get_list(dcompr(lisp::get_op0()->wrapped().lisp_data_), 0);
           auto str = p->string().value();
           return lisp::make_string(::format("#(file:%)", str).c_str());
       }}},
@@ -1932,6 +2012,22 @@ BINDING_TABLE({
           }
 
           return L_NIL;
+      }}},
+    {"sel-input*",
+     {SIG2(promise, nil, string),
+      [](int argc) {
+          L_EXPECT_OP(0, string);
+
+          lisp::Protected promise(lisp::make_promise());
+
+          lisp::Protected bundle(lisp::make_cons(lisp::get_op(0), promise));
+          bundle = lisp::make_cons(bundle, lisp::get_op(1));
+          bundle = lisp::make_cons(L_INT(1), bundle);
+          if (bundle->type() == lisp::Value::Type::cons) {
+              APP.setup_input(bundle);
+          }
+
+          return (lisp::Value*)promise;
       }}},
     {"island-set-pos",
      {SIG3(nil, wrapped, rational, rational),

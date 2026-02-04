@@ -39,42 +39,53 @@
 (flag-show (opponent) flag-id-pirate)
 
 
+(defn/temp defend-villagers ()
+  (opponent-mode 'hostile)
+  (await (dialog* "<c:Goblin:2>You think you can fight usss?! Hah!!"))
+  (when (not (chr-slots (player)))
+    (alloc-space 'ladder)
+    (let ((s (construction-sites (player) '(1 . 2))))
+      (if s
+          (room-new (player) (list 'ladder (caar s) (cdr (car s)))))))
+  (let ((slot (chr-slots (player))))
+    (if slot
+        (chr-new (player)
+                 (caar slot)
+                 (cdr (car slot))
+                 'neutral
+                 '((race . 0) (icon . 5)))))
+  (await (dialog* "One of the villagers came aboard to help out!")))
+
+
+(defn/temp decline ()
+  (await (dialog* "The goblins resume their attack. <B:0> "
+                  "Maybe you weren't strong enough to face them anyway…"))
+  (exit))
+
+
+(defn/temp more-info ()
+  (let ((sel (await (dialog-choice*
+                     (string "<c:Villager:5>That goblin harvester is slicing chunks off of our "
+                             "town! They just let the scrap fall to the ruined world below, "
+                             "where their friends collect the fallen resources. "
+                             "Anyway, can you help??")
+                     '("Of course!"
+                       "Sorry, but no.")))))
+    (case sel
+      (0 (defend-villagers))
+      (1 (decline)))))
+
+
 (defn on-converge ()
-  (dialog "<c:Villager:5>Oh! Just in time! Can you help us!? That goblin ship over there is very strong, but there's a chance you could defeat them...")
-
-  (dialog-opts-reset)
-
-  (let ((opty (lambda ()
-                (opponent-mode 'hostile)
-                (dialog "<c:Goblin:2>You think you can fight usss?! Hah!!")
-                (defn on-dialog-closed ()
-                  (dialog "One of the villagers came aboard to help out!")
-                  (when (not (chr-slots (player)))
-                    (alloc-space 'ladder)
-                    (let ((s (construction-sites (player) '(1 . 2))))
-                      (if s
-                          (room-new (player) (list 'ladder (caar s) (cdr (car s)))))))
-                  (let ((slot (chr-slots (player))))
-                    (if slot
-                        (chr-new (player)
-                                 (caar slot)
-                                 (cdr (car slot))
-                                 'neutral
-                                 '((race . 0) (icon . 5)))))
-                  (setq on-dialog-closed nil))))
-        (optn (lambda ()
-                (dialog "The goblins resume their attack. <B:0> Maybe you weren't strong enough to face them anyway…")
-                (exit))))
-
-    (dialog-opts-push "Of course!" opty)
-
-    (dialog-opts-push "What's going on here?"
-                      (lambda ()
-                        (dialog-opts-reset)
-                        (dialog "<c:Villager:5>That goblin harvester is slicing chunks off of our town! They just let the scrap fall to the ruined world below, where their friends collect the fallen resources. Anyway, can you help??")
-                        (dialog-opts-push "of course!" opty)
-                        (dialog-opts-push "sorry, but no." optn)))
-
-    (dialog-opts-push "Sorry, I can't help." optn)
-
-    (setq on-converge nil)))
+  (setq on-converge nil)
+  (let ((sel (await (dialog-choice*
+                     (string "<c:Villager:5>Oh! Just in time! Can you help us!? "
+                             "That goblin ship over there is very strong, but there's "
+                             "a chance you could defeat them...")
+                     '("Of course!"
+                       "What's going on here?"
+                       "Sorry, I can't help.")))))
+    (case sel
+      (0 (defend-villagers))
+      (1 (more-info))
+      (2 (decline)))))

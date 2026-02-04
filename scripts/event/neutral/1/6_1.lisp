@@ -45,7 +45,7 @@
             (dialog "<c:Engineer:15>Hello there! I've designed a special type of hull resistant to missiles. I'll replace all of your old hull blocks with stacked-hull, for a price of "
                     (string cost)
                     "@, you interested?")
-            (dialog-await-y/n)
+            (dialog-setup-y/n)
             (defn on-dialog-accepted ()
               (if (< (coins) cost)
                   (progn

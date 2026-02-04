@@ -15,7 +15,7 @@
                       (push-menu "rebind-buttons" '(1))
                       (setq on-menu-resp (lambda (settings)
                                            (dialog "Save new controls?")
-                                           (dialog-await-y/n)
+                                           (dialog-setup-y/n)
                                            (defn on-dialog-accepted ()
                                              (settings-save settings)
                                              (show-opts))

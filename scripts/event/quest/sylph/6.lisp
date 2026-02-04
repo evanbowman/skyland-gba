@@ -39,7 +39,7 @@
   (defn on-dialog-closed ()
     (dialog "The child is terrified. Try to calm him down?")
     (setq on-dialog-closed nil)
-    (dialog-await-binary-q-w/lore "Help the child." "Leave him."
+    (dialog-setup-binary-q-w/lore "Help the child." "Leave him."
                                   '(("we don't eat children" .
                                      "<c:Goblin Child:50>That'sss what you'd sssay! <B:0> Father sssaid you trick us with your fancy wordsss! <B:0> But... but you haven't grabbed me yet... <B:0> Why?")
                                     ("where is your father?" .

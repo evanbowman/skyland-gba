@@ -21,7 +21,7 @@
 
 
 (let ((item (sample '(arc-gun flak-gun fire-charge)))
-      (skip 1))
+      (cost 1300))
 
   (terrain-set (opponent) (+ (terrain (opponent)) (* 2 (car (rinfo 'size item)))))
 
@@ -30,64 +30,79 @@
          (room-new (opponent) (list item (+ 5 (car (rinfo 'size item))) y)))
        '(11 12 13 14))
 
-  (setq on-converge
-        (lambda ()
-          (dialog "<c:Merchant:7>We ordered too many "
-                  (rinfo 'name item)
-                  "s and we're having a big sale today! Much cheaper than if you built them yourself. 1300@ for two, "
-                  (if (< (coins) 1300)
-                      "...but you don't seem to have enough. Do you want to salvage some stuff to come up with the funds? I'll check back in 15 seconds?"
-                      "What do you say?"))
-          (dialog-await-y/n)
-          (setq on-converge nil)))
+
+  (defn on-converge ()
+    (setq on-converge nil)
+    (if (dialog-await-y/n (string "<c:Merchant:7>We ordered too many "
+                                  (rinfo 'name item)
+                                  "s and we're having a big sale today! Much cheaper than "
+                                  "if you built them yourself. "
+                                  cost
+                                  "@ for two, what do you say?"))
+        (on-dialog-accepted)
+        (on-dialog-declined)))
 
 
+  (setq on-dialog-declined exit)
 
-  (setq on-dialog-accepted
-        (lambda ()
-          (if (bound? 'fut) (unbind 'fut))
 
-          (if (< (coins) 1300)
-              (progn
-                ;; Capture the current executing function, reinvoke after n seconds...
-                (let ((f (this)))
-                  (defn fut ()
-                    (if (> (coins) 1299)
-                        (progn
-                          (dialog "<c:Merchant:7>Seems like you have enough now!")
-                          (setq on-dialog-closed f))
-                        (f))))
+  (defn/temp purchase-items ()
+    (adventure-log-add 10 (list (rinfo 'name item) cost))
+    (coins-add (- cost))
+    (let ((msgs (list (string "Place first "
+                              (rinfo 'name item)
+                              (format " (%x%):" (car (rinfo 'size item)) (cdr (rinfo 'size item))))
+                      (string "Place second " (rinfo 'name item) ":"))))
+      (while msgs
+        (let ((xy (await (sel-input* item (car msgs)))))
+          (alloc-space item)
+          (room-new (player) (list item (car xy) (cdr xy)))
+          (sound "build0"))
+        (setq msgs (cdr msgs))))
+    (await (dialog* "<c:Merchant:7>Looks great! You made a fine choice!"))
+    (exit))
 
-                (if skip
-                    (progn
-                      (setq skip 0)
-                      (on-timeout 15000 'fut))
-                    (progn
-                      (dialog "<c:Merchant:7>Sorry, that's not enough! Do you want to salvage some stuff to come up with the resources for payment? I'll check back in in 15 seconds?")
-                      (dialog-await-y/n)
-                      (setq on-dialog-accepted (lambda () (on-timeout 15000 'fut)))
-                      (setq on-dialog-declined (lambda () (unbind 'fut) (exit))))))
-              (progn
-                (adventure-log-add 10 (list (rinfo 'name item) 1300))
-                (coins-add -1300)
-                (alloc-space item)
-                (sel-input
-                 item
-                 (string
-                  "Place first "
-                  (rinfo 'name item)
-                  (format " (%x%):" (car (rinfo 'size item)) (cdr (rinfo 'size item))))
-                 (lambda (isle x y)
-                   (room-new (player) (list item x y))
-                   (sound "build0")
-                   (alloc-space item)
-                   (sel-input
-                    item
-                    (string "Place second " (rinfo 'name item) ":")
-                    (lambda (isle x y)
-                      (room-new (player) (list item x y))
-                      (sound "build0")
-                      (dialog "<c:Merchant:7>Looks great! You made a fine choice!")
-                      (setq on-dialog-closed exit))))))))))
 
-(setq on-dialog-declined exit)
+  (defn/temp remove-shop ()
+    (let ((xy (cdr (wg-pos))))
+      ;; Switch the current map node back to visited, so that it doesn't appear
+      ;; as a shop on the world map.
+      (wg-node-set (first xy) (second xy) wg-id-visited)))
+
+
+  (defn/temp setup-shop ()
+    (let ((xy (cdr (wg-pos))))
+      ;; Swap the current level type, converting it temporarily into a shop.
+      (wg-node-set (first xy) (second xy) wg-id-shop)
+      (await (dialog* "<c:Merchant:7>Ok! I'll be here. Come see me again when you're ready!"
+                      " <B:0> (or use the START menu to return to the world map)"))))
+
+
+  (defn on-dialog-accepted ()
+    (if (> (coins) (decr cost))
+        (purchase-items)
+        (if (dialog-await-y/n (string "<c:Merchant:7>Sorry, that's not enough! "
+                                      "Do you want to salvage some stuff "
+                                      "to come up with the resources for payment?"))
+            (setup-shop)
+            (on-dialog-declined))))
+
+
+  (defn on-shop-enter ()
+    (if (> (coins) (decr cost))
+        (if (dialog-await-y/n (string "<c:Merchant:7>Looks like you have enough now. <B:0>"
+                                      "Buy two " item "s for " cost "@?"))
+            (progn
+              ;; In shop levels, sel-input allows you to cancel selecting
+              ;; coordinates. take down the shop now that we no longer need it.
+              (remove-shop)
+              (purchase-items)))
+        (if (not (dialog-await-binary-q (string "<c:Merchant:7>Sorry, the price was "
+                                                cost "@, you're still " (- cost (coins)) "@ short…")
+                                        "Salvage more stuff…"
+                                        "Exit."))
+            (exit))))
+
+
+  (defn on-level-exit ()
+    (remove-shop)))

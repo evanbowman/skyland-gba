@@ -12,7 +12,7 @@
 
 (defn challenge-hint ()
   (dialog "Are you sure you want a hint?")
-  (dialog-await-y/n)
+  (dialog-setup-y/n)
 
   (defn on-dialog-accepted ()
     (dialog "Hint: Check which blocks are vulnerable to ion cannons. "

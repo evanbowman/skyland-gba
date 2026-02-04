@@ -79,7 +79,7 @@
   (dialog "<c:Mining Chief:20>Hey there! One of our other mining platforms nearby is running low on blasting equipment. <B:0> Can you do us a favor and transport some explosives for us?")
   (defn on-dialog-closed ()
     (dialog "Sounds extremely dangerous... but the miners offer to pay you quite well. Accept task?")
-    (dialog-await-y/n))
+    (dialog-setup-y/n))
 
   (defn on-dialog-accepted ()
     (let ((m (eval-file "/scripts/event/quest/make_quest_marker.lisp"))

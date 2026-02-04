@@ -10,7 +10,7 @@
 
 (defn challenge-hint ()
   (dialog "Are you sure you want a hint?")
-  (dialog-await-y/n)
+  (dialog-setup-y/n)
 
   (defn on-dialog-accepted ()
     (dialog "Cannons and missiles aren't going to work here. You'll need to find a way to punch a hole inside the enemy's walls and deploy a drone..."))

@@ -30,7 +30,7 @@
 
       (setq on-dialog-closed nil)
 
-      (dialog-await-binary-q-w/lore "Yes." "I'll pass."
+      (dialog-setup-binary-q-w/lore "Yes." "I'll pass."
                                     '(("Who might he be?" .
                                        "He looks like he might be a Sylph child. They've been up here a long time, but not much is known about them. <B:0> Invite him aboard?")))
 

@@ -26,7 +26,7 @@
   (setq on-dialog-closed
         (lambda ()
           (dialog "She seems capable, invite her aboard?")
-          (dialog-await-binary-q-w/lore "Welcome aboard!" "Not today."
+          (dialog-setup-binary-q-w/lore "Welcome aboard!" "Not today."
                                         '(("crystal deterioration?" .
                                            "<c:Sylph Engineer:48>The crystals were harvested from our mountain homes, back before the migration. <B:0> They worked perfectly for centuries. But something in the upper atmosphere is breaking them down - micro-fractures spreading through the matrix. <B:0> We don't have access to the source veins anymore. Can't grow new ones. <B:0> Every city is rationing power now, trying to make the old crystals last.")
                                           ("the goblins?" .

@@ -23,15 +23,12 @@
 
 
 (defn on-converge ()
-  (dialog "Though long deserted, ancient machinery still hums within the ruins, crystal matrices pulsing with unfamiliar energy. <B:0> Most of the city's systems have failed, but a few chambers still maintain their enigmatic purpose... <B:0> Among the ruins, you discover an intricate device of crystal and warm brass, its surfaces etched with flowing Sylph script.")
   (setq on-converge nil)
+  (await (dialog* "Though long deserted, ancient machinery still hums within the ruins, crystal matrices pulsing with unfamiliar energy. <B:0> Most of the city's systems have failed, but a few chambers still maintain their enigmatic purpose... <B:0> Among the ruins, you discover an intricate device of crystal and warm brass, its surfaces etched with flowing Sylph script."))
   (alloc-space 'phase-shifter)
-  (sel-input 'phase-shifter
-             "Place phase-shifter (1x3)"
-             (lambda (isle x y)
-               (room-new (player) (list 'phase-shifter x y))
-               (sound "build0")
-               (dialog "You picked up a rare piece of Sylph technology! What could it's function be?")
-               (pickup-cart 9
-                            "One of your crewmembers hands over another item found aboard the Sylph city..."
-                            exit))))
+  (let ((xy (await (sel-input* 'phase-shifter "Place phase-shifter (1x3)"))))
+    (room-new (player) (list 'phase-shifter (car xy) (cdr xy)))
+    (sound "build0")
+    (await (dialog* "You picked up a rare piece of Sylph technology! What could it's function be?"))
+    (pickup-cart 9 "One of your crewmembers hands over another item found aboard the Sylph city...")
+    (exit)))

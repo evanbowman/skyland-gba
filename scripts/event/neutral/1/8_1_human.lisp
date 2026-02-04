@@ -22,7 +22,7 @@
         (lambda ()
           (dialog "He seems harmless, invite him aboard?")
 
-          (dialog-await-binary-q-w/lore "Welcome aboard!" "Sorry, but no."
+          (dialog-setup-binary-q-w/lore "Welcome aboard!" "Sorry, but no."
                                         '(("Let's chat…" . "<c:Explorer:22>I'm obsessed with finding new islands! When I find one, I mark it with a signal beacon. That's how you can find islands on your sky chart! Neat huh? <B:0> Anyway, can I come aboard?")))
 
           (setq on-dialog-closed '())))

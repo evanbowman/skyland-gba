@@ -24,7 +24,7 @@
    "City Aestria has ceased all transmissions. Core crystal failure - complete power loss. <B:0> The city carried a particle lance, mining technology from our mountain era. In trained hands, merely a tool. <B:0> In desperate or ignorant hands... the device destabilizes catastrophically. <B:0>"
    "We cannot allow scavengers to claim what remains. You will retrieve the particle lance before the city falls into the wrong hands.")
 
-  (dialog-await-binary-q-w/lore
+  (dialog-setup-binary-q-w/lore
    "We'll retrieve it."
    "Sorry, we can't."
    '(("Particle lance?" .

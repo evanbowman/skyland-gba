@@ -17,7 +17,7 @@
 
 (defn challenge-hint ()
   (dialog "Are you sure you want a hint?")
-  (dialog-await-y/n)
+  (dialog-setup-y/n)
 
   (defn on-dialog-accepted ()
     (dialog "Clear out some of that masonry, then, flak-guns might be useful..."))

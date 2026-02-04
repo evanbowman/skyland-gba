@@ -22,61 +22,66 @@
  "Days stranded: |||| |||| |||| |||| ||||...")
 
 
+
 (chr-new (opponent) 1 14 'neutral 0)
 
 
+
 (defn on-converge ()
-  (dialog
-   "<c:Castaway:1>Fancy meeting you here! I've been marooned on this island... "
-   "who knows how long! Looks like a nasty storm's brewing, mind "
-   "if I hitch a ride?")
+  (setq on-converge nil)
+  (await (dialog*
+          "<c:Castaway:1>Fancy meeting you here! I've been marooned on this island... "
+          "who knows how long! Looks like a nasty storm's brewing, mind "
+          "if I hitch a ride?"))
 
-  (setq on-dialog-closed
-        (lambda ()
-            (dialog "He seems harmless, invite him aboard?")
+  (dialog-setup-binary-q-w/lore "Welcome aboard!"
+                                "Not today."
+                                '(("How'd you get here?" . "<c:Castaway:1>I was travelling on an airship that got boarded by goblins. I panicked and jumped in a transporter. I guess things could have turned out much worse, heh. <B:0> Wanna join up?")))
 
-          (dialog-await-binary-q-w/lore "Welcome aboard!" "Not today."
-                                        '(("How'd you get here?" .
-                                           "<c:Castaway:1>I was travelling on an airship that got boarded by goblins. I panicked and jumped in a transporter. I guess things could have turned out much worse, heh. <B:0> Wanna join up?")))
+  (dialog "He seems harmless, invite him aboard?"))
 
-          (setq on-dialog-closed '())))
 
-  (setq on-converge nil))
+
+(defn/temp join-crew (xy (msg . string))
+  (adventure-log-add 7 '())
+  (chr-new (player) (car xy) (cdr xy) 'neutral '((race . 0) (icon . 1)))
+  (chr-del (opponent) 1 14)
+  (await (dialog* msg)))
+
+
+
+(defn/temp join-has-space (slots)
+  (if (or (chance 2) (< (coins) 300))
+      (join-crew (sample slots)
+                 "The castaway joined your crew!")
+      (progn
+        (coins-set (- (coins) 300))
+        (join-crew (sample slots)
+                   "The castaway joined your crew. Starving, he ate 300@ of your food supplies!")))
+  (exit-with-commentary "welcomes_castaway_1"))
+
+
+
+(defn/temp join-crowded ()
+  (await (dialog* "Sadly, there's no room..."))
+  (await (dialog* "<c:Castaway:1>Hold on, don't leave me here! I may not meet anyone else for a long time... I'll help you build an addition onto your castle, then there'll be enough space for me to sleep! Let's see... I've got just enough supplies to build a ladder..."))
+  (alloc-space 'ladder)
+  (let ((xy (await (sel-input* 'ladder "Place ladder (1x2):"))))
+    (sound "build0")
+    (room-new (player) `(ladder ,(car xy) ,(cdr xy)))
+    (join-crew xy "<c:Castaway:1> Thanks for rescuing me! I'll try to help out however I can!")
+    (await (dialog* "The castaway joined your crew!"))
+    (exit-with-commentary "welcomes_castaway_1")))
+
+
 
 (defn on-dialog-accepted ()
-  (let ((temp (chr-slots (player)))
-        (join (lambda (txt)
-                  (adventure-log-add 7 '())
-                (dialog txt))))
-    (if temp
-        (progn
-          (setq temp (sample temp))
-          (chr-new (player) (car temp) (cdr temp) 'neutral '((race . 0) (icon . 1)))
-          (chr-del (opponent) 1 14)
-          (if (or (chance 2) (< (coins) 300))
-              (join "The castaway joined your crew!")
-              (progn
-                (coins-set (- (coins) 300))
-                (join "The castaway joined your crew. Starving, he ate 300@ of your food supplies!"))))
-        (progn
-          (dialog "Sadly, there's no room...")
-          (defn on-dialog-closed ()
-            (dialog "<c:Castaway:1>Hold on, don't leave me here! I may not meet anyone else for a long time... I'll help you build an addition onto your castle, then there'll be enough space for me to sleep! Let's see... I've got just enough supplies to build a ladder...")
-            (defn on-dialog-closed ()
-              (alloc-space 'ladder)
-              (sel-input 'ladder
-                         "Place ladder (1x2):"
-                         (lambda (isle x y)
-                             (sound "build0")
-                           (room-new (player) `(ladder ,x ,y))
-                           (chr-del (opponent) 1 14)
-                           (chr-new (player) x (+ 1 y) 'neutral '((race . 0) (icon . 1)))
-                           (dialog "<c:Castaway:1> Thanks for rescuing me! I'll try to help out however I can!")
-                           (defn on-dialog-closed ()
-                             (join "The castaway joined your crew!")
-                             (defn on-dialog-closed ()
-                               (exit-with-commentary "welcomes_castaway_1"))))))))))
+  (let ((slots (chr-slots (player))))
+    (if slots
+        (join-has-space slots)
+        (join-crowded))))
+
+
+
+(defn on-dialog-declined ()
   (exit))
-
-
-(setq on-dialog-declined exit)

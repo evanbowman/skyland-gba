@@ -37,58 +37,40 @@
 (chr-new (opponent) 1 12 'neutral 0)
 
 
-(setq on-converge
-      (lambda ()
-        (dialog
-         "<c:Girl:14>Heya! I'm so lucky someone showed up! Damned goblins took my whole village as hostages. Somehow I slept through the whole thing... Anyway, please take me with you! I promise not to get in the way!")
+(defn on-converge ()
+  (setq on-converge nil)
+  (await (dialog* "<c:Girl:14>Heya! I'm so lucky someone showed up! Damned goblins took my whole village as hostages. Somehow I slept through the whole thing... Anyway, please take me with you! I promise not to get in the way!"))
 
-        (setq on-dialog-closed
-              (lambda ()
-                (dialog "She seems harmless, invite her aboard?")
-                (dialog-await-binary-q-w/lore "Sure!" "No."
-                                              '(("Why let her aboard?" .
-                                                 "<c:Girl:14>Hmm.. well let's see. I'm good at cooking, I can clean your ship, I'm pretty decent at crochet and... I don't know if this is even relevant, but I'm a blackbelt in karate! <B:0> Can I come along?")))
-                (setq on-dialog-closed '())))
-
-        (setq on-converge nil)))
+  (dialog-setup-binary-q-w/lore "Sure!" "No."
+                                '(("Why let her aboard?" .
+                                   "<c:Girl:14>Hmm.. well let's see. I'm good at cooking, I can clean your ship, I'm pretty decent at crochet and... I don't know if this is even relevant, but I'm a blackbelt in karate! <B:0> Can I come along?")))
+  (dialog "She seems harmless, invite her aboard?"))
 
 
-(setq on-dialog-accepted
-      (lambda ()
-        (let ((temp (chr-slots (player)))
-              (end (lambda ()
-                     (pickup-cart 2
-                                  "<c:Girl:14>.<d:500>.<d:500>.<d:500> Actually, I was wondering if you can do me one more small favor? I brought this data cartridge with an old photo of my village, can you hold onto it for me?"
-                                  (lambda ()
-                                    (exit-with-commentary "welcomes_girl"))))))
-          (if temp
-              (progn
-                (setq temp (get temp (choice (length temp))))
-                (chr-new (player) (car temp) (cdr temp) 'neutral '((icon . 14)))
-                (chr-del (opponent) 1 12)
-                (adventure-log-add 15 '())
-                (dialog "The villager girl joined your crew!")
-                (end))
-            (progn
-              (dialog "Sadly, there's no room...")
-              (defn on-dialog-closed ()
-                (dialog "<c:Girl:14>Wait up a second, I know your castle's pretty full, but don't leave me here! This island is literally burning! I'll even sleep in a cargo bay...")
-                (defn on-dialog-closed ()
-                  (alloc-space 'cargo-bay)
-                  (sel-input 'cargo-bay
-                             "Place cargo bay (1x2):"
-                             (lambda (isle x y)
-                               (sound "build0")
-                               (room-new (player) `(cargo-bay ,x ,y))
-                               (chr-del (opponent) 1 12)
-                               (chr-new (player) x (+ 1 y) 'neutral '((icon . 14)))
-                               (dialog "<c:Girl:14>Wait, you're serious! I guess I asked for it haha...")
-                               (defn on-dialog-closed ()
-                                 (adventure-log-add 15 '())
-                                 (dialog "The villager girl joined your crew!")
-                                 (end)))))))))
+(defn/temp join-crew (xy messages)
+  (chr-del (opponent) 1 12)
+  (chr-new (player) (car xy) (cdr xy) 'neutral '((icon . 14)))
+  (adventure-log-add 15 '())
+  (apply dialog-sequence messages)
+  (pickup-cart 2 "<c:Girl:14>.<d:500>.<d:500>.<d:500> Actually, I was wondering if you can do me one more small favor? I brought this data cartridge with an old photo of my village, can you hold onto it for me?")
+  (exit-with-commentary "welcomes_girl"))
 
-        (exit)))
+
+(defn on-dialog-accepted ()
+  (let ((slots (chr-slots (player))))
+    (if slots
+        (join-crew (sample slots) '("The villager girl joined your crew!"))
+        (progn
+          (await (dialog* "Sadly, there's no room..."))
+          (await (dialog* "<c:Girl:14>Wait up a second, I know your castle's pretty full, but don't leave me here! This island is literally burning! I'll even sleep in a cargo bay..."))
+          (alloc-space 'cargo-bay)
+          (let ((xy (await (sel-input* 'cargo-bay "Place cargo bay (1x2):"))))
+            (sound "build0")
+            (room-new (player) `(cargo-bay ,(car xy) ,(cdr xy)))
+            (join-crew (cons (car xy)
+                             (incr (cdr xy))) ; slot in cargo bay is y+1
+                       '("<c:Girl:14>Wait, you're serious! I guess I asked for it haha..."
+                         "The villager girl joined your crew!")))))))
 
 
 (setq on-dialog-declined exit)

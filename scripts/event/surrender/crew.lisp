@@ -57,7 +57,7 @@
                   (if (room-is-critical (opponent) x y)
                       (progn
                         (dialog "This will remove the island's only power source, causing it to become unstable (you won't be able to take any more blocks), are you sure?")
-                        (dialog-await-y/n)
+                        (dialog-setup-y/n)
                         (setq on-dialog-declined rtry)
                         (let ((tx x)
                               (ty y))

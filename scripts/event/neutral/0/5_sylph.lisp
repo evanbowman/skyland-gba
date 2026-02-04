@@ -44,7 +44,7 @@
   (setq on-dialog-closed
         (lambda ()
           (dialog "He seems shaken, invite him aboard?")
-          (dialog-await-binary-q-w/lore "Welcome aboard!" "Not today."
+          (dialog-setup-binary-q-w/lore "Welcome aboard!" "Not today."
                                         '(("field research?" .
                                            "<c:Sylph Researcher:49>We document adaptation strategies - how humans build efficiently, manage with limited resources. <B:0> The Conclave thought understanding survival methods might help our cities. <B:0> <d:800> I told them their defenses were inadequate. They didn't listen. <B:0> Maybe I didn't explain it right. Maybe they thought I was... condescending.")))
           (setq on-dialog-closed '())))

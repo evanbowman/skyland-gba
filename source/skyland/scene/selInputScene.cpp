@@ -18,6 +18,7 @@
 #include "skyland/scene/constructionScene.hpp"
 #include "skyland/scene/salvageRoomScene.hpp"
 #include "skyland/skyland.hpp"
+#include "script/listBuilder.hpp"
 
 
 
@@ -224,16 +225,21 @@ ScenePtr SelInputScene::update(Time delta)
 
         auto isle = near_ ? &APP.player_island() : APP.opponent_island();
 
-        lisp::push_op(wrap_island(isle));
-        lisp::push_op(lisp::make_integer(cursor_loc.x));
-
+        int x = cursor_loc.x;
         int y = cursor_loc.y;
         if (required_space_) {
             y -= (required_space_->y - 1);
         }
-        lisp::push_op(lisp::make_integer(y));
 
-        lisp::safecall(parameters_->cons().car()->cons().cdr(), 3);
+        auto receiver = parameters_->cons().car()->cons().cdr();
+        if (receiver->type() == lisp::Value::Type::promise) {
+            lisp::resolve_promise_safe(receiver, L_CONS(L_INT(x), L_INT(y)));
+        } else if (receiver->type() == lisp::Value::Type::function) {
+            lisp::push_op(wrap_island(isle));
+            lisp::push_op(lisp::make_integer(x));
+            lisp::push_op(lisp::make_integer(y));
+            lisp::safecall(receiver, 3);
+        }
         lisp::pop_op();
 
         if (started_near_) {

@@ -24,7 +24,7 @@
             (setq on-fadein nil)
             (save-bit-store 3 1)
             (dialog "Welcome to the Battle Sandbox! Want any help?")
-            (dialog-await-binary-q "Sure!" "No thanks!")
+            (dialog-setup-binary-q "Sure!" "No thanks!")
             (setq on-dialog-accepted sb-help)
             (setq on-dialog-declined nil))))
 

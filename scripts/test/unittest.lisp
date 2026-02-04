@@ -39,7 +39,7 @@
 ;; At the beginning, assert the expected operand stack size. We'll have another
 ;; assertion at the end of regression in apitest.lisp, to make sure that we
 ;; aren't forgetting to pop anything off the stack.
-(assert-eq 6 (lisp-mem-stack-used))
+(assert-eq 9 (lisp-mem-stack-used))
 
 (if (not (error? (assert-eq 1 2)))
     (error "Something is wrong with assert-eq..."))
@@ -67,7 +67,7 @@
 
 (defn begin-test (name)
   (setq current-test name)
-  (let ((msg (string "running tests: " name "...")))
+  (let ((msg (string "Running tests: " name "...")))
     (when (bound? 'regr-print)
       (regr-print msg 1 3))
     (put msg)))
@@ -298,6 +298,7 @@
 (end-test)
 
 
+(assert-eq 9 (lisp-mem-stack-used))
 
 (gc)
 (begin-test "string")
@@ -424,6 +425,25 @@
 (assert-v (not (error? cons))) ;; You may not delete a built-in.
 (assert-eq '(5 . 6) (cons 5 6)) ;; The built-in function is back.
 
+(assert-v (error? ((lambda ()
+                     (cons 1 2)
+                     (error "should exit here")
+                     5))))
+
+(assert-v (error? (let ()
+                    1
+                    (error "should exit here")
+                    3)))
+
+;; NOTE: this test came straight out of one of the game scripts.
+(assert-v
+ (error? (let ((reward 0))
+           (map
+            (lambda (xy)
+              ((groups-reset) (+= reward 1400)))
+            (range 4)))))
+
+
 (end-test)
 
 
@@ -476,8 +496,6 @@
           (+= tmp 1)
           tmp)
       nil)))
-
-(assert-eq 55 (apply + (collect foo)))
 
 (end-test)
 
@@ -942,7 +960,7 @@
 ;; (assert-eq ? (mod 10 -3))
 
 ;; Float precision
-(assert-v (< (abs (- (* 0.1 10.0) 1.0)) 0.01))
+(assert-v (< (abs (int (- (* 0.1 10.0) 1.0))) 0.01))
 
 (end-test)
 

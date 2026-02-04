@@ -1,6 +1,7 @@
 name: Build and Test
 
 on:
+  workflow_dispatch:
   push:
     branches: [ main, master ]
   pull_request:
@@ -17,17 +18,31 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y build-essential libsdl2-dev libsdl2-image-dev cmake
-    
+        sudo apt-get install -y build-essential libsdl2-dev libsdl2-image-dev cmake ccache
+
+    - name: Cache compiler output
+      uses: actions/cache@v4
+      with:
+        path: ~/.ccache
+        key: ${{ runner.os }}-ccache-${{ hashFiles('**/CMakeLists.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-ccache-
+          
     - name: Set up toolchain
       run: |
         cd build
-        ./set-desktop-toolchain.sh
-    
+        export CCACHE_DIR=$HOME/.ccache
+        export CCACHE_MAXSIZE=500M
+        ccache -z
+        # Run cmake directly to avoid 'rm -rf CMakeFiles' inside 'set-desktop-toolchain.sh' to keep cache.
+        cmake . -DGAMEBOY_ADVANCE=OFF -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+        
     - name: Build project
       run: |
         cd build
-        make -j8
+        export CCACHE_DIR=$HOME/.ccache
+        make -j$(nproc)
+        ccache -s
     
     - name: Package Linux build
       run: |
@@ -38,7 +53,13 @@ jobs:
     - name: Run regression tests
       run: |
         cd build
-        ./skyland/bin/Skyland --regression
+        ./skyland/bin/Skyland --regression 2>&1 | tee regression.log
+        last=$(tail -n1 regression.log)
+        if [ "$last" != "regression success!" ]; then
+          echo "regression failed — last line was: $last"
+          exit 1
+        fi
+        
     
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4

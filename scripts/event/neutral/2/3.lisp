@@ -59,7 +59,7 @@
   (if (< (coins) dec-cost)
       (progn
         (dialog "<c:Captain:7>Sorry, I went to all this trouble, I really can't sell you this tech for less than @" (string dec-cost) ". Do you want to salvage some stuff to come up with the funds? I'll check back in in 15 seconds?")
-        (dialog-await-y/n)
+        (dialog-setup-y/n)
         (let ((f (this)))
           (defn fut ()
             (if (> (coins) 1499)

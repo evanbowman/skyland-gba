@@ -24,7 +24,7 @@
   (defn on-dialog-closed ()
     (dialog "He seems harmless, invite him aboard?")
 
-    (dialog-await-binary-q-w/lore "Join up with us!" "Best of luck…"
+    (dialog-setup-binary-q-w/lore "Join up with us!" "Best of luck…"
                                   '(("Why leave now?" . "<c:Sylph Artisan:46>Three days ago, they ordered me to disassemble the Hall of Echoes, a resonance chamber that took my mentor forty years to tune. <B:0> 'Salvage the crystals for weapon cores,' they said. <B:0> I asked if we were at least recording the acoustic patterns, preserving the knowledge. <B:0> The overseer told me: 'We can rebuild archives after we survive. We cannot rebuild if we are dead.' <B:0> [pause] <B:0> But what survives if we destroy everything that made us worth saving?")))
     (setq on-dialog-closed '()))
 
