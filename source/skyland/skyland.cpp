@@ -363,7 +363,10 @@ static constexpr const char* console_header =
 void App::start_console()
 {
     PLATFORM.remote_console().start();
-    PLATFORM.remote_console().printline(console_header);
+    if (not state_bit_load(StateBit::console_started)) {
+        PLATFORM.remote_console().printline(console_header);
+    }
+    state_bit_store(StateBit::console_started, true);
 }
 
 

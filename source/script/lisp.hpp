@@ -690,6 +690,7 @@ struct Value
 
 
 bool is_boolean_true(Value* val);
+bool is_equal(Value* lhs, Value* rhs);
 
 
 Value* wrap(Value* input, Value* type_sym);
@@ -826,6 +827,9 @@ Value* get_op0();
 Value* get_op1();
 void pop_op();
 Value* get_arg(u16 arg);
+
+using OperandStackUsed = u16;
+OperandStackUsed get_op_count();
 
 
 Value* get_this();
