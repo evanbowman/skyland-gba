@@ -1165,4 +1165,63 @@ o----------------------------o
  in a type wrapper.
 
 
+
+##############################
+
+ Section10:
+
+ Debugging
+
+ Note: When hitting a
+ breakpoint, the game will
+ display an onscreen
+ debugger. Press A to step,
+ B to resume.
+
+
+##############################
+
+
+ (breakpoint-register symbol)
+
+ Register a breakpoint.
+
+ When reaching a breakpoint,
+ the game will halt execution
+ and transfer control to the
+ builtin debugger.
+
+
+o----------------------------o
+
+ (breakpoint-delete symbol)
+
+ Remove a breakpoint.
+
+
+o----------------------------o
+
+ (breakpoint)
+
+ Halt execution and enter the
+ debugger.
+
+
+o----------------------------o
+
+ (watchpoint-register symbol)
+
+ When a variable with a name
+ matching symbol is written,
+ halt the game and open the
+ debugger.
+
+
+o----------------------------o
+
+ (watchpoint-delete symbol)
+
+ Remove a watchpoint.
+
+
 o----------------------------o

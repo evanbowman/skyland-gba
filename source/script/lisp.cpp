@@ -12,6 +12,7 @@
 #include "lisp.hpp"
 #include "allocator.hpp"
 #include "bytecode.hpp"
+#include "debug.hpp"
 #include "eternal/eternal.hpp"
 #include "ext_workram_data.hpp"
 #include "lisp_internal.hpp"
@@ -236,6 +237,9 @@ struct Context
     // If the game was built with a correctly formatted symbol lookup table,
     // then this in-memory table should never be needed...
     Optional<DynamicMemory<StringInternTable>> string_intern_table_;
+    Optional<debug::DebugHandler> debug_handler_;
+    Value* debug_breakpoints_ = nullptr;
+    Value* debug_watchpoints_ = nullptr;
 
     Value* nil_ = nullptr;
     Value* string_buffer_ = nullptr;
@@ -274,6 +278,8 @@ struct Context
     bool strict_ : 1 = false;
     bool callstack_untouched_ : 1 = true;
     bool critical_gc_alert_ : 1 = false;
+    bool debug_break_ = false;
+    bool debug_mode_ = false;
 };
 
 
@@ -1568,6 +1574,12 @@ Value* get_op1()
 }
 
 
+OperandStackUsed get_op_count()
+{
+    return bound_context->operand_stack_->size();
+}
+
+
 Value* get_op(u32 offset)
 {
     auto& stack = bound_context->operand_stack_;
@@ -1880,6 +1892,22 @@ void resolve_promise_safe(Value* pr, Value* val)
 }
 
 
+const char* nameof(Value* value);
+
+
+static bool contains(Value* list, Value* val)
+{
+    bool result = false;
+    l_foreach(list, [&](Value* v2) {
+        if (is_equal(val, v2)) {
+            result = true;
+        }
+    });
+
+    return result;
+}
+
+
 void safecall(Value* fn, u8 argc)
 {
     if (fn->type() not_eq Value::Type::function) {
@@ -1889,6 +1917,33 @@ void safecall(Value* fn, u8 argc)
     if (bound_context->operand_stack_->size() < argc) {
         Platform::fatal("invalid argc for safecall");
     }
+
+    if (bound_context->debug_mode_) {
+        auto breakpoints = bound_context->debug_breakpoints_;
+        if (breakpoints not_eq L_NIL and not bound_context->debug_break_) {
+            if (auto detect_name = nameof(fn)) {
+                bool is_breakpoint = false;
+                Value* br_sym = L_NIL;
+                l_foreach(breakpoints, [&](Value* v) {
+                    if (v->type() == Value::Type::symbol) {
+                        if (str_eq(v->symbol().name(), detect_name)) {
+                            is_breakpoint = true;
+                            br_sym = v;
+                        }
+                    }
+                });
+                if (is_breakpoint) {
+                    if (bound_context->debug_handler_) {
+                        auto& handler = *bound_context->debug_handler_;
+                        auto reason = debug::Interrupt::breakpoint;
+                        handler(reason, br_sym);
+                    }
+                    bound_context->debug_break_ = true;
+                }
+            }
+        }
+    }
+
 
     lisp::funcall(fn, argc);
     auto result = lisp::get_op(0);
@@ -2460,7 +2515,14 @@ Value* dostring(CharSequence& code,
 
     while (true) {
         const auto last_i = i;
-        i += read(code, i);
+        {
+            // NOTE: we need to disable breakpoints during expression read,
+            // because it's tedious to look at evals triggered during
+            // macroexpansion.
+            const bool was_debug = bound_context->debug_mode_;
+            i += read(code, i);
+            bound_context->debug_mode_ = was_debug;
+        }
         auto reader_result = get_op0();
         if (reader_result == get_nil()) {
             pop_op();
@@ -2492,9 +2554,6 @@ Value* dostring(CharSequence& code,
 
     return result;
 }
-
-
-const char* nameof(Value* value);
 
 
 void format_impl(Value* value, Printer& p, int depth, bool skip_quotes = false)
@@ -2859,6 +2918,8 @@ static void gc_mark()
     gc_mark_value(bound_context->lexical_bindings_);
     gc_mark_value(bound_context->macros_);
     gc_mark_value(bound_context->tree_nullnode_);
+    gc_mark_value(bound_context->debug_breakpoints_);
+    gc_mark_value(bound_context->debug_watchpoints_);
 
     for (auto& sym : bound_context->argument_symbols_) {
         gc_mark_value(sym);
@@ -4179,6 +4240,118 @@ eval_iter_start(EvalFrame& frame, Vector<EvalFrame>& eval_stack)
 }
 
 
+namespace debug
+{
+
+
+Vector<LocalVar> get_locals()
+{
+    Vector<LocalVar> results;
+    if (bound_context->lexical_bindings_ not_eq get_nil()) {
+        auto stack = bound_context->lexical_bindings_;
+
+        while (stack not_eq get_nil()) {
+
+            auto bindings = stack->cons().car();
+            while (bindings not_eq get_nil()) {
+                auto kvp = bindings->cons().car();
+                auto name = kvp->cons().car()->symbol().name();
+                bool var_exists = false;
+                for (auto& result : results) {
+                    if (str_eq(result.name_, name)) {
+                        var_exists = true;
+                        break;
+                    }
+                }
+                if (not var_exists) {
+                    results.push_back({name, kvp->cons().cdr()});
+                }
+
+                bindings = bindings->cons().cdr();
+            }
+
+            stack = stack->cons().cdr();
+        }
+    }
+    return results;
+}
+
+
+void register_debug_handler(DebugHandler handler)
+{
+    bound_context->debug_handler_ = handler;
+}
+
+
+void register_symbol_watchpoint(Value* symbol)
+{
+    if (symbol->type() == Value::Type::symbol) {
+        auto& wp = bound_context->debug_watchpoints_;
+        wp = L_CONS(symbol, wp);
+    }
+}
+
+
+void delete_symbol_watchpoint(Value* symbol)
+{
+    ListBuilder new_watchpoints;
+    l_foreach(bound_context->debug_watchpoints_, [&](Value* v) {
+        if (not is_equal(symbol, v)) {
+            new_watchpoints.push_back(v);
+        }
+    });
+    bound_context->debug_watchpoints_ = new_watchpoints.result();
+}
+
+
+void register_symbol_breakpoint(Value* symbol)
+{
+    if (symbol->type() == Value::Type::symbol) {
+        auto& br = bound_context->debug_breakpoints_;
+        br = L_CONS(symbol, br);
+        bound_context->debug_mode_ = true;
+    }
+}
+
+
+void delete_symbol_breakpoint(Value* symbol)
+{
+    ListBuilder new_breakpoints;
+    l_foreach(bound_context->debug_breakpoints_, [&](Value* v) {
+        if (not is_equal(symbol, v)) {
+            new_breakpoints.push_back(v);
+        }
+    });
+    bound_context->debug_breakpoints_ = new_breakpoints.result();
+}
+
+
+bool check_breakpoint(Value* expr)
+{
+    if (bound_context->debug_breakpoints_ == L_NIL) {
+        return false;
+    }
+
+    if (expr->type() == Value::Type::cons) {
+        auto fn_expr = expr->cons().car();
+        if (fn_expr->type() == Value::Type::symbol) {
+            // Check if this symbol is in breakpoint list
+            auto bp_list = bound_context->debug_breakpoints_;
+            while (bp_list not_eq L_NIL) {
+                if (is_equal(bp_list->cons().car(), fn_expr)) {
+                    return true;
+                }
+                bp_list = bp_list->cons().cdr();
+            }
+        }
+    }
+    return false;
+}
+
+
+}
+
+
 void eval_loop(Vector<EvalFrame>& eval_stack)
 {
     const u32 op_stack_init = bound_context->operand_stack_->size();
@@ -4197,6 +4370,36 @@ void eval_loop(Vector<EvalFrame>& eval_stack)
         }
 
         case EvalFrame::State::start: {
+            if (UNLIKELY(bound_context->debug_mode_)) {
+                if (debug::check_breakpoint(frame.expr_)) {
+                    bound_context->debug_break_ = true;
+                    if (bound_context->debug_handler_) {
+                        auto& handler = *bound_context->debug_handler_;
+                        auto reason = debug::Interrupt::breakpoint;
+                        handler(reason, frame.expr_);
+                    }
+                }
+                if (bound_context->debug_break_) {
+                    if (bound_context->debug_handler_) {
+                        auto& handler = *bound_context->debug_handler_;
+                        auto reason = debug::Interrupt::step;
+                        switch (handler(reason, frame.expr_)) {
+                        case debug::Action::step:
+                            break;
+
+                        case debug::Action::resume:
+                            bound_context->debug_break_ = false;
+                            if (bound_context->debug_breakpoints_ == L_NIL) {
+                                bound_context->debug_mode_ = false;
+                            }
+                            break;
+                        }
+                    } else {
+                        bound_context->debug_break_ = false;
+                    }
+                }
+            }
+
             eval_iter_start(frame, eval_stack);
             break;
         }
@@ -4815,19 +5018,6 @@ void apropos(const char* match, Vector<const char*>& completion_strs)
 }
 
 
-static bool contains(Value* list, Value* val)
-{
-    bool result = false;
-    l_foreach(list, [&](Value* v2) {
-        if (is_equal(val, v2)) {
-            result = true;
-        }
-    });
-
-    return result;
-}
-
-
 const char* nameof(Function::CPP_Impl impl);
 
 
@@ -5033,6 +5223,37 @@ BUILTIN_TABLE(
            }
            return lisp::make_string(rotstr->c_str());
        }}},
+     {"breakpoint",
+      {SIG0(nil),
+       [](int argc) {
+           bound_context->debug_mode_ = true;
+           bound_context->debug_break_ = true;
+           return L_NIL;
+       }}},
+     {"breakpoint-register",
+     {SIG1(nil, symbol),
+      [](int argc) {
+          lisp::debug::register_symbol_breakpoint(lisp::get_op0());
+          return L_NIL;
+      }}},
+    {"breakpoint-delete",
+     {SIG1(nil, symbol),
+      [](int argc) {
+          lisp::debug::delete_symbol_breakpoint(lisp::get_op0());
+          return L_NIL;
+      }}},
+    {"watchpoint-register",
+     {SIG1(nil, symbol),
+      [](int argc) {
+          lisp::debug::register_symbol_watchpoint(lisp::get_op0());
+          return L_NIL;
+      }}},
+    {"watchpoint-delete",
+     {SIG1(nil, symbol),
+      [](int argc) {
+          lisp::debug::delete_symbol_watchpoint(lisp::get_op0());
+          return L_NIL;
+      }}},
      {"cons",
       {SIG2(cons, nil, nil),
        [](int argc) {
@@ -7468,6 +7689,29 @@ Value* get_var(Value* symbol)
 
 Value* set_var(Value* symbol, Value* val, bool define_var)
 {
+    if (bound_context->debug_watchpoints_ not_eq get_nil()) {
+        bool watchpoint = false;
+        l_foreach(bound_context->debug_watchpoints_,
+                  [symbol, &watchpoint](Value* v) {
+                      if (is_equal(symbol, v)) {
+                          watchpoint = true;
+                      }
+                  });
+        if (watchpoint and bound_context->debug_handler_) {
+            auto reason = debug::Interrupt::watchpoint;
+            Protected pack(L_CONS(symbol, val));
+            auto resp = (*bound_context->debug_handler_)(reason, pack);
+            if (resp == debug::Action::step) {
+                bound_context->debug_break_ = true;
+            } else {
+                bound_context->debug_break_ = false;
+                if (bound_context->debug_breakpoints_ == L_NIL) {
+                    bound_context->debug_mode_ = false;
+                }
+            }
+        }
+    }
+
     if (bound_context->lexical_bindings_ not_eq get_nil()) {
         auto stack = bound_context->lexical_bindings_;
 
@@ -7577,6 +7821,8 @@ void init(Optional<std::pair<const char*, u32>> external_symtab,
     ctx->globals_tree_ = ctx->nil_;
     ctx->callstack_ = ctx->nil_;
     ctx->lexical_bindings_ = ctx->nil_;
+    ctx->debug_breakpoints_ = ctx->nil_;
+    ctx->debug_watchpoints_ = ctx->nil_;
 
     ctx->string_buffer_ = ctx->nil_;
     ctx->macros_ = ctx->nil_;

@@ -116,6 +116,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/script_defs.cpp
   ${SOURCE_DIR}/skyland/achievement.cpp
   ${SOURCE_DIR}/skyland/systemString.cpp
+  ${SOURCE_DIR}/skyland/script_debugger.cpp
   ${SOURCE_DIR}/skyland/configure_island.cpp
   ${SOURCE_DIR}/skyland/player/playerP1.cpp
   ${SOURCE_DIR}/skyland/player/sandboxSpectatorPlayer.cpp

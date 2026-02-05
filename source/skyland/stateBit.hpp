@@ -37,6 +37,7 @@ enum class StateBit {
     minimap_on,
     rumble_enabled,
     lighting_enabled,
+    console_started,
     count,
 };
 
