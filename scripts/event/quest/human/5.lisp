@@ -83,7 +83,7 @@
         (adventure-log-add 52 '())
         (push 'quests (cons "traveller.lisp" m)))
 
-      (find-crew-slot
+      (find-crew-slot-cb
        "<c:Traveller:23>Oh! It looks like you're out of room! Let me fix that..."
        'ladder
        "Place block (1x2):"

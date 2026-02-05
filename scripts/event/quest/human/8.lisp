@@ -40,7 +40,7 @@
 
                (defn on-dialog-closed ()
                  (setq on-dialog-closed nil)
-                 (find-crew-slot
+                 (find-crew-slot-cb
                   "<c:Warrior Princess of E. Cay:28> Hmm... you seem to be out of space... <B:0> Let me fix that!"
                   'ladder
                   "Place block (1x2):"

@@ -32,7 +32,7 @@
         (adventure-log-add 52 '())
         (push 'quests (cons "surface_keeper.lisp" m)))
 
-      (find-crew-slot
+      (find-crew-slot-cb
        "<c:Surface Keeper:43>No ssspace! Let's ssseee..."
        'ladder
        "Place block (1x2):"

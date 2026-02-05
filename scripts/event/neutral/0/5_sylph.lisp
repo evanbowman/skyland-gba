@@ -52,7 +52,7 @@
 
 
 (defn on-dialog-accepted ()
-  (find-crew-slot
+  (find-crew-slot-cb
    "<c:Sylph Researcher:49>Ah. Full capacity. That's... let me think. <B:0> The structural integrity here is compromised. I can calculate optimal placement for-"
    'ladder
    "Place block (1x2):"

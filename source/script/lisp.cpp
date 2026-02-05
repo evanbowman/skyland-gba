@@ -2535,6 +2535,7 @@ Value* dostring(CharSequence& code,
         pop_op(); // reader result
 
         if (is_error(expr_result)) {
+            result = expr_result;
             const auto current_line = error_find_linenum(code, last_i);
             error_append_line_hint(expr_result->error(), current_line);
             push_op(expr_result);

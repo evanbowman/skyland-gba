@@ -85,7 +85,7 @@
       (progn
         (dialog "You cannot afford to pay. The monks become impatient, and cut the transmission.")
         (exit))
-      (find-crew-slot
+      (find-crew-slot-cb
        "<c:Goblin Monk:41>This is inconvenient, but I suppose we can help you out..."
        'ladder
        "Place block (1x2):"

@@ -42,47 +42,28 @@
 (flag-show (opponent) flag-id-old-empire)
 
 
+(defn/temp place-block (text)
+  (alloc-space 'drone-bay)
+  (let ((xy (await (sel-input* 'drone-bay text))))
+    (sound "build0")
+    (room-new (player) `(drone-bay ,(car xy) ,(cdr xy)))))
+
+
 (defn on-converge ()
   ;; want drones?
-  (dialog "<c:robot:13> 01010111 01100001 01101110 01110100 00100000 01100100 01110010 01101111 01101110 01100101 01110011 00111111?")
-  (dialog-setup-y/n)
-
-  (defn on-dialog-accepted ()
-    ;; less than 2?
-    (dialog "<c:robot:13> 00111100 00100000 00110010?")
-    (dialog-setup-y/n)
-
-    (adventure-log-add 39 '())
-
-    (defn on-dialog-accepted ()
-      ;; place one drone bay
-      (alloc-space 'drone-bay)
-
-      (sel-input 'drone-bay
-                 "Pick a slot (2x1)"
-                 (lambda (isle x y)
-                   (sound "build0")
-                   (room-new (player) `(drone-bay ,x ,y))
-                   (dialog "<c:robot:13> 01000010 01111001 01100101!")
-                   (exit))))
-
-    (defn on-dialog-declined ()
-      ;; place two drone bays
-
-      (alloc-space 'drone-bay)
-
-      (sel-input 'drone-bay
-                 "Pick a slot (2x1) (1 of 2)"
-                 (lambda (isle x y)
-                   (sound "build0")
-                   (room-new (player) `(drone-bay ,x ,y))
-
-                   (sel-input 'drone-bay
-                              "Pick a slot (2x1) (2 of 2)"
-                              (lambda (isle x y)
-                                (sound "build0")
-                                (room-new (player) `(drone-bay ,x ,y))
-                                (dialog "<c:robot:13> 01000010 01111001 01100101!")
-                                (exit)))))))
-
-  (setq on-dialog-declined exit))
+  (if (dialog-await-y/n "<c:robot:13> 01010111 01100001 01101110 01110100 00100000 01100100 01110010 01101111 01101110 01100101 01110011 00111111?")
+      ;; less than 2?
+      (if (dialog-await-y/n "<c:robot:13> 00111100 00100000 00110010?")
+          (progn
+            ;; yes less than two, place one.
+            (place-block "Pick a slot (2x1)")
+            (await (dialog* "<c:robot:13> 01000010 01111001 01100101!"))
+            (exit))
+          (progn
+            ;; not less than two, place two
+            (place-block "Pick a slot (2x1) (1 of 2)")
+            (place-block "Pick a slot (2x1) (2 of 2)")
+            (await (dialog* "<c:robot:13> 01000010 01111001 01100101!"))
+            (exit)))
+      ;; Player doesn't want drones, simply exit
+      (exit)))

@@ -37,7 +37,7 @@
 
 
 (defn on-dialog-accepted ()
-  (find-crew-slot
+  (find-crew-slot-cb
    "<c:Sylph Engineer:48>Ah. Full capacity. Expected, really. <B:0> Let me help - I'm quite good at spatial optimization. Professional habit."
    'ladder
    "Place block (1x2):"

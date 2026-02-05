@@ -21,7 +21,7 @@
                       (lambda ()
                         (coins-add c)
                         (score-add score-bonus)
-                        (find-crew-slot
+                        (find-crew-slot-cb
                         (if (equal (faction) 'goblin)
                           "<c:Goblin:18>Gahh! <B:0> You are out of ssspace! <B:0> Nice friendsss will not leave usss! I'll build an ledarr!"
                           "<c:Goblin:18>Gahh! <B:0> You are out of ssspace! <B:0> Nice humansss will not leave usss! I'll build an ledarr!")

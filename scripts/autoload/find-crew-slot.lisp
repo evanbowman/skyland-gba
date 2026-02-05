@@ -3,27 +3,17 @@
 ;;;
 
 
-(lambda (no-space-text room-sym prompt-text callback)
+(lambda (no-space-text room-sym prompt-text)
   (let ((slots (chr-slots (player))))
     (if slots
         ;; The simple scenario: there's an empty space to place a crewmember.
-        (let ((slot (sample slots)))
-          (callback (car slot) (cdr slot) false))
+        (sample slots)
         ;; The complex scenario: there's no room on the island...
         (progn
-          (dialog "Sadly, there's no room...")
+          (await (dialog* "Sadly, there's no room..."))
           (alloc-space room-sym)
-          (let ((cb callback)
-                (rsym room-sym)
-                (txt1 no-space-text)
-                (txt2 prompt-text))
-            (defn on-dialog-closed ()
-              (dialog txt1)
-              (defn on-dialog-closed ()
-                (setq on-dialog-closed nil)
-                (sel-input rsym
-                           txt2
-                           (lambda (isle x y)
-                             (sound "build0")
-                             (room-new (player) (list rsym x y))
-                             (cb x y true))))))))))
+          (await (dialog* no-space-text))
+          (let ((xy (await (sel-input* room-sym prompt-text))))
+            (sound "build0")
+            (room-new (player) (list room-sym (car xy) (cdr xy)))
+            xy)))))

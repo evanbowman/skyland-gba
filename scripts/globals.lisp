@@ -76,6 +76,7 @@
         core-service
         find-or-create-cargo-bay
         find-crew-slot
+        find-crew-slot-cb
         dialog-sequence
         hostile-pickup-cart
         pickup-cart

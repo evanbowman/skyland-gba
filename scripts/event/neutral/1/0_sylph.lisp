@@ -45,7 +45,7 @@
                   (else "Sylph"))
                 " becomes impatient, and cuts the transmission.")
         (exit))
-      (find-crew-slot
+      (find-crew-slot-cb
        "<c:Sylph Sentry:47>You're out of space. This is inconvenient, but I suppose I can help you out..."
        'ladder
        "Place block (1x2):"

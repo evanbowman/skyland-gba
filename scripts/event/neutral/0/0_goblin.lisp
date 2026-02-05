@@ -43,7 +43,7 @@
 
 
 (defn on-dialog-accepted ()
-  (find-crew-slot
+  (find-crew-slot-cb
    "<c:Castaway:38>Hold on, don't leave me here! I know your cassstle's full, but I can help make some ssspace!"
    'ladder
    "Place block (1x2):"

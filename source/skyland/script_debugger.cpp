@@ -113,11 +113,29 @@ void pretty_print_append(PrinterState& ps, const char* str)
 }
 
 
+
 void pretty_print_atom(PrinterState& ps, lisp::Value* atom)
 {
     auto p = allocate<lisp::DefaultPrinter>("...");
-    lisp::format(atom, *p);
-    pretty_print_append(ps, p->data_.c_str());
+    if (atom->type() == lisp::Value::Type::cons and
+        atom->cons().car()->type() == lisp::Value::Type::symbol and
+        str_eq("'", atom->cons().car()->symbol().name())) {
+        pretty_print_append(ps, "'");
+        lisp::format(atom->cons().cdr(), *p);
+    } else if (atom->type() == lisp::Value::Type::cons and
+        atom->cons().car()->type() == lisp::Value::Type::symbol and
+        str_eq("`", atom->cons().car()->symbol().name())) {
+        pretty_print_append(ps, "`");
+        lisp::format(atom->cons().cdr(), *p);
+    } else {
+        lisp::format(atom, *p);
+    }
+
+    if (p->data_ == "(')") {
+        pretty_print_append(ps, "'()");
+    } else {
+        pretty_print_append(ps, p->data_.c_str());
+    }
 }
 
 
@@ -125,7 +143,9 @@ void pretty_print_atom(PrinterState& ps, lisp::Value* atom)
 void pretty_print_impl(PrinterState& ps,
                        lisp::Value* current_expr)
 {
-    if (lisp::is_list(current_expr)) {
+    if (lisp::is_list(current_expr) and length(current_expr) == 0) {
+        pretty_print_append(ps, "'()");
+    } else if (lisp::is_list(current_expr)) {
         if (current_expr == ps.match_expr_) {
             ps.match_begin_line_ = ps.linecount_;
         }
@@ -157,7 +177,20 @@ void pretty_print_impl(PrinterState& ps,
                     --ps.depth_;
                 }
             } else if (str_eq(sym->symbol().name(), "fn")) {
-                // TODO
+                pretty_print_append(ps, "fn ");
+                ++ps.depth_;
+                pretty_print_newline(ps);
+                auto lat = current_expr->cons().cdr();
+                while (lat not_eq L_NIL) {
+                    pretty_print_impl(ps, lat->cons().car());
+                    lat = lat->cons().cdr();
+                    if (lat not_eq L_NIL) {
+                        pretty_print_newline(ps);
+                    } else {
+                        ps.output_.push_back(')');
+                    }
+                }
+                --ps.depth_;
             } else if (str_eq(sym->symbol().name(), "let")) {
                 pretty_print_append(ps, sym->symbol().name());
                 pretty_print_append(ps, " ");
@@ -356,10 +389,10 @@ static void onscreen_debugger_render_tab(lisp::Value* expr, u32& scroll)
         for (u32 i = 0; i < lisp::get_argc() and i * 2 + start_y < 20; ++i) {
             auto arg = lisp::get_arg(i);
             u8 y = (start_y + i * 2);
-            Text::print(format("% %",
+            Text::print(format("$% %",
                                i,
                                lisp::val_to_string<30>(arg).c_str()).c_str(),
-                        {1, y},
+                        {0, y},
                         text_colors);
         }
         break;
@@ -404,8 +437,18 @@ lisp::debug::Action handle_debug_step(lisp::Value* expr)
     PLATFORM.screen().clear();
     PLATFORM.screen().display();
 
-    StringBuffer<33> fmt_str;
-    fmt_str = lisp::val_to_string<32>(expr);
+    StringBuffer<30> fmt_str;
+    {
+        PrinterState ps;
+        ps.match_expr_ = expr;
+        pretty_print_impl(ps, expr);
+        for (char c : ps.output_) {
+            if (c not_eq '\n') {
+                fmt_str.push_back(c);
+            }
+        }
+    }
+
     if (fmt_str.length() > 0 and fmt_str[0] == '\'') {
         fmt_str.erase(fmt_str.begin());
     }

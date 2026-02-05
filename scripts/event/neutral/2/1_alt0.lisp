@@ -22,13 +22,13 @@
          (list (cons 'race (if (equal (faction) 'goblin) 1 0))))
 
 
-(setq on-converge
-      (lambda ()
-        (dialog "You see a survivor amongst the wreckage. You cannot be sure whether the"
-                " survivor is trustworthy. Invite survivor aboard?")
-
-        (dialog-setup-y/n)
-        (setq on-converge nil)))
+(defn on-converge ()
+  (setq on-converge nil)
+  (if (dialog-await-y/n (string
+                         "You see a survivor amongst the wreckage. You cannot be sure whether the"
+                         " survivor is trustworthy. Invite survivor aboard?"))
+      (on-dialog-accepted)
+      (on-dialog-declined)))
 
 
 (let ((bad (choice 2)))
@@ -41,45 +41,43 @@
          "Days alone on island: lll")))
 
 
-  (setq on-dialog-accepted
-        (lambda ()
-
-          (let ((temp (chr-slots (player))))
-            (setq temp (get temp (choice (length temp))))
-
-            (if temp
-                (progn
-                  (chr-del (opponent) 1 14)
-                  (if (not bad)
-                      (progn
-                        (chr-new (player) (car temp) (cdr temp) 'neutral
-                                 (list (cons 'race
-                                             (if (equal (faction) 'goblin) 1 0))))
-                        (dialog "The survivor joined your crew!")
-                        (adventure-log-add 40 '())
-                        (exit))
-                    (progn
-                      (chr-new (player) (car temp) (cdr temp) 'hostile nil)
-                      (dialog (if (equal (faction) 'goblin)
-                                  "The survivor turned out to be very unfriendly!"
-                                  "The survivor turned out to be a vicious goblin!"))
-                      (adventure-log-add 41 '())
-                      (setq on-dialog-closed
-                            (lambda ()
-                              (dialog "<c:Goblin:2>Die "
-                                      (case (faction)
-                                        ('goblin "Traitorsss")
-                                        ('human "Humansss")
-                                        ('sylph "Sssylph ssscum"))
-                                      "!")
-                              (setq on-dialog-closed '()))))))
-              (progn
-                (dialog "Sadly, there's no room...")
-                (exit)))))))
+  (defn/temp join-good (slot)
+    (chr-new (player) (car slot) (cdr slot) 'neutral
+             (list (cons 'race
+                         (if (equal (faction) 'goblin) 1 0))))
+    (await (dialog* "The survivor joined your crew!"))
+    (adventure-log-add 40 '())
+    (exit))
 
 
+  (defn/temp join-bad (slot)
+    (opponent-mode 'hostile)
+    (chr-new (player) (car slot) (cdr slot) 'hostile nil)
+    (await (dialog*
+            (if (equal (faction) 'goblin)
+                "The survivor turned out to be very unfriendly!"
+                "The survivor turned out to be a vicious goblin!")))
+    (adventure-log-add 41 '())
+    (await (dialog* "<c:Goblin:2>Die "
+                    (case (faction)
+                      ('goblin "Traitorsss")
+                      ('human "Humansss")
+                      ('sylph "Sssylph ssscum"))
+                    "!")))
 
-(setq on-dialog-declined
-      (lambda ()
-        ;; TODO...
-        (exit)))
+
+  (defn on-dialog-accepted ()
+    (let ((slots (chr-slots (player))))
+      (if slots
+          (progn
+            (chr-del (opponent) 1 14)
+            (if (not bad)
+                (join-good)
+                (join-bad)))
+          (progn
+            (dialog "Sadly, there's no room...")
+            (exit))))))
+
+
+(defn on-dialog-declined ()
+  (exit))

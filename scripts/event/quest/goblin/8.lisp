@@ -38,7 +38,7 @@
 
                (defn on-dialog-closed ()
                  (setq on-dialog-closed nil)
-                 (find-crew-slot
+                 (find-crew-slot-cb
                   "<c:Ashwalker Apprentice:41> Hmm... you ssseem to be out of ssspace... <B:0> Let me fix that!"
                   'ladder
                   "Place block (1x2):"

@@ -54,7 +54,7 @@
 
 
 (defn on-dialog-accepted ()
-  (find-crew-slot
+  (find-crew-slot-cb
    "<c:Goblin Raider:39>Hold on, don't leave me here! I know your cassstle's full, but thisss island is burning!"
    'ladder
    "Place block (1x2):"
