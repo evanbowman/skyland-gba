@@ -832,6 +832,9 @@ using OperandStackUsed = u16;
 OperandStackUsed get_op_count();
 
 
+const char* nameof(Value* value);
+
+
 Value* get_this();
 u8 get_argc();
 

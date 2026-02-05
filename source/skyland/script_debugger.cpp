@@ -30,12 +30,16 @@ static constexpr const Text::OptColors text_colors{
 static constexpr const Text::OptColors text_colors_inv{
     {text_colors->background_, text_colors->foreground_}};
 
+static constexpr const Text::OptColors text_colors_highlight{
+    {custom_color(0x00508a), custom_color(0xf9e965)}};
+
 
 }
 
 
 
 static EXT_WORKRAM_DATA enum class DisplayTab : u8 {
+    codeview,
     callstack,
     local_vars,
     operand_stack,
@@ -58,6 +62,7 @@ static auto get_callstack()
 }
 
 
+
 void show_callstack(u8 start_y, u32& scroll)
 {
     auto frames = get_callstack();
@@ -73,7 +78,233 @@ void show_callstack(u8 start_y, u32& scroll)
 }
 
 
-static void onscreen_debugger_render_tab(u32& scroll)
+
+struct PrinterState
+{
+    Vector<char> output_;
+    lisp::Value* match_expr_;
+    int match_begin_line_ = -1;
+    int match_end_line_ = -1;
+    int depth_ = 0;
+    int linecount_ = 0;
+    int chars_since_newline_ = 0;
+};
+
+
+void pretty_print_newline(PrinterState& ps)
+{
+    ps.chars_since_newline_ = 0;
+    ps.output_.push_back('\n');
+    for (int i = 0; i < ps.depth_ * 2; ++i) {
+        ps.output_.push_back(' ');
+        ++ps.chars_since_newline_;
+    }
+    ++ps.linecount_;
+}
+
+
+void pretty_print_append(PrinterState& ps, const char* str)
+{
+    while (*str not_eq '\0') {
+        ps.output_.push_back(*str);
+        ++ps.chars_since_newline_;
+        ++str;
+    }
+}
+
+
+void pretty_print_atom(PrinterState& ps, lisp::Value* atom)
+{
+    auto p = allocate<lisp::DefaultPrinter>("...");
+    lisp::format(atom, *p);
+    pretty_print_append(ps, p->data_.c_str());
+}
+
+
+
+void pretty_print_impl(PrinterState& ps,
+                       lisp::Value* current_expr)
+{
+    if (lisp::is_list(current_expr)) {
+        if (current_expr == ps.match_expr_) {
+            ps.match_begin_line_ = ps.linecount_;
+        }
+
+        ps.output_.push_back('(');
+
+        if (current_expr->cons().car()->type() == lisp::Value::Type::symbol) {
+            auto sym = current_expr->cons().car();
+            if (str_eq(sym->symbol().name(), "if") or
+                str_eq(sym->symbol().name(), "while")) {
+                pretty_print_append(ps, sym->symbol().name());
+                pretty_print_append(ps, " ");
+                auto lat = current_expr->cons().cdr();
+                bool printed_cond = false;
+                while (lat not_eq L_NIL) {
+                    pretty_print_impl(ps, lat->cons().car());
+                    lat = lat->cons().cdr();
+                    if (not printed_cond) {
+                        printed_cond = true;
+                        ++ps.depth_;
+                    }
+                    if (lat not_eq L_NIL) {
+                        pretty_print_newline(ps);
+                    } else {
+                        ps.output_.push_back(')');
+                    }
+                }
+                if (printed_cond) {
+                    --ps.depth_;
+                }
+            } else if (str_eq(sym->symbol().name(), "fn")) {
+                // TODO
+            } else if (str_eq(sym->symbol().name(), "let")) {
+                pretty_print_append(ps, sym->symbol().name());
+                pretty_print_append(ps, " ");
+                pretty_print_impl(ps, lisp::get_list(current_expr, 1));
+                ++ps.depth_;
+                if (lisp::get_list(current_expr, 2) not_eq L_NIL) {
+                    pretty_print_newline(ps);
+                    auto lat = current_expr->cons().cdr()->cons().cdr();
+                    while (lat not_eq L_NIL) {
+                        pretty_print_impl(ps, lat->cons().car());
+                        lat = lat->cons().cdr();
+                        if (lat not_eq L_NIL) {
+                            pretty_print_newline(ps);
+                        } else {
+                            ps.output_.push_back(')');
+                        }
+                    }
+                }
+                --ps.depth_;
+            } else {
+                auto lat = current_expr;
+                bool first = true;
+                while (lat not_eq L_NIL) {
+                    if (not first) {
+                        pretty_print_append(ps, " ");
+                    }
+                    pretty_print_impl(ps, lat->cons().car());
+                    lat = lat->cons().cdr();
+                    first = false;
+                }
+                ps.output_.push_back(')');
+            }
+        } else {
+            auto lat = current_expr;
+                bool first = true;
+                while (lat not_eq L_NIL) {
+                    if (not first) {
+                        pretty_print_append(ps, " ");
+                    }
+                    pretty_print_impl(ps, lat->cons().car());
+                    lat = lat->cons().cdr();
+                    first = false;
+                }
+                ps.output_.push_back(')');
+        }
+
+        if (current_expr == ps.match_expr_) {
+            ps.match_end_line_ = ps.linecount_;
+        }
+    } else {
+        pretty_print_atom(ps, current_expr);
+    }
+}
+
+
+
+void pretty_print_begin(PrinterState& ps, lisp::Value* current_expr)
+{
+    if (lisp::is_list(current_expr)) {
+        while (current_expr not_eq L_NIL) {
+            pretty_print_impl(ps, current_expr->cons().car());
+            pretty_print_newline(ps);
+            current_expr = current_expr->cons().cdr();
+        }
+    }
+}
+
+
+
+static int calculate_skip_lines(const PrinterState& ps, int visible_lines = 6)
+{
+    int center_offset = visible_lines / 2;  // 3 for 6 lines
+
+    // Try to center the match
+    int skip = ps.match_begin_line_ - center_offset;
+
+    // Don't scroll past the beginning
+    if (skip < 0) {
+        skip = 0;
+    }
+
+    // Don't scroll past the end
+    int max_skip = ps.linecount_ - visible_lines;
+    if (max_skip < 0) {
+        max_skip = 0;  // Function shorter than viewport
+    }
+    if (skip > max_skip) {
+        skip = max_skip;
+    }
+
+    return skip;
+}
+
+
+
+void pretty_print_current_fn_with_expr(lisp::Value* expr)
+{
+    auto current_fn = lisp::get_this();
+    if (current_fn->type() not_eq lisp::Value::Type::function) {
+        return;
+    }
+    const auto required_fn_type = lisp::Function::ModeBits::lisp_function;
+    if (current_fn->hdr_.mode_bits_ not_eq required_fn_type) {
+        return;
+    }
+
+    auto fn_impl = lisp::dcompr(current_fn->function().lisp_impl_.code_);
+    PrinterState ps;
+    ps.match_expr_ = expr;
+    pretty_print_begin(ps, fn_impl);
+
+    auto skip_lines = calculate_skip_lines(ps);
+
+    StringBuffer<30> line;
+    u8 y = 8;
+    [[maybe_unused]] u32 line_start = 0;
+    int linum = 0;
+    for (u32 i = 0; i < ps.output_.size(); ++i) {
+        if (ps.output_[i] == '\n') {
+            if (linum < skip_lines) {
+
+            } else {
+                auto colors = text_colors;
+                if (linum >= ps.match_begin_line_ and linum <= ps.match_end_line_) {
+                    colors = text_colors_highlight;
+                }
+
+                Text::print(line.c_str(), {1, y}, colors);
+
+                y += 2;
+                if (y >= 20) {
+                    break;
+                }
+            }
+
+            line.clear();
+            line_start = i;
+            ++linum;
+        } else {
+            line.push_back(ps.output_[i]);
+        }
+    }
+}
+
+
+
+static void onscreen_debugger_render_tab(lisp::Value* expr, u32& scroll)
 {
     for (int x = 0; x < 30; ++x) {
         for (int y = 6; y < 20; ++y) {
@@ -134,6 +365,20 @@ static void onscreen_debugger_render_tab(u32& scroll)
         break;
     }
 
+    case DisplayTab::codeview: {
+        StringBuffer<18> name = "?";
+        auto current_fn = lisp::get_this();
+        if (current_fn->type() == lisp::Value::Type::function) {
+            if (auto repr_name = lisp::nameof(current_fn)) {
+                name = repr_name;
+            }
+        }
+        Text::print(format("<- code: % ->", name.c_str()).c_str(),
+                    {1, 6}, text_colors_inv);
+        pretty_print_current_fn_with_expr(expr);
+        break;
+    }
+
     case DisplayTab::count:
         break;
     }
@@ -147,6 +392,8 @@ lisp::debug::Action handle_debug_step(lisp::Value* expr)
         // Only halt on expressions, not atoms
         return lisp::debug::Action::step;
     }
+
+    enable_text_icon_glyphs(false);
 
     PLATFORM.screen().schedule_fade(1, Platform::Screen::FadeProperties{
             .color = bkg_color
@@ -173,7 +420,7 @@ lisp::debug::Action handle_debug_step(lisp::Value* expr)
                 text_colors_inv);
 
     u32 scroll = 0;
-    onscreen_debugger_render_tab(scroll);
+    onscreen_debugger_render_tab(expr, scroll);
 
     lisp::debug::Action resp;
 
@@ -193,11 +440,11 @@ lisp::debug::Action handle_debug_step(lisp::Value* expr)
 
         if (button_down<Button::down>()) {
             ++scroll;
-            onscreen_debugger_render_tab(scroll);
+            onscreen_debugger_render_tab(expr, scroll);
         }
         if (button_down<Button::up>() and scroll > 0) {
             --scroll;
-            onscreen_debugger_render_tab(scroll);
+            onscreen_debugger_render_tab(expr, scroll);
         }
 
         if (button_down<Button::left>()) {
@@ -207,7 +454,7 @@ lisp::debug::Action handle_debug_step(lisp::Value* expr)
             } else {
                 debug_display_tab = (DisplayTab)((int)debug_display_tab - 1);
             }
-            onscreen_debugger_render_tab(scroll);
+            onscreen_debugger_render_tab(expr, scroll);
         } else if (button_down<Button::right>()) {
             scroll = 0;
             if ((int)debug_display_tab < (int)DisplayTab::count - 1) {
@@ -215,7 +462,7 @@ lisp::debug::Action handle_debug_step(lisp::Value* expr)
             } else {
                 debug_display_tab = (DisplayTab)0;
             }
-            onscreen_debugger_render_tab(scroll);
+            onscreen_debugger_render_tab(expr, scroll);
         }
 
         PLATFORM.screen().clear();
@@ -224,6 +471,8 @@ lisp::debug::Action handle_debug_step(lisp::Value* expr)
 
     PLATFORM.fill_overlay(0);
     PLATFORM.screen().schedule_fade(0);
+
+    enable_text_icon_glyphs(true);
 
     return resp;
 }
@@ -263,11 +512,11 @@ void handle_breakpoint(lisp::Value* expr)
 
         if (button_down<Button::down>()) {
             ++scroll;
-            onscreen_debugger_render_tab(scroll);
+            onscreen_debugger_render_tab(expr, scroll);
         }
         if (button_down<Button::up>() and scroll > 0) {
             --scroll;
-            onscreen_debugger_render_tab(scroll);
+            onscreen_debugger_render_tab(expr, scroll);
         }
 
         PLATFORM.screen().clear();
@@ -318,11 +567,11 @@ void handle_watchpoint(lisp::Value* expr)
 
         if (button_down<Button::down>()) {
             ++scroll;
-            onscreen_debugger_render_tab(scroll);
+            onscreen_debugger_render_tab(expr, scroll);
         }
         if (button_down<Button::up>() and scroll > 0) {
             --scroll;
-            onscreen_debugger_render_tab(scroll);
+            onscreen_debugger_render_tab(expr, scroll);
         }
 
         PLATFORM.screen().clear();
