@@ -556,6 +556,10 @@
 ;; with the reader...
 
 
+(assert-v (error? (if (error "blah")
+                      1
+                      2)))
+
 ;; Test some macros... the reader eagerly expands macros. This is pretty bad,
 ;; but again, macroexpanding stuff during evaluation every time isn't
 ;; sensible...

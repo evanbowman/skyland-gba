@@ -21,13 +21,13 @@
 
   (defn on-converge ()
     (setq on-converge nil)
-    (if (await (dialog-await-binary-q (string "<c:Goblin King:3>#cackle# "
-                                              "You're tressspasssing in my territory! "
-                                              "I demand a tribute of "
-                                              fee
-                                              "@! Pay!")
-                                      "I'll pay…"
-                                      "No way!"))
+    (if (dialog-await-binary-q (string "<c:Goblin King:3>#cackle# "
+                                       "You're tressspasssing in my territory! "
+                                       "I demand a tribute of "
+                                       fee
+                                       "@! Pay!")
+                               "I'll pay…"
+                               "No way!")
         (on-dialog-accepted)
         (on-dialog-declined)))
 

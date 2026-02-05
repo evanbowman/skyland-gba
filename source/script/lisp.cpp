@@ -4417,7 +4417,10 @@ void eval_loop(Vector<EvalFrame>& eval_stack)
             }
 
             Value* branch_to_eval;
-            if (is_boolean_true(test_result)) {
+            if (is_error(test_result)) {
+                push_op(test_result);
+                break;
+            } else if (is_boolean_true(test_result)) {
                 if (if_code->cons().cdr()->type() == Value::Type::cons) {
                     branch_to_eval = if_code->cons().cdr()->cons().car();
                 } else {
