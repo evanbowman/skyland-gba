@@ -48,6 +48,9 @@ static EXT_WORKRAM_DATA enum class DisplayTab : u8 {
 } debug_display_tab;
 
 
+static EXT_WORKRAM_DATA bool debugger_active;
+
+
 
 static auto get_callstack()
 {
@@ -340,7 +343,7 @@ void pretty_print_current_fn_with_expr(lisp::Value* expr)
 static void onscreen_debugger_render_tab(lisp::Value* expr, u32& scroll)
 {
     for (int x = 0; x < 30; ++x) {
-        for (int y = 6; y < 20; ++y) {
+        for (int y = 6; y < 19; ++y) {
             PLATFORM.set_tile(Layer::overlay, x, y, 0);
         }
     }
@@ -419,6 +422,16 @@ static void onscreen_debugger_render_tab(lisp::Value* expr, u32& scroll)
 
 
 
+static void print_heap_usage()
+{
+    auto mem_used_str = stringify(lisp::value_pool_info().first);
+    Text::print(mem_used_str.c_str(),
+                {(u8)(30 - mem_used_str.length()), 0},
+                text_colors);
+}
+
+
+
 lisp::debug::Action handle_debug_step(lisp::Value* expr)
 {
     if (not lisp::is_list(expr) or length(expr) == 0) {
@@ -436,6 +449,9 @@ lisp::debug::Action handle_debug_step(lisp::Value* expr)
     PLATFORM.fill_overlay(0);
     PLATFORM.screen().clear();
     PLATFORM.screen().display();
+
+
+    print_heap_usage();
 
     StringBuffer<30> fmt_str;
     {
@@ -461,6 +477,8 @@ lisp::debug::Action handle_debug_step(lisp::Value* expr)
     Text::print(fmt_str.c_str(),
                 {1, 1},
                 text_colors_inv);
+
+    Text::print(" A: into, R: over, B: continue", {0, 19}, text_colors_inv);
 
     u32 scroll = 0;
     onscreen_debugger_render_tab(expr, scroll);
@@ -538,6 +556,7 @@ void handle_breakpoint(lisp::Value* expr)
     PLATFORM.screen().clear();
     PLATFORM.screen().display();
 
+    print_heap_usage();
 
     Text::print("breakpoint! symbol:", {1, 1}, text_colors_inv);
     Text::print(lisp::val_to_string<30>(expr).c_str(),
@@ -588,6 +607,8 @@ void handle_watchpoint(lisp::Value* expr)
     PLATFORM.fill_overlay(0);
     PLATFORM.screen().clear();
     PLATFORM.screen().display();
+
+    print_heap_usage();
 
     Text::print("watchpoint! symbol:", {1, 1}, text_colors_inv);
     Text::print(lisp::val_to_string<30>(expr->cons().car()).c_str(),
@@ -645,6 +666,8 @@ lisp::debug::Action handle_enter_compiled_function(lisp::Value* expr)
     PLATFORM.screen().clear();
     PLATFORM.screen().display();
 
+    print_heap_usage();
+
     const char* category = "compiled function:";
     if (expr->type() == lisp::Value::Type::function and
         expr->hdr_.mode_bits_ == lisp::Function::ModeBits::cpp_function) {
@@ -665,20 +688,17 @@ lisp::debug::Action handle_enter_compiled_function(lisp::Value* expr)
 
     Text::print("arguments:", {1, 5}, text_colors_inv);
     int start_y = 7;
+    if (lisp::get_argc() == 0) {
+        Text::print("none.", {1, (u8)start_y}, text_colors);
+    }
     for (u32 i = 0; i < lisp::get_argc() and i * 2 + start_y < 20; ++i) {
         auto arg = lisp::get_arg(i);
         u8 y = (start_y + i * 2);
-        if (arg->type() == lisp::Value::Type::wrapped) {
-            Text::print(format("$% #(wrapped)", i).c_str(), {1, y},
-                        text_colors);
-        } else {
-            Text::print(format("$% %",
-                               i,
-                               lisp::val_to_string<28>(arg).c_str()).c_str(),
-                        {1, y},
-                        text_colors);
-        }
-
+        Text::print(format("$% %",
+                           i,
+                           lisp::val_to_string<28>(arg).c_str()).c_str(),
+                    {1, y},
+                    text_colors);
     }
 
     auto resp = lisp::debug::Action::step;
@@ -718,12 +738,22 @@ lisp::debug::Action handle_enter_compiled_function(lisp::Value* expr)
 lisp::debug::Action onscreen_script_debug_handler(lisp::debug::Interrupt irq,
                                                   lisp::Value* expr)
 {
+    if (debugger_active) {
+        return lisp::debug::Action::step;
+    }
+
+    debugger_active = true;
+
+    auto result = lisp::debug::Action::resume;
+
     switch (irq) {
     case lisp::debug::Interrupt::enter_compiled_function:
-        return handle_enter_compiled_function(expr);
+        result = handle_enter_compiled_function(expr);
+        break;
 
     case lisp::debug::Interrupt::step:
-        return handle_debug_step(expr);
+        result = handle_debug_step(expr);
+        break;
 
     case lisp::debug::Interrupt::breakpoint:
         handle_breakpoint(expr);
@@ -734,7 +764,9 @@ lisp::debug::Action onscreen_script_debug_handler(lisp::debug::Interrupt irq,
         break;
     }
 
-    return lisp::debug::Action::resume;
+    debugger_active = false;
+
+    return result;
 }
 
 

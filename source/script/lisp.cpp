@@ -37,9 +37,6 @@ namespace lisp
 {
 
 
-static int run_gc();
-
-
 static const u32 string_intern_table_size = 2000;
 
 
@@ -90,7 +87,7 @@ static Value* value_pool = nullptr;
 static inline void gc_safepoint()
 {
     if (value_remaining_count < early_gc_threshold) {
-        run_gc();
+        gc();
     }
 }
 
@@ -842,7 +839,7 @@ static Value* alloc_value()
     // of things call alloc_value, meaning there's lots of code to comb through
     // for gc bugs. We do preemptively invoke the gc when we're running low in
     // some places to avoid having to do this...
-    run_gc();
+    gc();
 
     // Hopefully, we've freed up enough memory...
     if (auto val = value_pool_alloc()) {
@@ -1396,7 +1393,7 @@ Value* make_databuffer(const char* sbr_tag)
 {
     if (not scratch_buffers_remaining()) {
         // Collect any data buffers that may be lying around.
-        run_gc();
+        gc();
     }
 
     if (strlen(sbr_tag) == 0) {
@@ -3132,7 +3129,7 @@ void live_values(::Function<6 * sizeof(void*), void(Value&)> callback)
 
 
 static bool gc_running;
-static int run_gc()
+int gc()
 {
     if (gc_running) {
         return 0;
@@ -6828,7 +6825,7 @@ BUILTIN_TABLE(
 
            return result;
        }}},
-     {"gc", {EMPTY_SIG(0), [](int argc) { return make_integer(run_gc()); }}},
+     {"gc", {EMPTY_SIG(0), [](int argc) { return make_integer(gc()); }}},
      {"get",
       {SIG2(nil, cons, integer),
        [](int argc) {
@@ -7838,12 +7835,6 @@ const char* nameof(Value* value)
     }
 
     return nullptr;
-}
-
-
-void gc()
-{
-    run_gc();
 }
 
 

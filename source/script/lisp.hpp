@@ -841,7 +841,7 @@ Value* get_this();
 u8 get_argc();
 
 
-void gc();
+int gc();
 
 
 // Arguments should be pushed onto the operand stack prior to the function
