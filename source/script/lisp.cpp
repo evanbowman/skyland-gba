@@ -4326,6 +4326,9 @@ void register_debug_handler(DebugHandler handler)
 
 void register_symbol_watchpoint(Value* symbol)
 {
+    if (contains(bound_context->debug_watchpoints_, symbol)) {
+        return;
+    }
     if (symbol->type() == Value::Type::symbol) {
         auto& wp = bound_context->debug_watchpoints_;
         wp = L_CONS(symbol, wp);
@@ -4347,6 +4350,9 @@ void delete_symbol_watchpoint(Value* symbol)
 
 void register_symbol_breakpoint(Value* symbol)
 {
+    if (contains(bound_context->debug_breakpoints_, symbol)) {
+        return;
+    }
     if (symbol->type() == Value::Type::symbol) {
         auto& br = bound_context->debug_breakpoints_;
         br = L_CONS(symbol, br);
@@ -5291,7 +5297,7 @@ BUILTIN_TABLE(
           lisp::debug::register_symbol_breakpoint(lisp::get_op0());
           return L_NIL;
       }}},
-    {"breakpoint-delete",
+    {"breakpoint-unregister",
      {SIG1(nil, symbol),
       [](int argc) {
           lisp::debug::delete_symbol_breakpoint(lisp::get_op0());
@@ -5303,7 +5309,7 @@ BUILTIN_TABLE(
           lisp::debug::register_symbol_watchpoint(lisp::get_op0());
           return L_NIL;
       }}},
-    {"watchpoint-delete",
+    {"watchpoint-unregister",
      {SIG1(nil, symbol),
       [](int argc) {
           lisp::debug::delete_symbol_watchpoint(lisp::get_op0());

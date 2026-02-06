@@ -1195,7 +1195,7 @@ o----------------------------o
 
 o----------------------------o
 
- (breakpoint-delete symbol)
+(breakpoint-unregister symbol)
 
  Remove a breakpoint.
 
@@ -1220,7 +1220,7 @@ o----------------------------o
 
 o----------------------------o
 
- (watchpoint-delete symbol)
+(watchpoint-unregister symbol)
 
  Remove a watchpoint.
 

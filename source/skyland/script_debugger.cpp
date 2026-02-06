@@ -392,7 +392,7 @@ static void onscreen_debugger_render_tab(lisp::Value* expr, u32& scroll)
             Text::print(format("$% %",
                                i,
                                lisp::val_to_string<28>(arg).c_str()).c_str(),
-                        {0, y},
+                        {1, y},
                         text_colors);
         }
         break;
@@ -419,19 +419,9 @@ static void onscreen_debugger_render_tab(lisp::Value* expr, u32& scroll)
 
 
 
-static bool is_native_function(lisp::Value* expr)
-{
-    return expr->type() == lisp::Value::Type::function and
-           expr->function().is_compiled();
-}
-
-
-
 lisp::debug::Action handle_debug_step(lisp::Value* expr)
 {
-    if (is_native_function(expr)) {
-        // ...
-    } else if (not lisp::is_list(expr) or length(expr) == 0) {
+    if (not lisp::is_list(expr) or length(expr) == 0) {
         // Only halt on expressions, not atoms
         return lisp::debug::Action::step;
     }
@@ -655,7 +645,13 @@ lisp::debug::Action handle_enter_compiled_function(lisp::Value* expr)
     PLATFORM.screen().clear();
     PLATFORM.screen().display();
 
-    Text::print("compiled function:", {1, 1}, text_colors_inv);
+    const char* category = "compiled function:";
+    if (expr->type() == lisp::Value::Type::function and
+        expr->hdr_.mode_bits_ == lisp::Function::ModeBits::cpp_function) {
+        category = "native function:";
+    }
+
+    Text::print(category, {1, 1}, text_colors_inv);
 
     StringBuffer<30> fmt_str;
 
@@ -672,11 +668,17 @@ lisp::debug::Action handle_enter_compiled_function(lisp::Value* expr)
     for (u32 i = 0; i < lisp::get_argc() and i * 2 + start_y < 20; ++i) {
         auto arg = lisp::get_arg(i);
         u8 y = (start_y + i * 2);
-        Text::print(format("$% %",
-                           i,
-                           lisp::val_to_string<28>(arg).c_str()).c_str(),
-                    {0, y},
-                    text_colors);
+        if (arg->type() == lisp::Value::Type::wrapped) {
+            Text::print(format("$% #(wrapped)", i).c_str(), {1, y},
+                        text_colors);
+        } else {
+            Text::print(format("$% %",
+                               i,
+                               lisp::val_to_string<28>(arg).c_str()).c_str(),
+                        {1, y},
+                        text_colors);
+        }
+
     }
 
     auto resp = lisp::debug::Action::step;
@@ -718,8 +720,7 @@ lisp::debug::Action onscreen_script_debug_handler(lisp::debug::Interrupt irq,
 {
     switch (irq) {
     case lisp::debug::Interrupt::enter_compiled_function:
-        // return handle_enter_compiled_function(expr);
-        return lisp::debug::Action::step;
+        return handle_enter_compiled_function(expr);
 
     case lisp::debug::Interrupt::step:
         return handle_debug_step(expr);
