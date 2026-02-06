@@ -564,7 +564,8 @@ void handle_breakpoint(lisp::Value* expr)
         PLATFORM.delta_clock().reset();
 
         if (button_down<Button::action_1>() or
-            button_down<Button::action_2>()) {
+            button_down<Button::action_2>() or
+            button_down<Button::alt_2>()) {
             break;
         }
 
@@ -619,7 +620,8 @@ void handle_watchpoint(lisp::Value* expr)
         PLATFORM.delta_clock().reset();
 
         if (button_down<Button::action_1>() or
-            button_down<Button::action_2>()) {
+            button_down<Button::action_2>() or
+            button_down<Button::alt_2>()) {
             break;
         }
 
@@ -692,6 +694,13 @@ lisp::debug::Action handle_enter_compiled_function(lisp::Value* expr)
             break;
         }
 
+        if (button_down<Button::alt_2>()) {
+            // FIXME: the lisp runtime ignores step_over for compile functions
+            // and keeps stepping into them.
+            resp = lisp::debug::Action::step_over;
+            break;
+        }
+
         PLATFORM.screen().clear();
         PLATFORM.screen().display();
     }
@@ -709,7 +718,8 @@ lisp::debug::Action onscreen_script_debug_handler(lisp::debug::Interrupt irq,
 {
     switch (irq) {
     case lisp::debug::Interrupt::enter_compiled_function:
-        return handle_enter_compiled_function(expr);
+        // return handle_enter_compiled_function(expr);
+        return lisp::debug::Action::step;
 
     case lisp::debug::Interrupt::step:
         return handle_debug_step(expr);

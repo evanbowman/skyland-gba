@@ -2630,12 +2630,6 @@ void format_impl(Value* value, Printer& p, int depth, bool skip_quotes = false)
         break;
 
     case lisp::Value::Type::wrapped: {
-        // NOTE: debug mode uses format to print arguments, so entering a
-        // breakpoint in the wrapped invoke implementation caues endless
-        // recursion.
-        bool was_debug_mode = bound_context->debug_mode_;
-        bound_context->debug_mode_ = false;
-
         auto type = dcompr(value->wrapped().type_sym_);
 
         auto decorator_fn =
@@ -2650,7 +2644,6 @@ void format_impl(Value* value, Printer& p, int depth, bool skip_quotes = false)
             Platform::fatal(::format("missing decorator function for %",
                                      type->symbol().name()));
         }
-        bound_context->debug_mode_ = was_debug_mode;
         break;
     }
 
