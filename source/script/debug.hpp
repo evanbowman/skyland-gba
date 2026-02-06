@@ -43,6 +43,9 @@ void delete_symbol_breakpoint(Value* symbol);
 void register_symbol_watchpoint(Value* symbol);
 void delete_symbol_watchpoint(Value* symbol);
 
+bool is_symbol_breakpoint(const char* str);
+
+
 Value* get_watchpoints_list();
 
 

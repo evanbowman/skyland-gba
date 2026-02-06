@@ -2557,6 +2557,7 @@ Value* dostring(CharSequence& code,
             // because it's tedious to look at evals triggered during
             // macroexpansion.
             const bool was_debug = bound_context->debug_mode_;
+            bound_context->debug_mode_ = false;
             i += read(code, i);
             bound_context->debug_mode_ = was_debug;
         }
@@ -4355,6 +4356,18 @@ void register_symbol_breakpoint(Value* symbol)
         br = L_CONS(symbol, br);
         bound_context->debug_mode_ = true;
     }
+}
+
+
+bool is_symbol_breakpoint(const char* str)
+{
+    bool result = false;
+    l_foreach(bound_context->debug_breakpoints_, [&](Value* v) {
+        if (str_eq(v->symbol().name(), str)) {
+            result = true;
+        }
+    });
+    return result;
 }
 
 
@@ -7742,13 +7755,7 @@ Value* get_var(Value* symbol)
 Value* set_var(Value* symbol, Value* val, bool define_var)
 {
     if (bound_context->debug_watchpoints_ not_eq get_nil()) {
-        bool watchpoint = false;
-        l_foreach(bound_context->debug_watchpoints_,
-                  [symbol, &watchpoint](Value* v) {
-                      if (is_equal(symbol, v)) {
-                          watchpoint = true;
-                      }
-                  });
+        bool watchpoint = contains(bound_context->debug_watchpoints_, symbol);
         if (watchpoint and bound_context->debug_handler_) {
             auto reason = debug::Interrupt::watchpoint;
             Protected pack(L_CONS(symbol, val));

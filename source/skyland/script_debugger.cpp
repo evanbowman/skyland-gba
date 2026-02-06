@@ -424,7 +424,8 @@ static void onscreen_debugger_render_tab(lisp::Value* expr, u32& scroll)
 
 static void print_heap_usage()
 {
-    auto mem_used_str = stringify(lisp::value_pool_info().first);
+    StringBuffer<30> mem_used_str = "mem:";
+    mem_used_str += stringify(lisp::value_pool_info().first);
     Text::print(mem_used_str.c_str(),
                 {(u8)(30 - mem_used_str.length()), 0},
                 text_colors);
