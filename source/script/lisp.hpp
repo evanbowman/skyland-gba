@@ -406,6 +406,8 @@ struct Function
         lisp_bytecode_function,
     };
 
+    bool is_compiled() const;
+
     static constexpr void finalizer(Value*)
     {
     }

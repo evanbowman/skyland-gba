@@ -473,7 +473,6 @@
 (assert-eq 'cake (symbol "cake"))
 (assert-v (not (equal 'cake 'CAKE)))
 (assert-v ((equalto? 9) 9))
-(assert-v "bats" ((lambda () (arg 1)) "birds" "bats" "iguana"))
 (assert-eq cons (identity cons))
 (assert-v (error? ((require-args (lambda () nil) 2) 0)))
 (defn test-this ()
@@ -813,13 +812,7 @@
 
 (begin-test "special-variables")
 
-;; arg function
-(defn arg-test ()
-  (list (arg 0) (arg 1) (arg 2)))
-
-(assert-eq '(1 2 3) (arg-test 1 2 3))
-
-(unbind 'varargs-test 'arg-test)
+(assert-v "bats" ((lambda () (get $V 1)) "birds" "bats" "iguana"))
 
 (end-test)
 

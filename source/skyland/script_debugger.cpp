@@ -391,7 +391,7 @@ static void onscreen_debugger_render_tab(lisp::Value* expr, u32& scroll)
             u8 y = (start_y + i * 2);
             Text::print(format("$% %",
                                i,
-                               lisp::val_to_string<30>(arg).c_str()).c_str(),
+                               lisp::val_to_string<28>(arg).c_str()).c_str(),
                         {0, y},
                         text_colors);
         }
@@ -419,9 +419,19 @@ static void onscreen_debugger_render_tab(lisp::Value* expr, u32& scroll)
 
 
 
+static bool is_native_function(lisp::Value* expr)
+{
+    return expr->type() == lisp::Value::Type::function and
+           expr->function().is_compiled();
+}
+
+
+
 lisp::debug::Action handle_debug_step(lisp::Value* expr)
 {
-    if (not lisp::is_list(expr) or length(expr) == 0) {
+    if (is_native_function(expr)) {
+        // ...
+    } else if (not lisp::is_list(expr) or length(expr) == 0) {
         // Only halt on expressions, not atoms
         return lisp::debug::Action::step;
     }
@@ -478,6 +488,11 @@ lisp::debug::Action handle_debug_step(lisp::Value* expr)
         }
         if (button_down<Button::action_2>()) {
             resp = lisp::debug::Action::resume;
+            break;
+        }
+
+        if (button_down<Button::alt_2>()) {
+            resp = lisp::debug::Action::step_over;
             break;
         }
 
@@ -627,10 +642,75 @@ void handle_watchpoint(lisp::Value* expr)
 
 
 
+lisp::debug::Action handle_enter_compiled_function(lisp::Value* expr)
+{
+    PLATFORM.screen().schedule_fade(1, Platform::Screen::FadeProperties {
+            .color = bkg_color
+        });
+
+    PLATFORM.set_overlay_origin(0, 0);
+    PLATFORM.fill_overlay(0);
+    PLATFORM.screen().clear();
+    PLATFORM.screen().display();
+
+    Text::print("compiled function:", {1, 1}, text_colors_inv);
+
+    StringBuffer<30> fmt_str;
+
+    if (auto name = lisp::nameof(expr)) {
+        fmt_str += name;
+    } else {
+        fmt_str += "??";
+    }
+
+    Text::print(fmt_str.c_str(), {1, 3}, text_colors);
+
+    Text::print("arguments:", {1, 5}, text_colors_inv);
+    int start_y = 7;
+    for (u32 i = 0; i < lisp::get_argc() and i * 2 + start_y < 20; ++i) {
+        auto arg = lisp::get_arg(i);
+        u8 y = (start_y + i * 2);
+        Text::print(format("$% %",
+                           i,
+                           lisp::val_to_string<28>(arg).c_str()).c_str(),
+                    {0, y},
+                    text_colors);
+    }
+
+    auto resp = lisp::debug::Action::step;
+    while (true) {
+        PLATFORM.input().poll();
+        PLATFORM_EXTENSION(feed_watchdog);
+        PLATFORM.delta_clock().reset();
+
+        if (button_down<Button::action_1>()) {
+            break;
+        }
+
+        if (button_down<Button::action_2>()) {
+            resp = lisp::debug::Action::resume;
+            break;
+        }
+
+        PLATFORM.screen().clear();
+        PLATFORM.screen().display();
+    }
+
+    PLATFORM.fill_overlay(0);
+    PLATFORM.screen().schedule_fade(0);
+
+    return resp;
+}
+
+
+
 lisp::debug::Action onscreen_script_debug_handler(lisp::debug::Interrupt irq,
                                                   lisp::Value* expr)
 {
     switch (irq) {
+    case lisp::debug::Interrupt::enter_compiled_function:
+        return handle_enter_compiled_function(expr);
+
     case lisp::debug::Interrupt::step:
         return handle_debug_step(expr);
 

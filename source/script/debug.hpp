@@ -19,6 +19,7 @@ namespace lisp::debug
 
 enum class Action {
     step,
+    step_over,
     resume,
 };
 
@@ -27,6 +28,7 @@ enum class Interrupt {
     breakpoint,
     step,
     watchpoint,
+    enter_compiled_function,
 };
 
 

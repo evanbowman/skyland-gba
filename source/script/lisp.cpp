@@ -793,6 +793,13 @@ int length(Value* lat)
 }
 
 
+bool Function::is_compiled() const
+{
+    return hdr_.mode_bits_ == ModeBits::cpp_function or
+           hdr_.mode_bits_ == ModeBits::lisp_bytecode_function;
+}
+
+
 Value* Function::Bytecode::bytecode_offset() const
 {
     return dcompr(bytecode_)->cons().car();
@@ -1676,6 +1683,7 @@ struct EvalFrame
         await_resume,
         pop_root,
         apply_with_list,
+        debug_enable_break,
     } state_;
 
     struct FuncallApplyParams
@@ -1712,6 +1720,27 @@ struct EvalFrame
 
 
 void eval_loop(Vector<EvalFrame>& eval_stack);
+
+
+static void debug_resume()
+{
+    bound_context->debug_break_ = false;
+    if (bound_context->debug_breakpoints_ == L_NIL) {
+        bound_context->debug_mode_ = false;
+    }
+}
+
+
+void debug_break_compiled_fn(Value* obj)
+{
+    if (bound_context->debug_handler_ and bound_context->debug_break_) {
+        auto& handler = *bound_context->debug_handler_;
+        auto reason = debug::Interrupt::enter_compiled_function;
+        if (handler(reason, obj) == debug::Action::resume) {
+            debug_resume();
+        }
+    }
+}
 
 
 // The function arguments should be sitting at the top of the operand stack
@@ -1784,6 +1813,12 @@ void funcall(Value* obj, u8 argc)
 
         switch (obj->hdr_.mode_bits_) {
         case Function::ModeBits::cpp_function: {
+            const auto break_loc = ctx.operand_stack_->size() - 1;
+            ctx.arguments_break_loc_ = break_loc;
+            ctx.current_fn_argc_ = argc;
+            if (UNLIKELY(bound_context->debug_break_)) {
+                debug_break_compiled_fn(obj);
+            }
             auto result = obj->function().cpp_impl_(argc);
             pop_args();
             push_op(result);
@@ -1826,6 +1861,11 @@ void funcall(Value* obj, u8 argc)
             const auto break_loc = ctx.operand_stack_->size() - 1;
             ctx.arguments_break_loc_ = break_loc;
             ctx.current_fn_argc_ = argc;
+
+            if (UNLIKELY(bound_context->debug_break_)) {
+                debug_break_compiled_fn(obj);
+            }
+
             if (bound_context->strict_) {
                 CHECK_ARG_TYPES();
             }
@@ -2590,6 +2630,12 @@ void format_impl(Value* value, Printer& p, int depth, bool skip_quotes = false)
         break;
 
     case lisp::Value::Type::wrapped: {
+        // NOTE: debug mode uses format to print arguments, so entering a
+        // breakpoint in the wrapped invoke implementation caues endless
+        // recursion.
+        bool was_debug_mode = bound_context->debug_mode_;
+        bound_context->debug_mode_ = false;
+
         auto type = dcompr(value->wrapped().type_sym_);
 
         auto decorator_fn =
@@ -2604,6 +2650,7 @@ void format_impl(Value* value, Printer& p, int depth, bool skip_quotes = false)
             Platform::fatal(::format("missing decorator function for %",
                                      type->symbol().name()));
         }
+        bound_context->debug_mode_ = was_debug_mode;
         break;
     }
 
@@ -4370,6 +4417,14 @@ void eval_loop(Vector<EvalFrame>& eval_stack)
             break;
         }
 
+        case EvalFrame::State::debug_enable_break:
+            // This was necessary for implementing step-over in the
+            // debugger. EvalFrame::State::start turns off the debug break flag,
+            // and pushes a future state to re-enable it at the end of the
+            // current expression.
+            bound_context->debug_break_ = true;
+            break;
+
         case EvalFrame::State::start: {
             if (UNLIKELY(bound_context->debug_mode_)) {
                 if (debug::check_breakpoint(frame.expr_)) {
@@ -4388,11 +4443,14 @@ void eval_loop(Vector<EvalFrame>& eval_stack)
                         case debug::Action::step:
                             break;
 
-                        case debug::Action::resume:
+                        case debug::Action::step_over:
                             bound_context->debug_break_ = false;
-                            if (bound_context->debug_breakpoints_ == L_NIL) {
-                                bound_context->debug_mode_ = false;
-                            }
+                            eval_stack.push_back({L_NIL,
+                                    EvalFrame::State::debug_enable_break});
+                            break;
+
+                        case debug::Action::resume:
+                            debug_resume();
                             break;
                         }
                     } else {
@@ -5390,12 +5448,6 @@ BUILTIN_TABLE(
            }
 
            return b.result();
-       }}},
-     {"arg",
-      {EMPTY_SIG(1),
-       [](int argc) {
-           L_EXPECT_OP(0, integer);
-           return get_arg(get_op0()->integer().value_);
        }}},
      {"abs",
       {SIG1(rational, rational),

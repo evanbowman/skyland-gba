@@ -1176,7 +1176,8 @@ o----------------------------o
  breakpoint, the game will
  display an onscreen
  debugger. Press A to step,
- B to resume.
+ B to resume, and R to step
+ over.
 
 
 ##############################
