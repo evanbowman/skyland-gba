@@ -9,6 +9,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
+#include "vm.hpp"
 #include "bytecode.hpp"
 #include "lisp.hpp"
 #include "lisp_internal.hpp"
@@ -29,13 +30,41 @@ Instruction* read(ScratchBuffer& buffer, int& pc)
 }
 
 
-void vm_execute(Value* code_buffer, const int start_offset)
+bool vm_can_suspend()
 {
-    int pc = start_offset;
+    bool can_suspend = true;
+    // NOTE: stacktrace includes frames up-to, but not including, the current
+    // executing function.
+    auto strace = lisp::stacktrace();
+    l_foreach(strace, [&](Value* v) {
+        if (v->type() == Value::Type::function) {
+            if (v->hdr_.mode_bits_ not_eq Function::ModeBits::lisp_function) {
+                can_suspend = false;
+            }
+        }
+    });
+    return can_suspend;
+}
+
+
+Optional<SuspendedExecutionContext> vm_execute(Value* code_buffer, int start_offset)
+{
+    return vm_resume(code_buffer, start_offset, {
+            .program_counter_ = start_offset,
+            .nested_scope_ = 0
+        });
+}
+
+
+Optional<SuspendedExecutionContext> vm_resume(Value* code_buffer,
+                                              int start_offset,
+                                              const ExecutionContext& ctx)
+{
+    int pc = ctx.program_counter_;
 
     auto& code = *code_buffer->databuffer().value();
 
-    int nested_scope = 0;
+    int nested_scope = ctx.nested_scope_;
 
     // If we are within a let expression, and we want to optimize out a
     // recursive tail call, we need to unwind all frames of the lexical scope,
@@ -109,14 +138,25 @@ TOP:
         }
 
 
-        case Await::op():
+        case Await::op(): {
+            read<Await>(code, pc);
             if (get_op0()->type() not_eq lisp::Value::Type::promise) {
                 pop_op();
                 push_op(make_error("await expects a promise value!"));
             } else {
-                PLATFORM.fatal("TODO: implement await for bytecode!");
+                if (vm_can_suspend()) {
+                    SuspendedExecutionContext suspend {
+                        .program_counter_ = pc,
+                        .nested_scope_ = nested_scope
+                    };
+                    return suspend;
+                } else {
+                    pop_op(); // the promise value
+                    push_op(make_error("vm suspend failed"));
+                }
             }
             break;
+        }
 
 
         case LoadVar::op(): {
@@ -530,7 +570,7 @@ TOP:
 
         case EarlyRet::op():
         case Ret::op():
-            return;
+            return nullopt();
 
         case PushLambda::op(): {
             auto inst = read<PushLambda>(code, pc);
@@ -679,6 +719,8 @@ TOP:
             break;
         }
     }
+
+    return nullopt();
 }
 
 

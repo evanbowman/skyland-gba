@@ -138,8 +138,7 @@ static Instruction* append(ScratchBuffer& buffer, int& write_pos)
         // not check the return value yet. Now, a lambda that takes up 2kb of
         // bytecode seems highly unlikely in the first place, but you never know
         // I guess...
-        while (true)
-            ;
+        PLATFORM.fatal("bytecode for function is too large!");
     }
 
     auto result = (Instruction*)(buffer.data_ + write_pos);
@@ -224,9 +223,7 @@ int compile_quoted(CompilerContext& ctx,
             list_len++;
 
             if (list_len == 255) {
-                // FIXME: raise error!
-                while (true)
-                    ;
+                PLATFORM.fatal("cannot compile list with more than 255 slots!");
             }
         }
 
@@ -614,9 +611,7 @@ TOP:
             append<instruction::PushNil>(buffer, write_pos);
         } else if (fn->type() == Value::Type::symbol and
                    str_eq(fn->symbol().name(), "`")) {
-            while (true)
-                ;
-            // TODO: Implement quasiquote for compiled code.
+            PLATFORM.fatal("TODO: cannot bytecode-compile quasiquote!");
         } else {
             u8 argc = 0;
 

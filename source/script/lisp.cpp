@@ -24,6 +24,7 @@
 #include "number/ratio.hpp"
 #include "platform/libc.hpp"
 #include "rot13.hpp"
+#include "vm.hpp"
 
 #if not MAPBOX_ETERNAL_IS_CONSTEXPR
 #error "NON-Constexpr lookup table!"
@@ -1616,9 +1617,6 @@ void lexical_frame_store(Value* kvp)
 }
 
 
-void vm_execute(Value* code, int start_offset);
-
-
 const char* type_to_string(ValueHeader::Type tp)
 {
     switch (tp) {
@@ -1681,6 +1679,8 @@ struct EvalFrame
         pop_root,
         apply_with_list,
         debug_enable_break,
+        vm_resume,
+        vm_cleanup,
     } state_;
 
     struct FuncallApplyParams
@@ -1706,12 +1706,21 @@ struct EvalFrame
         u8 saved_argc_;
     };
 
+    struct VMRestoreStateParams
+    {
+        int saved_break_loc_;
+        u8 saved_argc_;
+    };
+
+    using VMResumeParams = ExecutionContext;
+
     union
     {
         FuncallApplyParams funcall_apply_;
         InstallLetParams install_let_;
         LispFuncallCleanupParams lisp_funcall_cleanup_;
         AwaitResumeParams await_resume_;
+        VMResumeParams vm_resume_;
     };
 };
 
@@ -1887,11 +1896,13 @@ void funcall(Value* obj, u8 argc)
             ctx.lexical_bindings_ =
                 dcompr(obj->function().lisp_impl_.lexical_bindings_);
 
-            vm_execute(obj->function().bytecode_impl_.databuffer(),
-                       obj->function()
-                           .bytecode_impl_.bytecode_offset()
-                           ->integer()
-                           .value_);
+            auto suspend = vm_execute(obj->function().bytecode_impl_.databuffer(),
+                                      obj->function()
+                                      .bytecode_impl_.bytecode_offset()
+                                      ->integer().value_);
+            if (suspend) {
+                PLATFORM.fatal("cannot suspend from here!");
+            }
 
             bound_context->debug_break_ = restore_debug_break;
 
@@ -4070,6 +4081,9 @@ void resolve_promise(Value* pr, Value* result)
         eval_stack.push_back(promise.load_eval_frame(i));
     }
 
+    if (get_op0()->type() not_eq Value::Type::promise) {
+        LOGIC_ERROR();
+    }
     pop_op();        // pop the promise
     push_op(result); // replace promise on stack with result
     eval_loop(eval_stack);
@@ -4441,6 +4455,34 @@ bool check_breakpoint(Value* expr)
 } // namespace debug
 
 
+void push_suspend(Vector<EvalFrame>& eval_stack, u32 op_stack_init)
+{
+    auto result = get_op0();
+    if (result->type() not_eq lisp::Value::Type::promise) {
+        LOGIC_ERROR();
+    }
+
+    ListBuilder lat;
+    lat.push_back(bound_context->lexical_bindings_);
+    lat.push_back(bound_context->callstack_);
+    eval_stack.push_back({.expr_ = lat.result(),
+                          .state_ = EvalFrame::await_resume,
+                          .await_resume_ = {bound_context->arguments_break_loc_,
+                                            bound_context->current_fn_argc_}});
+    // Execution suspended. Prior to resume, the interpreter
+    // will expect the caller to pop the promise and push the
+    // result in the captured execution context.
+    setup_promise(result->promise(), eval_stack);
+    while (bound_context->operand_stack_->size() >
+           op_stack_init) {
+        pop_op();
+    }
+    push_op(L_NIL);
+    bound_context->lexical_bindings_ = L_NIL;
+    reset_callstack();
+}
+
+
 void eval_loop(Vector<EvalFrame>& eval_stack)
 {
     const u32 op_stack_init = bound_context->operand_stack_->size();
@@ -4573,25 +4615,7 @@ void eval_loop(Vector<EvalFrame>& eval_stack)
             } else {
                 StringBuffer<48> agitant;
                 if (can_suspend(eval_stack, agitant)) {
-                    ListBuilder lat;
-                    lat.push_back(bound_context->lexical_bindings_);
-                    lat.push_back(bound_context->callstack_);
-                    eval_stack.push_back(
-                        {.expr_ = lat.result(),
-                         .state_ = EvalFrame::await_resume,
-                         .await_resume_ = {bound_context->arguments_break_loc_,
-                                           bound_context->current_fn_argc_}});
-                    // Execution suspended. Prior to resume, the interpreter
-                    // will expect the caller to pop the promise and push the
-                    // result in the captured execution context.
-                    setup_promise(result->promise(), eval_stack);
-                    while (bound_context->operand_stack_->size() >
-                           op_stack_init) {
-                        pop_op();
-                    }
-                    push_op(L_NIL);
-                    bound_context->lexical_bindings_ = L_NIL;
-                    reset_callstack();
+                    push_suspend(eval_stack, op_stack_init);
                     return;
                 } else {
                     pop_op(); // The promise
@@ -4794,6 +4818,7 @@ void eval_loop(Vector<EvalFrame>& eval_stack)
             break;
         }
 
+        case EvalFrame::vm_cleanup:
         case EvalFrame::State::lisp_funcall_cleanup: {
             int argc = frame.lisp_funcall_cleanup_.argc_;
 
@@ -4855,8 +4880,9 @@ void eval_loop(Vector<EvalFrame>& eval_stack)
             int argc = frame.funcall_apply_.argc_;
             auto fn = get_op(argc); // Function is below arguments on stack
 
-            if (fn->type() == Value::Type::function &&
-                fn->hdr_.mode_bits_ == Function::ModeBits::lisp_function) {
+            if (fn->type() == Value::Type::function and
+                (fn->hdr_.mode_bits_ == Function::ModeBits::lisp_function or
+                 fn->hdr_.mode_bits_ == Function::ModeBits::lisp_bytecode_function)) {
 
                 if (fn->function().sig_.required_args_ > argc) {
                     for (int i = 0; i < argc; ++i) {
@@ -4932,18 +4958,61 @@ void eval_loop(Vector<EvalFrame>& eval_stack)
                     ctx.current_fn_argc_ = saved_argc;
                 }
 
-                EvalFrame cleanup_frame = {
-                    .expr_ = fn,
-                    .state_ = EvalFrame::lisp_funcall_cleanup,
-                    .lisp_funcall_cleanup_ = {
-                        argc,
-                        bound_context->arguments_break_loc_,
-                        bound_context->current_fn_argc_}};
-                eval_stack.push_back(cleanup_frame);
+                if (fn->hdr_.mode_bits_ == Function::ModeBits::lisp_function) {
+                    EvalFrame cleanup_frame = {
+                        .expr_ = fn,
+                        .state_ = EvalFrame::lisp_funcall_cleanup,
+                        .lisp_funcall_cleanup_ = {
+                            argc,
+                            bound_context->arguments_break_loc_,
+                            bound_context->current_fn_argc_}};
+                    eval_stack.push_back(cleanup_frame);
 
-                eval_stack.push_back({.expr_ = fn,
-                                      .state_ = EvalFrame::lisp_funcall_setup,
-                                      .funcall_apply_ = {argc}});
+                    eval_stack.push_back({.expr_ = fn,
+                            .state_ = EvalFrame::lisp_funcall_setup,
+                            .funcall_apply_ = {argc}});
+                } else if (fn->hdr_.mode_bits_ == Function::ModeBits::lisp_bytecode_function) {
+
+                    auto& ctx = *bound_context;
+
+                    push_callstack(fn);
+                    gc_safepoint();
+
+                    eval_stack.push_back({
+                            .expr_ = L_NIL,
+                            .state_ = EvalFrame::vm_cleanup,
+                                .lisp_funcall_cleanup_ = {
+                                    .argc_ = argc,
+                                    .saved_break_loc_ = ctx.arguments_break_loc_,
+                                    .saved_argc_ = ctx.current_fn_argc_
+                                }
+                        });
+
+                    const auto break_loc = ctx.operand_stack_->size() - 1;
+                    ctx.arguments_break_loc_ = break_loc;
+                    ctx.current_fn_argc_ = argc;
+
+                    if (UNLIKELY(bound_context->debug_break_)) {
+                        if (debug_break_compiled_fn(fn)) {
+                            eval_stack.push_back({L_NIL, EvalFrame::debug_enable_break});
+                        }
+                    }
+
+                    ctx.lexical_bindings_ =
+                        dcompr(fn->function().lisp_impl_.lexical_bindings_);
+
+                    eval_stack.push_back({
+                            .expr_ = fn,
+                            .state_ = EvalFrame::vm_resume,
+                                .vm_resume_ = {
+                                    .program_counter_ = fn->function()
+                                      .bytecode_impl_.bytecode_offset()
+                                    ->integer().value_,
+                                    .nested_scope_ = 0
+                                }});
+                } else {
+                    LOGIC_ERROR();
+                }
 
             } else {
                 // Non-lisp function - use regular funcall
@@ -4953,6 +5022,26 @@ void eval_loop(Vector<EvalFrame>& eval_stack)
                 pop_op(); // function on stack
                 pop_op(); // lexical bindings, ignored
                 push_op(result);
+            }
+            break;
+        }
+
+        case EvalFrame::vm_resume: {
+            auto fn = frame.expr_;
+            auto suspend = vm_resume(fn->function().bytecode_impl_.databuffer(),
+                                     fn->function()
+                                      .bytecode_impl_.bytecode_offset()
+                                     ->integer().value_,
+                                     frame.vm_resume_);
+
+            if (suspend) {
+                eval_stack.push_back({
+                        .expr_ = fn,
+                        .state_ = EvalFrame::vm_resume,
+                        .vm_resume_ = *suspend
+                    });
+                push_suspend(eval_stack, op_stack_init);
+                return;
             }
             break;
         }
@@ -6872,13 +6961,13 @@ BUILTIN_TABLE(
        }}},
      {"gc", {EMPTY_SIG(0), [](int argc) { return make_integer(gc()); }}},
      {"get",
-      {SIG2(nil, cons, integer),
+      {SIG2(nil, cons, rational),
        [](int argc) {
            if (get_op0()->type() == lisp::Value::Type::nil) {
                return L_NIL;
            }
 
-           L_EXPECT_OP(0, integer);
+           L_EXPECT_RATIONAL(0);
 
            const auto index = L_LOAD_INT(0);
 

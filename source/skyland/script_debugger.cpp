@@ -384,9 +384,9 @@ void pretty_print_current_fn_with_expr(lisp::Value* expr)
 
 static void print_tab_heading(const char* heading)
 {
-    Text::print(format("<- %:% ->",
-                       (int)debug_display_tab,
-                       heading).c_str(), {1, 6}, text_colors_inv);
+    Text::print(format("<- %:% ->", (int)debug_display_tab, heading).c_str(),
+                {1, 6},
+                text_colors_inv);
 }
 
 
