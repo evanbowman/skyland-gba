@@ -144,8 +144,10 @@
 (defn/c dialog-await-binary-q ((text . string) y n)
   (equal 0 (await (dialog-choice* text (list y n)))))
 
-;; NOTE: a compiled function cannot call another compiled function that calls
-;; await, so dialog-await-y/n is currently interpreted. I will fix this someday.
+;; NOTE: a bytecode compiled function cannot call another compiled function that
+;; calls await, so dialog-await-y/n is currently interpreted. I will fix this
+;; someday. If you aren't an expert in the scripting language, just avoid defn/c
+;; and you should be fine.
 (defn dialog-await-y/n ((text . string))
   (dialog-await-binary-q text "yes" "no"))
 
