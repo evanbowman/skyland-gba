@@ -234,7 +234,8 @@ ScenePtr ModifyCharacterScene::update(Time delta)
     }
 
     auto test_button = [&](Button k) {
-        return APP.player().test_button(k, milliseconds(500), milliseconds(100));
+        return APP.player().test_button(
+            k, milliseconds(500), milliseconds(100));
     };
 
     APP.player().button_held_distribute();

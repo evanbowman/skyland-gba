@@ -130,7 +130,8 @@ ScenePtr DeveloperModeModule::update(Time delta)
         PLATFORM.screen().schedule_fade(1.f);
     }
 
-    if (APP.player().button_down(Button::right) or APP.player().button_down(Button::left)) {
+    if (APP.player().button_down(Button::right) or
+        APP.player().button_down(Button::left)) {
         set_opt(not option_);
     }
 

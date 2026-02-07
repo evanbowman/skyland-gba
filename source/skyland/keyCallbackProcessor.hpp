@@ -82,8 +82,8 @@ public:
             }
         }
 
-        if (found == Button::count or found == Button::start or found == Button::alt_1 or
-            found == Button::alt_2) {
+        if (found == Button::count or found == Button::start or
+            found == Button::alt_1 or found == Button::alt_2) {
             return;
         }
 

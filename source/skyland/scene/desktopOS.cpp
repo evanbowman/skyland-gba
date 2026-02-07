@@ -146,8 +146,8 @@ public:
     {
     public:
         DropdownMenu(const char* name, u8 x, u8 y)
-            : Clickable({{u8(strlen(name) * 8), 8}, {0, 0}}), name_(name), x_(x),
-              y_(y)
+            : Clickable({{u8(strlen(name) * 8), 8}, {0, 0}}), name_(name),
+              x_(x), y_(y)
         {
             pos().x = Fixnum::from_integer(x * 8);
             pos().y = Fixnum::from_integer(y * 8) - 7.0_fixed;
@@ -586,7 +586,9 @@ public:
         }
 
 
-        virtual ~Window() {}
+        virtual ~Window()
+        {
+        }
 
     private:
         DockIcon* pkg_;
@@ -908,10 +910,11 @@ public:
                     Vec2<Fixnum> pos;
                     pos.x = Fixnum::from_integer(16);
                     pos.y = Fixnum::from_integer((33 - 8) + i * 8);
-                    music_opts_.emplace_back(temp.c_str(),
-                                             HitBox::Dimension{{20 * 8, 7}, {0, 0}},
-                                             pos,
-                                             this);
+                    music_opts_.emplace_back(
+                        temp.c_str(),
+                        HitBox::Dimension{{20 * 8, 7}, {0, 0}},
+                        pos,
+                        this);
                     music_names_.push_back(temp.c_str());
                     ++i;
                 }
@@ -1266,8 +1269,9 @@ public:
             }
 
             if (interactive_) {
-                if (ignore_click_ and (APP.player().button_down(Button::action_1) or
-                                       APP.player().button_down(Button::mouse_1))) {
+                if (ignore_click_ and
+                    (APP.player().button_down(Button::action_1) or
+                     APP.player().button_down(Button::mouse_1))) {
                     ignore_click_--;
                 } else {
                     if (impl_) {
@@ -1416,8 +1420,9 @@ public:
             }
 
             if (interactive_) {
-                if (ignore_click_ and (APP.player().button_down(Button::action_1) or
-                                       APP.player().button_down(Button::mouse_1))) {
+                if (ignore_click_ and
+                    (APP.player().button_down(Button::action_1) or
+                     APP.player().button_down(Button::mouse_1))) {
                     ignore_click_--;
                 } else {
                     impl_->update(milliseconds(16));
@@ -1527,8 +1532,7 @@ public:
         class LaunchButton : public Clickable
         {
         public:
-            LaunchButton(Window* window)
-                : Clickable({{8 * 6, 8}, {0, 0}})
+            LaunchButton(Window* window) : Clickable({{8 * 6, 8}, {0, 0}})
             {
                 this->pos().x = 168.0_fixed;
                 this->pos().y = 49.0_fixed;

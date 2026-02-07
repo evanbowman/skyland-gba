@@ -19,7 +19,8 @@ namespace skyland
 
 
 
-AutopilotPlayer::AutopilotPlayer(lisp::Value* buttons_list) : buttons_list_(buttons_list)
+AutopilotPlayer::AutopilotPlayer(lisp::Value* buttons_list)
+    : buttons_list_(buttons_list)
 {
     for (auto& s : prev_) {
         s = false;

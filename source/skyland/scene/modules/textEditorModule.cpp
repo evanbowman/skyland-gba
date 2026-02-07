@@ -1159,7 +1159,8 @@ ScenePtr TextEditorModule::update(Time delta)
                 shade_cursor();
             }
         } else if ((APP.player().button_down(Button::up) or
-                    (APP.player().button_held(Button::up, milliseconds(400)))) and
+                    (APP.player().button_held(Button::up,
+                                              milliseconds(400)))) and
                    cursor_.y > 0) {
             unshade_cursor();
             cursor_flicker_timer_ = -seconds(1);
@@ -1202,7 +1203,8 @@ ScenePtr TextEditorModule::update(Time delta)
             shade_cursor();
             show_status();
         } else if ((APP.player().button_down(Button::down) or
-                    (APP.player().button_held(Button::down, milliseconds(400)))) and
+                    (APP.player().button_held(Button::down,
+                                              milliseconds(400)))) and
                    cursor_.y < line_count_) {
             unshade_cursor();
             cursor_flicker_timer_ = -seconds(1);
@@ -1250,7 +1252,8 @@ ScenePtr TextEditorModule::update(Time delta)
             shade_cursor();
             show_status();
         } else if (APP.player().button_down(Button::right) or
-                   (APP.player().button_held(Button::right, milliseconds(400)))) {
+                   (APP.player().button_held(Button::right,
+                                             milliseconds(400)))) {
 
             APP.player().button_held_reset(Button::right, milliseconds(60));
 
@@ -1310,7 +1313,8 @@ ScenePtr TextEditorModule::update(Time delta)
                 show_status();
             }
         } else if (APP.player().button_down(Button::left) or
-                   (APP.player().button_held(Button::left, milliseconds(400)))) {
+                   (APP.player().button_held(Button::left,
+                                             milliseconds(400)))) {
 
             if (cursor_.x > 0) {
                 bool do_render = false;

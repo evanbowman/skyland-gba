@@ -125,7 +125,10 @@ void PlayerP1::update(Time delta)
         update_ai(delta);
 
         if (PLATFORM.input()
-                .down_transition<Button::up, Button::down, Button::left, Button::right>()) {
+                .down_transition<Button::up,
+                                 Button::down,
+                                 Button::left,
+                                 Button::right>()) {
             APP.camera()->reset_default();
         }
     }

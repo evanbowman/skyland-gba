@@ -3382,7 +3382,8 @@ void Platform::sleep(u32 frames)
         const auto current_buttons = temp_kb.dump_state();
 
         for (int i = 0; i < (int)Button::count; ++i) {
-            if (start_buttons[i] not_eq current_buttons[i] and current_buttons[i]) {
+            if (start_buttons[i] not_eq current_buttons[i] and
+                current_buttons[i]) {
                 if (not ::missed_buttons) {
                     ::missed_buttons.emplace();
                     ::missed_buttons->clear();
@@ -7109,9 +7110,7 @@ static const Platform::Extensions extensions{
     .get_stack_usage = [] { return max_stack_usage(); },
     .get_stack_size = [] { return stack_reserved_size(); },
     .restart = [] { ::restart(); },
-    .quit = []{
-        ::restart();
-    },
+    .quit = [] { ::restart(); },
     .apply_color_correction =
         [](const char* table_name) {
             if (table_name) {

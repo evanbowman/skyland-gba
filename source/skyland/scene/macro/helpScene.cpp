@@ -128,10 +128,12 @@ ScenePtr HelpScene::update(Time delta)
     player().update(delta);
 
     auto test_button = [&](Button k) {
-        return APP.player().test_button(k, milliseconds(500), milliseconds(100));
+        return APP.player().test_button(
+            k, milliseconds(500), milliseconds(100));
     };
 
-    if (player().button_down(Button::action_1) or player().button_down(Button::action_2)) {
+    if (player().button_down(Button::action_1) or
+        player().button_down(Button::action_2)) {
 
         return make_scene<SelectorScene>();
     }

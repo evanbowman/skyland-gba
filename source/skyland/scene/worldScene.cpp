@@ -634,8 +634,8 @@ ScenePtr WorldScene::update(Time delta)
 
     if (APP.game_mode() == App::GameMode::multiplayer) {
         // Pauses unsupported in vs mode...
-    } else if (not noreturn_ and
-               (APP.player().button_up(Button::alt_1) or tapped_topright_corner())) {
+    } else if (not noreturn_ and (APP.player().button_up(Button::alt_1) or
+                                  tapped_topright_corner())) {
         if (APP.game_speed() not_eq GameSpeed::stopped) {
 
             bool can_pause = true;

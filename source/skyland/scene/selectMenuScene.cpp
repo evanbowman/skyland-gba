@@ -651,7 +651,8 @@ ScenePtr SelectMenuScene::update(Time delta)
     }
 
     auto test_button = [&](Button k) {
-        return APP.player().test_button(k, milliseconds(500), milliseconds(100));
+        return APP.player().test_button(
+            k, milliseconds(500), milliseconds(100));
     };
 
 
@@ -710,7 +711,8 @@ ScenePtr SelectMenuScene::update(Time delta)
         redraw_line(sel_, true);
     }
 
-    if (player().button_down(Button::action_1) or player().button_down(Button::select)) {
+    if (player().button_down(Button::action_1) or
+        player().button_down(Button::select)) {
         if (auto next = opts_->callbacks_[sel_]()) {
             return next;
         } else {

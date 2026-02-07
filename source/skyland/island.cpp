@@ -730,7 +730,6 @@ void Island::FireState::display(Island& island)
                     50 + rng::choice<8>(rng::utility_state),
                     ColorConstant::aerospace_orange,
                     95);
-
             }
         }
     }

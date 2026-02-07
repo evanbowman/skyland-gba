@@ -139,8 +139,9 @@ ScenePtr AchievementNotificationScene::update(Time delta)
     }
 
     case State::wait:
-        if (timer_ > seconds(2) and (APP.player().button_down(Button::action_1) or
-                                     APP.player().button_down(Button::action_2))) {
+        if (timer_ > seconds(2) and
+            (APP.player().button_down(Button::action_1) or
+             APP.player().button_down(Button::action_2))) {
 
             timer_ = 0;
             state_ = State::fade_out;

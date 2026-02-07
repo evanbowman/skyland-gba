@@ -44,7 +44,8 @@ ScenePtr RecoverCharacterScene::update(Time delta)
     auto& cursor_loc = globals().far_cursor_loc_;
 
     auto test_button = [&](Button k) {
-        return APP.player().test_button(k, milliseconds(500), milliseconds(100));
+        return APP.player().test_button(
+            k, milliseconds(500), milliseconds(100));
     };
 
     APP.player().button_held_distribute();

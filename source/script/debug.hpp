@@ -60,4 +60,4 @@ struct LocalVar
 Vector<LocalVar> get_locals();
 
 
-}
+} // namespace lisp::debug

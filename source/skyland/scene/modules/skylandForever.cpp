@@ -217,14 +217,16 @@ ScenePtr SkylandForever::update(Time delta)
         }
     }
 
-    if (APP.player().button_down(Button::down) and cursor_ < parameters_.size() - 1) {
+    if (APP.player().button_down(Button::down) and
+        cursor_ < parameters_.size() - 1) {
         ++cursor_;
 
     } else if (APP.player().button_down(Button::up) and cursor_ > 0) {
         --cursor_;
     }
 
-    if (APP.player().button_down(Button::action_1) or APP.player().tap_released()) {
+    if (APP.player().button_down(Button::action_1) or
+        APP.player().tap_released()) {
         PLATFORM.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
         return make_scene<FadeInScene>();
     } else if (APP.player().button_down(Button::action_2)) {

@@ -117,8 +117,10 @@ ScenePtr MoveRoomScene::update(Time delta)
     case State::move_stuff:
         if ((player().button_pressed(Button::start) or
              player().button_pressed(Button::action_1)) and
-            (player().button_down(Button::left) or player().button_down(Button::right) or
-             player().button_down(Button::up) or player().button_down(Button::down))) {
+            (player().button_down(Button::left) or
+             player().button_down(Button::right) or
+             player().button_down(Button::up) or
+             player().button_down(Button::down))) {
             state_ = State::select_group;
             text_.reset();
             PLATFORM.fill_overlay(0);
@@ -355,7 +357,8 @@ ScenePtr MoveRoomScene::update(Time delta)
     }
 
     auto test_button = [&](Button k) {
-        return APP.player().test_button(k, milliseconds(500), milliseconds(100));
+        return APP.player().test_button(
+            k, milliseconds(500), milliseconds(100));
     };
 
     auto& cursor_loc = cursor();

@@ -4425,7 +4425,7 @@ bool check_breakpoint(Value* expr)
 }
 
 
-}
+} // namespace debug
 
 
 void eval_loop(Vector<EvalFrame>& eval_stack)
@@ -4473,8 +4473,8 @@ void eval_loop(Vector<EvalFrame>& eval_stack)
 
                         case debug::Action::step_over:
                             bound_context->debug_break_ = false;
-                            eval_stack.push_back({L_NIL,
-                                    EvalFrame::State::debug_enable_break});
+                            eval_stack.push_back(
+                                {L_NIL, EvalFrame::State::debug_enable_break});
                             break;
 
                         case debug::Action::resume:
@@ -5321,29 +5321,29 @@ BUILTIN_TABLE(
            return L_NIL;
        }}},
      {"breakpoint-register",
-     {SIG1(nil, symbol),
-      [](int argc) {
-          lisp::debug::register_symbol_breakpoint(lisp::get_op0());
-          return L_NIL;
-      }}},
-    {"breakpoint-unregister",
-     {SIG1(nil, symbol),
-      [](int argc) {
-          lisp::debug::delete_symbol_breakpoint(lisp::get_op0());
-          return L_NIL;
-      }}},
-    {"watchpoint-register",
-     {SIG1(nil, symbol),
-      [](int argc) {
-          lisp::debug::register_symbol_watchpoint(lisp::get_op0());
-          return L_NIL;
-      }}},
-    {"watchpoint-unregister",
-     {SIG1(nil, symbol),
-      [](int argc) {
-          lisp::debug::delete_symbol_watchpoint(lisp::get_op0());
-          return L_NIL;
-      }}},
+      {SIG1(nil, symbol),
+       [](int argc) {
+           lisp::debug::register_symbol_breakpoint(lisp::get_op0());
+           return L_NIL;
+       }}},
+     {"breakpoint-unregister",
+      {SIG1(nil, symbol),
+       [](int argc) {
+           lisp::debug::delete_symbol_breakpoint(lisp::get_op0());
+           return L_NIL;
+       }}},
+     {"watchpoint-register",
+      {SIG1(nil, symbol),
+       [](int argc) {
+           lisp::debug::register_symbol_watchpoint(lisp::get_op0());
+           return L_NIL;
+       }}},
+     {"watchpoint-unregister",
+      {SIG1(nil, symbol),
+       [](int argc) {
+           lisp::debug::delete_symbol_watchpoint(lisp::get_op0());
+           return L_NIL;
+       }}},
      {"cons",
       {SIG2(cons, nil, nil),
        [](int argc) {

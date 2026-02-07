@@ -468,7 +468,8 @@ void Paint::apply_drag(int xo, int yo, bool record_history)
 ScenePtr Paint::update(Time delta)
 {
     auto test_button = [&](Button k) {
-        return APP.player().test_button(k, milliseconds(500), milliseconds(100));
+        return APP.player().test_button(
+            k, milliseconds(500), milliseconds(100));
     };
 
     if (test_button(Button::alt_1)) {
@@ -693,7 +694,8 @@ ScenePtr Paint::update(Time delta)
             break;
         }
 
-        if (tool_ == Tool::undo and APP.player().button_down(Button::action_1)) {
+        if (tool_ == Tool::undo and
+            APP.player().button_down(Button::action_1)) {
             if (not undo()) {
                 PLATFORM.speaker().play_sound("beep_error", 4);
             }
@@ -703,8 +705,8 @@ ScenePtr Paint::update(Time delta)
         if ((APP.player().button_down(Button::action_1) or
              APP.player().button_down(Button::action_2) or
              APP.player().button_down(Button::start))) {
-            if (APP.player().button_down(Button::action_2) or tool_ == Tool::undo or
-                tool_ == Tool::exit) {
+            if (APP.player().button_down(Button::action_2) or
+                tool_ == Tool::undo or tool_ == Tool::exit) {
                 tool_ = last_tool_;
                 show_toolbar();
             }

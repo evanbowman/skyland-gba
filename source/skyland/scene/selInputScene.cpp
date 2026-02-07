@@ -13,12 +13,12 @@
 #include "globals.hpp"
 #include "inspectP2Scene.hpp"
 #include "readyScene.hpp"
+#include "script/listBuilder.hpp"
 #include "scriptHookScene.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/scene/constructionScene.hpp"
 #include "skyland/scene/salvageRoomScene.hpp"
 #include "skyland/skyland.hpp"
-#include "script/listBuilder.hpp"
 
 
 
@@ -103,7 +103,8 @@ ScenePtr SelInputScene::update(Time delta)
 
 
     auto test_button = [&](Button k) {
-        return APP.player().test_button(k, milliseconds(500), milliseconds(150));
+        return APP.player().test_button(
+            k, milliseconds(500), milliseconds(150));
     };
 
     APP.player().button_held_distribute();

@@ -983,13 +983,16 @@ ScenePtr TitleScreenScene::update(Time delta)
                         PLATFORM.set_tile(Layer::overlay, x, y, 112);
                     }
                     for (int x = 0; x < 30; ++x) {
-                        PLATFORM.set_tile(Layer::overlay, x, y_bot - (y - y_start), 112);
+                        PLATFORM.set_tile(
+                            Layer::overlay, x, y_bot - (y - y_start), 112);
                     }
                 } else if (((y + 1) - y_start) * 8 > fractional_pixels and
                            fractional_pixels % 8) {
                     for (int x = 0; x < 30; ++x) {
-                        PLATFORM.set_tile(
-                                          Layer::overlay, x, y, 119 - (fractional_pixels % 8));
+                        PLATFORM.set_tile(Layer::overlay,
+                                          x,
+                                          y,
+                                          119 - (fractional_pixels % 8));
                     }
                     for (int x = 0; x < 30; ++x) {
                         PLATFORM.set_tile(Layer::overlay,
@@ -1003,7 +1006,7 @@ ScenePtr TitleScreenScene::update(Time delta)
 
             const auto amount = 0.6f * smoothstep(0.f, fade_duration, timer_);
             PLATFORM.screen().schedule_fade(
-                    amount, {ColorConstant::rich_black, true, true});
+                amount, {ColorConstant::rich_black, true, true});
         }
         break;
     }
@@ -1017,17 +1020,20 @@ ScenePtr TitleScreenScene::update(Time delta)
             PLATFORM.screen().schedule_fade(0);
             put_menu_text();
             if (menu_selection_ not_eq 3) {
-                PLATFORM.speaker().set_music_volume(Platform::Speaker::music_volume_max);
+                PLATFORM.speaker().set_music_volume(
+                    Platform::Speaker::music_volume_max);
             } else {
                 PLATFORM.speaker().set_music_volume(faded_music_volume);
             }
-            PLATFORM.speaker().set_sounds_volume(Platform::Speaker::music_volume_max);
+            PLATFORM.speaker().set_sounds_volume(
+                Platform::Speaker::music_volume_max);
         } else {
             constexpr int pixels_per_tile = 8;
             const int y_travel = 2;
             const auto total_pixels = y_travel * pixels_per_tile;
 
-            const Float percentage = 1.f - smoothstep(0.f, fade_duration, timer_);
+            const Float percentage =
+                1.f - smoothstep(0.f, fade_duration, timer_);
             const int fractional_pixels = percentage * total_pixels;
 
             if (menu_selection_ not_eq 3) {
@@ -1043,13 +1049,16 @@ ScenePtr TitleScreenScene::update(Time delta)
                         PLATFORM.set_tile(Layer::overlay, x, y, 112);
                     }
                     for (int x = 0; x < 30; ++x) {
-                        PLATFORM.set_tile(Layer::overlay, x, y_bot - (y - y_start), 112);
+                        PLATFORM.set_tile(
+                            Layer::overlay, x, y_bot - (y - y_start), 112);
                     }
                 } else if (((y + 1) - y_start) * 8 > fractional_pixels and
                            fractional_pixels % 8) {
                     for (int x = 0; x < 30; ++x) {
-                        PLATFORM.set_tile(
-                                          Layer::overlay, x, y, 119 - (fractional_pixels % 8));
+                        PLATFORM.set_tile(Layer::overlay,
+                                          x,
+                                          y,
+                                          119 - (fractional_pixels % 8));
                     }
                     for (int x = 0; x < 30; ++x) {
                         PLATFORM.set_tile(Layer::overlay,
@@ -1061,7 +1070,8 @@ ScenePtr TitleScreenScene::update(Time delta)
                 }
             }
 
-            const auto amount = 0.6f * (1.f - smoothstep(0.f, fade_duration, timer_));
+            const auto amount =
+                0.6f * (1.f - smoothstep(0.f, fade_duration, timer_));
             PLATFORM.screen().schedule_fade(amount);
         }
         break;
@@ -1069,7 +1079,8 @@ ScenePtr TitleScreenScene::update(Time delta)
 
     case State::exit_prompt: {
         if (PLATFORM.input().down_transition<Button::action_2>() or
-            (PLATFORM.input().down_transition<Button::action_1>() and not exit_sel_)) {
+            (PLATFORM.input().down_transition<Button::action_1>() and
+             not exit_sel_)) {
             state_ = State::fade_exit_cancel;
             timer_ = 0;
             for (int x = 0; x < 30; ++x) {
@@ -1077,9 +1088,11 @@ ScenePtr TitleScreenScene::update(Time delta)
             }
             break;
         }
-        if (PLATFORM.input().down_transition<Button::action_1>() and exit_sel_) {
-            PLATFORM_EXTENSION(quit);    // First try to quit if supported...
-            PLATFORM_EXTENSION(restart); // If platform doesn't support quit, try reboot
+        if (PLATFORM.input().down_transition<Button::action_1>() and
+            exit_sel_) {
+            PLATFORM_EXTENSION(quit); // First try to quit if supported...
+            PLATFORM_EXTENSION(
+                restart); // If platform doesn't support quit, try reboot
         }
         if (PLATFORM.input().down_transition<Button::left>() or
             PLATFORM.input().down_transition<Button::right>()) {

@@ -302,7 +302,8 @@ ScenePtr ConstructionScene::update(Time delta)
 
 
     auto test_button = [&](Button k) {
-        return APP.player().test_button(k, milliseconds(500), milliseconds(100));
+        return APP.player().test_button(
+            k, milliseconds(500), milliseconds(100));
     };
 
     bool sync_cursor = false;

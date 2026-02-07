@@ -8,8 +8,8 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-#define WIN32_LEAN_AND_MEAN  // Prevents windows.h from including winsock.h
-#define NOMINMAX  // Prevents windows.h from defining min/max macros
+#define WIN32_LEAN_AND_MEAN // Prevents windows.h from including winsock.h
+#define NOMINMAX            // Prevents windows.h from defining min/max macros
 
 #include "number/random.hpp"
 #include "platform/conf.hpp"
@@ -400,9 +400,7 @@ static const Platform::Extensions extensions{
             circle_effect_origin_x = x;
             circle_effect_origin_y = y;
         },
-    .quit = []() {
-        sdl_running = false;
-    },
+    .quit = []() { sdl_running = false; },
     .enable_translucence =
         [](const Buffer<Layer, 4>& layers) {
             // Reset translucence flags
@@ -680,10 +678,11 @@ int main(int argc, char** argv)
         if (str_eq(argv[i], "--help")) {
             std::cout << "usage: skyland [optional-flags] \n"
                       << " --regression        Run test cases, regression "
-                "tests, and then exit \n"
+                         "tests, and then exit \n"
                       << " --validate-scripts  Just run syntax checks on "
-                "scripts, and then exit\n"
-                      << " --no-window-system  Run a windowless instance of the game\n"
+                         "scripts, and then exit\n"
+                      << " --no-window-system  Run a windowless instance of "
+                         "the game\n"
                       << std::endl;
             return EXIT_SUCCESS;
         }
@@ -708,29 +707,36 @@ int main(int argc, char** argv)
                                   initial_width,
                                   initial_height,
                                   SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE |
-                                  SDL_WINDOW_ALLOW_HIGHDPI);
+                                      SDL_WINDOW_ALLOW_HIGHDPI);
 
         if (window == NULL) {
-            fprintf(
-                    stderr, "SDL window failed to initialise: %s\n", SDL_GetError());
+            fprintf(stderr,
+                    "SDL window failed to initialise: %s\n",
+                    SDL_GetError());
             return 1;
         }
 
         // Set minimum window size to 1x scale
         SDL_SetWindowMinimumSize(window, logical_width, logical_height);
 
-        renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+        renderer = SDL_CreateRenderer(
+            window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
         if (renderer == NULL) {
-            fprintf(
-                    stderr, "SDL renderer failed to initialise: %s\n", SDL_GetError());
+            fprintf(stderr,
+                    "SDL renderer failed to initialise: %s\n",
+                    SDL_GetError());
             return 1;
         }
 
         // Enable integer scaling for crisp pixels
         SDL_RenderSetIntegerScale(renderer, SDL_TRUE);
 
-        tile_recolor_buffer = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 16, 16);
+        tile_recolor_buffer = SDL_CreateTexture(renderer,
+                                                SDL_PIXELFORMAT_RGBA8888,
+                                                SDL_TEXTUREACCESS_TARGET,
+                                                16,
+                                                16);
     }
 
     rng::critical_state = time(nullptr);
@@ -740,10 +746,10 @@ int main(int argc, char** argv)
     start(pf);
 
     if (renderer) {
-    SDL_DestroyRenderer(renderer);
+        SDL_DestroyRenderer(renderer);
     }
     if (window) {
-    SDL_DestroyWindow(window);
+        SDL_DestroyWindow(window);
     }
     SDL_Quit();
 }
@@ -938,7 +944,7 @@ void Platform::Input::rumble(bool enabled)
 
 Optional<Vec2<int>> Platform::Input::check_mouse()
 {
-    if (not (SDL_GetWindowFlags(window) & SDL_WINDOW_MOUSE_FOCUS)) {
+    if (not(SDL_GetWindowFlags(window) & SDL_WINDOW_MOUSE_FOCUS)) {
         return std::nullopt;
     }
 
@@ -950,7 +956,8 @@ Optional<Vec2<int>> Platform::Input::check_mouse()
     SDL_GetWindowSize(window, &current_window_width, &current_window_height);
 
     // Check if mouse is within window bounds
-    if (x < 0 || y < 0 || x >= current_window_width || y >= current_window_height) {
+    if (x < 0 || y < 0 || x >= current_window_width ||
+        y >= current_window_height) {
         return std::nullopt;
     }
 
@@ -1074,17 +1081,23 @@ void Platform::Input::poll()
 }
 
 
-struct AlignedBuffer {
-    char* allocated;  // Original malloc pointer (for freeing)
-    char* aligned;    // Word-aligned pointer (for use)
+struct AlignedBuffer
+{
+    char* allocated; // Original malloc pointer (for freeing)
+    char* aligned;   // Word-aligned pointer (for use)
     u32 size;
 
-    AlignedBuffer() : allocated(nullptr), aligned(nullptr), size(0) {}
+    AlignedBuffer() : allocated(nullptr), aligned(nullptr), size(0)
+    {
+    }
 
     AlignedBuffer(char* alloc, char* align, u32 sz)
-        : allocated(alloc), aligned(align), size(sz) {}
+        : allocated(alloc), aligned(align), size(sz)
+    {
+    }
 
-    ~AlignedBuffer() {
+    ~AlignedBuffer()
+    {
         free(allocated);
     }
 
@@ -1094,13 +1107,15 @@ struct AlignedBuffer {
 
     // Allow moving
     AlignedBuffer(AlignedBuffer&& other) noexcept
-        : allocated(other.allocated), aligned(other.aligned), size(other.size) {
+        : allocated(other.allocated), aligned(other.aligned), size(other.size)
+    {
         other.allocated = nullptr;
         other.aligned = nullptr;
         other.size = 0;
     }
 
-    AlignedBuffer& operator=(AlignedBuffer&& other) noexcept {
+    AlignedBuffer& operator=(AlignedBuffer&& other) noexcept
+    {
         if (this != &other) {
             free(allocated);
             allocated = other.allocated;
@@ -1117,7 +1132,7 @@ struct AlignedBuffer {
 static std::map<std::string, AlignedBuffer> files;
 
 std::pair<const char*, u32> Platform::load_file(const char* folder,
-    const char* filename) const
+                                                const char* filename) const
 {
     std::string name;
     if (strlen(folder)) {
@@ -1129,22 +1144,21 @@ std::pair<const char*, u32> Platform::load_file(const char* folder,
     for (char c : name) {
         if (c == '/') {
             path += PATH_DELIMITER;
-        }
-        else {
+        } else {
             path += c;
         }
     }
 
     auto found = files.find(path);
     if (found != files.end()) {
-        return { found->second.aligned, found->second.size };
+        return {found->second.aligned, found->second.size};
     }
 
     std::string full_path = resource_path() + path;
     std::ifstream file(full_path, std::ios::binary);
     if (!file) {
         warning(format("missing file %", full_path.c_str()));
-        return { nullptr, 0 };
+        return {nullptr, 0};
     }
 
     // Get file size
@@ -1158,7 +1172,7 @@ std::pair<const char*, u32> Platform::load_file(const char* folder,
 
     if (!allocated) {
         warning("failed to allocate memory");
-        return { nullptr, 0 };
+        return {nullptr, 0};
     }
 
     // Find aligned position within allocated block
@@ -1172,7 +1186,7 @@ std::pair<const char*, u32> Platform::load_file(const char* folder,
 
     files.emplace(path, AlignedBuffer(allocated, aligned, size));
 
-    return { aligned, size };
+    return {aligned, size};
 }
 
 

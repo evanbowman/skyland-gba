@@ -825,7 +825,8 @@ AGAIN:
     }
 
     case State::idle:
-        if (player().button_down(Button::action_2) or player().button_down(Button::start)) {
+        if (player().button_down(Button::action_2) or
+            player().button_down(Button::start)) {
             state_ = State::clear;
         }
         check_button();

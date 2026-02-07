@@ -23,11 +23,11 @@
 #pragma once
 
 
+#include "button.hpp"
 #include "dateTime.hpp"
 #include "function.hpp"
 #include "graphics/sprite.hpp"
 #include "graphics/view.hpp"
-#include "button.hpp"
 #include "layer.hpp"
 #include "memory/buffer.hpp"
 #include "memory/rc.hpp"

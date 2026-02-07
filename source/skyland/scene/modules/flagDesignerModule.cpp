@@ -167,7 +167,8 @@ public:
         player().update(delta);
 
         auto test_button = [&](Button k) {
-            return player().test_button(k, milliseconds(500), milliseconds(100));
+            return player().test_button(
+                k, milliseconds(500), milliseconds(100));
         };
 
         if (player().button_down(Button::action_2) or
@@ -331,7 +332,8 @@ ScenePtr SurfaceFlagsScene::update(Time delta)
         return next;
     }
 
-    if (player().button_down(Button::action_2) or player().button_down(Button::select)) {
+    if (player().button_down(Button::action_2) or
+        player().button_down(Button::select)) {
         auto next = make_scene<FlagDesignerModule>();
         next->editing_ingame_ = editing_ingame_;
         PLATFORM.fill_overlay(0);

@@ -402,7 +402,8 @@ ScenePtr ReadyScene::update(Time delta)
     auto& cursor_loc = globals().near_cursor_loc_;
 
     auto test_button = [&](Button k) {
-        return APP.player().test_button(k, milliseconds(500), milliseconds(100));
+        return APP.player().test_button(
+            k, milliseconds(500), milliseconds(100));
     };
 
     APP.player().button_held_distribute();
@@ -418,7 +419,8 @@ ScenePtr ReadyScene::update(Time delta)
 
     if (not APP.player().button_pressed(Button::start)) {
 
-        if (tapped_topleft_corner() or APP.player().button_down(Button::alt_2)) {
+        if (tapped_topleft_corner() or
+            APP.player().button_down(Button::alt_2)) {
             return make_scene<ConstructionScene>();
         }
 
@@ -519,7 +521,8 @@ ScenePtr ReadyScene::update(Time delta)
             return next;
         }
 
-        if (button_down<Button::start>() and not APP.player().button_down(Button::start)) {
+        if (button_down<Button::start>() and
+            not APP.player().button_down(Button::start)) {
 
             // For tutorial mode: allows the player to raise the start button when
             // the tutorial system has taken control of the player object.

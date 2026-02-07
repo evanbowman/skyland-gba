@@ -73,15 +73,15 @@ void ControllerSetupModule::enter(Scene& prev)
 
 
 static const char* const button_names[] = {"key_alt1",
-                                        "key_up",
-                                        "key_left",
-                                        "key_down",
-                                        "key_right",
-                                        "key_start",
-                                        "key_select",
-                                        "key_alt2",
-                                        "key_action1",
-                                        "key_action2"};
+                                           "key_up",
+                                           "key_left",
+                                           "key_down",
+                                           "key_right",
+                                           "key_start",
+                                           "key_select",
+                                           "key_alt2",
+                                           "key_action1",
+                                           "key_action2"};
 
 
 

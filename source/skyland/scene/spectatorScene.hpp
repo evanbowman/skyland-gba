@@ -77,7 +77,8 @@ public:
         }
 
         auto test_button = [&](Button k) {
-            return player().test_button(k, milliseconds(500), milliseconds(100));
+            return player().test_button(
+                k, milliseconds(500), milliseconds(100));
         };
 
 

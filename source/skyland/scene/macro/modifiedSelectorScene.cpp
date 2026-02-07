@@ -80,7 +80,8 @@ ScenePtr ModifiedSelectorScene::update(Player& player, macro::EngineImpl& state)
 
     auto& sector = state.sector();
 
-    if (player.button_pressed(Button::alt_1) or player.button_pressed(Button::alt_2)) {
+    if (player.button_pressed(Button::alt_1) or
+        player.button_pressed(Button::alt_2)) {
 
         if (player.button_down(Button::left)) {
             PLATFORM.screen().schedule_fade(0.7f, {custom_color(0x102447)});

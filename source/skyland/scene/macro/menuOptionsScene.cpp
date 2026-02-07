@@ -137,7 +137,8 @@ ScenePtr MenuOptionsScene::update(Player& player, macro::EngineImpl& state)
         }
     }
 
-    if (player.button_pressed(Button::alt_1) or player.button_pressed(Button::alt_2)) {
+    if (player.button_pressed(Button::alt_1) or
+        player.button_pressed(Button::alt_2)) {
 
         if (player.button_down(Button::action_1)) {
             auto& s = state.sector();

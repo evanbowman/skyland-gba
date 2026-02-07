@@ -168,8 +168,8 @@ ScenePtr SelectorScene::update(Player& player, macro::EngineImpl& state)
     };
 
 
-    if (player.button_pressed(Button::select) and not state.data_->freebuild_mode_ and
-        not state.data_->checkers_mode_) {
+    if (player.button_pressed(Button::select) and
+        not state.data_->freebuild_mode_ and not state.data_->checkers_mode_) {
 
         return make_scene<HelpScene>();
     }
@@ -196,7 +196,8 @@ ScenePtr SelectorScene::update(Player& player, macro::EngineImpl& state)
             describe_selected(state);
             PLATFORM.speaker().play_sound("cursor_tick", 0);
             describe_selected(state);
-        } else if (test_button(Button::down) and cursor.y < sector.size().x - 1) {
+        } else if (test_button(Button::down) and
+                   cursor.y < sector.size().x - 1) {
             ++cursor.y;
             sector.set_cursor(cursor);
             describe_selected(state);
@@ -208,7 +209,8 @@ ScenePtr SelectorScene::update(Player& player, macro::EngineImpl& state)
             describe_selected(state);
             PLATFORM.speaker().play_sound("cursor_tick", 0);
             describe_selected(state);
-        } else if (test_button(Button::left) and cursor.x < sector.size().y - 1) {
+        } else if (test_button(Button::left) and
+                   cursor.x < sector.size().y - 1) {
             ++cursor.x;
             sector.set_cursor(cursor);
             describe_selected(state);

@@ -533,7 +533,8 @@ public:
 
     ScenePtr update(Player& player, macro::EngineImpl& state) override
     {
-        if (button_down<Button::action_1>() or button_down<Button::action_2>()) {
+        if (button_down<Button::action_1>() or
+            button_down<Button::action_2>()) {
             return make_scene<SelectorScene>();
         }
 

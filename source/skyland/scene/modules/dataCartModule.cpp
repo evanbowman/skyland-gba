@@ -165,7 +165,8 @@ ScenePtr DataCartModule::update(Time delta)
     APP.player().update(delta);
 
     auto test_button = [&](Button k) {
-        return APP.player().test_button(k, milliseconds(500), milliseconds(100));
+        return APP.player().test_button(
+            k, milliseconds(500), milliseconds(100));
     };
 
     if (not PLATFORM.speaker().is_sound_playing("archivist")) {

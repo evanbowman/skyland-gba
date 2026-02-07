@@ -9,8 +9,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "script_debugger.hpp"
-#include "graphics/overlay.hpp"
 #include "ext_workram_data.hpp"
+#include "graphics/overlay.hpp"
 
 
 
@@ -40,7 +40,7 @@ static constexpr const Text::OptColors text_colors_highlight{
     {custom_color(0x00508a), custom_color(0xf9e965)}};
 
 
-}
+} // namespace
 
 
 
@@ -76,7 +76,9 @@ void show_callstack(u8 start_y, u32& scroll)
 {
     auto frames = get_callstack();
     scroll = clamp((int)scroll, 0, (int)frames.size() - 1);
-    for (int i = scroll; i < (int)frames.size() and start_y + (i - scroll) * 2 < 20; ++i) {
+    for (int i = scroll;
+         i < (int)frames.size() and start_y + (i - scroll) * 2 < 20;
+         ++i) {
         auto fn = frames[i];
         u8 y = (start_y + (i - scroll) * 2);
         Text::print(format("%", i).c_str(), {1, y}, text_colors);
@@ -135,8 +137,8 @@ void pretty_print_atom(PrinterState& ps, lisp::Value* atom)
         pretty_print_append(ps, "'");
         lisp::format(atom->cons().cdr(), *p);
     } else if (atom->type() == lisp::Value::Type::cons and
-        atom->cons().car()->type() == lisp::Value::Type::symbol and
-        str_eq("`", atom->cons().car()->symbol().name())) {
+               atom->cons().car()->type() == lisp::Value::Type::symbol and
+               str_eq("`", atom->cons().car()->symbol().name())) {
         pretty_print_append(ps, "`");
         lisp::format(atom->cons().cdr(), *p);
     } else {
@@ -152,8 +154,7 @@ void pretty_print_atom(PrinterState& ps, lisp::Value* atom)
 
 
 
-void pretty_print_impl(PrinterState& ps,
-                       lisp::Value* current_expr)
+void pretty_print_impl(PrinterState& ps, lisp::Value* current_expr)
 {
     if (lisp::is_list(current_expr) and length(current_expr) == 0) {
         pretty_print_append(ps, "'()");
@@ -244,22 +245,23 @@ void pretty_print_impl(PrinterState& ps,
             }
         } else {
             auto lat = current_expr;
-                bool first = true;
-                while (lat not_eq L_NIL) {
-                    if (not first) {
-                        pretty_print_append(ps, " ");
-                    }
-                    pretty_print_impl(ps, lat->cons().car());
-                    lat = lat->cons().cdr();
-                    first = false;
+            bool first = true;
+            while (lat not_eq L_NIL) {
+                if (not first) {
+                    pretty_print_append(ps, " ");
                 }
-                ps.output_.push_back(')');
+                pretty_print_impl(ps, lat->cons().car());
+                lat = lat->cons().cdr();
+                first = false;
+            }
+            ps.output_.push_back(')');
         }
 
         if (current_expr == ps.match_expr_) {
             ps.match_end_line_ = ps.linecount_;
             ps.match_end_offset_ =
-                ps.match_begin_offset_ + (ps.output_.size() - ps.match_begin_abs_offset_);
+                ps.match_begin_offset_ +
+                (ps.output_.size() - ps.match_begin_abs_offset_);
         }
     } else {
         pretty_print_atom(ps, current_expr);
@@ -283,7 +285,7 @@ void pretty_print_begin(PrinterState& ps, lisp::Value* current_expr)
 
 static int calculate_skip_lines(const PrinterState& ps, int visible_lines = 6)
 {
-    int center_offset = visible_lines / 2;  // 3 for 6 lines
+    int center_offset = visible_lines / 2; // 3 for 6 lines
 
     // Try to center the match
     int skip = ps.match_begin_line_ - center_offset;
@@ -296,7 +298,7 @@ static int calculate_skip_lines(const PrinterState& ps, int visible_lines = 6)
     // Don't scroll past the end
     int max_skip = ps.linecount_ - visible_lines;
     if (max_skip < 0) {
-        max_skip = 0;  // Function shorter than viewport
+        max_skip = 0; // Function shorter than viewport
     }
     if (skip > max_skip) {
         skip = max_skip;
@@ -338,22 +340,24 @@ void pretty_print_current_fn_with_expr(lisp::Value* expr)
 
                 u8 write_pos = 1;
                 int len = 0;
-                utf8::scan([&](const utf8::Codepoint& cp, const char* raw, int) {
-                    if (linum >= ps.match_begin_line_ and
-                        linum <= ps.match_end_line_) {
-                        if (len > ps.match_end_offset_) {
-                            colors = text_colors;
-                        } else if (len > ps.match_begin_offset_ and linum == ps.match_begin_line_) {
-                            colors = text_colors_highlight;
-                        } else if (linum > ps.match_begin_line_) {
-                            colors = text_colors_highlight;
+                utf8::scan(
+                    [&](const utf8::Codepoint& cp, const char* raw, int) {
+                        if (linum >= ps.match_begin_line_ and
+                            linum <= ps.match_end_line_) {
+                            if (len > ps.match_end_offset_) {
+                                colors = text_colors;
+                            } else if (len > ps.match_begin_offset_ and
+                                       linum == ps.match_begin_line_) {
+                                colors = text_colors_highlight;
+                            } else if (linum > ps.match_begin_line_) {
+                                colors = text_colors_highlight;
+                            }
                         }
-                    }
-                    print_char(cp, {write_pos, y}, colors);
-                    ++write_pos;
-                    ++len;
-                    return true;
-                },
+                        print_char(cp, {write_pos, y}, colors);
+                        ++write_pos;
+                        ++len;
+                        return true;
+                    },
                     line.c_str(),
                     strlen(line.c_str()));
 
@@ -398,7 +402,9 @@ static void onscreen_debugger_render_tab(lisp::Value* expr, u32& scroll)
         auto locals = lisp::debug::get_locals();
         int start_y = 8;
         scroll = clamp((int)scroll, 0, (int)locals.size() - 1);
-        for (u32 i = scroll; i < locals.size() and (i - scroll) * 2 + start_y < 20; ++i) {
+        for (u32 i = scroll;
+             i < locals.size() and (i - scroll) * 2 + start_y < 20;
+             ++i) {
             u8 y = (start_y + i * 2);
             StringBuffer<30> out;
             out += locals[i].name_;
@@ -413,7 +419,9 @@ static void onscreen_debugger_render_tab(lisp::Value* expr, u32& scroll)
         Text::print("<- value stack ->", {1, 6}, text_colors_inv);
         int start_y = 8;
         scroll = clamp((int)scroll, 0, (int)lisp::get_op_count() - 1);
-        for (u32 i = scroll; i < lisp::get_op_count() and (i - scroll) * 2 + start_y < 20; ++i) {
+        for (u32 i = scroll;
+             i < lisp::get_op_count() and (i - scroll) * 2 + start_y < 20;
+             ++i) {
             u8 y = start_y + (i - scroll) * 2;
             StringBuffer<30> out;
             out += stringify(i);
@@ -430,11 +438,10 @@ static void onscreen_debugger_render_tab(lisp::Value* expr, u32& scroll)
         for (u32 i = 0; i < lisp::get_argc() and i * 2 + start_y < 20; ++i) {
             auto arg = lisp::get_arg(i);
             u8 y = (start_y + i * 2);
-            Text::print(format("$% %",
-                               i,
-                               lisp::val_to_string<28>(arg).c_str()).c_str(),
-                        {1, y},
-                        text_colors);
+            Text::print(
+                format("$% %", i, lisp::val_to_string<28>(arg).c_str()).c_str(),
+                {1, y},
+                text_colors);
         }
         break;
     }
@@ -448,7 +455,8 @@ static void onscreen_debugger_render_tab(lisp::Value* expr, u32& scroll)
             }
         }
         Text::print(format("<- code: % ->", name.c_str()).c_str(),
-                    {1, 6}, text_colors_inv);
+                    {1, 6},
+                    text_colors_inv);
         pretty_print_current_fn_with_expr(expr);
         break;
     }
@@ -480,9 +488,8 @@ lisp::debug::Action handle_debug_step(lisp::Value* expr)
 
     enable_text_icon_glyphs(false);
 
-    PLATFORM.screen().schedule_fade(1, Platform::Screen::FadeProperties{
-            .color = bkg_color
-        });
+    PLATFORM.screen().schedule_fade(
+        1, Platform::Screen::FadeProperties{.color = bkg_color});
 
     PLATFORM.set_overlay_origin(0, 0);
     PLATFORM.fill_overlay(0);
@@ -508,14 +515,10 @@ lisp::debug::Action handle_debug_step(lisp::Value* expr)
         fmt_str.erase(fmt_str.begin());
     }
 
-    Text::print(fmt_str.c_str(),
-                {1, 3},
-                text_colors);
+    Text::print(fmt_str.c_str(), {1, 3}, text_colors);
 
     fmt_str = "expr: ";
-    Text::print(fmt_str.c_str(),
-                {1, 1},
-                text_colors_inv);
+    Text::print(fmt_str.c_str(), {1, 1}, text_colors_inv);
 
     Text::print(" A: into, R: over, B: continue", {0, 19}, text_colors_inv);
 
@@ -586,9 +589,8 @@ lisp::debug::Action handle_debug_step(lisp::Value* expr)
 
 void handle_breakpoint(lisp::Value* expr)
 {
-    PLATFORM.screen().schedule_fade(1, Platform::Screen::FadeProperties{
-            .color = bkg_color
-        });
+    PLATFORM.screen().schedule_fade(
+        1, Platform::Screen::FadeProperties{.color = bkg_color});
 
     PLATFORM.set_overlay_origin(0, 0);
     PLATFORM.fill_overlay(0);
@@ -598,9 +600,7 @@ void handle_breakpoint(lisp::Value* expr)
     print_heap_usage();
 
     Text::print("breakpoint! symbol:", {1, 1}, text_colors_inv);
-    Text::print(lisp::val_to_string<30>(expr).c_str(),
-                {1, 3},
-                text_colors);
+    Text::print(lisp::val_to_string<30>(expr).c_str(), {1, 3}, text_colors);
 
     Text::print("callstack", {1, 6}, text_colors_inv);
     u32 scroll = 0;
@@ -612,8 +612,7 @@ void handle_breakpoint(lisp::Value* expr)
         PLATFORM.delta_clock().reset();
 
         if (button_down<Button::action_1>() or
-            button_down<Button::action_2>() or
-            button_down<Button::alt_2>()) {
+            button_down<Button::action_2>() or button_down<Button::alt_2>()) {
             break;
         }
 
@@ -638,9 +637,8 @@ void handle_breakpoint(lisp::Value* expr)
 
 void handle_watchpoint(lisp::Value* expr)
 {
-    PLATFORM.screen().schedule_fade(1, Platform::Screen::FadeProperties{
-            .color = bkg_color
-        });
+    PLATFORM.screen().schedule_fade(
+        1, Platform::Screen::FadeProperties{.color = bkg_color});
 
     PLATFORM.set_overlay_origin(0, 0);
     PLATFORM.fill_overlay(0);
@@ -670,8 +668,7 @@ void handle_watchpoint(lisp::Value* expr)
         PLATFORM.delta_clock().reset();
 
         if (button_down<Button::action_1>() or
-            button_down<Button::action_2>() or
-            button_down<Button::alt_2>()) {
+            button_down<Button::action_2>() or button_down<Button::alt_2>()) {
             break;
         }
 
@@ -696,9 +693,8 @@ void handle_watchpoint(lisp::Value* expr)
 
 lisp::debug::Action handle_enter_compiled_function(lisp::Value* expr)
 {
-    PLATFORM.screen().schedule_fade(1, Platform::Screen::FadeProperties {
-            .color = bkg_color
-        });
+    PLATFORM.screen().schedule_fade(
+        1, Platform::Screen::FadeProperties{.color = bkg_color});
 
     PLATFORM.set_overlay_origin(0, 0);
     PLATFORM.fill_overlay(0);
@@ -733,11 +729,10 @@ lisp::debug::Action handle_enter_compiled_function(lisp::Value* expr)
     for (u32 i = 0; i < lisp::get_argc() and i * 2 + start_y < 20; ++i) {
         auto arg = lisp::get_arg(i);
         u8 y = (start_y + i * 2);
-        Text::print(format("$% %",
-                           i,
-                           lisp::val_to_string<28>(arg).c_str()).c_str(),
-                    {1, y},
-                    text_colors);
+        Text::print(
+            format("$% %", i, lisp::val_to_string<28>(arg).c_str()).c_str(),
+            {1, y},
+            text_colors);
     }
 
     auto resp = lisp::debug::Action::step;
@@ -809,4 +804,4 @@ lisp::debug::Action onscreen_script_debug_handler(lisp::debug::Interrupt irq,
 }
 
 
-}
+} // namespace skyland

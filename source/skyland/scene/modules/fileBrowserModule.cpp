@@ -528,7 +528,8 @@ ScenePtr FileBrowserModule::update(Time delta)
         } else if (not gui_mode_ and APP.player().button_down(Button::down) and
                    scroll_index_ < 2) {
             scroll_down();
-        } else if (not gui_mode_ and APP.player().button_down(Button::action_1)) {
+        } else if (not gui_mode_ and
+                   APP.player().button_down(Button::action_1)) {
             switch (scroll_index_) {
             case 0:
                 on_dir_changed();
@@ -547,7 +548,8 @@ ScenePtr FileBrowserModule::update(Time delta)
             case 2:
                 return make_scene<TextEditorModule>(std::move(user_context_));
             }
-        } else if (not gui_mode_ and APP.player().button_down(Button::action_2)) {
+        } else if (not gui_mode_ and
+                   APP.player().button_down(Button::action_2)) {
             if (user_context_.browser_exit_scene_) {
                 return (*user_context_.browser_exit_scene_)();
             }
@@ -570,7 +572,8 @@ ScenePtr FileBrowserModule::update(Time delta)
         } else if (not gui_mode_ and APP.player().button_down(Button::down) and
                    scroll_index_ < (int)(*cwd_names_)->size() - 1) {
             scroll_down();
-        } else if (not gui_mode_ and APP.player().button_down(Button::action_1)) {
+        } else if (not gui_mode_ and
+                   APP.player().button_down(Button::action_1)) {
             if ((**cwd_names_).size() not_eq 0) {
                 PLATFORM.speaker().play_sound("button_wooden", 3);
                 auto selected = (**cwd_names_)[scroll_index_];
@@ -603,8 +606,9 @@ ScenePtr FileBrowserModule::update(Time delta)
                     }
                 }
             }
-        } else if (not gui_mode_ and (APP.player().button_down(Button::start) or
-                                      APP.player().button_down(Button::select))) {
+        } else if (not gui_mode_ and
+                   (APP.player().button_down(Button::start) or
+                    APP.player().button_down(Button::select))) {
             mode_ = Mode::options;
             opt_index_ = 0;
             show_opts();
@@ -632,7 +636,8 @@ ScenePtr FileBrowserModule::update(Time delta)
         } else if (not gui_mode_ and APP.player().button_down(Button::down) and
                    scroll_index_ < (int)(*cwd_names_)->size() - 1) {
             scroll_down();
-        } else if (not gui_mode_ and APP.player().button_down(Button::action_1)) {
+        } else if (not gui_mode_ and
+                   APP.player().button_down(Button::action_1)) {
             if ((**cwd_names_).size() not_eq 0) {
                 int entry = scroll_index_ + line_offset_;
                 auto selected = (**cwd_names_)[entry];

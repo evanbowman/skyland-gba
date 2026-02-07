@@ -997,7 +997,8 @@ ScenePtr MacroverseScene::update(Time delta)
             shape_ = (terrain::Sector::Shape)((int)shape_ - 1);
             PLATFORM.speaker().play_sound("click_wooden", 2);
             show_layout_text();
-        } else if (APP.player().button_down(Button::right) and (int) shape_ < 2) {
+        } else if (APP.player().button_down(Button::right) and
+                   (int) shape_ < 2) {
             shape_ = (terrain::Sector::Shape)((int)shape_ + 1);
             PLATFORM.speaker().play_sound("click_wooden", 2);
             show_layout_text();

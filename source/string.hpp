@@ -360,7 +360,6 @@ bool operator not_eq(StringAdapter<Capacity, Mem> buf, const char* str)
 
 
 
-
 StringBuffer<12> stringify(s32 num);
 
 // passthrough stringify just defined for convenience in function templates.

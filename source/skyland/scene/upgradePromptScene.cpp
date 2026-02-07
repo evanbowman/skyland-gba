@@ -537,7 +537,8 @@ ScenePtr UpgradePromptScene::update(Time delta)
     }
 
     auto test_button = [&](Button k) {
-        return APP.player().test_button(k, milliseconds(500), milliseconds(150));
+        return APP.player().test_button(
+            k, milliseconds(500), milliseconds(150));
     };
 
     if (APP.player().button_down(Button::start)) {

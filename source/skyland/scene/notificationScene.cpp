@@ -27,8 +27,10 @@ ScenePtr NotificationScene::update(Time delta)
 
     if (APP.player().button_down(Button::action_1) or
         APP.player().button_down(Button::action_2) or
-        APP.player().button_down(Button::left) or APP.player().button_down(Button::right) or
-        APP.player().button_down(Button::up) or APP.player().button_down(Button::down)) {
+        APP.player().button_down(Button::left) or
+        APP.player().button_down(Button::right) or
+        APP.player().button_down(Button::up) or
+        APP.player().button_down(Button::down)) {
 
         return next_scene_();
     }

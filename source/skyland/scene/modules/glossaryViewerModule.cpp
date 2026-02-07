@@ -577,7 +577,8 @@ s16 GlossaryViewerModule::entries_on_current_page()
 ScenePtr GlossaryViewerModule::show_categories_impl(Time delta)
 {
     auto test_button = [&](Button k) {
-        return APP.player().test_button(k, milliseconds(500), milliseconds(100));
+        return APP.player().test_button(
+            k, milliseconds(500), milliseconds(100));
     };
 
     if (test_button(Button::right) and cg_page_ < cg_page_count - 1) {
@@ -625,7 +626,8 @@ ScenePtr GlossaryViewerModule::show_categories_impl(Time delta)
         PLATFORM.set_tile(Layer::overlay, 1, 4 + cg_cursor_ * 2, 483);
     }
 
-    if (test_button(Button::down) and cg_cursor_ < entries_on_current_page() - 1) {
+    if (test_button(Button::down) and
+        cg_cursor_ < entries_on_current_page() - 1) {
         draw_category_line(cg_cursor_);
         ++cg_cursor_;
         PLATFORM.speaker().play_sound("cursor_tick", 0);
@@ -688,7 +690,8 @@ ScenePtr GlossaryViewerModule::update(Time delta)
     APP.player().update(delta);
 
     auto test_button = [&](Button k) {
-        return APP.player().test_button(k, milliseconds(500), milliseconds(100));
+        return APP.player().test_button(
+            k, milliseconds(500), milliseconds(100));
     };
 
     switch (state_) {
@@ -701,7 +704,8 @@ ScenePtr GlossaryViewerModule::update(Time delta)
                 PLATFORM.speaker().play_sound("cursor_tick", 0);
             }
 
-            if ((test_button(Button::up) or test_button(Button::left)) and page_ > 0) {
+            if ((test_button(Button::up) or test_button(Button::left)) and
+                page_ > 0) {
                 load_appendix_page(--page_);
                 PLATFORM.speaker().play_sound("cursor_tick", 0);
             }
@@ -734,7 +738,8 @@ ScenePtr GlossaryViewerModule::update(Time delta)
             PLATFORM.set_tile(Layer::overlay, 1, 4 + filter_cursor_ * 2, 483);
         }
 
-        if (test_button(Button::down) and filter_cursor_ < filter_opt_count - 1) {
+        if (test_button(Button::down) and
+            filter_cursor_ < filter_opt_count - 1) {
             ++filter_cursor_;
             PLATFORM.speaker().play_sound("cursor_tick", 0);
             for (int y = 2; y < 20; ++y) {
@@ -985,7 +990,8 @@ ScenePtr GlossaryViewerModule::update(Time delta)
             PLATFORM.speaker().play_sound("cursor_tick", 0);
         }
 
-        if ((test_button(Button::up) or test_button(Button::left)) and page_ > 0) {
+        if ((test_button(Button::up) or test_button(Button::left)) and
+            page_ > 0) {
             load_page((**filter_buf_)[--page_]);
             PLATFORM.speaker().play_sound("cursor_tick", 0);
         }
@@ -1008,7 +1014,8 @@ ScenePtr GlossaryViewerModule::update(Time delta)
             PLATFORM.speaker().play_sound("cursor_tick", 0);
         }
 
-        if ((test_button(Button::up) or test_button(Button::left)) and page_ > 0) {
+        if ((test_button(Button::up) or test_button(Button::left)) and
+            page_ > 0) {
             load_drone_page(--page_);
             PLATFORM.speaker().play_sound("cursor_tick", 0);
         }
@@ -1042,7 +1049,8 @@ ScenePtr GlossaryViewerModule::update(Time delta)
                 PLATFORM.speaker().play_sound("cursor_tick", 0);
             }
 
-            if ((test_button(Button::up) or test_button(Button::left)) and page_ > 0 and
+            if ((test_button(Button::up) or test_button(Button::left)) and
+                page_ > 0 and
                 (not filter_begin_ or
                  (filter_begin_ and filter_begin_ < page_))) {
                 load_page(--page_);

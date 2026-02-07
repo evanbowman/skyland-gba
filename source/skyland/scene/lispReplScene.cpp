@@ -596,7 +596,8 @@ TOP:
                     repaint_entry();
                 }
             } else if (test_button(Button::up) or test_button(Button::down) or
-                       test_button(Button::start) or test_button(Button::action_1) or
+                       test_button(Button::start) or
+                       test_button(Button::action_1) or
                        test_button(Button::action_2)) {
                 display_mode_ = DisplayMode::entry;
                 command_->clear();

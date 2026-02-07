@@ -38,9 +38,12 @@ void reduce_fraction(s32& num, s32& div)
 
 
 
-void div_rationals(s32& result_num, s32& result_div,
-                   s32 a_num, s32 a_div,
-                   s32 b_num, s32 b_div)
+void div_rationals(s32& result_num,
+                   s32& result_div,
+                   s32 a_num,
+                   s32 a_div,
+                   s32 b_num,
+                   s32 b_div)
 {
     // (a/b) / (c/d) = (a/b) * (d/c) = (a*d) / (b*c)
     result_num = a_num * b_div;
@@ -55,9 +58,12 @@ void div_rationals(s32& result_num, s32& result_div,
 
 
 
-void sub_rationals(s32& result_num, s32& result_div,
-                   s32 a_num, s32 a_div,
-                   s32 b_num, s32 b_div)
+void sub_rationals(s32& result_num,
+                   s32& result_div,
+                   s32 a_num,
+                   s32 a_div,
+                   s32 b_num,
+                   s32 b_div)
 {
     // a/b - c/d = (a*d - c*b) / (b*d)
     result_num = a_num * b_div - b_num * a_div;
@@ -66,9 +72,12 @@ void sub_rationals(s32& result_num, s32& result_div,
 
 
 
-void mul_rationals(s32& result_num, s32& result_div,
-                   s32 a_num, s32 a_div,
-                   s32 b_num, s32 b_div)
+void mul_rationals(s32& result_num,
+                   s32& result_div,
+                   s32 a_num,
+                   s32 a_div,
+                   s32 b_num,
+                   s32 b_div)
 {
     // (a/b) * (c/d) = (a*c) / (b*d)
     result_num = a_num * b_num;
@@ -77,9 +86,12 @@ void mul_rationals(s32& result_num, s32& result_div,
 
 
 
-void add_rationals(s32& result_num, s32& result_div,
-                   s32 a_num, s32 a_div,
-                   s32 b_num, s32 b_div)
+void add_rationals(s32& result_num,
+                   s32& result_div,
+                   s32 a_num,
+                   s32 a_div,
+                   s32 b_num,
+                   s32 b_div)
 {
     // Formula: a/b + c/d = (a*d + b*c) / (b*d)
     result_num = a_num * b_div + b_num * a_div;
@@ -91,7 +103,8 @@ void add_rationals(s32& result_num, s32& result_div,
 Ratio operator+(const Ratio& lhs, const Ratio& rhs)
 {
     Ratio result;
-    add_rationals(result.num_, result.div_, lhs.num_, lhs.div_, rhs.num_, rhs.div_);
+    add_rationals(
+        result.num_, result.div_, lhs.num_, lhs.div_, rhs.num_, rhs.div_);
     reduce_fraction(result.num_, result.div_);
     return result;
 }
@@ -101,7 +114,8 @@ Ratio operator+(const Ratio& lhs, const Ratio& rhs)
 Ratio operator-(const Ratio& lhs, const Ratio& rhs)
 {
     Ratio result;
-    sub_rationals(result.num_, result.div_, lhs.num_, lhs.div_, rhs.num_, rhs.div_);
+    sub_rationals(
+        result.num_, result.div_, lhs.num_, lhs.div_, rhs.num_, rhs.div_);
     reduce_fraction(result.num_, result.div_);
     return result;
 }

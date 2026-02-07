@@ -261,7 +261,8 @@ ScenePtr FullscreenDialogScene::update(Time delta)
         if (not text_busy) {
             display_mode_ = DisplayMode::button_released_check1;
         } else {
-            if (button_down<Button::action_2>() or button_down<Button::action_1>()) {
+            if (button_down<Button::action_2>() or
+                button_down<Button::action_1>()) {
 
                 while (advance_text(delta, false)) {
                     if (display_mode_ not_eq DisplayMode::busy) {
@@ -279,7 +280,8 @@ ScenePtr FullscreenDialogScene::update(Time delta)
     case DisplayMode::wait: {
         animate_moretext_icon();
 
-        if (button_down<Button::action_2>() or button_down<Button::action_1>()) {
+        if (button_down<Button::action_2>() or
+            button_down<Button::action_1>()) {
 
             text_state_.timer_ = 0;
 
@@ -309,7 +311,8 @@ ScenePtr FullscreenDialogScene::update(Time delta)
 
     case DisplayMode::done:
         animate_moretext_icon();
-        if (button_down<Button::action_2>() or button_down<Button::action_1>()) {
+        if (button_down<Button::action_2>() or
+            button_down<Button::action_1>()) {
 
             // if (text_[1] not_eq LocaleString::empty) {
             //     ++text_;

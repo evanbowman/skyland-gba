@@ -115,9 +115,11 @@ ScenePtr ColorProfileModule::update(Time delta)
         return player().test_button(k, milliseconds(500), milliseconds(100));
     };
 
-    if (player().button_down(Button::alt_2) or player().button_down(Button::alt_1)) {
+    if (player().button_down(Button::alt_2) or
+        player().button_down(Button::alt_1)) {
         bind_default();
-    } else if (player().button_up(Button::alt_2) or player().button_up(Button::alt_1)) {
+    } else if (player().button_up(Button::alt_2) or
+               player().button_up(Button::alt_1)) {
         if (not(player().button_pressed(Button::alt_2) or
                 player().button_pressed(Button::alt_1))) {
             bind_selected_profile();
