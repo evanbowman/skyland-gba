@@ -141,13 +141,18 @@
   (dialog* text))
 
 
-(defn dialog-await-binary-q ((text . string) y n)
+(defn/c dialog-await-binary-q ((text . string) y n)
   (equal 0 (await (dialog-choice* text (list y n)))))
 
+;; NOTE: a compiled function cannot call another compiled function that calls
+;; await, so dialog-await-y/n is currently interpreted. I will fix this someday.
 (defn dialog-await-y/n ((text . string))
   (dialog-await-binary-q text "yes" "no"))
 
 
+;; NOTE: foreach is defined as a regular function, because an interpreted
+;; function passed to a bytecode compiled function is not allowed to call
+;; `await`, and this is something that you'd often want to do from foreach.
 (defn foreach ((cb . lambda) (lat . pair))
   (let ((l lat))
     (while l
