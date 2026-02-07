@@ -41,10 +41,13 @@
   (setq on-converge nil)
   (await (dialog* "<c:Girl:14>Heya! I'm so lucky someone showed up! Damned goblins took my whole village as hostages. Somehow I slept through the whole thing... Anyway, please take me with you! I promise not to get in the way!"))
 
-  (dialog-setup-binary-q-w/lore "Sure!" "No."
-                                '(("Why let her aboard?" .
-                                   "<c:Girl:14>Hmm.. well let's see. I'm good at cooking, I can clean your ship, I'm pretty decent at crochet and... I don't know if this is even relevant, but I'm a blackbelt in karate! <B:0> Can I come along?")))
-  (dialog "She seems harmless, invite her aboard?"))
+  (if (dialog-await-binary-q-w/lore "She seems harmless, invite her aboard?"
+                                    "Sure!"
+                                    "No."
+                                    '(("Why let her aboard?" .
+                                       "<c:Girl:14>Hmm.. well let's see. I'm good at cooking, I can clean your ship, I'm pretty decent at crochet and... I don't know if this is even relevant, but I'm a blackbelt in karate! <B:0> Can I come along?")))
+      (on-dialog-accepted)
+      (on-dialog-declined)))
 
 
 (defn/temp join-crew (xy messages)

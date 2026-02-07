@@ -7452,6 +7452,12 @@ BUILTIN_TABLE(
                        i += sizeof(LexicalVarLoad);
                        break;
 
+                   case Await::op(): {
+                       out += Await::name();
+                       i += sizeof(Await);
+                       break;
+                   }
+
                    case Ret::op(): {
                        if (depth == 0) {
                            out += "RET\r\n";

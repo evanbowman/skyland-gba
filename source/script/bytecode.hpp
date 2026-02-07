@@ -987,6 +987,22 @@ struct PushRatio
 };
 
 
+struct Await
+{
+    Header header_;
+
+    static const char* name()
+    {
+        return "AWAIT";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 59;
+    }
+};
+
+
 } // namespace instruction
 
 } // namespace lisp

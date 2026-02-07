@@ -109,6 +109,16 @@ TOP:
         }
 
 
+        case Await::op():
+            if (get_op0()->type() not_eq lisp::Value::Type::promise) {
+                pop_op();
+                push_op(make_error("await expects a promise value!"));
+            } else {
+                PLATFORM.fatal("TODO: implement await for bytecode!");
+            }
+            break;
+
+
         case LoadVar::op(): {
             auto inst = read<LoadVar>(code, pc);
             push_op(get_var_stable(inst->ptr_.get()));

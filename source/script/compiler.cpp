@@ -474,6 +474,15 @@ TOP:
                                     tail_expr);
 
         } else if (fn->type() == Value::Type::symbol and
+                   str_eq(fn->symbol().name(), "await")) {
+            lat = lat->cons().cdr();
+            if (lat->type() not_eq Value::Type::cons) {
+                while (true)
+                    ; // TODO: raise error!
+            }
+            write_pos = compile_impl(ctx, buffer, write_pos, lat->cons().car(), jump_offset, false);
+            append<instruction::Await>(buffer, write_pos);
+        } else if (fn->type() == Value::Type::symbol and
                    str_eq(fn->symbol().name(), "if")) {
 
             lat = lat->cons().cdr();
