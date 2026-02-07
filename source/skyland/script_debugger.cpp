@@ -14,6 +14,12 @@
 
 
 
+void print_char(utf8::Codepoint c,
+                const OverlayCoord& coord,
+                const Optional<FontColors>& colors);
+
+
+
 namespace skyland
 {
 
@@ -88,6 +94,9 @@ struct PrinterState
     lisp::Value* match_expr_;
     int match_begin_line_ = -1;
     int match_end_line_ = -1;
+    int match_begin_offset_ = -1;
+    int match_end_offset_ = -1;
+    int match_begin_abs_offset_ = -1;
     int depth_ = 0;
     int linecount_ = 0;
     int chars_since_newline_ = 0;
@@ -151,6 +160,13 @@ void pretty_print_impl(PrinterState& ps,
     } else if (lisp::is_list(current_expr)) {
         if (current_expr == ps.match_expr_) {
             ps.match_begin_line_ = ps.linecount_;
+            for (int i = ps.output_.size() - 1; i > -1; --i) {
+                if (ps.output_[i] == '\n') {
+                    break;
+                }
+                ++ps.match_begin_offset_;
+            }
+            ps.match_begin_abs_offset_ = ps.output_.size();
         }
 
         ps.output_.push_back('(');
@@ -242,6 +258,8 @@ void pretty_print_impl(PrinterState& ps,
 
         if (current_expr == ps.match_expr_) {
             ps.match_end_line_ = ps.linecount_;
+            ps.match_end_offset_ =
+                ps.match_begin_offset_ + (ps.output_.size() - ps.match_begin_abs_offset_);
         }
     } else {
         pretty_print_atom(ps, current_expr);
@@ -317,11 +335,29 @@ void pretty_print_current_fn_with_expr(lisp::Value* expr)
 
             } else {
                 auto colors = text_colors;
-                if (linum >= ps.match_begin_line_ and linum <= ps.match_end_line_) {
-                    colors = text_colors_highlight;
-                }
 
-                Text::print(line.c_str(), {1, y}, colors);
+                u8 write_pos = 1;
+                int len = 0;
+                utf8::scan([&](const utf8::Codepoint& cp, const char* raw, int) {
+                    if (linum >= ps.match_begin_line_ and
+                        linum <= ps.match_end_line_) {
+                        if (len > ps.match_end_offset_) {
+                            colors = text_colors;
+                        } else if (len > ps.match_begin_offset_ and linum == ps.match_begin_line_) {
+                            colors = text_colors_highlight;
+                        } else if (linum > ps.match_begin_line_) {
+                            colors = text_colors_highlight;
+                        }
+                    }
+                    print_char(cp, {write_pos, y}, colors);
+                    ++write_pos;
+                    ++len;
+                    return true;
+                },
+                    line.c_str(),
+                    strlen(line.c_str()));
+
+                // Text::print(line.c_str(), {1, y}, colors);
 
                 y += 2;
                 if (y >= 20) {
