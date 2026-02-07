@@ -357,7 +357,9 @@ void pretty_print_current_fn_with_expr(lisp::Value* expr)
                     line.c_str(),
                     strlen(line.c_str()));
 
-                // Text::print(line.c_str(), {1, y}, colors);
+                if (linum == ps.match_begin_line_) {
+                    print_char(utf8::getc(">"), {0, y}, text_colors);
+                }
 
                 y += 2;
                 if (y >= 20) {
