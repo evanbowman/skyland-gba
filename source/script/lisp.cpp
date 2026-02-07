@@ -4302,9 +4302,23 @@ namespace debug
 {
 
 
-Vector<LocalVar> get_locals()
+void get_globals(Vector<VariableBinding>& results)
 {
-    Vector<LocalVar> results;
+    globals_tree_traverse(bound_context->globals_tree_,
+                          [&](Value& val, Value& node) {
+                              auto name = val.cons().car()->symbol().name();
+                              for (auto& result : results) {
+                                  if (str_eq(name, result.name_)) {
+                                      return;
+                                  }
+                              }
+                              results.push_back({name, val.cons().cdr()});
+                          });
+}
+
+
+void get_locals(Vector<VariableBinding>& results)
+{
     if (bound_context->lexical_bindings_ not_eq get_nil()) {
         auto stack = bound_context->lexical_bindings_;
 
@@ -4331,7 +4345,6 @@ Vector<LocalVar> get_locals()
             stack = stack->cons().cdr();
         }
     }
-    return results;
 }
 
 

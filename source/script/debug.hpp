@@ -50,14 +50,15 @@ Value* get_watchpoints_list();
 
 
 
-struct LocalVar
+struct VariableBinding
 {
     const char* name_;
     Value* value_;
 };
 
 
-Vector<LocalVar> get_locals();
+void get_locals(Vector<VariableBinding>& output);
+void get_globals(Vector<VariableBinding>& output);
 
 
 } // namespace lisp::debug

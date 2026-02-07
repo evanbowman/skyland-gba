@@ -47,7 +47,7 @@ static constexpr const Text::OptColors text_colors_highlight{
 static EXT_WORKRAM_DATA enum class DisplayTab : u8 {
     codeview,
     callstack,
-    local_vars,
+    variables,
     operand_stack,
     arguments,
     count
@@ -382,6 +382,15 @@ void pretty_print_current_fn_with_expr(lisp::Value* expr)
 
 
 
+static void print_tab_heading(const char* heading)
+{
+    Text::print(format("<- %:% ->",
+                       (int)debug_display_tab,
+                       heading).c_str(), {1, 6}, text_colors_inv);
+}
+
+
+
 static void onscreen_debugger_render_tab(lisp::Value* expr, u32& scroll)
 {
     for (int x = 0; x < 30; ++x) {
@@ -391,32 +400,56 @@ static void onscreen_debugger_render_tab(lisp::Value* expr, u32& scroll)
     }
 
     switch (debug_display_tab) {
+    case DisplayTab::codeview: {
+        StringBuffer<18> name = "?";
+        auto current_fn = lisp::get_this();
+        if (current_fn->type() == lisp::Value::Type::function) {
+            if (auto repr_name = lisp::nameof(current_fn)) {
+                name = repr_name;
+            }
+        }
+        auto heading = format<32>("code: %", name.c_str());
+        if (heading.length() > 21) {
+            while (heading.length() > 20) {
+                heading.pop_back();
+            }
+            heading += "…";
+        }
+        print_tab_heading(heading.c_str());
+        pretty_print_current_fn_with_expr(expr);
+        break;
+    }
+
     case DisplayTab::callstack: {
-        Text::print("<- callstack ->", {1, 6}, text_colors_inv);
+        print_tab_heading("callstack");
         show_callstack(8, scroll);
         break;
     }
 
-    case DisplayTab::local_vars: {
-        Text::print("<- local vars ->", {1, 6}, text_colors_inv);
-        auto locals = lisp::debug::get_locals();
+    case DisplayTab::variables: {
+        Vector<lisp::debug::VariableBinding> vars;
+        lisp::debug::get_locals(vars);
+        lisp::debug::get_globals(vars);
+
+        print_tab_heading(format("variables (%)", vars.size()).c_str());
+
         int start_y = 8;
-        scroll = clamp((int)scroll, 0, (int)locals.size() - 1);
+        scroll = clamp((int)scroll, 0, (int)vars.size() - 1);
         for (u32 i = scroll;
-             i < locals.size() and (i - scroll) * 2 + start_y < 20;
+             i < vars.size() and (i - scroll) * 2 + start_y < 20;
              ++i) {
-            u8 y = (start_y + i * 2);
+            u8 y = (start_y + (i - scroll) * 2);
             StringBuffer<30> out;
-            out += locals[i].name_;
+            out += vars[i].name_;
             out += ": ";
-            out += lisp::val_to_string<30>(locals[i].value_);
+            out += lisp::val_to_string<30>(vars[i].value_);
             Text::print(out.c_str(), OverlayCoord{1, y}, text_colors);
         }
         break;
     }
 
     case DisplayTab::operand_stack: {
-        Text::print("<- value stack ->", {1, 6}, text_colors_inv);
+        print_tab_heading("value stack");
         int start_y = 8;
         scroll = clamp((int)scroll, 0, (int)lisp::get_op_count() - 1);
         for (u32 i = scroll;
@@ -433,7 +466,7 @@ static void onscreen_debugger_render_tab(lisp::Value* expr, u32& scroll)
     }
 
     case DisplayTab::arguments: {
-        Text::print("<- arguments ->", {1, 6}, text_colors_inv);
+        print_tab_heading("arguments");
         int start_y = 8;
         for (u32 i = 0; i < lisp::get_argc() and i * 2 + start_y < 20; ++i) {
             auto arg = lisp::get_arg(i);
@@ -443,21 +476,6 @@ static void onscreen_debugger_render_tab(lisp::Value* expr, u32& scroll)
                 {1, y},
                 text_colors);
         }
-        break;
-    }
-
-    case DisplayTab::codeview: {
-        StringBuffer<18> name = "?";
-        auto current_fn = lisp::get_this();
-        if (current_fn->type() == lisp::Value::Type::function) {
-            if (auto repr_name = lisp::nameof(current_fn)) {
-                name = repr_name;
-            }
-        }
-        Text::print(format("<- code: % ->", name.c_str()).c_str(),
-                    {1, 6},
-                    text_colors_inv);
-        pretty_print_current_fn_with_expr(expr);
         break;
     }
 
