@@ -1728,15 +1728,27 @@ static void debug_resume()
 }
 
 
-void debug_break_compiled_fn(Value* obj)
+using RestoreDebugBreak = bool;
+RestoreDebugBreak debug_break_compiled_fn(Value* obj)
 {
     if (bound_context->debug_handler_ and bound_context->debug_break_) {
         auto& handler = *bound_context->debug_handler_;
         auto reason = debug::Interrupt::enter_compiled_function;
-        if (handler(reason, obj) == debug::Action::resume) {
+        auto act = handler(reason, obj);
+        switch (act) {
+        case debug::Action::resume:
             debug_resume();
+            return false;
+
+        case debug::Action::step_over:
+            bound_context->debug_break_ = false;
+            return true;
+
+        case debug::Action::step:
+            return true;
         }
     }
+    return false;
 }
 
 
@@ -1813,10 +1825,14 @@ void funcall(Value* obj, u8 argc)
             const auto break_loc = ctx.operand_stack_->size() - 1;
             ctx.arguments_break_loc_ = break_loc;
             ctx.current_fn_argc_ = argc;
+            Value* result = L_NIL;
             if (UNLIKELY(bound_context->debug_break_)) {
-                debug_break_compiled_fn(obj);
+                const auto restore_debug_break = debug_break_compiled_fn(obj);
+                result = obj->function().cpp_impl_(argc);
+                bound_context->debug_break_ = restore_debug_break;
+            } else {
+                result = obj->function().cpp_impl_(argc);
             }
-            auto result = obj->function().cpp_impl_(argc);
             pop_args();
             push_op(result);
             break;
@@ -1859,8 +1875,9 @@ void funcall(Value* obj, u8 argc)
             ctx.arguments_break_loc_ = break_loc;
             ctx.current_fn_argc_ = argc;
 
+            bool restore_debug_break = false;
             if (UNLIKELY(bound_context->debug_break_)) {
-                debug_break_compiled_fn(obj);
+                restore_debug_break = debug_break_compiled_fn(obj);
             }
 
             if (bound_context->strict_) {
@@ -1875,6 +1892,8 @@ void funcall(Value* obj, u8 argc)
                            .bytecode_impl_.bytecode_offset()
                            ->integer()
                            .value_);
+
+            bound_context->debug_break_ = restore_debug_break;
 
             auto result = get_op0();
             pop_op();
