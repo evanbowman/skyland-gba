@@ -772,7 +772,9 @@ ScenePtr BoxedDialogScene::update(Time delta)
             if (APP.dialog_receiver_promise()) {
                 auto p = (lisp::Value*)*APP.dialog_receiver_promise();
                 APP.dialog_receiver_promise().reset();
+                PLATFORM.set_background_task(parallax_background_task);
                 lisp::resolve_promise_safe(p, L_NIL);
+                PLATFORM.set_background_task(nullptr);
                 lisp::pop_op();
             } else {
                 invoke_hook("on-dialog-closed");
@@ -858,10 +860,12 @@ ScenePtr BoxedDialogScene::update(Time delta)
                     lisp::Protected p =
                         (lisp::Value*)*APP.dialog_receiver_promise();
                     APP.dialog_receiver_promise().reset();
+                    PLATFORM.set_background_task(parallax_background_task);
                     lisp::resolve_promise_safe(
                         p,
                         L_INT((lisp::length(old_dialog_opts) - 1) -
                               choice_sel_));
+                    PLATFORM.set_background_task(nullptr);
                 } else {
                     lisp::safecall(cb->cons().cdr(), 0);
                 }
