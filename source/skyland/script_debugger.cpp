@@ -429,6 +429,7 @@ static void onscreen_debugger_render_tab(lisp::Value* expr, u32& scroll)
     case DisplayTab::variables: {
         Vector<lisp::debug::VariableBinding> vars;
         lisp::debug::get_locals(vars);
+        int local_count = vars.size();
         lisp::debug::get_globals(vars);
 
         print_tab_heading(format("variables (%)", vars.size()).c_str());
@@ -440,6 +441,9 @@ static void onscreen_debugger_render_tab(lisp::Value* expr, u32& scroll)
              ++i) {
             u8 y = (start_y + (i - scroll) * 2);
             StringBuffer<30> out;
+            if ((int)i >= local_count) {
+                out += "g:";
+            }
             out += vars[i].name_;
             out += ": ";
             out += lisp::val_to_string<30>(vars[i].value_);
