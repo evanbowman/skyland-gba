@@ -80,6 +80,7 @@
         dialog-sequence
         cargo-bays
         hostile-pickup-cart
+        dialog-await-binary-q-lore
         pickup-cart
         pickup-cart-cb
         place-new-block
