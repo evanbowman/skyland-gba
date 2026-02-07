@@ -18,13 +18,6 @@
 ;; Let's define some useful
 ;; builtin functions:
 
-(defn/c cargo-bays ((isle . wrapped))
-  (let ((rooms-list (rooms isle)))
-    (map (lambda (room)
-           (cons (cadr room)
-                 (cadr (cdr room))))
-         (filter (car-equalto? 'cargo-bay) rooms-list))))
-
 (defn/c clamp (v low high)
   (cond
    ((< v low) low)

@@ -78,6 +78,7 @@
         find-crew-slot
         find-crew-slot-cb
         dialog-sequence
+        cargo-bays
         hostile-pickup-cart
         pickup-cart
         pickup-cart-cb
