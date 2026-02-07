@@ -110,6 +110,7 @@ inline instruction::Header* load_instruction(ScratchBuffer& buffer, int index)
             MATCH(PushFloat)
             MATCH(LoadBuiltin)
             MATCH(PushRatio)
+            MATCH(Await)
         }
     }
     return nullptr;
@@ -480,7 +481,8 @@ TOP:
                 while (true)
                     ; // TODO: raise error!
             }
-            write_pos = compile_impl(ctx, buffer, write_pos, lat->cons().car(), jump_offset, false);
+            write_pos = compile_impl(
+                ctx, buffer, write_pos, lat->cons().car(), jump_offset, false);
             append<instruction::Await>(buffer, write_pos);
         } else if (fn->type() == Value::Type::symbol and
                    str_eq(fn->symbol().name(), "if")) {
