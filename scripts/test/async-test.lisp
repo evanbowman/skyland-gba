@@ -2,6 +2,12 @@
 ;;; async-test.lisp
 ;;;
 
+;;; Overview: what is allowed: Await may be used in any type of interpreted
+;;; function. There are some limitations concerning compiled or native
+;;; code. Bytecode compiled functions themselves can use await syntax, but they
+;;; cannot call other functions that call await. Builtin functions like map also
+;;; may not call functions that use await.
+
 (global 'put 'temp)
 
 (setq put log)
