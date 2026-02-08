@@ -2,12 +2,6 @@
 ;;; async-test.lisp
 ;;;
 
-;;; Overview: what is allowed: Await may be used in any type of interpreted
-;;; function. There are some limitations concerning compiled or native
-;;; code. Bytecode compiled functions themselves can use await syntax, but they
-;;; cannot call other functions that call await. Builtin functions like map also
-;;; may not call functions that use await.
-
 (global 'put 'temp)
 
 (setq put log)
@@ -17,6 +11,10 @@
 (defn assert-v (v)
   (when (not v)
     (error (format "In test %: assert failed! %" current-test v))))
+
+(defn assert-error-status (v str)
+  (let ((msg (error-info v)))
+    (assert-eq msg str)))
 
 (defn assert-eq (lhs rhs)
   (when (not (equal lhs rhs))
@@ -40,18 +38,43 @@
 (global 'async-done)
 (setq async-done false)
 
+
+(begin-test "async compiled restrictions")
+;;; Overview: what is allowed: Await may be used in any type of interpreted
+;;; function. There are some limitations concerning compiled or native
+;;; code. Bytecode compiled functions themselves can use await syntax, but they
+;;; cannot call other functions that call await. Builtin functions like map also
+;;; may not call functions that use await. Basically if there's a native
+;;; function higher on the stack, execution cannot be suspended because the
+;;; environment cannot collapse execution into a sequence of sequential states
+;;; when an intermediary function higher on the callstack is compiled, and
+;;; because execution cannot be flattened, it's impossible to escape and resume
+;;; when in the middle of executing native code.
+
 (defn bad ()
   3)
 
 ;; Cannot await a non-promise object
-(assert-v (error? ((lambda () (await (bad))))))
+(assert-error-status ((lambda () (await (bad))))
+                     "await expects a promise object, got 3")
+
 ;; Cannot await from a function called by native code
-(assert-v (error? (map (lambda (_) (await (wait* 1))) '(1 2 3))))
-(assert-v (error? ((compile (lambda (cb) (cb))) (lambda () (await (wait* 1))))))
+(assert-error-status (map (lambda (_) (await (wait* 1))) '(1 2 3))
+                     "await failed due to: caller <fn:map:2> is compiled")
+
+(assert-error-status ((compile (lambda (cb) (cb))) (lambda () (await (wait* 1))))
+                     "await failed due to: caller <lambda:1> is compiled")
+
+(assert-error-status (map (compile (lambda (n) (await (wait* 1)))) '(1 2 3))
+                     "await failed due to: caller <fn:map:2> is compiled")
+(end-test)
+
+
 
 (enter-stress-gc-mode)
 
 (setq temp 9999)
+
 
 ;; Launch and suspend a function, to be resumed upon completion of the other
 ;; test cases.

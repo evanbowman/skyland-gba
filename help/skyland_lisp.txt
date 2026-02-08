@@ -119,6 +119,16 @@
 
  float: IEEE-754 floating
  point number.
+
+ promise: A value that allows
+ execution to be suspended
+ and resumed. When a function
+ returns a promise, that
+ function "promises" to
+ eventually return a value,
+ and you may wait on the
+ result with the await
+ keyword.
  
  wrapped: A means of
  defining custom types.

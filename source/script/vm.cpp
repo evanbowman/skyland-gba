@@ -30,7 +30,7 @@ Instruction* read(ScratchBuffer& buffer, int& pc)
 }
 
 
-bool vm_can_suspend()
+bool vm_can_suspend(Value*& agitant)
 {
     bool can_suspend = true;
     // NOTE: stacktrace includes frames up-to, but not including, the current
@@ -39,6 +39,7 @@ bool vm_can_suspend()
     l_foreach(strace, [&](Value* v) {
         if (v->type() == Value::Type::function) {
             if (v->hdr_.mode_bits_ not_eq Function::ModeBits::lisp_function) {
+                agitant = v;
                 can_suspend = false;
             }
         }
@@ -144,7 +145,8 @@ TOP:
                 pop_op();
                 push_op(make_error("await expects a promise value!"));
             } else {
-                if (vm_can_suspend()) {
+                Value* agitant = L_NIL;
+                if (vm_can_suspend(agitant)) {
                     SuspendedExecutionContext suspend {
                         .program_counter_ = pc,
                         .nested_scope_ = nested_scope
@@ -152,7 +154,10 @@ TOP:
                     return suspend;
                 } else {
                     pop_op(); // the promise value
-                    push_op(make_error("vm suspend failed"));
+                    auto err_str = ::format("await failed due to: "
+                                            "caller % is compiled",
+                                            val_to_string<24>(agitant).c_str());
+                    push_op(make_error(err_str.c_str()));
                 }
             }
             break;

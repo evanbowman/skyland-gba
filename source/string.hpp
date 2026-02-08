@@ -15,6 +15,7 @@
 #include "memory/buffer.hpp"
 #include "number/numeric.hpp"
 #include "platform/scratch_buffer.hpp"
+#include "script/value.hpp"
 
 
 
@@ -369,6 +370,9 @@ inline const char* stringify(const char* arg)
 }
 
 
+template <u32 buffer_size = 64>
+StringBuffer<buffer_size> stringify(lisp::Value* v);
+
 
 template <s32 precision, typename T, s32 buffer_size = 24>
 StringBuffer<buffer_size> stringify(const FixedPointT<precision, T>& fp)
@@ -386,6 +390,12 @@ StringBuffer<buffer_size> stringify(const FixedPointT<precision, T>& fp)
     return result;
 }
 
+
+template <u32 size>
+inline StringBuffer<size>& stringify(StringBuffer<size>& str)
+{
+    return str;
+}
 
 
 template <u32 s1, u32 s2>

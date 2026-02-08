@@ -924,15 +924,15 @@ static int examine_argument_list(Value* function_impl)
                 if (not(val->cons().car()->type() == Value::Type::symbol and
                         val->cons().cdr()->type() == Value::Type::symbol)) {
                     PLATFORM.fatal(::format("invalid type declaration: %",
-                                            val_to_string<96>(val).c_str()));
+                                            val_to_string<96>(val)));
                 } else {
                     sym = val->cons().car();
                 }
             } else {
                 PLATFORM.fatal(::format(
                     "value \'%\' in argument list \'%\' is non-symbol!",
-                    val_to_string<64>(val).c_str(),
-                    val_to_string<128>(arg_lat).c_str()));
+                    val,
+                    arg_lat));
             }
         } else {
             sym = val;
@@ -944,7 +944,7 @@ static int examine_argument_list(Value* function_impl)
                 "symbol name \'%\' in argument list \'%\' is too long! "
                 "(4 char limit)",
                 sym->symbol().name(),
-                val_to_string<128>(arg_lat).c_str()));
+                arg_lat));
         }
     });
 
@@ -1165,8 +1165,7 @@ static Value* make_lisp_argumented_function(Value* impl)
         const char* error_fmt = "no more than % named args allowed in function";
 
         Protected error_str(L_NIL);
-        error_str =
-            make_string(::format(error_fmt, MAX_NAMED_ARGUMENTS).c_str());
+        error_str = make_string(::format(error_fmt, MAX_NAMED_ARGUMENTS).c_str());
 
         return make_error(Error::Code::invalid_syntax, error_str);
     }
@@ -1792,7 +1791,7 @@ void funcall(Value* obj, u8 argc)
 
         auto arg_error = [&](auto exp_type, auto got_type) {
             return ::format<256>("invalid arg type for %! expected %, got %",
-                                 val_to_string<64>(obj).c_str(),
+                                 obj,
                                  type_to_string((ValueHeader::Type)exp_type),
                                  type_to_string((ValueHeader::Type)got_type));
         };
@@ -1808,7 +1807,7 @@ void funcall(Value* obj, u8 argc)
         pop_args();                                                            \
         push_op(make_error(                                                    \
             arg_error(obj->function().sig_.FIELD, get_arg(ARG)->type())        \
-                .c_str()));                                                    \
+                ));                                                    \
         break;                                                                 \
     }
 
@@ -4611,7 +4610,8 @@ void eval_loop(Vector<EvalFrame>& eval_stack)
             auto result = get_op0();
             if (result->type() not_eq Value::Type::promise) {
                 pop_op();
-                push_op(make_error("await expects a promise object!"));
+                push_op(make_error(::format("await expects a promise object, "
+                                            "got %", result)));
             } else {
                 StringBuffer<48> agitant;
                 if (can_suspend(eval_stack, agitant)) {
@@ -4620,7 +4620,9 @@ void eval_loop(Vector<EvalFrame>& eval_stack)
                 } else {
                     pop_op(); // The promise
                     push_op(make_error(
-                        ::format("suspend failed due to: %", agitant.c_str())
+                        ::format("await failed due to: caller % "
+                                 "is compiled",
+                                 agitant.c_str())
                             .c_str()));
                 }
             }

@@ -712,6 +712,12 @@ Value* make_string(const char* str);
 Value* make_float(Float::ValueType v);
 Value* make_promise();
 
+template <u32 size>
+Value* make_error(const StringBuffer<size>& str)
+{
+    return make_error(str.c_str());
+}
+
 // NOTE: do not call resolve_promise within a wrapped C++ function passed to
 // lisp. This function can only be called from outside the interpreter, as it
 // clears the current operand stack.
@@ -1125,3 +1131,11 @@ ArgBindings perform_argument_substitution(Value* impl);
 
 
 } // namespace lisp
+
+
+
+template <u32 buffer_size>
+StringBuffer<buffer_size> stringify(lisp::Value* v)
+{
+    return lisp::val_to_string<buffer_size>(v);
+}
