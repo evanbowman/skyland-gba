@@ -39,6 +39,9 @@
 
 ;; Cannot await a non-promise object
 (assert-v (error? ((lambda () (await (bad))))))
+;; Cannot await from a function called by native code
+(assert-v (error? (map (lambda (_) (await (wait* 1))) '(1 2 3))))
+(assert-v (error? ((compile (lambda (cb) (cb))) (lambda () (await (wait* 1))))))
 
 (enter-stress-gc-mode)
 
@@ -92,6 +95,19 @@
                           (await (test-delay 90))
                           (range (/ n 2)))
                         10)))
+  (end-test)
+
+  (begin-test "compiled code")
+  ;; Await works withing compiled lambdas
+  (assert-eq 156 ((compile (lambda (n)
+                             (* n (await (test-delay 50)))))
+                  6))
+  ;; Await used in a compiled lambda invoked by a different compiled lambda
+  ;; should fail.
+  (assert-v (error? ((compile (lambda (foo)
+                                (foo)))
+                     (compile (lambda ()
+                                (await (wait* 12)))))))
   (end-test)
 
   (begin-test "lexical bindings")
