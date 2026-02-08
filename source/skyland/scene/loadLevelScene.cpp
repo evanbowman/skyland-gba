@@ -212,6 +212,37 @@ void update_weather_onload()
 }
 
 
+const char* LoadLevelScene::target_script_name(WorldGraph::Node::Type t)
+{
+    switch (t) {
+    case WorldGraph::Node::Type::neutral:
+    case WorldGraph::Node::Type::neutral_hidden:
+    default: {
+        return "/scripts/event/neutral.lisp";
+    }
+
+    case WorldGraph::Node::Type::quest:
+        return "/scripts/event/quest.lisp";
+
+    case WorldGraph::Node::Type::corrupted:
+        return "/scripts/event/storm_king.lisp";
+
+    case WorldGraph::Node::Type::quest_marker:
+        return "/scripts/event/quest_marker.lisp";
+
+    case WorldGraph::Node::Type::hostile_hidden:
+        return "/scripts/event/uncharted.lisp";
+
+    case WorldGraph::Node::Type::exit:
+    case WorldGraph::Node::Type::hostile:
+        return "/scripts/event/hostile.lisp";
+
+    case WorldGraph::Node::Type::shop:
+        return "/scripts/event/shop/shop.lisp";
+    }
+    return nullptr;
+}
+
 
 ScenePtr LoadLevelScene::update(Time delta)
 {
@@ -225,39 +256,8 @@ ScenePtr LoadLevelScene::update(Time delta)
 
     update_weather_onload();
 
-    switch (node.type_) {
-    case WorldGraph::Node::Type::neutral:
-    case WorldGraph::Node::Type::neutral_hidden:
-    default: {
-        APP.invoke_script("/scripts/event/neutral.lisp");
-        break;
-    }
-
-    case WorldGraph::Node::Type::quest:
-        APP.invoke_script("/scripts/event/quest.lisp");
-        break;
-
-    case WorldGraph::Node::Type::corrupted:
-        APP.invoke_script("/scripts/event/storm_king.lisp");
-        break;
-
-    case WorldGraph::Node::Type::quest_marker:
-        APP.invoke_script("/scripts/event/quest_marker.lisp");
-        break;
-
-    case WorldGraph::Node::Type::hostile_hidden: {
-        APP.invoke_script("/scripts/event/uncharted.lisp");
-        break;
-    }
-
-    case WorldGraph::Node::Type::exit:
-    case WorldGraph::Node::Type::hostile: {
-        APP.invoke_script("/scripts/event/hostile.lisp");
-        break;
-    }
-    case WorldGraph::Node::Type::shop:
-        APP.invoke_script("/scripts/event/shop/shop.lisp");
-        break;
+    if (auto script = target_script_name(node.type_)) {
+        APP.invoke_script(script);
     }
 
     // Eh... can't hurt to run it. Better than it running during the middle of a

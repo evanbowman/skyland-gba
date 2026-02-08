@@ -37,6 +37,8 @@ public:
     void exit(Scene& next) override;
 
 
+    static const char* target_script_name(WorldGraph::Node::Type t);
+
 
     ScenePtr update(Time delta) override;
 };

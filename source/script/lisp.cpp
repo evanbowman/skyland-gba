@@ -4619,11 +4619,10 @@ void eval_loop(Vector<EvalFrame>& eval_stack)
                     return;
                 } else {
                     pop_op(); // The promise
-                    push_op(make_error(
-                        ::format("await failed due to: caller % "
-                                 "is compiled",
-                                 agitant.c_str())
-                            .c_str()));
+                    auto err_str = ::format("await failed: compiled caller % "
+                                            "cannot call functions that await",
+                                            agitant);
+                    push_op(make_error(err_str));
                 }
             }
             break;
@@ -6831,6 +6830,22 @@ BUILTIN_TABLE(
            if (auto name = nameof(get_op0())) {
                return make_symbol(name);
            }
+           return L_NIL;
+       }}},
+     {"foreach",
+      {SIG2(nil, function, cons),
+       [](int argc) {
+           L_EXPECT_OP(1, function);
+           L_EXPECT_OP(0, cons);
+
+           auto fn = get_op1();
+
+           l_foreach(get_op0(), [&](Value* val) {
+               push_op(val);
+               funcall(fn, 1);
+               pop_op(); // result
+           });
+
            return L_NIL;
        }}},
      {"map",

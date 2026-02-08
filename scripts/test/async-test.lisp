@@ -44,12 +44,7 @@
 ;;; function. There are some limitations concerning compiled or native
 ;;; code. Bytecode compiled functions themselves can use await syntax, but they
 ;;; cannot call other functions that call await. Builtin functions like map also
-;;; may not call functions that use await. Basically if there's a native
-;;; function higher on the stack, execution cannot be suspended because the
-;;; environment cannot collapse execution into a sequence of sequential states
-;;; when an intermediary function higher on the callstack is compiled, and
-;;; because execution cannot be flattened, it's impossible to escape and resume
-;;; when in the middle of executing native code.
+;;; may not call functions that use await.
 
 (defn bad ()
   3)
@@ -60,13 +55,13 @@
 
 ;; Cannot await from a function called by native code
 (assert-error-status (map (lambda (_) (await (wait* 1))) '(1 2 3))
-                     "await failed due to: caller <fn:map:2> is compiled")
+                     "await failed: compiled caller <fn:map:2> cannot call functions that await")
 
 (assert-error-status ((compile (lambda (cb) (cb))) (lambda () (await (wait* 1))))
-                     "await failed due to: caller <lambda:1> is compiled")
+                     "await failed: compiled caller <lambda:1> cannot call functions that await")
 
 (assert-error-status (map (compile (lambda (n) (await (wait* 1)))) '(1 2 3))
-                     "await failed due to: caller <fn:map:2> is compiled")
+                     "await failed: compiled caller <fn:map:2> cannot call functions that await")
 (end-test)
 
 

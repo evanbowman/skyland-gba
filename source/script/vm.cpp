@@ -154,9 +154,9 @@ TOP:
                     return suspend;
                 } else {
                     pop_op(); // the promise value
-                    auto err_str = ::format("await failed due to: "
-                                            "caller % is compiled",
-                                            val_to_string<24>(agitant).c_str());
+                    auto err_str = ::format("await failed: compiled caller % "
+                                            "cannot call functions that await",
+                                            agitant);
                     push_op(make_error(err_str.c_str()));
                 }
             }
