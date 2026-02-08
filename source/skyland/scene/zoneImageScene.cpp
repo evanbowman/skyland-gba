@@ -129,8 +129,16 @@ ScenePtr ZoneImageScene::update(Time delta)
         WorldMapScene::reset_nav_path();
     }
 
+    if (APP.player().button_down(Button::action_2) or
+        APP.player().button_down(Button::action_1)) {
+        skip_ = true;
+    }
+
     switch (state_) {
     case State::fade_in: {
+        if (skip_) {
+            delta *= 2;
+        }
         timer_ += delta;
 
         constexpr auto fade_duration = milliseconds(800);
@@ -148,13 +156,16 @@ ScenePtr ZoneImageScene::update(Time delta)
 
     case State::wait:
         timer_ += delta;
-        if (timer_ > seconds(3)) {
+        if (timer_ > seconds(3) or (skip_ and timer_ > milliseconds(500))) {
             state_ = State::fade_out;
             timer_ = 0;
         }
         break;
 
     case State::fade_out: {
+        if (skip_) {
+            delta *= 2;
+        }
         timer_ += delta;
         constexpr auto fade_duration = milliseconds(1300);
         if (timer_ > fade_duration) {

@@ -37,6 +37,7 @@ public:
 
 private:
     Time timer_ = 0;
+    bool skip_ = false;
 
     enum class State {
         fade_in,
