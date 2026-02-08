@@ -1724,7 +1724,10 @@ struct EvalFrame
 };
 
 
-void eval_loop(Vector<EvalFrame>& eval_stack);
+using EvalStack = Vector<EvalFrame>;
+
+
+void eval_loop(EvalStack& eval_stack);
 
 
 static void debug_resume()
@@ -1855,7 +1858,7 @@ void funcall(Value* obj, u8 argc)
             insert_op(argc, prev_bindings);
             insert_op(argc, obj);
 
-            Vector<EvalFrame> eval_stack;
+            EvalStack eval_stack(make_scratch_buffer("eval-stack-buffer"));
 
             eval_stack.push_back(
                 {.expr_ = obj,
@@ -4032,7 +4035,7 @@ void Promise::store_eval_frame(int slot, const EvalFrame& frame)
 
 
 
-void setup_promise(Promise& pr, Vector<EvalFrame>& eval_stack)
+void setup_promise(Promise& pr, EvalStack& eval_stack)
 {
     static_assert(sizeof(Context::OperandStack) <= SCRATCH_BUFFER_SIZE);
     // NOTE: checked in can_suspend instead.
@@ -4052,7 +4055,7 @@ void setup_promise(Promise& pr, Vector<EvalFrame>& eval_stack)
 }
 
 
-void eval_loop(Vector<EvalFrame>& eval_stack);
+void eval_loop(EvalStack& eval_stack);
 
 
 void resolve_promise(Value* pr, Value* result)
@@ -4075,7 +4078,7 @@ void resolve_promise(Value* pr, Value* result)
         bound_context->operand_stack_->push_back(promise.load_operand(i));
     }
 
-    Vector<EvalFrame> eval_stack;
+    EvalStack eval_stack;
     for (int i = 0; i < promise.eval_stack_elems_; ++i) {
         eval_stack.push_back(promise.load_eval_frame(i));
     }
@@ -4102,7 +4105,7 @@ void resolve_promise(Value* pr, Value* result)
 }
 
 
-bool can_suspend(Vector<EvalFrame>& eval_stack, StringBuffer<48>& agitant)
+bool can_suspend(EvalStack& eval_stack, StringBuffer<48>& agitant)
 {
     static const u32 max_eval_suspend_stack =
         SCRATCH_BUFFER_SIZE / sizeof(EvalFrame);
@@ -4146,7 +4149,7 @@ void eval(Value* code_root)
 {
     push_op(code_root); // gc protect
 
-    Vector<EvalFrame> eval_stack;
+    EvalStack eval_stack(make_scratch_buffer("eval-stack-buffer"));
     eval_stack.push_back({code_root, EvalFrame::pop_root});
     eval_stack.push_back({code_root, EvalFrame::start});
 
@@ -4158,7 +4161,7 @@ void eval(Value* code_root)
 __attribute__((always_inline))
 #endif
 static inline void
-eval_iter_start(EvalFrame& frame, Vector<EvalFrame>& eval_stack)
+eval_iter_start(EvalFrame& frame, EvalStack& eval_stack)
 {
     gc_safepoint();
 
@@ -4454,7 +4457,7 @@ bool check_breakpoint(Value* expr)
 } // namespace debug
 
 
-void push_suspend(Vector<EvalFrame>& eval_stack, u32 op_stack_init)
+void push_suspend(EvalStack& eval_stack, u32 op_stack_init)
 {
     auto result = get_op0();
     if (result->type() not_eq lisp::Value::Type::promise) {
@@ -4482,7 +4485,7 @@ void push_suspend(Vector<EvalFrame>& eval_stack, u32 op_stack_init)
 }
 
 
-void eval_loop(Vector<EvalFrame>& eval_stack)
+void eval_loop(EvalStack& eval_stack)
 {
     const u32 op_stack_init = bound_context->operand_stack_->size();
 

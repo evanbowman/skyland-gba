@@ -300,6 +300,12 @@ public:
     }
 
 
+    Vector(ScratchBufferPtr prealloc_buffer) : data_(prealloc_buffer)
+    {
+        Chunk::initialize(data_, nullptr);
+    }
+
+
     Vector(Vector&& other) : data_(other.data_), size_(other.size_)
     {
         other.valid_ = false;
