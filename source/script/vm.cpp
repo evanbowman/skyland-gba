@@ -48,18 +48,17 @@ bool vm_can_suspend(Value*& agitant)
 }
 
 
-Optional<SuspendedExecutionContext> vm_execute(Value* code_buffer, int start_offset)
+Optional<SuspendedExecutionContext> vm_execute(Value* code_buffer,
+                                               int start_offset)
 {
-    return vm_resume(code_buffer, start_offset, {
-            .program_counter_ = start_offset,
-            .nested_scope_ = 0
-        });
+    return vm_resume(code_buffer,
+                     start_offset,
+                     {.program_counter_ = start_offset, .nested_scope_ = 0});
 }
 
 
-Optional<SuspendedExecutionContext> vm_resume(Value* code_buffer,
-                                              int start_offset,
-                                              const ExecutionContext& ctx)
+Optional<SuspendedExecutionContext>
+vm_resume(Value* code_buffer, int start_offset, const ExecutionContext& ctx)
 {
     int pc = ctx.program_counter_;
 
@@ -147,10 +146,8 @@ TOP:
             } else {
                 Value* agitant = L_NIL;
                 if (vm_can_suspend(agitant)) {
-                    SuspendedExecutionContext suspend {
-                        .program_counter_ = pc,
-                        .nested_scope_ = nested_scope
-                    };
+                    SuspendedExecutionContext suspend{
+                        .program_counter_ = pc, .nested_scope_ = nested_scope};
                     return suspend;
                 } else {
                     pop_op(); // the promise value

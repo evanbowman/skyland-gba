@@ -162,6 +162,9 @@ private:
     bool nav_mode_ = false;
     u8 palette_cyc_counter_ = 0;
     u8 palette_cyc_simulation_ = 0;
+    bool script_preload_ = false;
+
+    void preload_scripts();
 
     void render_map_key();
 

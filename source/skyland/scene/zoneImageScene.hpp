@@ -34,6 +34,10 @@ public:
 
     bool reset_nav_path_ = true;
 
+    using BackgroundTask = Optional<Function<16, void()>>;
+    // NOTE: optionally use the zone image viewer to load stuff in the
+    // background.
+    BackgroundTask background_task_;
 
 private:
     Time timer_ = 0;

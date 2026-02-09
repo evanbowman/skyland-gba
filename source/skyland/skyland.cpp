@@ -847,7 +847,7 @@ bool state_bit_load(StateBit state_bit)
 
 
 
-void parallax_background_task()
+void parallax_background_task(void*)
 {
     if (APP.game_speed() not_eq GameSpeed::stopped) {
         APP.update_parallax(milliseconds(16));

@@ -118,7 +118,6 @@ void prep_level()
     APP.stat_timer().reset(0);
     APP.level_timer().reset(0);
     state_bit_store(StateBit::surrender_offered, false);
-    state_bit_store(StateBit::crane_game_got_treasure, false);
 
     if (APP.game_mode() not_eq App::GameMode::skyland_forever and
         APP.game_mode() not_eq App::GameMode::co_op) {
@@ -186,7 +185,7 @@ void prep_level()
 
 
 
-void update_weather_onload()
+void LoadLevelScene::update_weather()
 {
     bool has_weather_engine = false;
     for (auto& r : APP.player_island().rooms()) {
@@ -254,16 +253,20 @@ ScenePtr LoadLevelScene::update(Time delta)
     }
     APP.player_island().drones().clear();
 
-    update_weather_onload();
-
-    if (auto script = target_script_name(node.type_)) {
-        APP.invoke_script(script);
+    if (not script_preloaded_) {
+        update_weather();
+        if (auto script = target_script_name(node.type_)) {
+            APP.invoke_script(script);
+            // Eh... can't hurt to run it. Better than it running during the
+            // middle of a level. At least the screen is currently black and
+            // people know that a level is loading.
+            lisp::gc();
+        }
+    } else {
+        // The preloaded script may have changed the weather, in which case, we
+        // need to apply the changes.
+        environment_apply();
     }
-
-    // Eh... can't hurt to run it. Better than it running during the middle of a
-    // level. At least the screen is currently black and people know that a
-    // level is loading.
-    lisp::gc();
 
     if (node.type_ == WorldGraph::Node::Type::corrupted) {
         PLATFORM.speaker().stream_music("unaccompanied_wind.raw", 0);

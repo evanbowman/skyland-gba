@@ -101,15 +101,15 @@ void EnemyAI::update(Time delta)
 
         for (auto& drone_sp : (*target_island_).drones()) {
             if (drone_sp->parent() == ai_island_) {
-                auto& matrix = (*target_island_).rooms_plot();
-                drone_set_target(matrix, *drone_sp, ai_island_, target_island_);
+                auto rooms = (*target_island_).rooms_view();
+                drone_set_target(rooms, *drone_sp, ai_island_, target_island_);
             }
         }
 
         for (auto& drone_sp : ai_island_->drones()) {
             if (drone_sp->parent() == ai_island_) {
-                auto& matrix = (*target_island_).rooms_plot();
-                drone_set_target(matrix, *drone_sp, ai_island_, target_island_);
+                auto rooms = (*target_island_).rooms_view();
+                drone_set_target(rooms, *drone_sp, ai_island_, target_island_);
             }
         }
     }
@@ -131,7 +131,7 @@ void EnemyAI::update(Time delta)
                     next_action_timer_ = milliseconds(500);
                 } else {
                     update_room(*ai_island_->rooms()[room_update_index_++],
-                                (*target_island_).rooms_plot(),
+                                (*target_island_).rooms_view(),
                                 this,
                                 ai_island_,
                                 target_island_);
@@ -141,7 +141,7 @@ void EnemyAI::update(Time delta)
             } else {
                 for (auto& room : ai_island_->rooms()) {
                     update_room(*room,
-                                (*target_island_).rooms_plot(),
+                                (*target_island_).rooms_view(),
                                 this,
                                 ai_island_,
                                 target_island_);
@@ -214,7 +214,7 @@ void EnemyAI::update(Time delta)
 
 
 
-void EnemyAI::drone_set_target(const Bitmatrix<16, 16>& matrix,
+void EnemyAI::drone_set_target(RoomsView rooms,
                                Drone& drone,
                                Island* ai_island,
                                Island* target_island)
@@ -226,10 +226,10 @@ void EnemyAI::drone_set_target(const Bitmatrix<16, 16>& matrix,
     if (drone.metaclass_index() == cannon_drone_index or
         drone.metaclass_index() == flak_drone_index) {
 
-        offensive_drone_set_target(matrix, drone, ai_island, target_island);
+        offensive_drone_set_target(rooms, drone, ai_island, target_island);
 
     } else if (drone.metaclass_index() == combat_drone_index) {
-        combat_drone_set_target(matrix, drone, ai_island, target_island);
+        combat_drone_set_target(rooms, drone, ai_island, target_island);
     }
 }
 
@@ -257,7 +257,7 @@ void EnemyAI::assign_weapon_target(Room& weapon,
 
 
 void EnemyAI::update_room(Room& room,
-                          const Bitmatrix<16, 16>& matrix,
+                          RoomsView rooms,
                           Player* owner,
                           Island* ai_island,
                           Island* target_island)
@@ -292,38 +292,38 @@ void EnemyAI::update_room(Room& room,
     if (room.cast<Decimator>()) {
         // Do nothing.
     } else if (auto silo = room.cast<ClumpBomb>()) {
-        set_target(matrix, *silo, owner, ai_island, target_island);
+        set_target(rooms, *silo, owner, ai_island, target_island);
     } else if (room.cast<RocketSilo>() or room.cast<Warhead>()) {
-        set_target_rocketsilo(matrix, room, owner, ai_island, target_island);
+        set_target_rocketsilo(rooms, room, owner, ai_island, target_island);
     } else if (auto silo = room.cast<MissileSilo>()) {
-        set_target(matrix, *silo, owner, ai_island, target_island);
+        set_target(rooms, *silo, owner, ai_island, target_island);
     } else if (auto beam = room.cast<BeamGun>()) {
-        set_target(matrix, *beam, owner, ai_island, target_island);
+        set_target(rooms, *beam, owner, ai_island, target_island);
     } else if (auto flak_gun = room.cast<FlakGun>()) {
-        set_target(matrix, *flak_gun, owner, ai_island, target_island);
+        set_target(rooms, *flak_gun, owner, ai_island, target_island);
     } else if (auto ballista = room.cast<Ballista>()) {
-        set_target(matrix, *ballista, owner, ai_island, target_island);
+        set_target(rooms, *ballista, owner, ai_island, target_island);
     } else if (auto ion_cannon = room.cast<IonCannon>()) {
-        set_target(matrix, *ion_cannon, owner, ai_island, target_island);
+        set_target(rooms, *ion_cannon, owner, ai_island, target_island);
     } else if (auto arc_gun = room.cast<ArcGun>()) {
-        set_target(matrix, *arc_gun, owner, ai_island, target_island);
+        set_target(rooms, *arc_gun, owner, ai_island, target_island);
     } else if (auto spark_cannon = room.cast<SparkCannon>()) {
         if (spark_cannon->level() == 2) {
             spark_cannon->select({});
         }
     } else if (auto fire_charge = room.cast<FireCharge>()) {
-        set_target(matrix, *fire_charge, owner, ai_island, target_island);
+        set_target(rooms, *fire_charge, owner, ai_island, target_island);
     } else if (category == Room::Category::weapon or
                (*room.metaclass())->properties() & RoomProperties::plugin) {
         // NOTE: if we haven't hit any of the cases above, assume that the
         // weapon is a generic cannon-type weapon.
-        set_target(matrix, room, owner, ai_island, target_island);
+        set_target(rooms, room, owner, ai_island, target_island);
     } else if (auto db = room.cast<DroneBay>()) {
         // Don't spawn drones until the level's been running for a
         // bit.
         if (ai_island->get_drift() == 0.0_fixed) {
             if (APP.game_speed() not_eq GameSpeed::stopped) {
-                update_drone_bay(matrix, *db, ai_island, target_island);
+                update_drone_bay(rooms, *db, ai_island, target_island);
             }
         }
     } else if (auto transporter = room.cast<Transporter>()) {
@@ -1047,7 +1047,7 @@ template <typename T> T manhattan_length_fp(const Vec2<T>& a, const Vec2<T>& b)
 
 
 
-void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
+void EnemyAI::set_target(RoomsView rooms,
                          IonCannon& ion_cannon,
                          Player* owner,
                          Island* ai_island,
@@ -1094,7 +1094,7 @@ void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
 
 static void place_offensive_drone(DroneBay& db,
                                   bool slot[16][16],
-                                  const Bitmatrix<16, 16>& player_rooms,
+                                  Island::RoomsView player_rooms,
                                   bool left_anchor,
                                   bool restrict_columns[16],
                                   const DroneMeta* metac,
@@ -1286,7 +1286,7 @@ void get_drone_slots(bool slots[16][16], Island* dest_island, Island* parent);
 
 
 
-void EnemyAI::update_drone_bay(const Bitmatrix<16, 16>& matrix,
+void EnemyAI::update_drone_bay(RoomsView rooms,
                                DroneBay& db,
                                Island* ai_island,
                                Island* target_island)
@@ -1455,7 +1455,7 @@ void EnemyAI::update_drone_bay(const Bitmatrix<16, 16>& matrix,
 
         place_offensive_drone(db,
                               slots,
-                              matrix,
+                              rooms,
                               ai_island == APP.opponent_island(),
                               player_missile_silos,
                               &dt[cannon_drone_index],
@@ -1488,7 +1488,7 @@ void EnemyAI::update_drone_bay(const Bitmatrix<16, 16>& matrix,
 
         place_offensive_drone(db,
                               slots,
-                              matrix,
+                              rooms,
                               ai_island == APP.opponent_island(),
                               player_missile_silos,
                               &dt[flak_drone_index],
@@ -1499,7 +1499,7 @@ void EnemyAI::update_drone_bay(const Bitmatrix<16, 16>& matrix,
 
 
 
-void EnemyAI::combat_drone_set_target(const Bitmatrix<16, 16>& matrix,
+void EnemyAI::combat_drone_set_target(RoomsView rooms,
                                       Drone& drone,
                                       Island* ai_island,
                                       Island* target_island)
@@ -1519,7 +1519,7 @@ void EnemyAI::combat_drone_set_target(const Bitmatrix<16, 16>& matrix,
 
 
 
-static bool test_local_reachability(const Bitmatrix<16, 16>& matrix,
+static bool test_local_reachability(Island::RoomsView rooms,
                                     int x0,
                                     int y0,
                                     int x1,
@@ -1535,7 +1535,7 @@ static bool test_local_reachability(const Bitmatrix<16, 16>& matrix,
         if (x0 == x1 && y0 == y1) {
             return true;
         }
-        if (matrix.get(x0, y0)) {
+        if (rooms.get(x0, y0)) {
             return false;
         }
         int e2 = 2 * error;
@@ -1560,7 +1560,7 @@ static bool test_local_reachability(const Bitmatrix<16, 16>& matrix,
 
 
 
-void EnemyAI::offensive_drone_set_target(const Bitmatrix<16, 16>& matrix,
+void EnemyAI::offensive_drone_set_target(RoomsView rooms,
                                          Drone& drone,
                                          Island* ai_island,
                                          Island* target_island)
@@ -1595,7 +1595,7 @@ void EnemyAI::offensive_drone_set_target(const Bitmatrix<16, 16>& matrix,
                 int rx = room->position().x + x;
                 int ry = room->position().y + y;
                 if (room->get_atp() > highest_weight and
-                    test_local_reachability(target_island->rooms_plot(),
+                    test_local_reachability(target_island->rooms_view(),
                                             drone_pos.x,
                                             drone_pos.y,
                                             rx,
@@ -1621,7 +1621,7 @@ void EnemyAI::offensive_drone_set_target(const Bitmatrix<16, 16>& matrix,
 
 
 
-void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
+void EnemyAI::set_target(RoomsView rooms,
                          ClumpBomb& silo,
                          Player* owner,
                          Island* ai_island,
@@ -1637,7 +1637,7 @@ void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
 
     for (int x = 0; x < 16; ++x) {
         for (int y = 0; y < 15; ++y) {
-            if (matrix.get(x, y)) {
+            if (rooms.get(x, y)) {
                 if (auto room = (*target_island).get_room({u8(x), u8(y)})) {
                     visible_rooms.push_back({room, room->get_atp()});
                     if (room->ai_aware() and
@@ -1709,7 +1709,7 @@ void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
 
 
 
-void EnemyAI::set_target_rocketsilo(const Bitmatrix<16, 16>& matrix,
+void EnemyAI::set_target_rocketsilo(RoomsView rooms,
                                     Room& silo,
                                     Player* owner,
                                     Island* ai_island,
@@ -1725,7 +1725,7 @@ void EnemyAI::set_target_rocketsilo(const Bitmatrix<16, 16>& matrix,
 
     for (int x = 0; x < 16; ++x) {
         for (int y = 0; y < 15; ++y) {
-            if (matrix.get(x, y)) {
+            if (rooms.get(x, y)) {
                 if (auto room = (*target_island).get_room({u8(x), u8(y)})) {
                     visible_rooms.push_back({room, room->get_atp()});
                     if (room->ai_aware() and
@@ -1797,7 +1797,7 @@ void EnemyAI::set_target_rocketsilo(const Bitmatrix<16, 16>& matrix,
 
 
 
-void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
+void EnemyAI::set_target(RoomsView rooms,
                          MissileSilo& silo,
                          Player* owner,
                          Island* ai_island,
@@ -1817,10 +1817,10 @@ void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
 
     for (int x = 0; x < 16; ++x) {
         for (int y = 0; y < 15; ++y) {
-            if (matrix.get(x, y)) {
+            if (rooms.get(x, y)) {
                 if (auto room = (*target_island).get_room({u8(x), u8(y)})) {
                     visible_rooms.push_back(room);
-                    if (matrix.get(x, y + 1)) {
+                    if (rooms.get(x, y + 1)) {
                         if (auto st_room =
                                 (*target_island).get_room({u8(x), u8(y + 1)})) {
                             second_tier.push_back(st_room);
@@ -1933,7 +1933,7 @@ void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
 
 
 
-void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
+void EnemyAI::set_target(RoomsView rooms,
                          BeamGun& beam_gun,
                          Player* owner,
                          Island* ai_island,
@@ -1972,7 +1972,7 @@ void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
 
 
 
-void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
+void EnemyAI::set_target(RoomsView rooms,
                          Ballista& ballista,
                          Player* owner,
                          Island* ai_island,
@@ -2019,7 +2019,7 @@ void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
     for (u8 y = 0; y < 16; ++y) {
         if (ai_island == APP.opponent_island()) {
             for (int x = target_island->terrain().size(); x > -1; --x) {
-                if (matrix.get(x, y)) {
+                if (rooms.get(x, y)) {
                     if (auto room = (*target_island).get_room({u8(x), y})) {
                         if (room->is_decoration() and
                             not room->cast<Masonry>()) {
@@ -2033,7 +2033,7 @@ void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
             }
         } else {
             for (int x = 0; x < (int)target_island->terrain().size(); ++x) {
-                if (matrix.get(x, y)) {
+                if (rooms.get(x, y)) {
                     if (auto room = (*target_island).get_room({u8(x), y})) {
                         if (room->is_decoration() and
                             not room->cast<Masonry>()) {
@@ -2068,7 +2068,7 @@ void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
 
 
 
-void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
+void EnemyAI::set_target(RoomsView rooms,
                          FlakGun& flak_gun,
                          Player* owner,
                          Island* ai_island,
@@ -2085,7 +2085,7 @@ void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
     for (u8 y = 0; y < 16; ++y) {
         if (ai_island == APP.opponent_island()) {
             for (int x = target_island->terrain().size(); x > -1; --x) {
-                if (matrix.get(x, y)) {
+                if (rooms.get(x, y)) {
                     if (auto room = (*target_island).get_room({u8(x), y})) {
                         if (room->is_decoration() and
                             not room->cast<Masonry>()) {
@@ -2099,7 +2099,7 @@ void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
             }
         } else {
             for (u32 x = 0; x < target_island->terrain().size(); ++x) {
-                if (matrix.get(x, y)) {
+                if (rooms.get(x, y)) {
                     if (auto room = (*target_island).get_room({u8(x), y})) {
                         if (room->is_decoration() and
                             not room->cast<Masonry>()) {
@@ -2168,7 +2168,7 @@ void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
 
 
 
-void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
+void EnemyAI::set_target(RoomsView rooms,
                          FireCharge& fire_charge,
                          Player* owner,
                          Island* ai_island,
@@ -2179,7 +2179,7 @@ void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
     for (u8 y = 0; y < 16; ++y) {
         if (ai_island == APP.opponent_island()) {
             for (int x = 15; x > -1; --x) {
-                if (matrix.get(x, y)) {
+                if (rooms.get(x, y)) {
                     if (auto room = (*target_island).get_room({u8(x), y})) {
                         if (room->is_decoration() and
                             not room->cast<Masonry>()) {
@@ -2193,7 +2193,7 @@ void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
             }
         } else {
             for (u32 x = 0; x < target_island->terrain().size(); ++x) {
-                if (matrix.get(x, y)) {
+                if (rooms.get(x, y)) {
                     if (auto room = (*target_island).get_room({u8(x), y})) {
                         if (room->is_decoration() and
                             not room->cast<Masonry>()) {
@@ -2266,7 +2266,7 @@ void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
 
 
 
-void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
+void EnemyAI::set_target(RoomsView rooms,
                          ArcGun& arc_gun,
                          Player* owner,
                          Island* ai_island,
@@ -2278,7 +2278,7 @@ void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
     for (u8 y = 0; y < 16; ++y) {
         if (ai_island == APP.opponent_island()) {
             for (int x = target_island->terrain().size(); x > -1; --x) {
-                if (matrix.get(x, y)) {
+                if (rooms.get(x, y)) {
                     if (auto room = (*target_island).get_room({u8(x), y})) {
                         if (room->is_decoration() and
                             not room->cast<Masonry>()) {
@@ -2287,7 +2287,7 @@ void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
                         }
                         visible_rooms.push_back(room);
 
-                        if (x > 0 and matrix.get(x - 1, y)) {
+                        if (x > 0 and rooms.get(x - 1, y)) {
                             if (auto st_room =
                                     (*target_island).get_room({u8(x - 1), y})) {
                                 second_tier.push_back(st_room);
@@ -2299,7 +2299,7 @@ void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
             }
         } else {
             for (int x = 0; x < (int)target_island->terrain().size(); ++x) {
-                if (matrix.get(x, y)) {
+                if (rooms.get(x, y)) {
                     if (auto room = (*target_island).get_room({u8(x), y})) {
                         if (room->is_decoration() and
                             not room->cast<Masonry>()) {
@@ -2308,7 +2308,7 @@ void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
                         }
                         visible_rooms.push_back(room);
 
-                        if (x < 15 and matrix.get(x + 1, y)) {
+                        if (x < 15 and rooms.get(x + 1, y)) {
                             if (auto st_room =
                                     (*target_island).get_room({u8(x + 1), y})) {
                                 second_tier.push_back(st_room);
@@ -2386,7 +2386,7 @@ void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
 
 
 
-void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
+void EnemyAI::set_target(RoomsView rooms,
                          Room& generic_gun,
                          Player* owner,
                          Island* ai_island,
@@ -2398,7 +2398,7 @@ void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
     for (u8 y = 0; y < 16; ++y) {
         if (ai_island == APP.opponent_island()) {
             for (int x = target_island->terrain().size(); x > -1; --x) {
-                if (matrix.get(x, y)) {
+                if (rooms.get(x, y)) {
                     if (auto room = (*target_island).get_room({u8(x), y})) {
                         if (room->is_decoration() and
                             not room->cast<Masonry>()) {
@@ -2407,7 +2407,7 @@ void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
                         }
                         visible_rooms.push_back(room);
 
-                        if (x > 0 and matrix.get(x - 1, y)) {
+                        if (x > 0 and rooms.get(x - 1, y)) {
                             if (auto st_room =
                                     (*target_island).get_room({u8(x - 1), y})) {
                                 second_tier.push_back(st_room);
@@ -2419,7 +2419,7 @@ void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
             }
         } else {
             for (int x = 0; x < (int)target_island->terrain().size(); ++x) {
-                if (matrix.get(x, y)) {
+                if (rooms.get(x, y)) {
                     if (auto room = (*target_island).get_room({u8(x), y})) {
                         if (room->is_decoration() and
                             not room->cast<Masonry>()) {
@@ -2428,7 +2428,7 @@ void EnemyAI::set_target(const Bitmatrix<16, 16>& matrix,
                         }
                         visible_rooms.push_back(room);
 
-                        if (x < 15 and matrix.get(x + 1, y)) {
+                        if (x < 15 and rooms.get(x + 1, y)) {
                             if (auto st_room =
                                     (*target_island).get_room({u8(x + 1), y})) {
                                 second_tier.push_back(st_room);

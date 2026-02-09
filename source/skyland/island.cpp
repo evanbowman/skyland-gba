@@ -37,6 +37,7 @@
 #include "skyland/rooms/synth.hpp"
 #include "skyland/timeStreamEvent.hpp"
 #include "tile.hpp"
+#include "preload.hpp"
 
 
 
@@ -173,6 +174,15 @@ int Island::smoke_sprite()
         return 61;
     } else {
         return 27;
+    }
+}
+
+
+
+void Island::schedule_repaint()
+{
+    if (not script_preload_active()) {
+        schedule_repaint_ = true;
     }
 }
 
@@ -1377,26 +1387,24 @@ void Island::test_collision(Entity& entity)
                 continue;
             }
 
-            if (rooms_plot_.get(x, y)) {
-                if (auto room = get_room({(u8)x, (u8)y})) {
-                    static constexpr const int tile_size = 16;
+            if (auto room = get_room({(u8)x, (u8)y})) {
+                static constexpr const int tile_size = 16;
 
-                    auto hitbox_pos = this->origin();
-                    hitbox_pos.x +=
-                        Fixnum::from_integer(room->position().x * tile_size);
+                auto hitbox_pos = this->origin();
+                hitbox_pos.x +=
+                    Fixnum::from_integer(room->position().x * tile_size);
 
-                    hitbox_pos.y +=
-                        Fixnum::from_integer(room->position().y * tile_size);
+                hitbox_pos.y +=
+                    Fixnum::from_integer(room->position().y * tile_size);
 
-                    HitBox room_hitbox;
-                    room_hitbox.position_ = &hitbox_pos;
-                    room_hitbox.dimension_.size_.x = room->size().x * tile_size;
-                    room_hitbox.dimension_.size_.y = room->size().y * tile_size;
+                HitBox room_hitbox;
+                room_hitbox.position_ = &hitbox_pos;
+                room_hitbox.dimension_.size_.x = room->size().x * tile_size;
+                room_hitbox.dimension_.size_.y = room->size().y * tile_size;
 
-                    if (room_hitbox.overlapping(entity.hitbox())) {
-                        entity.on_collision(*room, Vec2<u8>{(u8)x, (u8)y});
-                        return;
-                    }
+                if (room_hitbox.overlapping(entity.hitbox())) {
+                    entity.on_collision(*room, Vec2<u8>{(u8)x, (u8)y});
+                    return;
                 }
             }
         }
@@ -1977,6 +1985,10 @@ void Island::repaint()
         return;
     }
 
+    if (script_preload_active()) {
+        return;
+    }
+
     set_glow_color();
 
     // The engine only knows how to draw an island wholistically, because some
@@ -2056,12 +2068,8 @@ void Island::repaint()
     bool placed_flag = false;
     bool placed_chimney = false;
 
-    rooms_plot_.clear();
-
     for (u8 x = 0; x < 16; ++x) {
         for (int y = 15; y > -1; --y) {
-
-            rooms_plot_.set(x, y, mem->mat[x][y]);
 
             if (mem->mat[x][y] == 0 and y < 15 and mem->mat[x][y + 1] == 1) {
                 bool block_chimney = false;
@@ -2511,6 +2519,10 @@ void show_island(Island* island)
 
 void show_island_interior(Island* island)
 {
+    if (script_preload_active()) {
+        return;
+    }
+
     if (island) {
         island->render_interior();
 
@@ -2528,6 +2540,10 @@ void show_island_interior(Island* island)
 
 void show_island_exterior(Island* island)
 {
+    if (script_preload_active()) {
+        return;
+    }
+
     if (island) {
         island->render_exterior();
 

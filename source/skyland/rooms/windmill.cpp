@@ -173,7 +173,7 @@ void Windmill::collect_sprites(Buffer<Sprite, 4>& out) const
 
     if (cursor == position()) {
 
-    } else if (parent()->rooms_plot().get(cursor.x, cursor.y) and
+    } else if (parent()->rooms_view().get(cursor.x, cursor.y) and
                parent()->interior_visible() and
                abs(cursor.x - position().x) < 3 and
                abs(cursor.y - position().y) < 3) {

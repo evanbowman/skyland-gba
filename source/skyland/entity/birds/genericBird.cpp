@@ -418,7 +418,7 @@ void GenericBird::spawn(Island& island, int count)
         }
 
         for (u8 y = 0; y < 15; ++y) {
-            if (y == 14 or island.rooms_plot().get(column, y + 1)) {
+            if (y == 14 or island.rooms_view().get(column, y + 1)) {
 
                 auto pos = RoomCoord{column, y};
 

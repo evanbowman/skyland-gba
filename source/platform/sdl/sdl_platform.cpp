@@ -6039,12 +6039,12 @@ void Platform::memset_words(void* dest, u8 byte, u32 word_count)
 
 
 
-void no_op_task()
+void no_op_task(void*)
 {
 }
 
 
-Platform::TaskPointer Platform::set_background_task(Platform::TaskPointer task)
+Platform::TaskInfo Platform::set_background_task(Platform::TaskInfo task)
 {
-    return no_op_task;
+    return {no_op_task, nullptr};
 }

@@ -33,7 +33,7 @@ void generate_snow(Island& isle)
         bool empty_column = true;
         u8 y;
         for (y = construction_zone_min_y; y < 14; ++y) {
-            if (isle.rooms_plot().get(x, y)) {
+            if (isle.rooms_view().get(x, y)) {
                 if (auto room = isle.get_room({x, y})) {
                     if ((*room->metaclass())->category() ==
                             Room::Category::decoration or

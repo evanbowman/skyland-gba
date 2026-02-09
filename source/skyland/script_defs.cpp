@@ -57,6 +57,7 @@
 #include "skyland/sound.hpp"
 #include "skyland/tile.hpp"
 #include "version.hpp"
+#include "preload.hpp"
 
 
 
@@ -1459,19 +1460,8 @@ BINDING_TABLE({
           L_EXPECT_RATIONAL(0);
 
           environment_init(L_LOAD_INT(0));
-          PLATFORM.screen().set_shader(APP.environment().shader());
-          PLATFORM.screen().set_shader_argument(0);
-
-          if (not PLATFORM.speaker().is_music_playing(
-                  APP.environment().music()->c_str())) {
-              PLATFORM.speaker().stream_music(
-                  APP.environment().music()->c_str(), 0);
-          }
-
-          APP.player_island().schedule_repaint();
-
-          if (APP.opponent_island()) {
-              APP.opponent_island()->schedule_repaint();
+          if (not script_preload_active()) {
+              environment_apply();
           }
 
           return L_NIL;
@@ -2089,7 +2079,6 @@ BINDING_TABLE({
           } else {
               show_island_exterior(island);
           }
-
           return L_NIL;
       }}},
     {"exit",
@@ -2577,7 +2566,7 @@ BINDING_TABLE({
                       bool has_space = true;
                       for (int xx = 0; xx < sx and x + xx < 16; ++xx) {
                           for (int yy = 0; yy < sy and y - yy > 0; ++yy) {
-                              if (island->rooms_plot().get(x + xx, y - yy)) {
+                              if (island->rooms_view().get(x + xx, y - yy)) {
                                   has_space = false;
                               }
                               if (x + xx >= island->terrain().size()) {

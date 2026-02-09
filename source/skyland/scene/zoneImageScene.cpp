@@ -146,6 +146,9 @@ ScenePtr ZoneImageScene::update(Time delta)
             PLATFORM.screen().fade(0.f);
             state_ = State::wait;
             timer_ = 0;
+            if (background_task_) {
+                (*background_task_)();
+            }
         } else {
             const auto amount = 1.f - smoothstep(0.f, fade_duration, timer_);
             PLATFORM.screen().schedule_fade(

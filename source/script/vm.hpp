@@ -29,14 +29,14 @@ struct ExecutionContext
 using SuspendedExecutionContext = ExecutionContext;
 
 
-Optional<SuspendedExecutionContext> vm_resume(Value* code_buffer,
-                                              int start_offset,
-                                              const ExecutionContext& ctx);
+Optional<SuspendedExecutionContext>
+vm_resume(Value* code_buffer, int start_offset, const ExecutionContext& ctx);
 
 
 
-Optional<SuspendedExecutionContext> vm_execute(Value* code_buffer, int start_offset);
+Optional<SuspendedExecutionContext> vm_execute(Value* code_buffer,
+                                               int start_offset);
 
 
 
-}
+} // namespace lisp

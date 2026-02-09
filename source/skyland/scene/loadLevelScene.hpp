@@ -38,9 +38,13 @@ public:
 
 
     static const char* target_script_name(WorldGraph::Node::Type t);
+    static void update_weather();
 
 
     ScenePtr update(Time delta) override;
+
+
+    bool script_preloaded_ = false;
 };
 
 

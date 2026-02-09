@@ -21,6 +21,7 @@
 #include "skyland/scene/constructionScene.hpp"
 #include "skyland/sharedVariable.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/preload.hpp"
 
 
 
@@ -140,13 +141,16 @@ void ProcgenEnemyAI::generate_level()
         (void)room;
     }
 
-    for (int x = 0; x < 16; ++x) {
-        for (int y = 0; y < 16; ++y) {
-            PLATFORM.set_tile(Layer::map_1_ext, x, y, 0);
+    if (not script_preload_active()) {
+        for (int x = 0; x < 16; ++x) {
+            for (int y = 0; y < 16; ++y) {
+                PLATFORM.set_tile(Layer::map_1_ext, x, y, 0);
+            }
         }
+
+        PLATFORM.set_scroll(Layer::map_1_ext, -250, -374);
     }
 
-    PLATFORM.set_scroll(Layer::map_1_ext, -250, -374);
     PLATFORM.screen().clear();
 
     auto area = [&] {
@@ -219,8 +223,10 @@ void ProcgenEnemyAI::generate_level()
     generate_foundation();
 
 
-    prep_level();
-    show_island_exterior(APP.opponent_island());
+    if (not script_preload_active()) {
+        prep_level();
+        show_island_exterior(APP.opponent_island());
+    }
 
     // The level generation may have taken a long time. Shouldn't have any
     // bearing on gameplay.
@@ -829,7 +835,9 @@ void ProcgenEnemyAI::generate_forcefields()
     if (free_count < 5 and t_size < 13) {
         APP.opponent_island()->init_terrain(++t_size, false);
         shift_rooms_right(*APP.opponent_island());
-        APP.opponent_island()->repaint();
+        if (not script_preload_active()) {
+            APP.opponent_island()->repaint();
+        }
     }
 
 
@@ -877,7 +885,7 @@ void ProcgenEnemyAI::generate_forcefields()
                 };
 
                 if (x < 15) {
-                    if (APP.opponent_island()->rooms_plot().get(x + 1, y)) {
+                    if (APP.opponent_island()->rooms_view().get(x + 1, y)) {
                         if (auto room = get_room(x + 1, y)) {
                             if ((not str_eq(room->name(), "missile-silo") and
                                  not str_eq(room->name(), "rocket-bomb") and
@@ -897,7 +905,7 @@ void ProcgenEnemyAI::generate_forcefields()
                 }
 
                 if (y < 15) {
-                    if (APP.opponent_island()->rooms_plot().get(x, y + 1)) {
+                    if (APP.opponent_island()->rooms_view().get(x, y + 1)) {
                         if (auto room = get_room(x, y + 1)) {
                             if (str_eq(room->name(), "missile-silo") or
                                 str_eq(room->name(), "rocket-bomb") or
@@ -1026,14 +1034,14 @@ void ProcgenEnemyAI::generate_hull()
 
             for (u8 y = construction_zone_min_y; y < 14; ++y) {
 
-                if (APP.opponent_island()->rooms_plot().get(x, y + 1)) {
+                if (APP.opponent_island()->rooms_view().get(x, y + 1)) {
                     auto below =
                         APP.opponent_island()->get_room({x, u8(y + 1)});
 
                     if (not conservative or
                         (below and (*below->metaclass())->category() not_eq
                                        Room::Category::wall)) {
-                        if (not APP.opponent_island()->rooms_plot().get(x, y)) {
+                        if (not APP.opponent_island()->rooms_view().get(x, y)) {
                             if (ehull_count > 0 and
                                 rng::choice<3>(rng_source_) == 0) {
                                 --ehull_count;
@@ -1086,7 +1094,7 @@ void ProcgenEnemyAI::generate_hull()
         for (u8 x = 0; x < 15; ++x) {
             for (u8 y = 0; y < 15; ++y) {
 
-                if (APP.opponent_island()->rooms_plot().get(x + 1, y)) {
+                if (APP.opponent_island()->rooms_view().get(x + 1, y)) {
                     auto right =
                         APP.opponent_island()->get_room({u8(x + 1), y});
                     if (not right) {
@@ -1141,7 +1149,7 @@ void ProcgenEnemyAI::generate_hull()
                     if ((not ignore_if_wall or
                          (ignore_if_wall and
                           cat not_eq Room::Category::wall)) and
-                        not APP.opponent_island()->rooms_plot().get(x, y)) {
+                        not APP.opponent_island()->rooms_view().get(x, y)) {
 
                         if (place_mhull) {
                             mhull->create(APP.opponent_island(), {x, y});
@@ -1261,14 +1269,14 @@ void ProcgenEnemyAI::generate_stairwells()
 
         for (int x = 1; x < (int)APP.opponent_island()->terrain().size(); ++x) {
             for (int y = 7; y < 15; ++y) {
-                if (APP.opponent_island()->rooms_plot().get(x, y)) {
+                if (APP.opponent_island()->rooms_view().get(x, y)) {
                     c->matrix[x][y] = 0;
                 } else {
                     // For a column the size of a stairwell room: how many
                     // walkable tiles would it connect if we placed it starting
                     // at (x,y)?
                     for (int yy = y; yy < std::min(y + 4, 15); ++yy) {
-                        if (APP.opponent_island()->rooms_plot().get(x, yy)) {
+                        if (APP.opponent_island()->rooms_view().get(x, yy)) {
                             continue;
                         }
                         if (x > 0) {
@@ -1454,7 +1462,7 @@ void ProcgenEnemyAI::generate_decorations()
         bool empty_column = true;
         u8 y;
         for (y = construction_zone_min_y; y < 14; ++y) {
-            if (APP.opponent_island()->rooms_plot().get(x, y)) {
+            if (APP.opponent_island()->rooms_view().get(x, y)) {
                 if (auto room = APP.opponent_island()->get_room({x, y})) {
                     if ((*room->metaclass())->category() ==
                             Room::Category::decoration or
@@ -1517,7 +1525,7 @@ void ProcgenEnemyAI::place_room_adjacent(const char* room_name)
 
         for (int x = 0; x < (int)APP.opponent_island()->terrain().size(); ++x) {
             for (int y = 7; y < 15; ++y) {
-                if (APP.opponent_island()->rooms_plot().get(x, y)) {
+                if (APP.opponent_island()->rooms_view().get(x, y)) {
                     c->matrix[x][y] = 0;
                 } else {
                     // For a column the size of a stairwell room: how many
@@ -1630,7 +1638,7 @@ void ProcgenEnemyAI::generate_foundation()
 
     for (u8 x = 0; x < (int)APP.opponent_island()->terrain().size(); ++x) {
         for (u8 y = 0; y < 15; ++y) {
-            if (APP.opponent_island()->rooms_plot().get(x, y)) {
+            if (APP.opponent_island()->rooms_view().get(x, y)) {
                 if (auto room = APP.opponent_island()->get_room({x, y})) {
                     if (is_forcefield(room->metaclass())) {
                         // Don't put foundation blocks beneath a forcefield
@@ -1638,7 +1646,7 @@ void ProcgenEnemyAI::generate_foundation()
                     }
                 }
                 for (u8 yy = y; yy < 15; ++yy) {
-                    if (not APP.opponent_island()->rooms_plot().get(x, yy)) {
+                    if (not APP.opponent_island()->rooms_view().get(x, yy)) {
                         if (auto room = APP.opponent_island()->get_room(
                                 {u8(x + 1), yy})) {
                             if ((*room->metaclass())->category() ==
@@ -1737,7 +1745,7 @@ bool ProcgenEnemyAI::has_space(const RoomCoord& loc, const RoomCoord& sz)
             if (loc.y + y >= 15 or loc.x + x >= levelgen_size_.x) {
                 return false;
             }
-            if (APP.opponent_island()->rooms_plot().get(loc.x + x, loc.y + y)) {
+            if (APP.opponent_island()->rooms_view().get(loc.x + x, loc.y + y)) {
                 return false;
             }
         }

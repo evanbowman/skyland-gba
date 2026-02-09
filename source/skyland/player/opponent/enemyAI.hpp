@@ -75,14 +75,17 @@ public:
                                        bool repair_priority = false);
 
 
+    using RoomsView = Island::RoomsView;
+
+
     static void update_room(Room& room,
-                            const Bitmatrix<16, 16>& matrix,
+                            RoomsView rooms,
                             Player* owner,
                             Island* ai_island,
                             Island* target_island);
 
 
-    static void drone_set_target(const Bitmatrix<16, 16>& matrix,
+    static void drone_set_target(RoomsView rooms,
                                  Drone& drone,
                                  Island* ai_island,
                                  Island* target_island);
@@ -95,83 +98,83 @@ private:
     void update_weapon_ai();
 
 
-    static void set_target(const Bitmatrix<16, 16>& matrix,
+    static void set_target(RoomsView rooms,
                            Room& generic_gun,
                            Player* owner,
                            Island* ai_island,
                            Island* target_island);
 
-    static void set_target(const Bitmatrix<16, 16>& matrix,
+    static void set_target(RoomsView rooms,
                            ArcGun& generic_gun,
                            Player* owner,
                            Island* ai_island,
                            Island* target_island);
 
-    static void set_target(const Bitmatrix<16, 16>& matrix,
+    static void set_target(RoomsView rooms,
                            FireCharge& fire_charge,
                            Player* owner,
                            Island* ai_island,
                            Island* target_island);
 
-    static void set_target(const Bitmatrix<16, 16>& matrix,
+    static void set_target(RoomsView rooms,
                            MissileSilo& silo,
                            Player* owner,
                            Island* ai_island,
                            Island* target_island);
 
-    static void set_target_rocketsilo(const Bitmatrix<16, 16>& matrix,
+    static void set_target_rocketsilo(RoomsView rooms,
                                       Room& silo,
                                       Player* owner,
                                       Island* ai_island,
                                       Island* target_island);
 
-    static void set_target(const Bitmatrix<16, 16>& matrix,
+    static void set_target(RoomsView rooms,
                            ClumpBomb& silo,
                            Player* owner,
                            Island* ai_island,
                            Island* target_island);
 
-    static void set_target(const Bitmatrix<16, 16>& matrix,
+    static void set_target(RoomsView rooms,
                            IonCannon& cannon,
                            Player* owner,
                            Island* ai_island,
                            Island* target_island);
 
 
-    static void set_target(const Bitmatrix<16, 16>& matrix,
+    static void set_target(RoomsView rooms,
                            BeamGun& gun,
                            Player* owner,
                            Island* ai_island,
                            Island* target_island);
 
 
-    static void set_target(const Bitmatrix<16, 16>& matrix,
+    static void set_target(RoomsView rooms,
                            FlakGun& gun,
                            Player* owner,
                            Island* ai_island,
                            Island* target_island);
 
 
-    static void set_target(const Bitmatrix<16, 16>& matrix,
+    static void set_target(RoomsView rooms,
                            Ballista& ballista,
                            Player* owner,
                            Island* ai_island,
                            Island* target_island);
 
 
-    static void combat_drone_set_target(const Bitmatrix<16, 16>& matrix,
+    static void combat_drone_set_target(RoomsView rooms,
                                         Drone& drone,
                                         Island* ai_island,
                                         Island* target_island);
 
 
-    static void offensive_drone_set_target(const Bitmatrix<16, 16>& matrix,
+    static void offensive_drone_set_target(RoomsView rooms,
                                            Drone& drone,
                                            Island* ai_island,
                                            Island* target_island);
 
 
-    static void update_drone_bay(const Bitmatrix<16, 16>& matrix,
+    static void update_drone_bay(RoomsView rooms,
                                  DroneBay& db,
                                  Island* ai_island,
                                  Island* target_island);

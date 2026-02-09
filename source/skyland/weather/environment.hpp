@@ -34,6 +34,7 @@ using EnvironmentId = int;
 
 
 void environment_init(EnvironmentId type);
+void environment_apply();
 
 
 

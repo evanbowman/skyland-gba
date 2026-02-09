@@ -15,6 +15,8 @@
 #include "skyland/sharedVariable.hpp"
 #include "skyland/skyland.hpp"
 #include "zoneImageScene.hpp"
+#include "skyland/preload.hpp"
+
 
 
 namespace skyland
@@ -419,7 +421,6 @@ ScenePtr AdventureModeSettingsScene::update(Time delta)
         }
 
         PLATFORM.speaker().play_sound("button_wooden", 3);
-        load_difficulty_profile();
 
         if (APP.faction() not_eq prev_faction_) {
             APP.gp_.stateflags_.set(GlobalPersistentData::goblin_faction,
@@ -467,9 +468,14 @@ ScenePtr AdventureModeSettingsScene::update(Time delta)
             }
         }
 
+        ZoneImageScene::BackgroundTask loading_task;
 
         if (newgame_) {
-            APP.invoke_script("/scripts/newgame.lisp");
+            loading_task = [] {
+                ScriptPreloadGuard preload;
+                load_difficulty_profile();
+                APP.invoke_script("/scripts/newgame.lisp");
+            };
             if (APP.gp_.stateflags_.get(GlobalPersistentData::permadeath_on)) {
                 APP.persistent_data().set_flag(PersistentData::permadeath_on);
             } else {
@@ -477,7 +483,9 @@ ScenePtr AdventureModeSettingsScene::update(Time delta)
             }
         }
 
-        return make_scene<ZoneImageScene>();
+        auto next = make_scene<ZoneImageScene>();
+        next->background_task_ = loading_task;
+        return next;
     }
 
 

@@ -798,6 +798,8 @@ lisp::debug::Action onscreen_script_debug_handler(lisp::debug::Interrupt irq,
         return lisp::debug::Action::step;
     }
 
+    auto old_task = PLATFORM.set_background_task([](void*) {});
+
     debugger_active = true;
 
     auto result = lisp::debug::Action::resume;
@@ -819,6 +821,8 @@ lisp::debug::Action onscreen_script_debug_handler(lisp::debug::Interrupt irq,
         handle_watchpoint(expr);
         break;
     }
+
+    PLATFORM.set_background_task(old_task);
 
     debugger_active = false;
 

@@ -110,21 +110,7 @@ public:
             APP.push_time_stream(e);
 
             environment_init(index_ + 1);
-
-            PLATFORM.screen().set_shader(APP.environment().shader());
-            PLATFORM.screen().set_shader_argument(0);
-
-            APP.player_island().schedule_repaint();
-
-            if (APP.opponent_island()) {
-                APP.opponent_island()->schedule_repaint();
-            }
-
-            if (not PLATFORM.speaker().is_music_playing(
-                    APP.environment().music()->c_str())) {
-                PLATFORM.speaker().stream_music(
-                    APP.environment().music()->c_str(), 0);
-            }
+            environment_apply();
 
             PLATFORM.screen().schedule_fade(
                 1.f, {.color = ColorConstant::silver_white});

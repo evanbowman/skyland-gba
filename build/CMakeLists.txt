@@ -106,6 +106,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/sound.cpp
   ${SOURCE_DIR}/skyland/camera.cpp
   ${SOURCE_DIR}/skyland/console.cpp
+  ${SOURCE_DIR}/skyland/preload.cpp
   ${SOURCE_DIR}/skyland/skyland.cpp
   ${SOURCE_DIR}/skyland/network.cpp
   ${SOURCE_DIR}/skyland/dataCart.cpp

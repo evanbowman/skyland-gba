@@ -390,7 +390,7 @@ void PlayerP1::autoassign_drone_target(Drone& drone)
           APP.opponent_island()->get_room(*drone.get_target())))) {
         // Do not override the pinned target
     } else {
-        EnemyAI::drone_set_target(APP.opponent_island()->rooms_plot(),
+        EnemyAI::drone_set_target(APP.opponent_island()->rooms_view(),
                                   drone,
                                   &APP.player_island(),
                                   APP.opponent_island());
@@ -417,7 +417,7 @@ void PlayerP1::autoassign_weapon_target(Room& room)
     if (not has_pinned_target and room.target_count() < 2 and
         not room.cast<Warhead>()) {
         EnemyAI::update_room(room,
-                             APP.opponent_island()->rooms_plot(),
+                             APP.opponent_island()->rooms_view(),
                              &APP.player(),
                              &APP.player_island(),
                              APP.opponent_island());

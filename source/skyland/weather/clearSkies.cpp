@@ -97,7 +97,7 @@ void ClearSkies::display()
         if (isle) {
             for (u32 x = 0; x < isle->terrain().size(); ++x) {
                 for (int y = 4; y < 7; ++y) {
-                    if (isle->rooms_plot().get(x, y)) {
+                    if (isle->rooms_view().get(x, y)) {
                         disable_lensflare = true;
                         goto LENSFLARE_CHECK_DONE;
                     }

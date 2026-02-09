@@ -358,11 +358,19 @@ public:
         Function<4 * sizeof(void*), void(const char*)>;
     void on_unrecoverrable_error(UnrecoverrableErrorCallback callback);
 
-    using TaskPointer = void (*)();
-    using OldTask = TaskPointer;
-    using NewTask = TaskPointer;
+    using TaskPointer = void (*)(void*);
+    using TaskInfo = std::pair<TaskPointer, void*>;
+    using OldTask = TaskInfo;
+    using NewTask = TaskInfo;
 
-    OldTask set_background_task(NewTask task);
+    // NOTE: on some platforms, background tasks will run asynchronously in an
+    // interrupt handler. Do not use shared data in background tasks, and do not
+    // use tasks to simulate threading.
+    OldTask set_background_task(TaskPointer task, void* data = nullptr);
+    OldTask set_background_task(NewTask task)
+    {
+        return set_background_task(task.first, task.second);
+    }
 
 
     bool write_save_data(const void* data, u32 length, u32 offset);
@@ -984,6 +992,15 @@ public:
                           int priority);
 
         void (*map_button)(Button k, const char* button_name);
+
+        struct QuickfadeConfig {
+            bool include_sprites_ = false;
+            bool include_tile0_ = false;
+            bool include_tile1_ = false;
+            bool include_overlay_ = false;
+            bool include_background_ = false;
+        };
+        void (*quickfade)(u8 amount, ColorConstant k, QuickfadeConfig conf);
     };
 
 

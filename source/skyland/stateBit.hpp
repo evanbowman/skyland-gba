@@ -24,7 +24,6 @@ enum class StateBit {
     surrender_offered,
     remote_console_force_newline,
     easy_mode_rewind_declined,
-    crane_game_got_treasure,
     disable_autopause,
     successful_multiplayer_connect,
     multiboot,
@@ -38,6 +37,7 @@ enum class StateBit {
     rumble_enabled,
     lighting_enabled,
     console_started,
+    script_preload_active,
     count,
 };
 

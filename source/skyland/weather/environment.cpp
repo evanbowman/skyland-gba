@@ -138,4 +138,23 @@ void environment_init(EnvironmentId type)
 
 
 
+void environment_apply()
+{
+    PLATFORM.screen().set_shader(APP.environment().shader());
+    PLATFORM.screen().set_shader_argument(0);
+
+    if (not PLATFORM.speaker().is_music_playing(APP.environment().music()->c_str())) {
+        PLATFORM.speaker().stream_music(APP.environment().music()->c_str(), 0);
+    }
+
+
+    APP.player_island().schedule_repaint();
+
+    if (APP.opponent_island()) {
+        APP.opponent_island()->schedule_repaint();
+    }
+}
+
+
+
 } // namespace skyland

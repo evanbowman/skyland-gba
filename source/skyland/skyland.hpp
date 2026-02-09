@@ -598,7 +598,7 @@ DynamicMemory<FileLine> get_line_from_file(const char* file_name, int line);
 
 
 
-void parallax_background_task();
+void parallax_background_task(void*);
 
 
 

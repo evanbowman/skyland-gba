@@ -306,12 +306,6 @@ public:
     }
 
 
-    const Bitmatrix<16, 16>& rooms_plot() const
-    {
-        return rooms_plot_;
-    }
-
-
     void dispatch_room(Room* room);
     void drawfirst(Room* room);
 
@@ -334,10 +328,7 @@ public:
     u16 script_userdata_tag() const;
 
 
-    void schedule_repaint()
-    {
-        schedule_repaint_ = true;
-    }
+    void schedule_repaint();
 
 
     void schedule_repaint_partial()
@@ -414,6 +405,28 @@ public:
 
 
     void set_mountain_terrain(bool enabled);
+
+
+    // The game used to use a matrix of bits to check for presence of a room,
+    // back when get_room was slow. Eventually we need to update the code
+    // throughout the codebase to remove the reliance on the rooms matrix.
+    struct RoomsView
+    {
+        Island* parent_;
+
+        RoomsView(Island* parent) : parent_(parent) {}
+
+        Room* get(int x, int y)
+        {
+            return parent_->get_room({(u8)x, (u8)y});
+        }
+    };
+
+
+    RoomsView rooms_view()
+    {
+        return RoomsView(this);
+    }
 
 
 private:
@@ -511,10 +524,6 @@ private:
     bool dark_smoke_ : 1 = false;
     bool mountain_terrain_ : 1 = false;
     u8 phase_ : 1 = 0;
-
-    // During repaint(), the game caches the results of plot_rooms() in this
-    // matrix of bitflags. We use the result to speed up collision checking.
-    Bitmatrix<16, 16> rooms_plot_;
 
     Optional<RoomCoord> flag_pos_;
 
