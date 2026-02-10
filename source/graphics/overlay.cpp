@@ -542,20 +542,40 @@ TextView::LineCount TextView::assign(const char* str,
 
         if (cursor.x == coord.x + size.x) {
             if (ustr.get(i) not_eq ' ') {
-                // If the next character is not a space, then the current word
-                // does not fit on the current line, and needs to be written
-                // onto the next line instead.
-                while (ustr.get(i) not_eq ' ') {
-                    --i;
-                    --cursor.x;
+                int word_len = 0;
+                int j = i;
+                while (ustr.get(j) not_eq ' ') {
+                    ++word_len;
+                    --j;
                 }
-                ++result;
-                newline();
-                if (cursor.y == (coord.y + size.y) - 1) {
-                    break;
+                if (word_len > size.x) {
+                    // The word wouldn't fit in the frame even if bumped down to
+                    // the next line, so simply split the word and continue
+                    // printing on the following line.
+                    cursor.y += 1;
+                    cursor.x = coord.x;
+                    if (cursor.y == (coord.y + size.y) - 1) {
+                        break;
+                    }
+                    ++result;
+                    newline();
+                } else {
+                    // If the next character is not a space, then the current
+                    // word does not fit on the current line, and needs to be
+                    // written onto the next line instead.
+                    while (ustr.get(i) not_eq ' ') {
+                        --i;
+                        --cursor.x;
+                        ++word_len;
+                    }
+                    ++result;
+                    newline();
+                    if (cursor.y == (coord.y + size.y) - 1) {
+                        break;
+                    }
+                    ++result;
+                    newline();
                 }
-                ++result;
-                newline();
             } else {
                 cursor.y += 1;
                 cursor.x = coord.x;
