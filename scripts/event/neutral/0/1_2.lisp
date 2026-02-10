@@ -47,7 +47,7 @@
           "The weapons array remains active, but its targeting systems go dark. <B:0> "
           "You slip past the blind station without incident."))
   (adventure-log-add 77 '())
-  (push-pending-event (+ 3 (choice 3)) "/scripts/events/hostile/imperial-pursuit.lisp")
+  (push-pending-event (+ 3 (choice 3)) "/scripts/event/hostile/imperial-pursuit.lisp")
   (exit))
 
 
