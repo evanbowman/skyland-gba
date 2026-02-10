@@ -6816,7 +6816,7 @@ void setup_hardcoded_palettes()
         }
     }
     for (auto& info : overlay_textures) {
-        if (str_eq(info.name_, "overlay_dialog")) {
+        if (str_eq(info.name_, "character_art")) {
             // FIXME!!! handle this dynamically, rather than reserving a
             // specific palette...
             for (int i = 0; i < 16; ++i) {

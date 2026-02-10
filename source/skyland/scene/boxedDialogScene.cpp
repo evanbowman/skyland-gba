@@ -427,6 +427,11 @@ void BoxedDialogScene::clear_textbox()
         const auto img = (data_->character_.image_ - 1) * 16;
         PLATFORM.load_overlay_chunk(184, img, 16, "character_art");
         draw_image(184, 1, st.y - 6, 4, 4, Layer::overlay);
+        for (int x = 1; x < 5; ++x) {
+            for (int y = st.y - 6; y < st.y - 2; ++y) {
+                PLATFORM.set_palette(Layer::overlay, x, y, 10);
+            }
+        }
 
         for (int i = 4; i < data_->character_name_text_->len() + 1; ++i) {
             PLATFORM.set_tile(Layer::overlay, 1 + i, st.y - 6, 113);
