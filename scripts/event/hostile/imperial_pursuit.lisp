@@ -17,15 +17,14 @@
 
 (flag-show (opponent) flag-id-old-empire)
 
-(foreach (lambda (chr)
-           (let ((x (get chr 0))
-                 (y (get chr 1)))
-             (chr-del (opponent) x y)
-             (chr-new (opponent) x y 'hostile '((race . 2)))))
-         (chrs (opponent)))
-
 (defn on-converge ()
   (setq on-converge nil)
+  (foreach (lambda (chr)
+             (let ((x (get chr 0))
+                   (y (get chr 1)))
+               (chr-del (opponent) x y)
+               (chr-new (opponent) x y 'hostile '((race . 2)))))
+           (chrs (opponent)))
   (opponent-mode 'hostile)
   (dialog
     "<c:Imperial Inspector:55> Automated checkpoint seven-nine reported sensor damage consistent with weapons fire. <B:0> "
