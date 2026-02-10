@@ -86,7 +86,7 @@
     "It won't know you passed. But someone will eventually notice the damage…"))
 
   (let ((sel (await (dialog-choice* "Disable the sensors?"
-                                    '("Vandalize it."
+                                    '("Sabotage it."
                                       "Just pay the toll."
                                       "Refuse and fight!")))))
     (case sel
