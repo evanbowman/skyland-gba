@@ -3,8 +3,10 @@
 ;;;
 
 (dialog
-  "A sleek imperial patrol craft drops from the upper atmosphere, moving with clear purpose. <B:0> "
-  "Unlike the automated toll station, this one has a crew...")
+ "Your sensors detect something tracking you. <B:0> "
+ "The damaged toll station must have transmitted your signature to the network. <B:0> "
+ "A patrol vessel approaches, flying an imperial flag... <B:0> "
+ "But something seems off about it.")
 
 (opponent-generate
  (case (zone)
@@ -19,15 +21,11 @@
 
 (defn on-converge ()
   (setq on-converge nil)
-  (foreach (lambda (chr)
-             (let ((x (get chr 0))
-                   (y (get chr 1)))
-               (chr-del (opponent) x y)
-               (chr-new (opponent) x y 'hostile '((race . 2)))))
-           (chrs (opponent)))
   (opponent-mode 'hostile)
-  (dialog
-    "<c:Imperial Inspector:55> Automated checkpoint seven-nine reported sensor damage consistent with weapons fire. <B:0> "
-    "Surveillance logs show your vessel was the only craft in range during the incident. <B:0> "
-    "Destruction of imperial infrastructure carries a mandatory enforcement response. <B:0> "
-    "You will submit to boarding and asset seizure."))
+  (await (dialog* "As the vessel draws closer, you see the crew through the viewports. <B:0> "
+                  "Not imperial officers. Goblins."))
+  (await (dialog* "<c:Goblin Raider:32> You! You're the one who broke that sstation! <B:0> "
+                  "We sstripped it for partsss after you left! <B:0> "
+                  "Got lotsss of good salvage... but now we want YOUR sship too! <B:0> "
+                  "Thankss for the help! #cackle#"))
+  (await (dialog* "The raiders begin charging weapons...")))
