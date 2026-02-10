@@ -6044,7 +6044,7 @@ void no_op_task(void*)
 }
 
 
-Platform::TaskInfo Platform::set_background_task(Platform::TaskInfo task, void* data)
+Platform::TaskInfo Platform::set_background_task(Platform::TaskPointer task, void* data)
 {
     return {no_op_task, nullptr};
 }
