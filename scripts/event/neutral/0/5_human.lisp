@@ -67,11 +67,10 @@
           (await (dialog* "Sadly, there's no room..."))
           (await (dialog* "<c:Girl:14>Wait up a second, I know your castle's pretty full, but don't leave me here! This island is literally burning! I'll even sleep in a cargo bay..."))
           (alloc-space 'cargo-bay)
-          (let ((xy (await (sel-input* 'cargo-bay "Place cargo bay (1x2):"))))
+          (let (((x . y) (await (sel-input* 'cargo-bay "Place cargo bay (1x2):"))))
             (sound "build0")
-            (room-new (player) `(cargo-bay ,(car xy) ,(cdr xy)))
-            (join-crew (cons (car xy)
-                             (incr (cdr xy))) ; slot in cargo bay is y+1
+            (room-new (player) `(cargo-bay ,x ,y))
+            (join-crew (cons x (incr y)) ; slot in cargo bay is y+1
                        '("<c:Girl:14>Wait, you're serious! I guess I asked for it haha..."
                          "The villager girl joined your crew!")))))))
 
