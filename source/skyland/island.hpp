@@ -414,7 +414,9 @@ public:
     {
         Island* parent_;
 
-        RoomsView(Island* parent) : parent_(parent) {}
+        RoomsView(Island* parent) : parent_(parent)
+        {
+        }
 
         Room* get(int x, int y)
         {

@@ -13,6 +13,7 @@
 #include "allocator.hpp"
 #include "skyland/entity/birds/genericBird.hpp"
 #include "skyland/network.hpp"
+#include "skyland/preload.hpp"
 #include "skyland/roomTable.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/rooms/chaosCore.hpp"
@@ -21,7 +22,6 @@
 #include "skyland/scene/constructionScene.hpp"
 #include "skyland/sharedVariable.hpp"
 #include "skyland/skyland.hpp"
-#include "skyland/preload.hpp"
 
 
 

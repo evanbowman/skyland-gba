@@ -35,7 +35,6 @@ ScriptPreloadGuard::~ScriptPreloadGuard()
 
 
 
-
 bool script_preload_active()
 {
     return state_bit_load(StateBit::script_preload_active);
@@ -43,4 +42,4 @@ bool script_preload_active()
 
 
 
-}
+} // namespace skyland

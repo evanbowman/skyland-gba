@@ -993,7 +993,8 @@ public:
 
         void (*map_button)(Button k, const char* button_name);
 
-        struct QuickfadeConfig {
+        struct QuickfadeConfig
+        {
             bool include_sprites_ = false;
             bool include_tile0_ = false;
             bool include_tile1_ = false;

@@ -1519,11 +1519,8 @@ void EnemyAI::combat_drone_set_target(RoomsView rooms,
 
 
 
-static bool test_local_reachability(Island::RoomsView rooms,
-                                    int x0,
-                                    int y0,
-                                    int x1,
-                                    int y1)
+static bool
+test_local_reachability(Island::RoomsView rooms, int x0, int y0, int x1, int y1)
 {
     int dx = abs(x1 - x0);
     int sx = x0 < x1 ? 1 : -1;

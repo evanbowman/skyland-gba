@@ -21,6 +21,7 @@
 #include "network.hpp"
 #include "number/random.hpp"
 #include "platform/flash_filesystem.hpp"
+#include "preload.hpp"
 #include "roomPool.hpp"
 #include "room_metatable.hpp"
 #include "rooms/chaosCore.hpp"
@@ -37,7 +38,6 @@
 #include "skyland/rooms/synth.hpp"
 #include "skyland/timeStreamEvent.hpp"
 #include "tile.hpp"
-#include "preload.hpp"
 
 
 

@@ -2688,7 +2688,7 @@ void Platform::fatal(const char* msg)
         DMA_TRANSFER((volatile short*)0x4000016, &temp, 1, 3, 0);
         DMA_TRANSFER(&REG_WIN0H, &vertical_parallax_table[1], 1, 2, 0);
     }
-    vblank_dma_callback = []{};
+    vblank_dma_callback = [] {};
     window_init_default();
 
     irqDisable(IRQ_TIMER2 | IRQ_TIMER3 | IRQ_VBLANK);
@@ -7478,47 +7478,50 @@ static const Platform::Extensions extensions{
             }
             return true;
         },
-    .quickfade = [](u8 amt, ColorConstant k, Platform::Extensions::QuickfadeConfig conf) {
-        const auto c = invoke_shader(real_color(k), ShaderPalette::tile0, 0);
+    .quickfade =
+        [](u8 amt,
+           ColorConstant k,
+           Platform::Extensions::QuickfadeConfig conf) {
+            const auto c =
+                invoke_shader(real_color(k), ShaderPalette::tile0, 0);
 
-        // Sprite palette
-        if (conf.include_sprites_) {
-            for (int i = 0; i < 16; ++i) {
-                auto from = Color::from_bgr_hex_555(sprite_palette[i]);
-                MEM_PALETTE[i] = blend(from, c, amt);
+            // Sprite palette
+            if (conf.include_sprites_) {
+                for (int i = 0; i < 16; ++i) {
+                    auto from = Color::from_bgr_hex_555(sprite_palette[i]);
+                    MEM_PALETTE[i] = blend(from, c, amt);
+                }
             }
-        }
-        // Tile0 palette
-        if (conf.include_tile0_) {
-            for (int i = 0; i < 16; ++i) {
-                auto from = Color::from_bgr_hex_555(tilesheet_0_palette[i]);
-                MEM_BG_PALETTE[i] = blend(from, c, amt);
+            // Tile0 palette
+            if (conf.include_tile0_) {
+                for (int i = 0; i < 16; ++i) {
+                    auto from = Color::from_bgr_hex_555(tilesheet_0_palette[i]);
+                    MEM_BG_PALETTE[i] = blend(from, c, amt);
+                }
             }
-        }
-        // Tile1 palette
-        if (conf.include_tile1_) {
-            for (int i = 0; i < 16; ++i) {
-                auto from = Color::from_bgr_hex_555(tilesheet_1_palette[i]);
-                MEM_BG_PALETTE[32 + i] = blend(from, c, amt);
+            // Tile1 palette
+            if (conf.include_tile1_) {
+                for (int i = 0; i < 16; ++i) {
+                    auto from = Color::from_bgr_hex_555(tilesheet_1_palette[i]);
+                    MEM_BG_PALETTE[32 + i] = blend(from, c, amt);
+                }
             }
-        }
-        // Overlay palette
-        if (conf.include_overlay_) {
-            for (int i = 0; i < 16; ++i) {
-                auto from = Color::from_bgr_hex_555(overlay_palette[i]);
-                MEM_BG_PALETTE[16 + i] = blend(from, c, amt);
+            // Overlay palette
+            if (conf.include_overlay_) {
+                for (int i = 0; i < 16; ++i) {
+                    auto from = Color::from_bgr_hex_555(overlay_palette[i]);
+                    MEM_BG_PALETTE[16 + i] = blend(from, c, amt);
+                }
+                overlay_was_faded = true;
             }
-            overlay_was_faded = true;
-        }
-        // Background palette
-        if (conf.include_background_) {
-            for (int i = 0; i < 16; ++i) {
-                auto from = Color::from_bgr_hex_555(background_palette[i]);
-                MEM_BG_PALETTE[16 * 11 + i] = blend(from, c, amt);
+            // Background palette
+            if (conf.include_background_) {
+                for (int i = 0; i < 16; ++i) {
+                    auto from = Color::from_bgr_hex_555(background_palette[i]);
+                    MEM_BG_PALETTE[16 * 11 + i] = blend(from, c, amt);
+                }
             }
-        }
-    }
-};
+        }};
 
 
 

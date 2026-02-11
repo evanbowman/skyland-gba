@@ -21,6 +21,7 @@
 #include "player/opponent/enemyAI.hpp"
 #include "player/opponent/friendlyAI.hpp"
 #include "player/opponent/procgenEnemyAI.hpp"
+#include "preload.hpp"
 #include "room_metatable.hpp"
 #include "rooms/cargoBay.hpp"
 #include "rooms/core.hpp"
@@ -57,7 +58,6 @@
 #include "skyland/sound.hpp"
 #include "skyland/tile.hpp"
 #include "version.hpp"
-#include "preload.hpp"
 
 
 

@@ -712,8 +712,7 @@ Value* make_string(const char* str);
 Value* make_float(Float::ValueType v);
 Value* make_promise();
 
-template <u32 size>
-Value* make_error(const StringBuffer<size>& str)
+template <u32 size> Value* make_error(const StringBuffer<size>& str)
 {
     return make_error(str.c_str());
 }
@@ -1134,8 +1133,7 @@ ArgBindings perform_argument_substitution(Value* impl);
 
 
 
-template <u32 buffer_size>
-StringBuffer<buffer_size> stringify(lisp::Value* v)
+template <u32 buffer_size> StringBuffer<buffer_size> stringify(lisp::Value* v)
 {
     return lisp::val_to_string<buffer_size>(v);
 }

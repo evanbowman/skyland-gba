@@ -118,6 +118,7 @@ void apply()
 
     if (auto map = PLATFORM.get_extensions().map_button) {
 #define GET_S(STR) (settings.get(STR).c_str())
+        // clang-format off
         map(Button::action_1, GET_S("key_action1"));
         map(Button::action_2, GET_S("key_action2"));
         map(Button::alt_1,    GET_S("key_alt1"));
@@ -128,6 +129,7 @@ void apply()
         map(Button::down,     GET_S("key_down"));
         map(Button::left,     GET_S("key_left"));
         map(Button::right,    GET_S("key_right"));
+        // clang-format on
     }
 }
 

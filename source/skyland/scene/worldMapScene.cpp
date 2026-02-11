@@ -18,6 +18,7 @@
 #include "loadLevelScene.hpp"
 #include "platform/platform.hpp"
 #include "skyland/player/playerP1.hpp"
+#include "skyland/preload.hpp"
 #include "skyland/save.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
@@ -25,7 +26,6 @@
 #include "skyland/systemString.hpp"
 #include "skyland/worldGraph.hpp"
 #include "titleScreenScene.hpp"
-#include "skyland/preload.hpp"
 
 
 
@@ -697,10 +697,8 @@ static void background_fade_task(void* data)
     }
 
     if (index < fade_amounts.size()) {
-        PLATFORM_EXTENSION(quickfade,
-                           fade_amounts[index++],
-                           ColorConstant::rich_black,
-                           conf);
+        PLATFORM_EXTENSION(
+            quickfade, fade_amounts[index++], ColorConstant::rich_black, conf);
     }
 }
 
@@ -742,7 +740,8 @@ void WorldMapScene::preload_scripts()
         // background in the set of layers that we're incrementally fading, but
         // that would waste cpu in a critical piece of code.
         conf.include_background_ = true;
-        PLATFORM_EXTENSION(quickfade, max_fade_amount, ColorConstant::rich_black, conf);
+        PLATFORM_EXTENSION(
+            quickfade, max_fade_amount, ColorConstant::rich_black, conf);
 
         Time temp = 0;
         // NOTE: this assumes 60 fps!
@@ -750,13 +749,13 @@ void WorldMapScene::preload_scripts()
             temp += frame_step;
             // NOTE: the interrupt handler that's running this fade sequence
             // cannot run heavy functions like smoothstep.
-            u8 amount = max_fade_amount * smoothstep(0.f,
-                                                     fade_out_duration,
-                                                     temp);
+            u8 amount =
+                max_fade_amount * smoothstep(0.f, fade_out_duration, temp);
             fade_state.background_fade_amounts_.push_back(amount);
         }
 
-        old_task = PLATFORM.set_background_task(background_fade_task, &fade_state);
+        old_task =
+            PLATFORM.set_background_task(background_fade_task, &fade_state);
     }
     LoadLevelScene::update_weather();
     APP.invoke_script(LoadLevelScene::target_script_name(node.type_));
@@ -1501,7 +1500,8 @@ ScenePtr WorldMapScene::update(Time delta)
         }
         timer_ += delta;
         if (timer_ > fade_out_duration) {
-            PLATFORM.screen().fade(1, ColorConstant::rich_black, {}, true, true);
+            PLATFORM.screen().fade(
+                1, ColorConstant::rich_black, {}, true, true);
             PLATFORM.speaker().clear_sounds();
             auto next = make_scene<LoadLevelScene>();
             next->script_preloaded_ = script_preload_;

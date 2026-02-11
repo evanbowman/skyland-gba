@@ -22,7 +22,8 @@ bool script_preload_active();
 
 
 
-struct ScriptPreloadGuard {
+struct ScriptPreloadGuard
+{
     ScriptPreloadGuard();
     ~ScriptPreloadGuard();
     ScriptPreloadGuard(const ScriptPreloadGuard&) = delete;
@@ -30,5 +31,4 @@ struct ScriptPreloadGuard {
 
 
 
-
-}
+} // namespace skyland
