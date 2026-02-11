@@ -315,6 +315,9 @@ int compile_let(CompilerContext& ctx,
                         inst->ptr_.set(sym->symbol().name());
                     }
                 }
+            } else if (sym->type() == Value::Type::cons) {
+                PLATFORM.fatal("destructuring let unimplemented for compiled "
+                               "bytecode!");
             }
         }
     });

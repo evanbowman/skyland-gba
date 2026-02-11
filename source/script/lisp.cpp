@@ -1165,7 +1165,8 @@ static Value* make_lisp_argumented_function(Value* impl)
         const char* error_fmt = "no more than % named args allowed in function";
 
         Protected error_str(L_NIL);
-        error_str = make_string(::format(error_fmt, MAX_NAMED_ARGUMENTS).c_str());
+        error_str =
+            make_string(::format(error_fmt, MAX_NAMED_ARGUMENTS).c_str());
 
         return make_error(Error::Code::invalid_syntax, error_str);
     }
@@ -1809,8 +1810,7 @@ void funcall(Value* obj, u8 argc)
              obj->function().sig_.FIELD == Value::Type::ratio))) {             \
         pop_args();                                                            \
         push_op(make_error(                                                    \
-            arg_error(obj->function().sig_.FIELD, get_arg(ARG)->type())        \
-                ));                                                    \
+            arg_error(obj->function().sig_.FIELD, get_arg(ARG)->type())));     \
         break;                                                                 \
     }
 
@@ -1898,10 +1898,12 @@ void funcall(Value* obj, u8 argc)
             ctx.lexical_bindings_ =
                 dcompr(obj->function().lisp_impl_.lexical_bindings_);
 
-            auto suspend = vm_execute(obj->function().bytecode_impl_.databuffer(),
-                                      obj->function()
-                                      .bytecode_impl_.bytecode_offset()
-                                      ->integer().value_);
+            auto suspend =
+                vm_execute(obj->function().bytecode_impl_.databuffer(),
+                           obj->function()
+                               .bytecode_impl_.bytecode_offset()
+                               ->integer()
+                               .value_);
             if (suspend) {
                 PLATFORM.fatal("cannot suspend from here!");
             }
@@ -2289,12 +2291,40 @@ void lint(Value* expr, Value* variable_list, lisp::Protected& gvar_list)
                             return;
                         }
                         auto sym = get_list(binding, 0);
-                        if (sym->type() not_eq Value::Type::symbol) {
+                        if (sym->type() == Value::Type::symbol) {
+                            variable_list = L_CONS(sym, variable_list);
+                            var_list = variable_list;
+                        } else if (is_list(sym)) {
+                            auto destructure_list = sym;
+                            while (destructure_list not_eq L_NIL) {
+                                auto dsym = destructure_list->cons().car();
+                                if (dsym->type() not_eq Value::Type::symbol) {
+                                    push_op(make_error("non-symbol in "
+                                                       "destructuring let"));
+                                    return;
+                                }
+                                variable_list = L_CONS(dsym, variable_list);
+                                var_list = variable_list;
+                                destructure_list =
+                                    destructure_list->cons().cdr();
+                            }
+                        } else if (sym->type() == Value::Type::cons) {
+                            auto car_sym = sym->cons().car();
+                            auto cdr_sym = sym->cons().cdr();
+                            if (car_sym->type() == Value::Type::symbol and
+                                cdr_sym->type() == Value::Type::symbol) {
+                                variable_list = L_CONS(car_sym, variable_list);
+                                variable_list = L_CONS(cdr_sym, variable_list);
+                                var_list = variable_list;
+                            } else {
+                                push_op(make_error("pair in destructuring let "
+                                                   "must contain symbols!"));
+                                return;
+                            }
+                        } else {
                             push_op(make_error("let binding missing symbol"));
                             return;
                         }
-                        variable_list = L_CONS(sym, variable_list);
-                        var_list = variable_list;
                         bindings = bindings->cons().cdr();
                     }
                     is_special_form = true;
@@ -4475,13 +4505,74 @@ void push_suspend(EvalStack& eval_stack, u32 op_stack_init)
     // will expect the caller to pop the promise and push the
     // result in the captured execution context.
     setup_promise(result->promise(), eval_stack);
-    while (bound_context->operand_stack_->size() >
-           op_stack_init) {
+    while (bound_context->operand_stack_->size() > op_stack_init) {
         pop_op();
     }
     push_op(L_NIL);
     bound_context->lexical_bindings_ = L_NIL;
     reset_callstack();
+}
+
+
+bool destructure_binding(Value* sym,
+                         Value* value,
+                         ListBuilder& binding_list_builder)
+{
+    if (is_list(sym)) {
+        if (length(sym) > length(value)) {
+            if (is_list(value)) {
+                push_op(make_error(::format("expression result % is"
+                                            " too short to bind to "
+                                            "destructuring let %",
+                                            value,
+                                            sym)));
+            } else {
+                push_op(make_error(::format("cannot destructure % "
+                                            "into %",
+                                            value,
+                                            sym)));
+            }
+            return false;
+        }
+        int j = 0;
+        while (sym not_eq L_NIL) {
+            auto car = sym->cons().car();
+            if (car->type() not_eq Value::Type::symbol) {
+                push_op(make_error(::format("non-symbol % in "
+                                            "destructuring let!",
+                                            car)));
+                return false;
+            }
+            binding_list_builder.push_back(L_CONS(car, get_list(value, j++)));
+            sym = sym->cons().cdr();
+        }
+    } else if (sym->type() == Value::Type::cons) {
+        auto car = sym->cons().car();
+        auto cdr = sym->cons().cdr();
+        if (car->type() == Value::Type::symbol and
+            cdr->type() == Value::Type::symbol) {
+            if (value->type() not_eq Value::Type::cons) {
+                push_op(make_error(::format("cannot destructure % "
+                                            "into %",
+                                            value,
+                                            sym)));
+                return false;
+            }
+            binding_list_builder.push_back(L_CONS(car, value->cons().car()));
+            binding_list_builder.push_back(L_CONS(cdr, value->cons().cdr()));
+        } else {
+            push_op(make_error(::format("non-symbol % in "
+                                        "destructuring let!",
+                                        sym)));
+            return false;
+        }
+    } else {
+        push_op(make_error(::format("invalid value % in let "
+                                    "expression",
+                                    sym)));
+        return false;
+    }
+    return true;
 }
 
 
@@ -4614,7 +4705,8 @@ void eval_loop(EvalStack& eval_stack)
             if (result->type() not_eq Value::Type::promise) {
                 pop_op();
                 push_op(make_error(::format("await expects a promise object, "
-                                            "got %", result)));
+                                            "got %",
+                                            result)));
             } else {
                 StringBuffer<48> agitant;
                 if (can_suspend(eval_stack, agitant)) {
@@ -4680,7 +4772,9 @@ void eval_loop(EvalStack& eval_stack)
             auto let_code = frame.expr_->cons().cdr();
             auto bindings = let_code->cons().car();
 
-            ListBuilder binding_list_builder;
+            gc_safepoint();
+
+            ListBuilder binding_list;
 
             // Pop values in reverse order and pair with symbols
             Buffer<Value*, 32> values;
@@ -4693,21 +4787,29 @@ void eval_loop(EvalStack& eval_stack)
             for (int i = values.size() - 1; i >= 0; i--) {
                 auto binding = b->cons().car();
                 auto sym = binding->cons().car();
-                binding_list_builder.push_back(make_cons(sym, values[i]));
+                if (sym->type() == Value::Type::symbol) {
+                    binding_list.push_back(make_cons(sym, values[i]));
+                } else {
+                    if (not destructure_binding(sym, values[i], binding_list)) {
+                        goto BINDING_ERROR;
+                    }
+                }
+
                 b = b->cons().cdr();
             }
 
             // Install bindings
-            auto new_binding_list = make_cons(binding_list_builder.result(),
-                                              bound_context->lexical_bindings_);
-            bound_context->lexical_bindings_ = new_binding_list;
+            bound_context->lexical_bindings_ = make_cons(
+                binding_list.result(), bound_context->lexical_bindings_);
 
             // After body, cleanup bindings
             eval_stack.push_back({frame.expr_, EvalFrame::let_cleanup});
 
             // Eval body
-            auto body = let_code->cons().cdr();
-            eval_stack.push_back({body, EvalFrame::let_body});
+            eval_stack.push_back({let_code->cons().cdr(), EvalFrame::let_body});
+            break;
+
+        BINDING_ERROR:
             break;
         }
 
@@ -4886,7 +4988,8 @@ void eval_loop(EvalStack& eval_stack)
 
             if (fn->type() == Value::Type::function and
                 (fn->hdr_.mode_bits_ == Function::ModeBits::lisp_function or
-                 fn->hdr_.mode_bits_ == Function::ModeBits::lisp_bytecode_function)) {
+                 fn->hdr_.mode_bits_ ==
+                     Function::ModeBits::lisp_bytecode_function)) {
 
                 if (fn->function().sig_.required_args_ > argc) {
                     for (int i = 0; i < argc; ++i) {
@@ -4972,25 +5075,25 @@ void eval_loop(EvalStack& eval_stack)
                             bound_context->current_fn_argc_}};
                     eval_stack.push_back(cleanup_frame);
 
-                    eval_stack.push_back({.expr_ = fn,
-                            .state_ = EvalFrame::lisp_funcall_setup,
-                            .funcall_apply_ = {argc}});
-                } else if (fn->hdr_.mode_bits_ == Function::ModeBits::lisp_bytecode_function) {
+                    eval_stack.push_back(
+                        {.expr_ = fn,
+                         .state_ = EvalFrame::lisp_funcall_setup,
+                         .funcall_apply_ = {argc}});
+                } else if (fn->hdr_.mode_bits_ ==
+                           Function::ModeBits::lisp_bytecode_function) {
 
                     auto& ctx = *bound_context;
 
                     push_callstack(fn);
                     gc_safepoint();
 
-                    eval_stack.push_back({
-                            .expr_ = L_NIL,
-                            .state_ = EvalFrame::vm_cleanup,
-                                .lisp_funcall_cleanup_ = {
-                                    .argc_ = argc,
-                                    .saved_break_loc_ = ctx.arguments_break_loc_,
-                                    .saved_argc_ = ctx.current_fn_argc_
-                                }
-                        });
+                    eval_stack.push_back(
+                        {.expr_ = L_NIL,
+                         .state_ = EvalFrame::vm_cleanup,
+                         .lisp_funcall_cleanup_ = {
+                             .argc_ = argc,
+                             .saved_break_loc_ = ctx.arguments_break_loc_,
+                             .saved_argc_ = ctx.current_fn_argc_}});
 
                     const auto break_loc = ctx.operand_stack_->size() - 1;
                     ctx.arguments_break_loc_ = break_loc;
@@ -4998,22 +5101,24 @@ void eval_loop(EvalStack& eval_stack)
 
                     if (UNLIKELY(bound_context->debug_break_)) {
                         if (debug_break_compiled_fn(fn)) {
-                            eval_stack.push_back({L_NIL, EvalFrame::debug_enable_break});
+                            eval_stack.push_back(
+                                {L_NIL, EvalFrame::debug_enable_break});
                         }
                     }
 
                     ctx.lexical_bindings_ =
                         dcompr(fn->function().lisp_impl_.lexical_bindings_);
 
-                    eval_stack.push_back({
-                            .expr_ = fn,
-                            .state_ = EvalFrame::vm_resume,
-                                .vm_resume_ = {
-                                    .program_counter_ = fn->function()
-                                      .bytecode_impl_.bytecode_offset()
-                                    ->integer().value_,
-                                    .nested_scope_ = 0
-                                }});
+                    eval_stack.push_back(
+                        {.expr_ = fn,
+                         .state_ = EvalFrame::vm_resume,
+                         .vm_resume_ = {
+                             .program_counter_ =
+                                 fn->function()
+                                     .bytecode_impl_.bytecode_offset()
+                                     ->integer()
+                                     .value_,
+                             .nested_scope_ = 0}});
                 } else {
                     LOGIC_ERROR();
                 }
@@ -5034,16 +5139,15 @@ void eval_loop(EvalStack& eval_stack)
             auto fn = frame.expr_;
             auto suspend = vm_resume(fn->function().bytecode_impl_.databuffer(),
                                      fn->function()
-                                      .bytecode_impl_.bytecode_offset()
-                                     ->integer().value_,
+                                         .bytecode_impl_.bytecode_offset()
+                                         ->integer()
+                                         .value_,
                                      frame.vm_resume_);
 
             if (suspend) {
-                eval_stack.push_back({
-                        .expr_ = fn,
-                        .state_ = EvalFrame::vm_resume,
-                        .vm_resume_ = *suspend
-                    });
+                eval_stack.push_back({.expr_ = fn,
+                                      .state_ = EvalFrame::vm_resume,
+                                      .vm_resume_ = *suspend});
                 push_suspend(eval_stack, op_stack_init);
                 return;
             }

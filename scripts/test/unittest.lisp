@@ -36,6 +36,10 @@
                    lhs
                    rhs))))
 
+(defn assert-error-status (v str)
+  (let ((msg (error-info v)))
+    (assert-eq msg str)))
+
 ;; At the beginning, assert the expected operand stack size. We'll have another
 ;; assertion at the end of regression in apitest.lisp, to make sure that we
 ;; aren't forgetting to pop anything off the stack.
@@ -979,6 +983,29 @@
 
 (end-test)
 
+
+(begin-test "destructuring")
+
+(let (((a . b) (cons 1 2)))
+  (assert-eq 3 (+ a b)))
+
+(assert-error-status
+ (let (((a b c) (list 1 2)))
+   nil)
+ "expression result '(1 2) is too short to bind to destructuring let '(a b c)")
+
+(assert-error-status
+ (let (((a . b) 5))
+   nil)
+ "cannot destructure 5 into '(a . b)")
+
+(assert-error-status
+ (let (((a b) 5))
+   nil)
+ "cannot destructure 5 into '(a b)")
+
+
+(end-test)
 
 
 (assert-v (bound? 'begin-test))
