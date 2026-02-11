@@ -2316,6 +2316,35 @@ void lint(Value* expr, Value* variable_list, lisp::Protected& gvar_list)
                                 variable_list = L_CONS(car_sym, variable_list);
                                 variable_list = L_CONS(cdr_sym, variable_list);
                                 var_list = variable_list;
+                            } else if (car_sym->type() == Value::Type::symbol and
+                                       cdr_sym->type() == Value::Type::cons) {
+                                auto lat = sym;
+                                while (lat->type() == Value::Type::cons) {
+                                    auto lsym = lat->cons().car();
+                                    if (lsym->type() not_eq Value::Type::symbol) {
+                                        auto fmt = ::format("invalid value % "
+                                                            "in destructuring "
+                                                            "let %",
+                                                            lsym,
+                                                            sym);
+                                        push_op(make_error(fmt));
+                                        return;
+                                    } else {
+                                        variable_list = L_CONS(lsym, variable_list);
+                                        var_list = variable_list;
+                                    }
+                                    lat = lat->cons().cdr();
+                                }
+                                if (lat->type() not_eq Value::Type::symbol) {
+                                    auto fmt = ::format("invalid value % in "
+                                                        "destructuring let %",
+                                                        lat,
+                                                        sym);
+                                    return;
+                                } else {
+                                    variable_list = L_CONS(lat, variable_list);
+                                    var_list = variable_list;
+                                }
                             } else {
                                 push_op(make_error("pair in destructuring let "
                                                    "must contain symbols!"));
@@ -4516,16 +4545,35 @@ void push_suspend(EvalStack& eval_stack, u32 op_stack_init)
 
 bool destructure_binding(Value* sym,
                          Value* value,
-                         ListBuilder& binding_list_builder)
+                         ListBuilder& binding_list)
 {
     if (is_list(sym)) {
-        if (length(sym) > length(value)) {
-            if (is_list(value)) {
+        if (length(sym) not_eq length(value)) {
+            if (is_list(value) and length(value) < length(sym)) {
                 push_op(make_error(::format("expression result % is"
                                             " too short to bind to "
                                             "destructuring let %",
                                             value,
                                             sym)));
+            } else if (is_list(value)) {
+                StringBuffer<64> suggestion;
+                suggestion += "(";
+                l_foreach(sym, [&suggestion](Value* v) {
+                    suggestion += stringify(v);
+                    suggestion += " ";
+                });
+                suggestion += ". rest)";
+                auto fmt_buffer = allocate_small<StringBuffer<200>>("err-fmt");
+                make_format(*fmt_buffer,
+                            "expression result % is"
+                            " too long to bind to "
+                            "destructuring let %. Use improper "
+                            "list destructuring to capture "
+                            "remaining arguments: %",
+                            value,
+                            sym,
+                            suggestion);
+                push_op(make_error(*fmt_buffer));
             } else {
                 push_op(make_error(::format("cannot destructure % "
                                             "into %",
@@ -4543,7 +4591,7 @@ bool destructure_binding(Value* sym,
                                             car)));
                 return false;
             }
-            binding_list_builder.push_back(L_CONS(car, get_list(value, j++)));
+            binding_list.push_back(L_CONS(car, get_list(value, j++)));
             sym = sym->cons().cdr();
         }
     } else if (sym->type() == Value::Type::cons) {
@@ -4558,8 +4606,43 @@ bool destructure_binding(Value* sym,
                                             sym)));
                 return false;
             }
-            binding_list_builder.push_back(L_CONS(car, value->cons().car()));
-            binding_list_builder.push_back(L_CONS(cdr, value->cons().cdr()));
+            binding_list.push_back(L_CONS(car, value->cons().car()));
+            binding_list.push_back(L_CONS(cdr, value->cons().cdr()));
+        } else if (car->type() == Value::Type::symbol and
+                   cdr->type() == Value::Type::cons) {
+            auto value_lat = value;
+            auto sym_lat = sym;
+            while (sym->type() == Value::Type::cons) {
+                if (value_lat->type() not_eq Value::Type::cons) {
+                    push_op(make_error(::format("expression result % is too "
+                                                "short to bind to destructuring"
+                                                " let %",
+                                                value,
+                                                sym_lat)));
+                    return false;
+                }
+                auto car = sym->cons().car();
+                if (car->type() == Value::Type::symbol) {
+                    binding_list.push_back(L_CONS(car, value_lat->cons().car()));
+                } else {
+                    push_op(make_error(::format("Invalid value % in "
+                                                "destructuring let %",
+                                                car,
+                                                sym_lat)));
+                    return false;
+                }
+                value_lat = value_lat->cons().cdr();
+                sym = sym->cons().cdr();
+            }
+            if (sym->type() == Value::Type::symbol) {
+                binding_list.push_back(L_CONS(sym, value_lat));
+            } else {
+                push_op(make_error(::format("Invalid value % in destructuring "
+                                            "let %",
+                                            sym,
+                                            sym_lat)));
+                return false;
+            }
         } else {
             push_op(make_error(::format("non-symbol % in "
                                         "destructuring let!",

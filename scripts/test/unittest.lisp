@@ -1004,6 +1004,26 @@
    nil)
  "cannot destructure 5 into '(a b)")
 
+;; Test that extraneous parameters are ignored
+(assert-error-status (let (((a b c d) (range 10)))
+                       (+ a b c d))
+                     "expression result '(0 1 2 3 4 5 6 7 8 9) is too long to bind to destructuring let '(a b c d). Use improper list destructuring to capture remaining arguments: (a b c d . rest)")
+
+(assert-eq 45 (let (((a b c . rest) (range 10)))
+                (+ a b c (apply + rest))))
+
+(let (((a b . rest) '(1 2)))
+  (assert-eq '() rest))
+
+(let (((a . rest) (range 5)))
+  (assert-eq 10 (+ a (apply + rest))))
+
+(assert-error-status
+ (let (((a b c . rest) '(1 2))) nil)
+ "expression result '(1 2) is too short to bind to destructuring let '(a b c . rest)")
+
+(let (((a b c) '(1 2 3)))
+  (assert-eq 6 (+ a b c)))
 
 (end-test)
 
