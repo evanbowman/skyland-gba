@@ -79,7 +79,10 @@
                      '((race . 2)) ; hostile human
                      '((icon . 44))))
         (if goblin
-            (attack-player "<c:Anvil Annie:44>I KNEW IT! I've come aboard and found goblins! Just as I suspected! <B:0> To think that I ALMOST trusted you!")
+            (progn
+              (await (dialog* "<c:Anvil Annie:44>Finally aboard! Let me just... <B:0> <s:3>. . . <s:0>"))
+              (await (dialog* "<c:Anvil Annie:44>Wait. WAIT. <B:0> Those biosigns... <B:0> GOBLINS!? <B:0> I KNEW IT! This was a trap all along!"))
+              (attack-player "Anvil Annie has turned hostile!"))
             (progn
               (await (dialog* "Anvil Annie joined your crew!"))
               (exit))))
@@ -113,9 +116,13 @@
 
 (defn/temp negotiate ()
   (let ((sel (await (dialog-choice* "<c:Anvil Annie:44>Alright, let's negotiate. <B:0> I'm listening, but no sudden moves, gotit?"
-                                    '("Pay 700@."
-                                      "Intimidate."
-                                      "Refuse Bribe.")))))
+                                    (list "Pay 700@."
+                                          (let ((st (strength (player))))
+                                            (cond
+                                              ((> st 2) "Intimidate.")
+                                              ((equal st 2) "Intimidate. (risky)")
+                                              (true "Intimidate. (foolish)")))
+                                          "Refuse Bribe.")))))
     (case sel
       (0 (pay-toll 700))
       (1 (intimidate))
