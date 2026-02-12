@@ -4548,6 +4548,12 @@ bool destructure_binding(Value* sym,
                          ListBuilder& binding_list)
 {
     if (is_list(sym)) {
+        if (not is_list(value)) {
+            push_op(make_error(::format("cannot destructure % into %",
+                                        value,
+                                        sym)));
+            return false;
+        }
         if (length(sym) not_eq length(value)) {
             if (is_list(value) and length(value) < length(sym)) {
                 push_op(make_error(::format("expression result % is"
