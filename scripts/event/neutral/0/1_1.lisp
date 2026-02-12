@@ -29,7 +29,8 @@
 
 (defn/temp attack-player ((txt . string))
   (opponent-mode 'hostile)
-  (await (dialog* txt)))
+  (await (dialog* txt))
+  (await (dialog* "Prepare for battle!")))
 
 
 (defn/temp pay-toll (toll)
