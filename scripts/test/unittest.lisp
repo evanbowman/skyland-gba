@@ -790,6 +790,33 @@
 (end-test)
 
 
+(begin-test "tail call")
+;; I don't know how to test tail call optmization, other than to do a really
+;; deep recursion...
+(exit-stress-gc-mode) ;; This test takes forever with it's turned on
+(assert-eq ((lambda (n acc)
+              (if (equal n 0)
+                  acc
+                  ((this) (decr n) (+ acc n))))
+            10000
+            0)
+           50005000)
+
+(let ((n2 12))
+  (assert-eq ((lambda (n acc)
+                (let ((n2 n))
+                  (if (equal n 0)
+                      acc
+                      ((this) (decr n2) (+ acc n n2)))))
+              5000
+              0)
+             25005000)
+  (assert-eq n2 12))
+
+(enter-stress-gc-mode)
+(end-test)
+
+
 (begin-test "list-manipulation")
 
 ;; Insert at various positions

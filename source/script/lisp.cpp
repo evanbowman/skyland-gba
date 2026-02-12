@@ -4659,6 +4659,91 @@ bool destructure_binding(Value* sym,
 }
 
 
+static bool is_recursive_invocation(Value* function)
+{
+    return function == get_this();
+}
+
+
+static bool apply_tail_funcall(Value* fn,
+                               int argc,
+                               EvalStack& eval_stack)
+{
+    if (eval_stack.size() == 0) {
+        // We aren't executing a function
+        return false;
+    }
+
+    if (not is_recursive_invocation(fn)) {
+        return false;
+    }
+
+    int lexical_pop_count = 0;
+    auto it = eval_stack.end();
+    --it;
+    while (it not_eq eval_stack.begin()) {
+        if (it->state_ == EvalFrame::lisp_funcall_cleanup) {
+            break;
+        } else if (it->state_ == EvalFrame::let_cleanup) {
+            ++lexical_pop_count;
+        } else {
+            return false;
+        }
+        --it;
+    }
+
+    while (lexical_pop_count) {
+        bound_context->lexical_bindings_ =
+            bound_context->lexical_bindings_->cons().cdr();
+        eval_stack.pop_back();
+        --lexical_pop_count;
+    }
+
+    auto& last_frame = eval_stack.back();
+
+    // FIXME: this does not perform tail call optimization if we're within a let
+    // expression, due to let_cleanup states, and also perhaps not if we're in
+    // debug mode, due to step_over states being pushed. Idk. But the
+    // let_cleanup could be fixed by preemtively evaluating those states here if
+    // that's all there is between the stack top and the funcall cleanup frame.
+    if (last_frame.state_ == EvalFrame::lisp_funcall_cleanup and
+        last_frame.expr_ == fn and
+        last_frame.lisp_funcall_cleanup_.argc_ == argc) {
+
+        auto expression_list = dcompr(fn->function().lisp_impl_.code_);
+
+        // operand stack now contains:
+        // [... saved_bindings function [args] saved_bindings function [args]]
+
+        // NOTE: at this point, both the prior function call's arguments and our
+        // own arguments are ont the stack. Remove intermediate args.
+        Buffer<Value*, 32> saved_args;
+        for (int i = 0; i < argc; ++i) {
+            saved_args.push_back(get_op0());
+            pop_op();
+        }
+        pop_op(); // function
+        pop_op(); // lexical bindigns
+        for (int i = 0; i < argc; ++i) {
+            // Previous function call's arguments
+            pop_op();
+        }
+        for (auto v : reversed(saved_args)) {
+            push_op(v);
+        }
+
+        if (expression_list == get_nil()) {
+            push_op(get_nil());
+        } else {
+            eval_stack.push_back({expression_list, EvalFrame::lisp_funcall_body});
+        }
+        return true;
+    }
+
+    return false;
+}
+
+
 void eval_loop(EvalStack& eval_stack)
 {
     const u32 op_stack_init = bound_context->operand_stack_->size();
@@ -5149,19 +5234,22 @@ void eval_loop(EvalStack& eval_stack)
                 }
 
                 if (fn->hdr_.mode_bits_ == Function::ModeBits::lisp_function) {
-                    EvalFrame cleanup_frame = {
-                        .expr_ = fn,
-                        .state_ = EvalFrame::lisp_funcall_cleanup,
-                        .lisp_funcall_cleanup_ = {
-                            argc,
-                            bound_context->arguments_break_loc_,
-                            bound_context->current_fn_argc_}};
-                    eval_stack.push_back(cleanup_frame);
+                    if (apply_tail_funcall(fn, argc, eval_stack)) {
+                        break;
+                    } else {
+                        EvalFrame cleanup_frame = {
+                            .expr_ = fn,
+                            .state_ = EvalFrame::lisp_funcall_cleanup,
+                            .lisp_funcall_cleanup_ = {
+                                argc,
+                                bound_context->arguments_break_loc_,
+                                bound_context->current_fn_argc_}};
+                        eval_stack.push_back(cleanup_frame);
 
-                    eval_stack.push_back(
-                        {.expr_ = fn,
-                         .state_ = EvalFrame::lisp_funcall_setup,
-                         .funcall_apply_ = {argc}});
+                        eval_stack.push_back({.expr_ = fn,
+                                              .state_ = EvalFrame::lisp_funcall_setup,
+                                              .funcall_apply_ = {argc}});
+                    }
                 } else if (fn->hdr_.mode_bits_ ==
                            Function::ModeBits::lisp_bytecode_function) {
 
