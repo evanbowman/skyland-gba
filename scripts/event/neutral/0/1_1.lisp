@@ -30,7 +30,7 @@
 (defn/temp attack-player ((txt . string))
   (opponent-mode 'hostile)
   (await (dialog* txt))
-  (await (dialog* "Prepare for battle!")))
+  (await (dialog* "Your opponent has locked weapons, prepare for battle!")))
 
 
 (defn/temp pay-toll (toll)
