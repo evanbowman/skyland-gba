@@ -1502,10 +1502,7 @@ ScenePtr WorldMapScene::update(Time delta)
         if (timer_ > fade_out_duration) {
             PLATFORM.screen().fade(
                 1, ColorConstant::rich_black, {}, true, true);
-            PLATFORM.speaker().clear_sounds();
-            auto next = make_scene<LoadLevelScene>();
-            next->script_preloaded_ = script_preload_;
-            return next;
+            state_ = State::fade_out_wait;
         } else {
             const auto amount = smoothstep(0.f, fade_out_duration, timer_);
             PLATFORM.screen().fade(
@@ -1513,6 +1510,23 @@ ScenePtr WorldMapScene::update(Time delta)
         }
         break;
     }
+
+    case State::fade_out_wait:
+        timer_ += delta;
+        // I'd really like the amount of time spent loading a level to be fairly
+        // consistent. Some levels are able to preload everything in the fade
+        // window, some are not. Let's add a 100 millisecond pause... it's nice
+        // to have a transitional pause anyway.
+        if (timer_ > fade_out_duration + milliseconds(200) or
+            // Or the player is mashing buttons impatiently...
+            APP.player().button_down(Button::action_1) or
+            APP.player().button_down(Button::action_2)) {
+            PLATFORM.speaker().clear_sounds();
+            auto next = make_scene<LoadLevelScene>();
+            next->script_preloaded_ = script_preload_;
+            return next;
+        }
+        break;
 
 
     case State::fade_in: {

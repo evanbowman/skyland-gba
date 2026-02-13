@@ -101,6 +101,7 @@ private:
         edit_button_depressed,
         edit_button_released_wait,
         fade_out,
+        fade_out_wait,
         fade_out_saved,
         fade_out_help,
         fade_out_logbook,
