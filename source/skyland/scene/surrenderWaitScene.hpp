@@ -12,6 +12,7 @@
 #pragma once
 
 #include "readyScene.hpp"
+#include "inspectP2Scene.hpp"
 #include "skyland/skyland.hpp"
 #include "worldScene.hpp"
 
@@ -38,7 +39,11 @@ public:
             }
         } else {
             if (not APP.dialog_buffer()) {
-                return make_scene<ReadyScene>();
+                if (cached_camera_far_) {
+                    return make_scene<InspectP2Scene>();
+                } else {
+                    return make_scene<ReadyScene>();
+                }
             }
         }
 
@@ -46,8 +51,17 @@ public:
     }
 
 
+    void enter(Scene& prev) override
+    {
+        if (auto ws = prev.cast_world_scene()) {
+            cached_camera_far_ = ws->is_far_camera();
+        }
+    }
+
+
 private:
     Time timer_ = 0;
+    bool cached_camera_far_ = false;
 };
 
 
