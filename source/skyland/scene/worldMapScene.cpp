@@ -770,8 +770,8 @@ void WorldMapScene::preload_scripts()
 ScenePtr WorldMapScene::update(Time delta)
 {
     cursor_anim_timer_ += delta;
-    if (cursor_anim_timer_ > milliseconds(200)) {
-        cursor_anim_timer_ -= milliseconds(200);
+    if (cursor_anim_timer_ > milliseconds(250)) {
+        cursor_anim_timer_ -= milliseconds(250);
         cursor_keyframe_ = not cursor_keyframe_;
     }
 
