@@ -474,7 +474,9 @@ ScenePtr AdventureModeSettingsScene::update(Time delta)
             loading_task = [] {
                 ScriptPreloadGuard preload;
                 load_difficulty_profile();
-                APP.invoke_script("/scripts/newgame.lisp");
+                APP.invoke_script("/scripts/newgame.lisp", {
+                        .exclude_delta_ = true
+                    });
             };
             if (APP.gp_.stateflags_.get(GlobalPersistentData::permadeath_on)) {
                 APP.persistent_data().set_flag(PersistentData::permadeath_on);

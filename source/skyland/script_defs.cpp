@@ -2852,11 +2852,15 @@ void App::init_scripts(Function<4 * sizeof(void*), void(const char*)> msg)
 
     log_cnt();
 
-    invoke_script("/scripts/stdlib.lisp", true);
+    invoke_script("/scripts/stdlib.lisp", {
+            .rom_fs_only_ = true
+        });
 
     log_cnt();
 
-    invoke_script("/scripts/init.lisp", true);
+    invoke_script("/scripts/init.lisp", {
+            .rom_fs_only_ = true
+        });
 
     log_cnt();
 

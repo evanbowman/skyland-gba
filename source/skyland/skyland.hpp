@@ -406,9 +406,17 @@ public:
     lisp::Value* invoke_ram_script(const char* ram_fs_path);
 
 
+    struct InvokeScriptConfig
+    {
+        bool rom_fs_only_ = false;
+        bool exclude_delta_ = false;
+
+        static InvokeScriptConfig create() { return {}; }
+    };
+
     lisp::Value*
     invoke_script(const char* path,
-                  bool rom_fs_only = false,
+                  InvokeScriptConfig conf = InvokeScriptConfig::create(),
                   Optional<Function<4 * sizeof(void*), void(lisp::Value& err)>>
                       err_handler = nullopt());
 

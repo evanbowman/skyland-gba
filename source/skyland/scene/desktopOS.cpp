@@ -1482,7 +1482,7 @@ public:
                 stored = true;
             };
 
-            auto lv = APP.invoke_script(path.c_str(), false, store_result);
+            auto lv = APP.invoke_script(path.c_str(), {}, store_result);
             if (not stored) {
                 store_result(*lv);
             }

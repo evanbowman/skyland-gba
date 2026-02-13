@@ -755,7 +755,7 @@ const char* seek_filename(const char* path)
 
 lisp::Value* App::invoke_script(
     const char* path,
-    bool rom_fs_only,
+    InvokeScriptConfig conf,
     Optional<Function<4 * sizeof(void*), void(lisp::Value& err)>> err_handler)
 {
     auto on_err = [path](lisp::Value& err) {
@@ -770,14 +770,16 @@ lisp::Value* App::invoke_script(
     }
 
     if (is_developer_mode() and not PLATFORM.network_peer().is_connected() and
-        game_mode_ not_eq GameMode::tutorial and not rom_fs_only) {
+        game_mode_ not_eq GameMode::tutorial and not conf.rom_fs_only_) {
 
         Vector<char> buffer;
         if (flash_filesystem::read_file_data_text(path, buffer)) {
             lisp::VectorCharSequence seq(buffer);
             auto result = lisp::dostring(seq, *err_handler);
             // In case the script took a bit to execute.
-            PLATFORM.delta_clock().reset();
+            if (not conf.exclude_delta_) {
+                PLATFORM.delta_clock().reset();
+            }
             return result;
         }
     }
@@ -789,7 +791,9 @@ lisp::Value* App::invoke_script(
     if (auto contents = PLATFORM.load_file_contents("", path)) {
         lisp::BasicCharSequence seq(contents);
         auto result = lisp::dostring(seq, *err_handler);
-        PLATFORM.delta_clock().reset();
+        if (not conf.exclude_delta_) {
+            PLATFORM.delta_clock().reset();
+        }
         return result;
     } else {
         StringBuffer<100> err("script '");
