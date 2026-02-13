@@ -148,6 +148,9 @@ ScenePtr ZoneImageScene::update(Time delta)
             timer_ = 0;
             if (background_task_) {
                 (*background_task_)();
+                // FIXME: account for correct overhead of backround task by
+                // measuring programatically.
+                timer_ = milliseconds(300);
             }
         } else {
             const auto amount = 1.f - smoothstep(0.f, fade_duration, timer_);
