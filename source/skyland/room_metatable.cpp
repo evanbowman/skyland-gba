@@ -299,7 +299,7 @@ public:
 
 
 
-using RoomMetatableType = RoomMetatable<6,
+using RoomMetatableType = RoomMetatable<4,
                                         // walls
                                         Hull,
                                         BronzeHull,

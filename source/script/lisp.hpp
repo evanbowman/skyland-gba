@@ -171,7 +171,8 @@ struct Symbol
     void set_name(const char* name);
 
 
-    const char* unique_id()
+    using UniqueId = const char*;
+    UniqueId unique_id()
     {
         if (hdr_.mode_bits_ == (u8)ModeBits::small) {
             const char* result = 0;

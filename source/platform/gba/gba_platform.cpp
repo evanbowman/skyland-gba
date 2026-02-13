@@ -4412,6 +4412,38 @@ void Platform::on_unrecoverrable_error(UnrecoverrableErrorCallback callback)
 }
 
 
+static EWRAM_DATA Buffer<filesystem::DirectoryCache, 16> dir_cache;
+
+
+filesystem::DirectoryCache dir_cache_load(const StringBuffer<62>& prefix)
+{
+    for (auto& ent : dir_cache) {
+        bool match = true;
+        for (u32 i = 0; i < prefix.length(); ++i) {
+            if (ent.first->path_[i] not_eq prefix[i]) {
+                match = false;
+                break;
+            }
+        }
+        if (match) {
+            // info(format("hit %", prefix.c_str()));
+            return ent;
+        }
+    }
+    if (auto found = filesystem::find_directory(prefix.c_str())) {
+        // info(format("cached %", prefix.c_str()));
+        if (dir_cache.full()) {
+            // info(format("evict %", dir_cache.begin()->first->path_));
+            dir_cache.erase(dir_cache.begin());
+        }
+        dir_cache.push_back(*found);
+        return dir_cache.back();
+    } else {
+        PLATFORM.fatal(format("directory % missing!", prefix.c_str()));
+        while (1);
+    }
+}
+
 
 std::pair<const char*, u32> Platform::load_file(const char* folder,
                                                 const char* filename) const
@@ -4428,7 +4460,26 @@ std::pair<const char*, u32> Platform::load_file(const char* folder,
 
     path += filename;
 
-    auto info = filesystem::load(path.c_str(), nullopt());
+    int fname_len = 0;
+    for (int i = path.length() - 1; i > -1; --i) {
+        if (path[i] == '/') {
+            break;
+        }
+        ++fname_len;
+    }
+    StringBuffer<62> path_prefix;
+    for (u32 i = 0; i < path.length() - fname_len; ++i) {
+        path_prefix.push_back(path[i]);
+    }
+
+    Optional<filesystem::DirectoryCache> dir;
+    if (path_prefix not_eq "/") {
+        // Don't bother to load a directory cache for the filesystem root, as it
+        // doesn't help in any way.
+        dir = dir_cache_load(path_prefix);
+    }
+
+    auto info = filesystem::load(path.c_str(), dir);
     return {std::get<0>(info), std::get<1>(info)};
 }
 

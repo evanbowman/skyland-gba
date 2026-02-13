@@ -270,6 +270,18 @@ struct Context
     int string_intern_pos_ = 0;
     u32 alloc_highwater_ = 0;
 
+    Symbol::UniqueId if_symbol_id_;
+    Symbol::UniqueId let_symbol_id_;
+    Symbol::UniqueId while_symbol_id_;
+    Symbol::UniqueId lambda_symbol_id_;
+    Symbol::UniqueId fn_symbol_id_;
+    Symbol::UniqueId quote_symbol_id_;
+    Symbol::UniqueId quasiquote_symbol_id_;
+    Symbol::UniqueId macro_symbol_id_;
+    Symbol::UniqueId defconstant_symbol_id_;
+    Symbol::UniqueId await_symbol_id_;
+    Symbol::UniqueId apply_symbol_id_;
+
     u16 string_buffer_remaining_ = 0;
     u16 arguments_break_loc_;
     u8 current_fn_argc_ = 0;
@@ -1015,7 +1027,8 @@ static void arg_substitution_impl(Value* impl, ArgBindings& bindings)
             if (is_list(val)) {
                 auto first = val->cons().car();
                 if (first->type() == Value::Type::symbol) {
-                    if (str_eq(first->symbol().name(), "let")) {
+                    auto id = first->symbol().unique_id();
+                    if (id == ctx->let_symbol_id_) {
                         auto let_bindings = val->cons().cdr()->cons().car();
 
                         l_foreach(let_bindings, [&](Value* val) {
@@ -1048,7 +1061,7 @@ static void arg_substitution_impl(Value* impl, ArgBindings& bindings)
 
                         arg_substitution_impl(let_bindings, bindings);
                         arg_substitution_impl(val, bindings);
-                    } else if (str_eq(first->symbol().name(), "lambda")) {
+                    } else if (id == ctx->lambda_symbol_id_) {
                         // Now this one's a bit tricky. We need to switch
                         // context and fetch this nested lambda's argument list,
                         // and continue recursion with that list instead.
@@ -1097,7 +1110,7 @@ static void arg_substitution_impl(Value* impl, ArgBindings& bindings)
                                        L_NIL)));
                         }
 
-                    } else if (str_eq(first->symbol().name(), "fn")) {
+                    } else if (id == ctx->fn_symbol_id_) {
                         // Do nothing... cannot substitute a function argument
                         // within a lambda implementation.
                     } else {
@@ -3653,7 +3666,15 @@ static void macroexpand_macro()
         if (is_list(car_val)) {
             push_op(car_val);
             macroexpand_macro();
-            macroexpand();
+            // This following line... when I originally wrote the code, I
+            // thought it was needed, but perhaps not...?
+            // macroexpand()
+            // Here's my thinking:
+            // macroexpand itself calls macroexpand_macro after macro expanding,
+            // you wouldn't have to macroexpand again after macroexapnd_macro in
+            // macroexpand_macro because the macroexpand called by
+            // macroexpand_macro called macroexpand_macro which called
+            // macroexpand... right?
             result.push_back(get_op0());
             pop_op();
         } else {
@@ -4233,8 +4254,9 @@ eval_iter_start(EvalFrame& frame, EvalStack& eval_stack)
         auto code = frame.expr_;
         auto form = code->cons().car();
         if (form->type() == Value::Type::symbol) {
-            auto name = form->symbol().name();
-            if (str_eq(name, "if")) {
+            auto id = form->symbol().unique_id();
+            auto& ctx = *bound_context;
+            if (id == ctx.if_symbol_id_) {
                 auto if_code = code->cons().cdr();
 
                 if (if_code->type() != Value::Type::cons) {
@@ -4247,20 +4269,7 @@ eval_iter_start(EvalFrame& frame, EvalStack& eval_stack)
                 eval_stack.push_back({cond, EvalFrame::start});
                 return;
 
-            } else if (str_eq(name, "while")) {
-                auto while_code = code->cons().cdr();
-
-                if (while_code->type() != Value::Type::cons) {
-                    PUSH_ERR(Error::Code::mismatched_parentheses, L_NIL);
-                    return;
-                }
-
-                eval_stack.push_back({code, EvalFrame::while_check_condition});
-                eval_stack.push_back(
-                    {while_code->cons().car(), EvalFrame::start});
-                return;
-
-            } else if (str_eq(name, "let")) {
+            } else if (id == ctx.let_symbol_id_) {
                 auto let_code = code->cons().cdr();
 
                 if (let_code->type() != Value::Type::cons) {
@@ -4288,7 +4297,20 @@ eval_iter_start(EvalFrame& frame, EvalStack& eval_stack)
                     eval_stack.push_back({expr, EvalFrame::start});
                 }
                 return;
-            } else if (str_eq(name, "lambda")) {
+            } else if (id == ctx.while_symbol_id_) {
+                auto while_code = code->cons().cdr();
+
+                if (while_code->type() != Value::Type::cons) {
+                    PUSH_ERR(Error::Code::mismatched_parentheses, L_NIL);
+                    return;
+                }
+
+                eval_stack.push_back({code, EvalFrame::while_check_condition});
+                eval_stack.push_back(
+                    {while_code->cons().car(), EvalFrame::start});
+                return;
+
+            } else if (id == ctx.lambda_symbol_id_) {
                 push_op(make_lisp_argumented_function(code->cons().cdr()));
                 // NOTE: evaluating an argumented function is
                 // destructive. Once we've evaluated an argumented
@@ -4305,30 +4327,30 @@ eval_iter_start(EvalFrame& frame, EvalStack& eval_stack)
                 code->cons().set_car(make_symbol("fn"));
                 code->cons().set_cdr(code->cons().cdr()->cons().cdr());
                 return;
-            } else if (str_eq(name, "fn")) {
+            } else if (id == ctx.fn_symbol_id_) {
                 push_op(make_lisp_function(code->cons().cdr()));
                 return;
-            } else if (str_eq(name, "'")) {
+            } else if (id == ctx.quote_symbol_id_) {
                 push_op(code->cons().cdr());
                 return;
-            } else if (str_eq(name, "`")) {
+            } else if (id == ctx.quasiquote_symbol_id_) {
                 eval_quasiquote(code->cons().cdr());
                 return;
-            } else if (str_eq(name, "macro")) {
+            } else if (id == ctx.macro_symbol_id_) {
                 eval_macro(code->cons().cdr());
                 return;
-            } else if (str_eq(name, "defconstant")) {
+            } else if (id == ctx.defconstant_symbol_id_) {
                 if (not bound_context->external_constant_tab_) {
                     PLATFORM.fatal("missing constant tab!");
                 }
                 push_op(L_NIL);
                 return;
-            } else if (str_eq(name, "await")) {
+            } else if (id == ctx.await_symbol_id_) {
                 eval_stack.push_back({code, EvalFrame::await_check_result});
                 eval_stack.push_back(
                     {code->cons().cdr()->cons().car(), EvalFrame::start});
                 return;
-            } else if (str_eq(name, "apply")) {
+            } else if (id == ctx.apply_symbol_id_) {
                 if (length(code) < 3) {
                     push_op(make_error("insufficent args to apply"));
                     return;
@@ -8104,14 +8126,14 @@ Value* get_var(Value* symbol)
     // symbol.
     if (bound_context->lexical_bindings_ not_eq get_nil()) {
         auto stack = bound_context->lexical_bindings_;
+        auto sym_id = symbol->symbol().unique_id();
 
         while (stack not_eq get_nil()) {
 
             auto bindings = stack->cons().car();
             while (bindings not_eq get_nil()) {
                 auto kvp = bindings->cons().car();
-                if (kvp->cons().car()->symbol().unique_id() ==
-                    symbol->symbol().unique_id()) {
+                if (kvp->cons().car()->symbol().unique_id() == sym_id) {
                     return kvp->cons().cdr();
                 }
 
@@ -8327,6 +8349,19 @@ void init(Optional<std::pair<const char*, u32>> external_symtab,
     for (int i = 0; i < MAX_NAMED_ARGUMENTS; ++i) {
         ctx->argument_symbols_[i] = make_symbol(::format("$%", i).c_str());
     }
+
+    ctx->if_symbol_id_ = make_symbol("if")->symbol().unique_id();
+    ctx->let_symbol_id_ = make_symbol("let")->symbol().unique_id();
+    ctx->while_symbol_id_ = make_symbol("while")->symbol().unique_id();
+    ctx->lambda_symbol_id_ = make_symbol("lambda")->symbol().unique_id();
+    ctx->fn_symbol_id_ = make_symbol("fn")->symbol().unique_id();
+    ctx->quote_symbol_id_ = make_symbol("'")->symbol().unique_id();
+    ctx->quasiquote_symbol_id_ = make_symbol("`")->symbol().unique_id();
+    ctx->macro_symbol_id_ = make_symbol("macro")->symbol().unique_id();
+    ctx->defconstant_symbol_id_ = make_symbol("defconstant")->symbol().unique_id();
+    ctx->await_symbol_id_ = make_symbol("await")->symbol().unique_id();
+    ctx->apply_symbol_id_ = make_symbol("apply")->symbol().unique_id();
+
 }
 
 

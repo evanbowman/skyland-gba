@@ -513,6 +513,17 @@
 (unbind 'test-var)
 (assert-v (error? (setq test-var 8))) ;; Write to undefined variable raises error.
 
+;; Most of my own macros don't have macros that are nested really deeply, let's
+;; make sure it works:
+(macro -blahh (EXPR)
+       `(list (if a
+                  ,(car EXPR)
+                  ,(if (cdr EXPR)
+                       (cons '-blahh (cdr EXPR))
+                       3))))
+(assert-eq (read "(-blahh 1 2 3 4)")
+           '(list (if a 1 (list (if a 2 (list (if a 3 (list (if a 4 3)))))))))
+
 (global 'temp)
 (setq temp (read "(lambda (a b c) (+ a b c))"))
 (eval temp)

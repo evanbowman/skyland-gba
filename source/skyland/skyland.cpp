@@ -211,12 +211,12 @@ App::App(bool clean_boot)
     // at least 120kb of unused RAM in the worst case, so I'm not on the verge
     // of running out.
     set_scratch_buffer_oom_handler([this] {
-        lisp::gc();
         if (time_stream_.has_multiple_buffers()) {
             time_stream_.free_single_buffer();
         } else {
             time_stream_.clear();
         }
+        lisp::gc();
     });
 
     const auto sb = StateBit::remote_console_force_newline;
