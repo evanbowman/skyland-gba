@@ -82,7 +82,7 @@
 
 
 (assert-v (error? (let ((foo 2)) (global 'foo))))
-(assert-v (error? ((lambda () (setq a 5) 8))))
+(assert-v (error? ((lambda () (setq a 5)))))
 
 
 (defn enter-stress-gc-mode ()
@@ -428,16 +428,6 @@
 (unbind 'cons)
 (assert-v (not (error? cons))) ;; You may not delete a built-in.
 (assert-eq '(5 . 6) (cons 5 6)) ;; The built-in function is back.
-
-(assert-v (error? ((lambda ()
-                     (cons 1 2)
-                     (error "should exit here")
-                     5))))
-
-(assert-v (error? (let ()
-                    1
-                    (error "should exit here")
-                    3)))
 
 ;; NOTE: this test came straight out of one of the game scripts.
 (assert-v

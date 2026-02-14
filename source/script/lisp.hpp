@@ -963,8 +963,7 @@ const char* type_to_string(ValueHeader::Type tp);
     if (auto t = lisp::get_op((OFFSET))->type();                               \
         t not_eq lisp::Value::Type::integer and                                \
         t not_eq lisp::Value::Type::ratio) {                                   \
-        return lisp::make_error(lisp::Error::Code::invalid_argument_type,      \
-                                L_NIL);                                        \
+        return lisp::make_argument_error(lisp::Value::Type::rational, (OFFSET)); \
     }
 
 

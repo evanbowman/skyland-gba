@@ -1645,7 +1645,7 @@ const char* type_to_string(ValueHeader::Type tp)
     case Value::Type::__reserved_1:
     case Value::Type::__reserved_0:
     case Value::Type::nil:
-        return "?";
+        return "nil";
     case Value::Type::promise:
         return "promise";
     case Value::Type::rational:
@@ -5006,9 +5006,7 @@ void eval_loop(EvalStack& eval_stack)
             auto first = body->cons().car();
             auto rest = body->cons().cdr();
 
-            if (get_op0()->type() == Value::Type::error) {
-                // Stop parsing expressions
-            } else if (rest == get_nil()) {
+            if (rest == get_nil()) {
                 eval_stack.push_back({first, EvalFrame::start});
             } else {
                 eval_stack.push_back({rest, EvalFrame::let_body});
@@ -5019,11 +5017,6 @@ void eval_loop(EvalStack& eval_stack)
         }
 
         case EvalFrame::State::let_body_discard: {
-            auto result = get_op0();
-            if (is_error(result)) {
-                // Don't discard errors
-                break;
-            }
             pop_op();
             break;
         }
@@ -5051,9 +5044,7 @@ void eval_loop(EvalStack& eval_stack)
             auto first = expression_list->cons().car();
             auto rest = expression_list->cons().cdr();
 
-            if (get_op0()->type() == Value::Type::error) {
-                // Stop parsing expressions
-            } else if (rest == get_nil()) {
+            if (rest == get_nil()) {
                 // Last expression
                 eval_stack.push_back({first, EvalFrame::start});
             } else {
@@ -5067,11 +5058,6 @@ void eval_loop(EvalStack& eval_stack)
         }
 
         case EvalFrame::State::lisp_funcall_body_discard: {
-            auto result = get_op0();
-            if (is_error(result)) {
-                // Don't discard errors
-                break;
-            }
             pop_op();
             break;
         }
@@ -5508,14 +5494,25 @@ Value* stacktrace()
 }
 
 
+const char* repr_arg_type(u8 sig_type)
+{
+    auto vt = (Value::Type)sig_type;
+    if (vt == Value::Type::nil) {
+        return "?";
+    } else {
+        return type_to_string(vt);
+    }
+}
+
+
 Value* repr_signature(Function::Signature sig)
 {
     ListBuilder list;
-    list.push_back(L_SYM(type_to_string((Value::Type)sig.ret_type_)));
-    list.push_back(L_SYM(type_to_string((Value::Type)sig.arg0_type_)));
-    list.push_back(L_SYM(type_to_string((Value::Type)sig.arg1_type_)));
-    list.push_back(L_SYM(type_to_string((Value::Type)sig.arg2_type_)));
-    list.push_back(L_SYM(type_to_string((Value::Type)sig.arg3_type_)));
+    list.push_back(L_SYM(repr_arg_type(sig.ret_type_)));
+    list.push_back(L_SYM(repr_arg_type(sig.arg0_type_)));
+    list.push_back(L_SYM(repr_arg_type(sig.arg1_type_)));
+    list.push_back(L_SYM(repr_arg_type(sig.arg2_type_)));
+    list.push_back(L_SYM(repr_arg_type(sig.arg3_type_)));
     return list.result();
 }
 
@@ -5597,7 +5594,8 @@ bool comp_less_than(Value* lhs, Value* rhs)
 
 Value* make_argument_error(ValueHeader::Type expected, int position)
 {
-    return make_error(::format("expected type % in arg %, got %",
+    return make_error(::format("%: expected type % in arg %, got %",
+                               get_this(),
                                type_to_string(expected),
                                position,
                                type_to_string(get_op(position)->type())));
@@ -7272,9 +7270,9 @@ BUILTIN_TABLE(
        }}},
      {"gc", {EMPTY_SIG(0), [](int argc) { return make_integer(gc()); }}},
      {"get",
-      {SIG2(nil, cons, rational),
+      {SIG2(nil, nil, rational),
        [](int argc) {
-           if (get_op0()->type() == lisp::Value::Type::nil) {
+           if (get_op1()->type() == lisp::Value::Type::nil) {
                return L_NIL;
            }
 

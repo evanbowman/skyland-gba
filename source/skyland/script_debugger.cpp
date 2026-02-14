@@ -843,7 +843,7 @@ lisp::debug::Action onscreen_script_debug_handler(lisp::debug::Interrupt irq,
 
     switch (irq) {
     case lisp::debug::Interrupt::error_occurred:
-        if (APP.is_developer_mode() and not state_bit_load(StateBit::regression)) {
+        if (not state_bit_load(StateBit::regression)) {
             result = handle_error_occurred(expr);
         }
         break;
