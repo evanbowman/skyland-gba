@@ -382,10 +382,10 @@ void pretty_print_current_fn_with_expr(lisp::Value* expr)
 
 
 
-static void print_tab_heading(const char* heading)
+static void print_tab_heading(const char* heading, u8 y = 6)
 {
     Text::print(format("<- %:% ->", (int)debug_display_tab, heading).c_str(),
-                {1, 6},
+                {1, y},
                 text_colors_inv);
 }
 
@@ -638,15 +638,6 @@ void handle_breakpoint(lisp::Value* expr)
             break;
         }
 
-        if (button_down<Button::down>()) {
-            ++scroll;
-            onscreen_debugger_render_tab(expr, scroll);
-        }
-        if (button_down<Button::up>() and scroll > 0) {
-            --scroll;
-            onscreen_debugger_render_tab(expr, scroll);
-        }
-
         PLATFORM.screen().clear();
         PLATFORM.screen().display();
     }
@@ -694,13 +685,57 @@ void handle_watchpoint(lisp::Value* expr)
             break;
         }
 
-        if (button_down<Button::down>()) {
-            ++scroll;
-            onscreen_debugger_render_tab(expr, scroll);
-        }
-        if (button_down<Button::up>() and scroll > 0) {
-            --scroll;
-            onscreen_debugger_render_tab(expr, scroll);
+        PLATFORM.screen().clear();
+        PLATFORM.screen().display();
+    }
+
+    PLATFORM.fill_overlay(0);
+    PLATFORM.screen().schedule_fade(0);
+}
+
+
+
+lisp::debug::Action handle_error_occurred(lisp::Value* expr)
+{
+    if (expr->type() not_eq lisp::Value::Type::error) {
+        return lisp::debug::Action::resume;
+    }
+
+    PLATFORM.screen().schedule_fade(
+        1, Platform::Screen::FadeProperties{.color = bkg_color});
+
+    PLATFORM.set_overlay_origin(0, 0);
+    PLATFORM.fill_overlay(0);
+    PLATFORM.screen().clear();
+    PLATFORM.screen().display();
+
+    print_heap_usage();
+
+    Text::print("error:", {1, 1}, text_colors_inv);
+    TextView tv;
+    tv.assign(lisp::val_to_string<128>(lisp::dcompr(expr->error().context_)).c_str(),
+              {1, 3},
+              {28, 8},
+              0,
+              text_colors);
+
+    Text::print("callstack", {1, 12}, text_colors_inv);
+    u32 scroll = 0;
+    show_callstack(14, scroll);
+
+    auto resp = lisp::debug::Action::step;
+
+    while (true) {
+        PLATFORM.input().poll();
+        PLATFORM_EXTENSION(feed_watchdog);
+        PLATFORM.delta_clock().reset();
+
+        if (button_down<Button::action_1>() or
+            button_down<Button::alt_2>()) {
+            break;
+        } else if (button_down<Button::action_2>()) {
+            resp = lisp::debug::Action::resume;
+            break;
         }
 
         PLATFORM.screen().clear();
@@ -709,6 +744,8 @@ void handle_watchpoint(lisp::Value* expr)
 
     PLATFORM.fill_overlay(0);
     PLATFORM.screen().schedule_fade(0);
+
+    return resp;
 }
 
 
@@ -806,7 +843,9 @@ lisp::debug::Action onscreen_script_debug_handler(lisp::debug::Interrupt irq,
 
     switch (irq) {
     case lisp::debug::Interrupt::error_occurred:
-        // TODO...
+        if (APP.is_developer_mode() and not state_bit_load(StateBit::regression)) {
+            result = handle_error_occurred(expr);
+        }
         break;
 
     case lisp::debug::Interrupt::enter_compiled_function:

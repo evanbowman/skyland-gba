@@ -281,6 +281,8 @@ struct Context
     Symbol::UniqueId defconstant_symbol_id_;
     Symbol::UniqueId await_symbol_id_;
     Symbol::UniqueId apply_symbol_id_;
+    Symbol::UniqueId map_symbol_id_;
+    Symbol::UniqueId foreach_symbol_id_;
 
     u16 string_buffer_remaining_ = 0;
     u16 arguments_break_loc_;
@@ -1327,6 +1329,15 @@ Value* make_list(u32 length)
 }
 
 
+static void debug_resume()
+{
+    L_CTX.debug_break_ = false;
+    if (L_CTX.debug_breakpoints_ == L_NIL) {
+        L_CTX.debug_mode_ = false;
+    }
+}
+
+
 Value* make_error(const char* message)
 {
     Protected str(make_string(message));
@@ -1343,6 +1354,16 @@ Value* make_error(Error::Code error_code, Value* context)
     val->error().context_ = compr(context);
     push_op(val); // gc protect
     val->error().stacktrace_ = compr(stacktrace());
+    if (L_CTX.debug_handler_) {
+        L_CTX.debug_mode_ = true;
+        L_CTX.debug_break_ = true;
+        auto& handler = *L_CTX.debug_handler_;
+        auto reason = debug::Interrupt::error_occurred;
+        auto act = handler(reason, val);
+        if (act == debug::Action::resume) {
+            debug_resume();
+        }
+    }
     pop_op(); // unprotect
     return val;
 }
@@ -1729,15 +1750,6 @@ using EvalStack = Vector<EvalFrame>;
 
 
 void eval_loop(EvalStack& eval_stack);
-
-
-static void debug_resume()
-{
-    L_CTX.debug_break_ = false;
-    if (L_CTX.debug_breakpoints_ == L_NIL) {
-        L_CTX.debug_mode_ = false;
-    }
-}
 
 
 using RestoreDebugBreak = bool;
@@ -5583,6 +5595,15 @@ bool comp_less_than(Value* lhs, Value* rhs)
 }
 
 
+Value* make_argument_error(ValueHeader::Type expected, int position)
+{
+    return make_error(::format("expected type % in arg %, got %",
+                               type_to_string(expected),
+                               position,
+                               type_to_string(get_op(position)->type())));
+}
+
+
 static bool is_numeric(Value* v)
 {
     return v->type() == Value::Type::rational ||
@@ -8303,18 +8324,23 @@ void init(Optional<std::pair<const char*, u32>> external_symtab,
         L_CTX.argument_symbols_[i] = make_symbol(::format("$%", i).c_str());
     }
 
-    L_CTX.if_symbol_id_ = make_symbol("if")->symbol().unique_id();
-    L_CTX.let_symbol_id_ = make_symbol("let")->symbol().unique_id();
-    L_CTX.while_symbol_id_ = make_symbol("while")->symbol().unique_id();
-    L_CTX.lambda_symbol_id_ = make_symbol("lambda")->symbol().unique_id();
-    L_CTX.fn_symbol_id_ = make_symbol("fn")->symbol().unique_id();
-    L_CTX.quote_symbol_id_ = make_symbol("'")->symbol().unique_id();
-    L_CTX.quasiquote_symbol_id_ = make_symbol("`")->symbol().unique_id();
-    L_CTX.macro_symbol_id_ = make_symbol("macro")->symbol().unique_id();
-    L_CTX.defconstant_symbol_id_ =
-        make_symbol("defconstant")->symbol().unique_id();
-    L_CTX.await_symbol_id_ = make_symbol("await")->symbol().unique_id();
-    L_CTX.apply_symbol_id_ = make_symbol("apply")->symbol().unique_id();
+    auto sym_id = [](const char* str) {
+        return make_symbol(str)->symbol().unique_id();
+    };
+
+    L_CTX.if_symbol_id_ = sym_id("if");
+    L_CTX.let_symbol_id_ = sym_id("let");
+    L_CTX.while_symbol_id_ = sym_id("while");
+    L_CTX.lambda_symbol_id_ = sym_id("lambda");
+    L_CTX.fn_symbol_id_ = sym_id("fn");
+    L_CTX.quote_symbol_id_ = sym_id("'");
+    L_CTX.quasiquote_symbol_id_ = sym_id("`");
+    L_CTX.macro_symbol_id_ = sym_id("macro");
+    L_CTX.defconstant_symbol_id_ = sym_id("defconstant");
+    L_CTX.await_symbol_id_ = sym_id("await");
+    L_CTX.apply_symbol_id_ = sym_id("apply");
+    L_CTX.map_symbol_id_ = sym_id("map");
+    L_CTX.foreach_symbol_id_ = sym_id("foreach");
 }
 
 

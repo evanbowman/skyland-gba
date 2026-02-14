@@ -956,6 +956,9 @@ Value* dostring(const char* code);
 Value* lint_code(CharSequence& code);
 
 
+const char* type_to_string(ValueHeader::Type tp);
+
+
 #define L_EXPECT_RATIONAL(OFFSET)                                              \
     if (auto t = lisp::get_op((OFFSET))->type();                               \
         t not_eq lisp::Value::Type::integer and                                \
@@ -963,6 +966,9 @@ Value* lint_code(CharSequence& code);
         return lisp::make_error(lisp::Error::Code::invalid_argument_type,      \
                                 L_NIL);                                        \
     }
+
+
+Value* make_argument_error(ValueHeader::Type expected, int position);
 
 
 #define L_EXPECT_OP(OFFSET, TYPE)                                              \
@@ -974,9 +980,8 @@ Value* lint_code(CharSequence& code);
         if (lisp::get_op((OFFSET)) == L_NIL) {                                 \
             return lisp::get_op((OFFSET));                                     \
         } else {                                                               \
-            return lisp::make_error(lisp::Error::Code::invalid_argument_type,  \
-                                    L_NIL);                                    \
-        }                                                                      \
+            return lisp::make_argument_error(lisp::Value::Type::TYPE, (OFFSET)); \
+        }                                                               \
     }
 
 
