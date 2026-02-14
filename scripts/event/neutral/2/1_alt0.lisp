@@ -72,8 +72,8 @@
           (progn
             (chr-del (opponent) 1 14)
             (if (not bad)
-                (join-good)
-                (join-bad)))
+                (join-good (car slots))
+                (join-bad (car slots))))
           (progn
             (dialog "Sadly, there's no room...")
             (exit))))))
