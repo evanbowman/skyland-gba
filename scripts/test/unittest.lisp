@@ -558,10 +558,9 @@
 
 ;; Make sure that argument type checking works
 (let ((err (length ((lambda ()
-                      ;; NOTE: we need to pass the integer argument to
-                      ;; set indirectly, otherwise the linter will
-                      ;; notice and raise an error when checking
-                      ;; unittest.lisp for correctness.
+                      ;; NOTE: we need to pass the integer argument to length
+                      ;; indirectly, otherwise the linter will notice and raise
+                      ;; an error when checking unittest.lisp for correctness.
                       1)))))
   (assert-eq (error-info err) "expected type pair in arg 0, got int"))
 
