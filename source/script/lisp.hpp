@@ -963,7 +963,8 @@ const char* type_to_string(ValueHeader::Type tp);
     if (auto t = lisp::get_op((OFFSET))->type();                               \
         t not_eq lisp::Value::Type::integer and                                \
         t not_eq lisp::Value::Type::ratio) {                                   \
-        return lisp::make_argument_error(lisp::Value::Type::rational, (OFFSET)); \
+        return lisp::make_argument_error(lisp::Value::Type::rational,          \
+                                         (OFFSET));                            \
     }
 
 
@@ -979,8 +980,9 @@ Value* make_argument_error(ValueHeader::Type expected, int position);
         if (lisp::get_op((OFFSET)) == L_NIL) {                                 \
             return lisp::get_op((OFFSET));                                     \
         } else {                                                               \
-            return lisp::make_argument_error(lisp::Value::Type::TYPE, (OFFSET)); \
-        }                                                               \
+            return lisp::make_argument_error(lisp::Value::Type::TYPE,          \
+                                             (OFFSET));                        \
+        }                                                                      \
     }
 
 

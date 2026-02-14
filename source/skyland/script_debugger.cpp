@@ -713,11 +713,12 @@ lisp::debug::Action handle_error_occurred(lisp::Value* expr)
 
     Text::print("error:", {1, 1}, text_colors_inv);
     TextView tv;
-    tv.assign(lisp::val_to_string<128>(lisp::dcompr(expr->error().context_)).c_str(),
-              {1, 3},
-              {28, 8},
-              0,
-              text_colors);
+    tv.assign(
+        lisp::val_to_string<128>(lisp::dcompr(expr->error().context_)).c_str(),
+        {1, 3},
+        {28, 8},
+        0,
+        text_colors);
 
     Text::print("callstack", {1, 12}, text_colors_inv);
     u32 scroll = 0;
@@ -730,8 +731,7 @@ lisp::debug::Action handle_error_occurred(lisp::Value* expr)
         PLATFORM_EXTENSION(feed_watchdog);
         PLATFORM.delta_clock().reset();
 
-        if (button_down<Button::action_1>() or
-            button_down<Button::alt_2>()) {
+        if (button_down<Button::action_1>() or button_down<Button::alt_2>()) {
             break;
         } else if (button_down<Button::action_2>()) {
             resp = lisp::debug::Action::resume;
