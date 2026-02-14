@@ -556,6 +556,9 @@
                       (b $1))
                   (fn (+ a b $0 $1)))))
 
+;; Make sure that argument type checking works
+(assert-eq (error-info (set 1 1)) "expected type symbol in arg 1, got int")
+
 ;; Let's make sure that argument closure nesting works correctly...
 (assert-eq (disassemble (lambda (a)
                           (lambda (b)
