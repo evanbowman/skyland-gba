@@ -493,6 +493,42 @@
 (end-test)
 
 
+(begin-test "error semantics")
+
+(assert-v (error? (if (error "blah")
+                      1
+                      2)))
+
+;; Make sure that argument type checking works
+(let ((err (length ((lambda ()
+                      ;; NOTE: we need to pass the integer argument to length
+                      ;; indirectly, otherwise the linter will notice and raise
+                      ;; an error when checking unittest.lisp for correctness.
+                      1)))))
+  (assert-eq (error-info err) "<fn:length:1>: expected type pair in arg 0, got int"))
+
+
+;; check that error in while condition does not evaluate to true.
+(assert-eq (error-info (while (error "blah")
+                         1))
+           "blah")
+
+(assert-eq (error-info (map (lambda () (error "...")) '(1)))
+           "...")
+
+(let ((err (list 1 2 (error "list err") 3 4)))
+  (assert-eq (error-info err) "list err"))
+
+(let ((err (string 1 2 (error "str error") 3 4)))
+  (assert-eq (error-info err) "str error"))
+
+(let ((err (cons 1 (error "cons err"))))
+  (assert-eq (error-info err) "cons err"))
+
+
+(end-test)
+
+
 (begin-test "core")
 ;; These test cases are testing very obscure implementation details about the
 ;; interpreter, which normally wouldn't be visible to the programmer unless
@@ -546,15 +582,6 @@
                       (b $1))
                   (fn (+ a b $0 $1)))))
 
-;; Make sure that argument type checking works
-(let ((err (length ((lambda ()
-                      ;; NOTE: we need to pass the integer argument to length
-                      ;; indirectly, otherwise the linter will notice and raise
-                      ;; an error when checking unittest.lisp for correctness.
-                      1)))))
-  (assert-eq (error-info err) "expected type pair in arg 0, got int"))
-
-
 ;; Let's make sure that argument closure nesting works correctly...
 (assert-eq (disassemble (lambda (a)
                           (lambda (b)
@@ -567,11 +594,6 @@
 ;; really needs to know how it actually works when they're writing scripts,
 ;; unless for some reason they're disassembling functions and messing around
 ;; with the reader...
-
-
-(assert-v (error? (if (error "blah")
-                      1
-                      2)))
 
 ;; Test some macros... the reader eagerly expands macros. This is pretty bad,
 ;; but again, macroexpanding stuff during evaluation every time isn't

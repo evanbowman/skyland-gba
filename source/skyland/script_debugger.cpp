@@ -382,6 +382,13 @@ void pretty_print_current_fn_with_expr(lisp::Value* expr)
 
 
 
+static void show_footer()
+{
+    Text::print(" A: into, R: over, B: continue", {0, 19}, text_colors_inv);
+}
+
+
+
 static void print_tab_heading(const char* heading, u8 y = 6)
 {
     Text::print(format("<- %:% ->", (int)debug_display_tab, heading).c_str(),
@@ -542,7 +549,7 @@ lisp::debug::Action handle_debug_step(lisp::Value* expr)
     fmt_str = "expr: ";
     Text::print(fmt_str.c_str(), {1, 1}, text_colors_inv);
 
-    Text::print(" A: into, R: over, B: continue", {0, 19}, text_colors_inv);
+    show_footer();
 
     u32 scroll = 0;
     onscreen_debugger_render_tab(expr, scroll);
@@ -720,16 +727,69 @@ lisp::debug::Action handle_error_occurred(lisp::Value* expr)
         0,
         text_colors);
 
-    Text::print("callstack", {1, 12}, text_colors_inv);
-    u32 scroll = 0;
-    show_callstack(14, scroll);
-
     auto resp = lisp::debug::Action::step;
+
+    int tab = 0;
+    bool redisplay = true;
+
+    u32 scroll = 0;
+
+    show_footer();
 
     while (true) {
         PLATFORM.input().poll();
         PLATFORM_EXTENSION(feed_watchdog);
         PLATFORM.delta_clock().reset();
+
+        if (button_down<Button::left>() or
+            button_down<Button::right>()) {
+            tab = not tab;
+            redisplay = true;
+            scroll = 0;
+        }
+
+        if (button_down<Button::down>()) {
+            ++scroll;
+            redisplay = true;
+        }
+        if (button_down<Button::up>() and scroll > 0) {
+            --scroll;
+            redisplay = true;
+        }
+
+        if (redisplay) {
+            redisplay = false;
+            for (int x = 0; x < 30; ++x) {
+                for (int y = 8; y < 19; ++y) {
+                    PLATFORM.set_tile(Layer::overlay, x, y, 0);
+                }
+            }
+            switch (tab) {
+            case 0: {
+                Text::print("<- callstack ->", {1, 12}, text_colors_inv);
+                show_callstack(14, scroll);
+                break;
+            }
+
+            case 1: {
+                Text::print("<- arguments ->", {1, 12}, text_colors_inv);
+                int start_y = 14;
+                if (lisp::get_argc() == 0) {
+                    Text::print("none.", {1, (u8)start_y}, text_colors);
+                    break;
+                }
+                scroll = clamp((int)scroll, 0, (int)lisp::get_argc() - 1);
+                for (u32 i = scroll; i < lisp::get_argc() and (i - scroll) * 2 + start_y < 20; ++i) {
+                    auto arg = lisp::get_arg(i);
+                    u8 y = (start_y + (i - scroll) * 2);
+                    Text::print(format("$% %", i, lisp::val_to_string<28>(arg).c_str()).c_str(),
+                                {1, y},
+                                text_colors);
+                }
+                break;
+            }
+            }
+        }
 
         if (button_down<Button::action_1>() or button_down<Button::alt_2>()) {
             break;

@@ -4860,6 +4860,9 @@ void eval_loop(EvalStack& eval_stack)
         case EvalFrame::State::while_check_condition: {
             // Condition result is on operand stack
             auto test = get_op0();
+            if (is_error(test)) {
+                break;
+            }
             pop_op();
 
             if (!is_boolean_true(test)) {
