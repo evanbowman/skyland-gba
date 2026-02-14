@@ -35,13 +35,13 @@
 
 (defn/temp handle-bluff ()
   ;; You accused redbeard of bluffing. He fires a broadside off your bow.
-  (await (wait* 400))
+  (sleep 400)
   (emit (opponent) 0 12 (terrain (player)) 0)
-  (await (wait* 200))
+  (sleep 200)
   (emit (opponent) 0 13 (terrain (player)) 0)
-  (await (wait* 200))
+  (sleep 200)
   (emit (opponent) 0 14 (terrain (player)) 0)
-  (await (wait* 1200))
+  (sleep 1200)
   (let ((sel (await (dialog-choice* "<c:Redbeard:12>Yaargh!! I'm just a simple marauder, trying to earn a decent living here! [via petty extortion, how else?] <B:0> So what's it gonna be? Last chance..."
                                     '("Pay 600@."
                                       "Fight back.")))))

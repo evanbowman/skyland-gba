@@ -411,7 +411,10 @@ public:
         bool rom_fs_only_ = false;
         bool exclude_delta_ = false;
 
-        static InvokeScriptConfig create() { return {}; }
+        static InvokeScriptConfig create()
+        {
+            return {};
+        }
     };
 
     lisp::Value*

@@ -11,8 +11,8 @@
 
 #pragma once
 
-#include "readyScene.hpp"
 #include "inspectP2Scene.hpp"
+#include "readyScene.hpp"
 #include "skyland/skyland.hpp"
 #include "worldScene.hpp"
 

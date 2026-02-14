@@ -4440,7 +4440,8 @@ filesystem::DirectoryCache dir_cache_load(const StringBuffer<62>& prefix)
         return dir_cache.back();
     } else {
         PLATFORM.fatal(format("directory % missing!", prefix.c_str()));
-        while (1);
+        while (1)
+            ;
     }
 }
 

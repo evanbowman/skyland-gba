@@ -673,6 +673,16 @@ o----------------------------o
 ##############################
 
 
+ (click island x y)
+
+ Simulate clicking on a block
+ on an island at coordinate
+ x,y.
+
+
+o----------------------------o
+
+
  (choice n)
 
  Returns a random number

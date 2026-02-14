@@ -188,6 +188,10 @@
   (equal 0 (choice n)))
 
 
+(defn/c sleep (time-ms)
+  (await (wait* time-ms)))
+
+
 (defn/c load-commentary ((key . string))
   (let ((search key)
         (opts nil))

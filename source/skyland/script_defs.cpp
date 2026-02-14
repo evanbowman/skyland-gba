@@ -1066,6 +1066,17 @@ BINDING_TABLE({
 
           return L_NIL;
       }}},
+    {"click",
+     {SIG3(nil, wrapped, rational, rational),
+      [](int argc) {
+          auto island = unwrap_isle(lisp::get_op(2));
+          u8 y = L_LOAD_INT(0);
+          u8 x = L_LOAD_INT(1);
+          if (auto room = island->get_room({x, y})) {
+              room->select({x, y});
+          }
+          return L_NIL;
+      }}},
     {"rooms",
      {SIG1(cons, wrapped),
       [](int argc) {
@@ -2852,15 +2863,11 @@ void App::init_scripts(Function<4 * sizeof(void*), void(const char*)> msg)
 
     log_cnt();
 
-    invoke_script("/scripts/stdlib.lisp", {
-            .rom_fs_only_ = true
-        });
+    invoke_script("/scripts/stdlib.lisp", {.rom_fs_only_ = true});
 
     log_cnt();
 
-    invoke_script("/scripts/init.lisp", {
-            .rom_fs_only_ = true
-        });
+    invoke_script("/scripts/init.lisp", {.rom_fs_only_ = true});
 
     log_cnt();
 

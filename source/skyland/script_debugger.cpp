@@ -805,6 +805,10 @@ lisp::debug::Action onscreen_script_debug_handler(lisp::debug::Interrupt irq,
     auto result = lisp::debug::Action::resume;
 
     switch (irq) {
+    case lisp::debug::Interrupt::error_occurred:
+        // TODO...
+        break;
+
     case lisp::debug::Interrupt::enter_compiled_function:
         result = handle_enter_compiled_function(expr);
         break;

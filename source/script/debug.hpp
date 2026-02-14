@@ -29,6 +29,7 @@ enum class Interrupt {
     step,
     watchpoint,
     enter_compiled_function,
+    error_occurred,
 };
 
 

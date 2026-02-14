@@ -85,9 +85,8 @@ EngineImpl::EngineImpl(App* app) : data_(allocate<Data>("macrocosm-data"))
     _bound_state = this;
 
     if (app) {
-        app->invoke_script("/scripts/config/macro.lisp", {
-                .rom_fs_only_ = true
-            });
+        app->invoke_script("/scripts/config/macro.lisp",
+                           {.rom_fs_only_ = true});
     }
 }
 

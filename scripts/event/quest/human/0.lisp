@@ -50,6 +50,19 @@
 (flag-show (opponent) flag-id-merchant)
 
 
+(defn ring-bell (x y)
+  (sleep 600)
+  (click (opponent) x y)
+  (sleep 1000)
+  (click (opponent) x y)
+  (sleep 1000)
+  (click (opponent) x y))
+
+
+(defn on-fadein ()
+  (ring-bell 2 9))
+
+
 (setq on-converge
       (lambda ()
         (dialog

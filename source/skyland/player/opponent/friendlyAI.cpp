@@ -36,13 +36,6 @@ void FriendlyAI::update(Time delta)
 
 void FriendlyAI::on_level_start()
 {
-    APP.with_opponent_island([](Island& isle) {
-        for (auto& room : isle.rooms()) {
-            if (auto b = room->cast<Bell>()) {
-                b->schedule_chimes(seconds(1), 3, 0, milliseconds(1500));
-            }
-        }
-    });
 }
 
 

@@ -294,11 +294,12 @@ struct Context
 
 
 static Optional<Context> bound_context;
+#define L_CTX (*bound_context)
 
 
 void reset_operand_stack()
 {
-    bound_context->operand_stack_->clear();
+    L_CTX.operand_stack_->clear();
 
     // Push a few nil onto the operand stack. Allows us to access the first few
     // elements of the operand stack without performing size checks.
@@ -321,33 +322,33 @@ static void collect_value(Value* value)
 static void push_callstack(Value* function)
 {
     push_op(function); // GC protect
-    bound_context->callstack_ = make_cons(function, bound_context->callstack_);
+    L_CTX.callstack_ = make_cons(function, L_CTX.callstack_);
     pop_op(); // gc unprotect
 }
 
 
 static void reset_callstack()
 {
-    bound_context->current_fn_argc_ = 0;
-    bound_context->arguments_break_loc_ = 0;
-    bound_context->callstack_ = L_NIL;
+    L_CTX.current_fn_argc_ = 0;
+    L_CTX.arguments_break_loc_ = 0;
+    L_CTX.callstack_ = L_NIL;
     push_callstack(make_string_from_literal("toplevel"));
 }
 
 
 static void pop_callstack()
 {
-    auto old = bound_context->callstack_;
+    auto old = L_CTX.callstack_;
 
-    bound_context->callstack_ = bound_context->callstack_->cons().cdr();
+    L_CTX.callstack_ = L_CTX.callstack_->cons().cdr();
 
-    if (bound_context->callstack_untouched_) {
+    if (L_CTX.callstack_untouched_) {
         // If nothing referenced the callstack by calling stacktrace(), then we
         // can deallocate the memory reserved for the stack frame right away.
         collect_value(old);
     }
 
-    if (length(bound_context->callstack_) == 1) {
+    if (length(L_CTX.callstack_) == 1) {
         // If we're returning back to the toplevel, invoke the GC sometimes if
         // it looks like we're running low on lisp values...
         //
@@ -392,18 +393,18 @@ NativeInterface::NativeInterface()
 
 void register_native_interface(NativeInterface ni)
 {
-    if (bound_context->native_interface_.lookup_function_ not_eq
+    if (L_CTX.native_interface_.lookup_function_ not_eq
         native_interface_fn_lookup_default) {
         PLATFORM.fatal("only one NativeInterface may be registered at a time!");
     }
-    bound_context->native_interface_ = ni;
+    L_CTX.native_interface_ = ni;
 }
 
 
 void register_external_symtab(const char* data, u32 len)
 {
-    bound_context->external_symtab_contents_ = data;
-    bound_context->external_symtab_size_ = len;
+    L_CTX.external_symtab_contents_ = data;
+    L_CTX.external_symtab_size_ = len;
 }
 
 
@@ -457,7 +458,7 @@ Value* globals_tree_splay(Value* t, Value* key)
 
     // Top-down traversal requires one proxy object, which we'll manually
     // deallocate later.
-    Value* temp = bound_context->tree_nullnode_;
+    Value* temp = L_CTX.tree_nullnode_;
 
     L = R = temp;
 
@@ -507,9 +508,7 @@ Value* globals_tree_splay(Value* t, Value* key)
 
 static bool globals_tree_insert(Value* key, Value* value, bool define_var)
 {
-    auto& ctx = *bound_context;
-
-    if (ctx.globals_tree_ == get_nil()) {
+    if (L_CTX.globals_tree_ == get_nil()) {
 
         if (not define_var) {
             return false;
@@ -523,13 +522,12 @@ static bool globals_tree_insert(Value* key, Value* value, bool define_var)
         auto new_tree = make_cons(new_kvp, get_op0());
         pop_op();
 
-        ctx.globals_tree_ = new_tree;
+        L_CTX.globals_tree_ = new_tree;
 
         return true;
 
     } else {
-        auto& ctx = *bound_context;
-        auto pt = globals_tree_splay(ctx.globals_tree_, key);
+        auto pt = globals_tree_splay(L_CTX.globals_tree_, key);
 
         if (key->symbol().unique_id() < TKEY(pt)) {
             Protected new_kvp(make_cons(key, value));
@@ -538,7 +536,7 @@ static bool globals_tree_insert(Value* key, Value* value, bool define_var)
             SLST(node, LST(pt));
             SRST(node, pt);
             SLST(pt, get_nil());
-            ctx.globals_tree_ = node;
+            L_CTX.globals_tree_ = node;
             if (not define_var) {
                 return false;
             }
@@ -549,13 +547,13 @@ static bool globals_tree_insert(Value* key, Value* value, bool define_var)
             SRST(node, RST(pt));
             SLST(node, pt);
             SRST(pt, get_nil());
-            ctx.globals_tree_ = node;
+            L_CTX.globals_tree_ = node;
             if (not define_var) {
                 return false;
             }
         } else {
             pt->cons().car()->cons().set_cdr(value);
-            ctx.globals_tree_ = pt;
+            L_CTX.globals_tree_ = pt;
         }
         return true;
     }
@@ -601,26 +599,24 @@ static void globals_tree_traverse(Value* root, GlobalsTreeVisitor callback)
 
 static void globals_tree_erase(Value* key)
 {
-    auto& ctx = *bound_context;
-
-    if (ctx.globals_tree_ == get_nil()) {
+    if (L_CTX.globals_tree_ == get_nil()) {
         return;
     }
 
-    ctx.globals_tree_ = globals_tree_splay(ctx.globals_tree_, key);
+    L_CTX.globals_tree_ = globals_tree_splay(L_CTX.globals_tree_, key);
 
-    if (TKEY(ctx.globals_tree_) != key->symbol().unique_id()) {
+    if (TKEY(L_CTX.globals_tree_) != key->symbol().unique_id()) {
         return;
     }
 
     // Key is now at the root, remove it by joining left and right subtrees
-    Value* left = LST(ctx.globals_tree_);
-    Value* right = RST(ctx.globals_tree_);
+    Value* left = LST(L_CTX.globals_tree_);
+    Value* right = RST(L_CTX.globals_tree_);
 
     if (left == get_nil()) {
-        ctx.globals_tree_ = right;
+        L_CTX.globals_tree_ = right;
     } else if (right == get_nil()) {
-        ctx.globals_tree_ = left;
+        L_CTX.globals_tree_ = left;
     } else {
         // Both children exist - splay the maximum element of left subtree
         // to bring it to the root of left subtree (it will have no right child)
@@ -631,21 +627,19 @@ static void globals_tree_erase(Value* key)
         // Splay left tree with the key we're deleting, which will bring
         // the largest element < key to the root
         SRST(left, right);
-        ctx.globals_tree_ = left;
+        L_CTX.globals_tree_ = left;
     }
 }
 
 
 static Value* globals_tree_find(Value* key)
 {
-    auto& ctx = *bound_context;
-
-    if (ctx.globals_tree_ == get_nil()) {
+    if (L_CTX.globals_tree_ == get_nil()) {
         return nullptr;
     }
 
-    auto pt = globals_tree_splay(ctx.globals_tree_, key);
-    ctx.globals_tree_ = pt;
+    auto pt = globals_tree_splay(L_CTX.globals_tree_, key);
+    L_CTX.globals_tree_ = pt;
     if (key->symbol().unique_id() ==
         pt->cons().car()->cons().car()->symbol().unique_id()) {
         return pt->cons().car()->cons().cdr();
@@ -701,17 +695,15 @@ bool is_list(Value* val)
 
 Value* get_nil()
 {
-    return bound_context->nil_;
+    return L_CTX.nil_;
 }
 
 
 void get_interns(::Function<6 * sizeof(void*), void(const char*)> callback)
 {
-    auto& ctx = bound_context;
-
-    if (ctx->string_intern_table_) {
-        const char* search = (*ctx->string_intern_table_)->data_;
-        for (int i = 0; i < ctx->string_intern_pos_;) {
+    if (L_CTX.string_intern_table_) {
+        const char* search = (*L_CTX.string_intern_table_)->data_;
+        for (int i = 0; i < L_CTX.string_intern_pos_;) {
             callback(search + i);
             while (search[i] not_eq '\0') {
                 ++i;
@@ -724,10 +716,10 @@ void get_interns(::Function<6 * sizeof(void*), void(const char*)> callback)
 
 Value* get_arg(u16 n)
 {
-    auto br = bound_context->arguments_break_loc_;
-    auto argc = bound_context->current_fn_argc_;
+    auto br = L_CTX.arguments_break_loc_;
+    auto argc = L_CTX.current_fn_argc_;
     if (br >= ((argc - 1) - n)) {
-        return (*bound_context->operand_stack_)[br - ((argc - 1) - n)];
+        return (*L_CTX.operand_stack_)[br - ((argc - 1) - n)];
     } else {
         return get_nil();
     }
@@ -844,7 +836,7 @@ static Value* alloc_value()
         return init_val(val);
     }
 
-    if (bound_context->critical_gc_alert_) {
+    if (L_CTX.critical_gc_alert_) {
         PLATFORM.fatal("unexpected gc run!");
     }
 
@@ -905,7 +897,7 @@ static Value* make_lisp_function(Value* impl)
     val->function().lisp_impl_.code_ = compr(impl);
     val->function().sig_.reset();
     val->function().lisp_impl_.lexical_bindings_ =
-        compr(bound_context->lexical_bindings_);
+        compr(L_CTX.lexical_bindings_);
     val->hdr_.mode_bits_ = Function::ModeBits::lisp_function;
     return val;
 }
@@ -950,7 +942,7 @@ static int examine_argument_list(Value* function_impl)
             sym = val;
         }
 
-        if (not bound_context->external_symtab_contents_ and
+        if (not L_CTX.external_symtab_contents_ and
             sym->hdr_.mode_bits_ not_eq (u8) Symbol::ModeBits::small) {
             PLATFORM.fatal(::format(
                 "symbol name \'%\' in argument list \'%\' is too long! "
@@ -1016,8 +1008,6 @@ ArgBindings make_arg_bindings(Value* arg_lat, ArgBindings* parent)
 
 static void arg_substitution_impl(Value* impl, ArgBindings& bindings)
 {
-    auto& ctx = bound_context;
-
     while (true) {
         if (impl->type() not_eq Value::Type::cons) {
             break;
@@ -1028,7 +1018,7 @@ static void arg_substitution_impl(Value* impl, ArgBindings& bindings)
                 auto first = val->cons().car();
                 if (first->type() == Value::Type::symbol) {
                     auto id = first->symbol().unique_id();
-                    if (id == ctx->let_symbol_id_) {
+                    if (id == L_CTX.let_symbol_id_) {
                         auto let_bindings = val->cons().cdr()->cons().car();
 
                         l_foreach(let_bindings, [&](Value* val) {
@@ -1061,7 +1051,7 @@ static void arg_substitution_impl(Value* impl, ArgBindings& bindings)
 
                         arg_substitution_impl(let_bindings, bindings);
                         arg_substitution_impl(val, bindings);
-                    } else if (id == ctx->lambda_symbol_id_) {
+                    } else if (id == L_CTX.lambda_symbol_id_) {
                         // Now this one's a bit tricky. We need to switch
                         // context and fetch this nested lambda's argument list,
                         // and continue recursion with that list instead.
@@ -1086,8 +1076,8 @@ static void arg_substitution_impl(Value* impl, ArgBindings& bindings)
                                 ListBuilder bind;
                                 bind.push_back((lisp::Value*)binding.sym_);
                                 bind.push_back(
-                                    ctx->argument_symbols_[binding
-                                                               .replacement_]);
+                                    L_CTX.argument_symbols_[binding
+                                                                .replacement_]);
                                 closure.push_back(bind.result());
                                 arg_closure_exists = true;
                             }
@@ -1110,7 +1100,7 @@ static void arg_substitution_impl(Value* impl, ArgBindings& bindings)
                                        L_NIL)));
                         }
 
-                    } else if (id == ctx->fn_symbol_id_) {
+                    } else if (id == L_CTX.fn_symbol_id_) {
                         // Do nothing... cannot substitute a function argument
                         // within a lambda implementation.
                     } else {
@@ -1127,7 +1117,8 @@ static void arg_substitution_impl(Value* impl, ArgBindings& bindings)
                     if (binding.sym_->unique_id() ==
                         val->symbol().unique_id()) {
 
-                        auto sym = ctx->argument_symbols_[binding.replacement_];
+                        auto sym =
+                            L_CTX.argument_symbols_[binding.replacement_];
 
                         impl->cons().set_car(sym);
                         replaced = true;
@@ -1203,7 +1194,7 @@ static Value* make_lisp_argumented_function(Value* impl)
     val->function().sig_.reset();
     val->function().sig_.required_args_ = argc;
     val->function().lisp_impl_.lexical_bindings_ =
-        compr(bound_context->lexical_bindings_);
+        compr(L_CTX.lexical_bindings_);
 
     if (bind.bindings_.size() > 0) {
         val->function().sig_.arg0_type_ = bind.bindings_[0].type_;
@@ -1229,7 +1220,7 @@ Value* make_bytecode_function(Value* bytecode)
     auto val = alloc_value();
     val->hdr_.type_ = Value::Type::function;
     val->function().bytecode_impl_.lexical_bindings_ =
-        compr(bound_context->lexical_bindings_);
+        compr(L_CTX.lexical_bindings_);
     val->function().sig_.reset();
 
     val->function().bytecode_impl_.bytecode_ = compr(bytecode);
@@ -1359,10 +1350,9 @@ Value* make_error(Error::Code error_code, Value* context)
 
 Value* make_symbol(const char* name, Symbol::ModeBits mode)
 {
-    [[maybe_unused]] auto& ctx = bound_context;
 #ifdef USE_SYMBOL_CACHE
     for (int i = 0; i < 8; ++i) {
-        auto v = ctx->symbol_cache_[i];
+        auto v = L_CTX.symbol_cache_[i];
         if (v not_eq L_NIL and str_eq(name, v->symbol().name())) {
             return v;
         }
@@ -1384,9 +1374,9 @@ Value* make_symbol(const char* name, Symbol::ModeBits mode)
     val->symbol().set_name(name);
 
 #ifdef USE_SYMBOL_CACHE
-    ctx->symbol_cache_[ctx->symbol_cache_index_] = val;
-    ctx->symbol_cache_index_ =
-        (ctx->symbol_cache_index_ + 1) % SYMBOL_CACHE_SIZE;
+    L_CTX.symbol_cache_[L_CTX.symbol_cache_index_] = val;
+    L_CTX.symbol_cache_index_ =
+        (L_CTX.symbol_cache_index_ + 1) % SYMBOL_CACHE_SIZE;
 #endif
 
     return val;
@@ -1438,15 +1428,15 @@ Value* make_string_from_literal(const char* str)
 std::pair<Value*, int> store_string(const char* string, u32 len)
 {
     Value* existing_buffer = nullptr;
-    auto free = bound_context->string_buffer_remaining_;
+    auto free = L_CTX.string_buffer_remaining_;
 
-    if (bound_context->string_buffer_ not_eq L_NIL) {
+    if (L_CTX.string_buffer_ not_eq L_NIL) {
         if (free > len + 1) { // +1 for null term, > for other null term
-            existing_buffer = bound_context->string_buffer_;
-            bound_context->string_buffer_remaining_ -= len + 1;
+            existing_buffer = L_CTX.string_buffer_;
+            L_CTX.string_buffer_remaining_ -= len + 1;
         } else {
-            bound_context->string_buffer_ = L_NIL;
-            bound_context->string_buffer_remaining_ = 0;
+            L_CTX.string_buffer_ = L_NIL;
+            L_CTX.string_buffer_remaining_ = 0;
         }
     }
 
@@ -1462,13 +1452,12 @@ std::pair<Value*, int> store_string(const char* string, u32 len)
     } else {
 
         // Because we're allocating a fresh buffer, as the prior one was full.
-        bound_context->string_buffer_remaining_ =
-            SCRATCH_BUFFER_SIZE - (len + 1);
+        L_CTX.string_buffer_remaining_ = SCRATCH_BUFFER_SIZE - (len + 1);
 
         auto buffer = make_databuffer("lisp-string-bulk-allocator");
 
         Protected p(buffer);
-        bound_context->string_buffer_ = buffer;
+        L_CTX.string_buffer_ = buffer;
 
         for (int i = 0; i < SCRATCH_BUFFER_SIZE; ++i) {
             buffer->databuffer().value()->data_[i] = '\0';
@@ -1558,13 +1547,13 @@ Value* get_list(Value* list, u32 position)
 
 void pop_op()
 {
-    bound_context->operand_stack_->pop_back();
+    L_CTX.operand_stack_->pop_back();
 }
 
 
 void push_op(Value* operand)
 {
-    bound_context->operand_stack_->push_back(operand, nullptr, [](void*) {
+    L_CTX.operand_stack_->push_back(operand, nullptr, [](void*) {
         Platform::fatal("LISP stack overflow.");
     });
 }
@@ -1572,7 +1561,7 @@ void push_op(Value* operand)
 
 void insert_op(u32 offset, Value* operand)
 {
-    auto& stack = bound_context->operand_stack_;
+    auto& stack = L_CTX.operand_stack_;
     auto pos = stack->end() - offset;
     stack->insert(pos, operand);
 }
@@ -1580,27 +1569,27 @@ void insert_op(u32 offset, Value* operand)
 
 Value* get_op0()
 {
-    auto& stack = bound_context->operand_stack_;
+    auto& stack = L_CTX.operand_stack_;
     return stack->back();
 }
 
 
 Value* get_op1()
 {
-    auto& stack = bound_context->operand_stack_;
+    auto& stack = L_CTX.operand_stack_;
     return *(stack->end() - 2);
 }
 
 
 OperandStackUsed get_op_count()
 {
-    return bound_context->operand_stack_->size();
+    return L_CTX.operand_stack_->size();
 }
 
 
 Value* get_op(u32 offset)
 {
-    auto& stack = bound_context->operand_stack_;
+    auto& stack = L_CTX.operand_stack_;
     if (offset >= stack->size()) {
         return get_nil(); // TODO: raise error
     }
@@ -1611,22 +1600,20 @@ Value* get_op(u32 offset)
 
 void lexical_frame_push()
 {
-    bound_context->lexical_bindings_ =
-        make_cons(get_nil(), bound_context->lexical_bindings_);
+    L_CTX.lexical_bindings_ = make_cons(get_nil(), L_CTX.lexical_bindings_);
 }
 
 
 void lexical_frame_pop()
 {
-    bound_context->lexical_bindings_ =
-        bound_context->lexical_bindings_->cons().cdr();
+    L_CTX.lexical_bindings_ = L_CTX.lexical_bindings_->cons().cdr();
 }
 
 
 void lexical_frame_store(Value* kvp)
 {
-    bound_context->lexical_bindings_->cons().set_car(
-        make_cons(kvp, bound_context->lexical_bindings_->cons().car()));
+    L_CTX.lexical_bindings_->cons().set_car(
+        make_cons(kvp, L_CTX.lexical_bindings_->cons().car()));
 }
 
 
@@ -1746,9 +1733,9 @@ void eval_loop(EvalStack& eval_stack);
 
 static void debug_resume()
 {
-    bound_context->debug_break_ = false;
-    if (bound_context->debug_breakpoints_ == L_NIL) {
-        bound_context->debug_mode_ = false;
+    L_CTX.debug_break_ = false;
+    if (L_CTX.debug_breakpoints_ == L_NIL) {
+        L_CTX.debug_mode_ = false;
     }
 }
 
@@ -1756,8 +1743,8 @@ static void debug_resume()
 using RestoreDebugBreak = bool;
 RestoreDebugBreak debug_break_compiled_fn(Value* obj)
 {
-    if (bound_context->debug_handler_ and bound_context->debug_break_) {
-        auto& handler = *bound_context->debug_handler_;
+    if (L_CTX.debug_handler_ and L_CTX.debug_break_) {
+        auto& handler = *L_CTX.debug_handler_;
         auto reason = debug::Interrupt::enter_compiled_function;
         auto act = handler(reason, obj);
         switch (act) {
@@ -1766,7 +1753,7 @@ RestoreDebugBreak debug_break_compiled_fn(Value* obj)
             return false;
 
         case debug::Action::step_over:
-            bound_context->debug_break_ = false;
+            L_CTX.debug_break_ = false;
             return true;
 
         case debug::Action::step:
@@ -1784,17 +1771,16 @@ void funcall(Value* obj, u8 argc)
 {
     auto pop_args = [&argc] {
         for (int i = 0; i < argc; ++i) {
-            bound_context->operand_stack_->pop_back();
+            L_CTX.operand_stack_->pop_back();
         }
     };
 
     // NOTE: The callee must be somewhere on the operand stack, so it's safe
     // to store this unprotected var here.
-    Protected prev_bindings(bound_context->lexical_bindings_);
+    Protected prev_bindings(L_CTX.lexical_bindings_);
 
-    auto& ctx = *bound_context;
-    auto prev_arguments_break_loc = ctx.arguments_break_loc_;
-    auto prev_argc = ctx.current_fn_argc_;
+    auto prev_arguments_break_loc = L_CTX.arguments_break_loc_;
+    auto prev_argc = L_CTX.current_fn_argc_;
 
     push_callstack(obj);
 
@@ -1846,14 +1832,14 @@ void funcall(Value* obj, u8 argc)
 
         switch (obj->hdr_.mode_bits_) {
         case Function::ModeBits::cpp_function: {
-            const auto break_loc = ctx.operand_stack_->size() - 1;
-            ctx.arguments_break_loc_ = break_loc;
-            ctx.current_fn_argc_ = argc;
+            const auto break_loc = L_CTX.operand_stack_->size() - 1;
+            L_CTX.arguments_break_loc_ = break_loc;
+            L_CTX.current_fn_argc_ = argc;
             Value* result = L_NIL;
-            if (UNLIKELY(bound_context->debug_break_)) {
+            if (UNLIKELY(L_CTX.debug_break_)) {
                 const auto restore_debug_break = debug_break_compiled_fn(obj);
                 result = obj->function().cpp_impl_(argc);
-                bound_context->debug_break_ = restore_debug_break;
+                L_CTX.debug_break_ = restore_debug_break;
             } else {
                 result = obj->function().cpp_impl_(argc);
             }
@@ -1894,21 +1880,20 @@ void funcall(Value* obj, u8 argc)
             PLATFORM_EXTENSION(stack_check);
             gc_safepoint();
 
-            auto& ctx = *bound_context;
-            const auto break_loc = ctx.operand_stack_->size() - 1;
-            ctx.arguments_break_loc_ = break_loc;
-            ctx.current_fn_argc_ = argc;
+            const auto break_loc = L_CTX.operand_stack_->size() - 1;
+            L_CTX.arguments_break_loc_ = break_loc;
+            L_CTX.current_fn_argc_ = argc;
 
             bool restore_debug_break = false;
-            if (UNLIKELY(bound_context->debug_break_)) {
+            if (UNLIKELY(L_CTX.debug_break_)) {
                 restore_debug_break = debug_break_compiled_fn(obj);
             }
 
-            if (bound_context->strict_) {
+            if (L_CTX.strict_) {
                 CHECK_ARG_TYPES();
             }
 
-            ctx.lexical_bindings_ =
+            L_CTX.lexical_bindings_ =
                 dcompr(obj->function().lisp_impl_.lexical_bindings_);
 
             auto suspend =
@@ -1921,7 +1906,7 @@ void funcall(Value* obj, u8 argc)
                 PLATFORM.fatal("cannot suspend from here!");
             }
 
-            bound_context->debug_break_ = restore_debug_break;
+            L_CTX.debug_break_ = restore_debug_break;
 
             auto result = get_op0();
             pop_op();
@@ -1958,9 +1943,9 @@ void funcall(Value* obj, u8 argc)
     }
 
     pop_callstack();
-    bound_context->lexical_bindings_ = prev_bindings;
-    ctx.arguments_break_loc_ = prev_arguments_break_loc;
-    ctx.current_fn_argc_ = prev_argc;
+    L_CTX.lexical_bindings_ = prev_bindings;
+    L_CTX.arguments_break_loc_ = prev_arguments_break_loc;
+    L_CTX.current_fn_argc_ = prev_argc;
 }
 
 
@@ -1998,13 +1983,13 @@ void safecall(Value* fn, u8 argc)
         Platform::fatal("attempt to call non-function!");
     }
 
-    if (bound_context->operand_stack_->size() < argc) {
+    if (L_CTX.operand_stack_->size() < argc) {
         Platform::fatal("invalid argc for safecall");
     }
 
-    if (bound_context->debug_mode_) {
-        auto breakpoints = bound_context->debug_breakpoints_;
-        if (breakpoints not_eq L_NIL and not bound_context->debug_break_) {
+    if (L_CTX.debug_mode_) {
+        auto breakpoints = L_CTX.debug_breakpoints_;
+        if (breakpoints not_eq L_NIL and not L_CTX.debug_break_) {
             if (auto detect_name = nameof(fn)) {
                 bool is_breakpoint = false;
                 Value* br_sym = L_NIL;
@@ -2017,12 +2002,12 @@ void safecall(Value* fn, u8 argc)
                     }
                 });
                 if (is_breakpoint) {
-                    if (bound_context->debug_handler_) {
-                        auto& handler = *bound_context->debug_handler_;
+                    if (L_CTX.debug_handler_) {
+                        auto& handler = *L_CTX.debug_handler_;
                         auto reason = debug::Interrupt::breakpoint;
                         handler(reason, br_sym);
                     }
-                    bound_context->debug_break_ = true;
+                    L_CTX.debug_break_ = true;
                 }
             }
         }
@@ -2043,13 +2028,13 @@ void safecall(Value* fn, u8 argc)
 
 u8 get_argc()
 {
-    return bound_context->current_fn_argc_;
+    return L_CTX.current_fn_argc_;
 }
 
 
 Value* get_this()
 {
-    return bound_context->callstack_->cons().car();
+    return L_CTX.callstack_->cons().car();
 }
 
 
@@ -2329,12 +2314,14 @@ void lint(Value* expr, Value* variable_list, lisp::Protected& gvar_list)
                                 variable_list = L_CONS(car_sym, variable_list);
                                 variable_list = L_CONS(cdr_sym, variable_list);
                                 var_list = variable_list;
-                            } else if (car_sym->type() == Value::Type::symbol and
+                            } else if (car_sym->type() ==
+                                           Value::Type::symbol and
                                        cdr_sym->type() == Value::Type::cons) {
                                 auto lat = sym;
                                 while (lat->type() == Value::Type::cons) {
                                     auto lsym = lat->cons().car();
-                                    if (lsym->type() not_eq Value::Type::symbol) {
+                                    if (lsym->type() not_eq
+                                        Value::Type::symbol) {
                                         auto fmt = ::format("invalid value % "
                                                             "in destructuring "
                                                             "let %",
@@ -2343,7 +2330,8 @@ void lint(Value* expr, Value* variable_list, lisp::Protected& gvar_list)
                                         push_op(make_error(fmt));
                                         return;
                                     } else {
-                                        variable_list = L_CONS(lsym, variable_list);
+                                        variable_list =
+                                            L_CONS(lsym, variable_list);
                                         var_list = variable_list;
                                     }
                                     lat = lat->cons().cdr();
@@ -2652,7 +2640,7 @@ Value* dostring(CharSequence& code,
 
     Protected result(get_nil());
 
-    auto prev_stk = bound_context->operand_stack_->size();
+    auto prev_stk = L_CTX.operand_stack_->size();
 
     while (true) {
         const auto last_i = i;
@@ -2660,10 +2648,10 @@ Value* dostring(CharSequence& code,
             // NOTE: we need to disable breakpoints during expression read,
             // because it's tedious to look at evals triggered during
             // macroexpansion.
-            const bool was_debug = bound_context->debug_mode_;
-            bound_context->debug_mode_ = false;
+            const bool was_debug = L_CTX.debug_mode_;
+            L_CTX.debug_mode_ = false;
             i += read(code, i);
-            bound_context->debug_mode_ = was_debug;
+            L_CTX.debug_mode_ = was_debug;
         }
         auto reader_result = get_op0();
         if (reader_result == get_nil()) {
@@ -2688,11 +2676,9 @@ Value* dostring(CharSequence& code,
         gc_safepoint();
     }
 
-    if (bound_context->strict_ and
-        bound_context->operand_stack_->size() not_eq prev_stk) {
-        PLATFORM.fatal(::format("stack spill! % %",
-                                bound_context->operand_stack_->size(),
-                                prev_stk));
+    if (L_CTX.strict_ and L_CTX.operand_stack_->size() not_eq prev_stk) {
+        PLATFORM.fatal(::format(
+            "stack spill! % %", L_CTX.operand_stack_->size(), prev_stk));
     }
 
     return result;
@@ -3057,36 +3043,34 @@ void Protected::gc_mark()
 
 static void gc_mark()
 {
-    gc_mark_value(bound_context->nil_);
-    gc_mark_value(bound_context->lexical_bindings_);
-    gc_mark_value(bound_context->macros_);
-    gc_mark_value(bound_context->tree_nullnode_);
-    gc_mark_value(bound_context->debug_breakpoints_);
-    gc_mark_value(bound_context->debug_watchpoints_);
+    gc_mark_value(L_CTX.nil_);
+    gc_mark_value(L_CTX.lexical_bindings_);
+    gc_mark_value(L_CTX.macros_);
+    gc_mark_value(L_CTX.tree_nullnode_);
+    gc_mark_value(L_CTX.debug_breakpoints_);
+    gc_mark_value(L_CTX.debug_watchpoints_);
 
-    for (auto& sym : bound_context->argument_symbols_) {
+    for (auto& sym : L_CTX.argument_symbols_) {
         gc_mark_value(sym);
     }
 
-    auto& ctx = bound_context;
-
 #ifdef USE_SYMBOL_CACHE
-    for (auto v : ctx->symbol_cache_) {
+    for (auto v : L_CTX.symbol_cache_) {
         gc_mark_value(v);
     }
 #endif
 
-    for (auto elem : *ctx->operand_stack_) {
+    for (auto elem : *L_CTX.operand_stack_) {
         gc_mark_value(elem);
     }
 
-    globals_tree_traverse(ctx->globals_tree_, [](Value& car, Value& node) {
+    globals_tree_traverse(L_CTX.globals_tree_, [](Value& car, Value& node) {
         node.hdr_.mark_bit_ = true;
         node.cons().cdr()->hdr_.mark_bit_ = true;
         gc_mark_value(&car);
     });
 
-    gc_mark_value(ctx->callstack_);
+    gc_mark_value(L_CTX.callstack_);
 
     auto p_list = __protected_values;
     while (p_list) {
@@ -3121,8 +3105,7 @@ int compact_string_memory()
     // cause fragmentation, and after collecting lisp objects, we should squeeze
     // the resulting gaps out of the memory region used for storing strings.
 
-    auto& ctx = *bound_context;
-    for (auto& v : *ctx.operand_stack_) {
+    for (auto& v : *L_CTX.operand_stack_) {
         if (v->type() == Value::Type::string) {
             // It isn't safe to move internal string pointers around when string
             // values are currently on the stack, because a library user could
@@ -3167,8 +3150,8 @@ int compact_string_memory()
         }
     }
 
-    ctx.string_buffer_ = db;
-    ctx.string_buffer_remaining_ = (SCRATCH_BUFFER_SIZE - (write_offset + 1));
+    L_CTX.string_buffer_ = db;
+    L_CTX.string_buffer_remaining_ = (SCRATCH_BUFFER_SIZE - (write_offset + 1));
 
     for (auto& b : recovered_buffers) {
         collect_value(b);
@@ -3180,9 +3163,9 @@ int compact_string_memory()
 
 static int gc_sweep()
 {
-    if (not bound_context->string_buffer_->hdr_.mark_bit_) {
-        bound_context->string_buffer_ = L_NIL;
-        bound_context->string_buffer_remaining_ = 0;
+    if (not L_CTX.string_buffer_->hdr_.mark_bit_) {
+        L_CTX.string_buffer_ = L_NIL;
+        L_CTX.string_buffer_remaining_ = 0;
     }
 
     int collect_count = 0;
@@ -3207,10 +3190,10 @@ static int gc_sweep()
         }
     }
 
-    bound_context->callstack_untouched_ = true;
+    L_CTX.callstack_untouched_ = true;
 
-    if (used_count > bound_context->alloc_highwater_) {
-        bound_context->alloc_highwater_ = used_count;
+    if (used_count > L_CTX.alloc_highwater_) {
+        L_CTX.alloc_highwater_ = used_count;
         info(::format("LISP mem %", used_count));
     }
 
@@ -3283,22 +3266,20 @@ private:
 
 template <typename F> void foreach_string_intern(F&& fn)
 {
-    auto& ctx = bound_context;
-
-    if (ctx->external_symtab_contents_) {
-        const char* search = ctx->external_symtab_contents_;
-        for (u32 i = 0; i < ctx->external_symtab_size_;) {
+    if (L_CTX.external_symtab_contents_) {
+        const char* search = L_CTX.external_symtab_contents_;
+        for (u32 i = 0; i < L_CTX.external_symtab_size_;) {
             fn(search + i);
             i += 32;
         }
     }
 
-    if (ctx->string_intern_table_) {
-        char* const interns = (*ctx->string_intern_table_)->data_;
+    if (L_CTX.string_intern_table_) {
+        char* const interns = (*L_CTX.string_intern_table_)->data_;
         char* str = interns;
 
         while (static_cast<u32>(str - interns) < string_intern_table_size and
-               static_cast<s32>(str - interns) < ctx->string_intern_pos_ and
+               static_cast<s32>(str - interns) < L_CTX.string_intern_pos_ and
                *str not_eq '\0') {
 
             fn(str);
@@ -3480,9 +3461,9 @@ static u32 read_symbol(CharSequence& code, int offset)
                 ((u8*)&id)[i] = symbol[i];
             }
 
-            if (bound_context->string_intern_table_ and
-                id >= (*bound_context->string_intern_table_)->data_ and
-                id < (*bound_context->string_intern_table_)->data_ +
+            if (L_CTX.string_intern_table_ and
+                id >= (*L_CTX.string_intern_table_)->data_ and
+                id < (*L_CTX.string_intern_table_)->data_ +
                          string_intern_table_size) {
                 // Do not perform small symbol optimization, because the name,
                 // when interpreted as a pointer, falls in the range of the
@@ -3701,7 +3682,7 @@ static void macroexpand()
 
     if (lat->cons().car()->type() == Value::Type::symbol) {
 
-        auto macros = bound_context->macros_;
+        auto macros = L_CTX.macros_;
         for (; macros not_eq get_nil(); macros = macros->cons().cdr()) {
 
             // if Symbol matches?
@@ -3979,13 +3960,13 @@ static void eval_let_recursive(Value* code)
 
         if (has_bindings) {
             auto new_binding_list = make_cons(binding_list_builder.result(),
-                                              bound_context->lexical_bindings_);
+                                              L_CTX.lexical_bindings_);
 
             if (is_error(new_binding_list)) {
                 push_op(new_binding_list);
                 return;
             } else {
-                bound_context->lexical_bindings_ = new_binding_list;
+                L_CTX.lexical_bindings_ = new_binding_list;
             }
         }
     }
@@ -3997,8 +3978,7 @@ static void eval_let_recursive(Value* code)
     });
 
     if (has_bindings) {
-        bound_context->lexical_bindings_ =
-            bound_context->lexical_bindings_->cons().cdr();
+        L_CTX.lexical_bindings_ = L_CTX.lexical_bindings_->cons().cdr();
     }
 
     push_op(result);
@@ -4008,7 +3988,7 @@ static void eval_let_recursive(Value* code)
 static void eval_macro(Value* code)
 {
     if (code->cons().car()->type() == Value::Type::symbol) {
-        bound_context->macros_ = make_cons(code, bound_context->macros_);
+        L_CTX.macros_ = make_cons(code, L_CTX.macros_);
         push_op(get_nil());
     } else {
         // TODO: raise error!
@@ -4123,11 +4103,11 @@ void setup_promise(Promise& pr, EvalStack& eval_stack)
 
     pr.operand_stack_ = compr(make_databuffer("op-stack-copy"));
     pr.eval_stack_ = compr(make_databuffer("ev-stack-copy"));
-    pr.operand_stack_elems_ = bound_context->operand_stack_->size();
+    pr.operand_stack_elems_ = L_CTX.operand_stack_->size();
     pr.eval_stack_elems_ = eval_stack.size();
 
-    for (u32 i = 0; i < bound_context->operand_stack_->size(); ++i) {
-        pr.store_operand(i, (*bound_context->operand_stack_)[i]);
+    for (u32 i = 0; i < L_CTX.operand_stack_->size(); ++i) {
+        pr.store_operand(i, (*L_CTX.operand_stack_)[i]);
     }
     for (u32 i = 0; i < eval_stack.size(); ++i) {
         pr.store_eval_frame(i, eval_stack[i]);
@@ -4153,9 +4133,9 @@ void resolve_promise(Value* pr, Value* result)
         return;
     }
 
-    bound_context->operand_stack_->clear();
+    L_CTX.operand_stack_->clear();
     for (int i = 0; i < promise.operand_stack_elems_; ++i) {
-        bound_context->operand_stack_->push_back(promise.load_operand(i));
+        L_CTX.operand_stack_->push_back(promise.load_operand(i));
     }
 
     EvalStack eval_stack;
@@ -4181,7 +4161,7 @@ void resolve_promise(Value* pr, Value* result)
     promise.operand_stack_elems_ = 0;
     promise.eval_stack_elems_ = 0;
 
-    // info(stringify(bound_context->operand_stack_->size()));
+    // info(stringify(L_CTX.operand_stack_->size()));
 }
 
 
@@ -4195,13 +4175,13 @@ bool can_suspend(EvalStack& eval_stack, StringBuffer<48>& agitant)
         return false;
     }
 
-    if (bound_context->operand_stack_->size() > 255) {
+    if (L_CTX.operand_stack_->size() > 255) {
         agitant = "operand stack too deep";
         return false;
     }
 
-    if (length(bound_context->callstack_) == 1) {
-        if (bound_context->callstack_->cons().car()->type() not_eq
+    if (length(L_CTX.callstack_) == 1) {
+        if (L_CTX.callstack_->cons().car()->type() not_eq
             lisp::Value::Type::function) {
             agitant = "cannot suspend from toplevel";
             // We're at the toplevel, and cannot suspend
@@ -4210,7 +4190,7 @@ bool can_suspend(EvalStack& eval_stack, StringBuffer<48>& agitant)
     }
 
     bool can_suspend = true;
-    l_foreach(bound_context->callstack_, [&](Value* v) {
+    l_foreach(L_CTX.callstack_, [&](Value* v) {
         if (v->type() == Value::Type::function) {
             if (v->hdr_.mode_bits_ not_eq Function::ModeBits::lisp_function) {
                 can_suspend = false;
@@ -4255,8 +4235,7 @@ eval_iter_start(EvalFrame& frame, EvalStack& eval_stack)
         auto form = code->cons().car();
         if (form->type() == Value::Type::symbol) {
             auto id = form->symbol().unique_id();
-            auto& ctx = *bound_context;
-            if (id == ctx.if_symbol_id_) {
+            if (id == L_CTX.if_symbol_id_) {
                 auto if_code = code->cons().cdr();
 
                 if (if_code->type() != Value::Type::cons) {
@@ -4269,7 +4248,7 @@ eval_iter_start(EvalFrame& frame, EvalStack& eval_stack)
                 eval_stack.push_back({cond, EvalFrame::start});
                 return;
 
-            } else if (id == ctx.let_symbol_id_) {
+            } else if (id == L_CTX.let_symbol_id_) {
                 auto let_code = code->cons().cdr();
 
                 if (let_code->type() != Value::Type::cons) {
@@ -4297,7 +4276,7 @@ eval_iter_start(EvalFrame& frame, EvalStack& eval_stack)
                     eval_stack.push_back({expr, EvalFrame::start});
                 }
                 return;
-            } else if (id == ctx.while_symbol_id_) {
+            } else if (id == L_CTX.while_symbol_id_) {
                 auto while_code = code->cons().cdr();
 
                 if (while_code->type() != Value::Type::cons) {
@@ -4310,7 +4289,7 @@ eval_iter_start(EvalFrame& frame, EvalStack& eval_stack)
                     {while_code->cons().car(), EvalFrame::start});
                 return;
 
-            } else if (id == ctx.lambda_symbol_id_) {
+            } else if (id == L_CTX.lambda_symbol_id_) {
                 push_op(make_lisp_argumented_function(code->cons().cdr()));
                 // NOTE: evaluating an argumented function is
                 // destructive. Once we've evaluated an argumented
@@ -4327,30 +4306,30 @@ eval_iter_start(EvalFrame& frame, EvalStack& eval_stack)
                 code->cons().set_car(make_symbol("fn"));
                 code->cons().set_cdr(code->cons().cdr()->cons().cdr());
                 return;
-            } else if (id == ctx.fn_symbol_id_) {
+            } else if (id == L_CTX.fn_symbol_id_) {
                 push_op(make_lisp_function(code->cons().cdr()));
                 return;
-            } else if (id == ctx.quote_symbol_id_) {
+            } else if (id == L_CTX.quote_symbol_id_) {
                 push_op(code->cons().cdr());
                 return;
-            } else if (id == ctx.quasiquote_symbol_id_) {
+            } else if (id == L_CTX.quasiquote_symbol_id_) {
                 eval_quasiquote(code->cons().cdr());
                 return;
-            } else if (id == ctx.macro_symbol_id_) {
+            } else if (id == L_CTX.macro_symbol_id_) {
                 eval_macro(code->cons().cdr());
                 return;
-            } else if (id == ctx.defconstant_symbol_id_) {
-                if (not bound_context->external_constant_tab_) {
+            } else if (id == L_CTX.defconstant_symbol_id_) {
+                if (not L_CTX.external_constant_tab_) {
                     PLATFORM.fatal("missing constant tab!");
                 }
                 push_op(L_NIL);
                 return;
-            } else if (id == ctx.await_symbol_id_) {
+            } else if (id == L_CTX.await_symbol_id_) {
                 eval_stack.push_back({code, EvalFrame::await_check_result});
                 eval_stack.push_back(
                     {code->cons().cdr()->cons().car(), EvalFrame::start});
                 return;
-            } else if (id == ctx.apply_symbol_id_) {
+            } else if (id == L_CTX.apply_symbol_id_) {
                 if (length(code) < 3) {
                     push_op(make_error("insufficent args to apply"));
                     return;
@@ -4365,7 +4344,7 @@ eval_iter_start(EvalFrame& frame, EvalStack& eval_stack)
                 return;
             }
         }
-        push_op(bound_context->lexical_bindings_);
+        push_op(L_CTX.lexical_bindings_);
         auto funcall_expr = code->cons().car();
         auto arg_list = code->cons().cdr();
         const int argc = length(arg_list);
@@ -4401,23 +4380,22 @@ namespace debug
 
 void get_globals(Vector<VariableBinding>& results)
 {
-    globals_tree_traverse(bound_context->globals_tree_,
-                          [&](Value& val, Value& node) {
-                              auto name = val.cons().car()->symbol().name();
-                              for (auto& result : results) {
-                                  if (str_eq(name, result.name_)) {
-                                      return;
-                                  }
-                              }
-                              results.push_back({name, val.cons().cdr()});
-                          });
+    globals_tree_traverse(L_CTX.globals_tree_, [&](Value& val, Value& node) {
+        auto name = val.cons().car()->symbol().name();
+        for (auto& result : results) {
+            if (str_eq(name, result.name_)) {
+                return;
+            }
+        }
+        results.push_back({name, val.cons().cdr()});
+    });
 }
 
 
 void get_locals(Vector<VariableBinding>& results)
 {
-    if (bound_context->lexical_bindings_ not_eq get_nil()) {
-        auto stack = bound_context->lexical_bindings_;
+    if (L_CTX.lexical_bindings_ not_eq get_nil()) {
+        auto stack = L_CTX.lexical_bindings_;
 
         while (stack not_eq get_nil()) {
 
@@ -4447,17 +4425,17 @@ void get_locals(Vector<VariableBinding>& results)
 
 void register_debug_handler(DebugHandler handler)
 {
-    bound_context->debug_handler_ = handler;
+    L_CTX.debug_handler_ = handler;
 }
 
 
 void register_symbol_watchpoint(Value* symbol)
 {
-    if (contains(bound_context->debug_watchpoints_, symbol)) {
+    if (contains(L_CTX.debug_watchpoints_, symbol)) {
         return;
     }
     if (symbol->type() == Value::Type::symbol) {
-        auto& wp = bound_context->debug_watchpoints_;
+        auto& wp = L_CTX.debug_watchpoints_;
         wp = L_CONS(symbol, wp);
     }
 }
@@ -4466,24 +4444,24 @@ void register_symbol_watchpoint(Value* symbol)
 void delete_symbol_watchpoint(Value* symbol)
 {
     ListBuilder new_watchpoints;
-    l_foreach(bound_context->debug_watchpoints_, [&](Value* v) {
+    l_foreach(L_CTX.debug_watchpoints_, [&](Value* v) {
         if (not is_equal(symbol, v)) {
             new_watchpoints.push_back(v);
         }
     });
-    bound_context->debug_watchpoints_ = new_watchpoints.result();
+    L_CTX.debug_watchpoints_ = new_watchpoints.result();
 }
 
 
 void register_symbol_breakpoint(Value* symbol)
 {
-    if (contains(bound_context->debug_breakpoints_, symbol)) {
+    if (contains(L_CTX.debug_breakpoints_, symbol)) {
         return;
     }
     if (symbol->type() == Value::Type::symbol) {
-        auto& br = bound_context->debug_breakpoints_;
+        auto& br = L_CTX.debug_breakpoints_;
         br = L_CONS(symbol, br);
-        bound_context->debug_mode_ = true;
+        L_CTX.debug_mode_ = true;
     }
 }
 
@@ -4491,7 +4469,7 @@ void register_symbol_breakpoint(Value* symbol)
 bool is_symbol_breakpoint(const char* str)
 {
     bool result = false;
-    l_foreach(bound_context->debug_breakpoints_, [&](Value* v) {
+    l_foreach(L_CTX.debug_breakpoints_, [&](Value* v) {
         if (str_eq(v->symbol().name(), str)) {
             result = true;
         }
@@ -4503,18 +4481,18 @@ bool is_symbol_breakpoint(const char* str)
 void delete_symbol_breakpoint(Value* symbol)
 {
     ListBuilder new_breakpoints;
-    l_foreach(bound_context->debug_breakpoints_, [&](Value* v) {
+    l_foreach(L_CTX.debug_breakpoints_, [&](Value* v) {
         if (not is_equal(symbol, v)) {
             new_breakpoints.push_back(v);
         }
     });
-    bound_context->debug_breakpoints_ = new_breakpoints.result();
+    L_CTX.debug_breakpoints_ = new_breakpoints.result();
 }
 
 
 bool check_breakpoint(Value* expr)
 {
-    if (bound_context->debug_breakpoints_ == L_NIL) {
+    if (L_CTX.debug_breakpoints_ == L_NIL) {
         return false;
     }
 
@@ -4522,7 +4500,7 @@ bool check_breakpoint(Value* expr)
         auto fn_expr = expr->cons().car();
         if (fn_expr->type() == Value::Type::symbol) {
             // Check if this symbol is in breakpoint list
-            auto bp_list = bound_context->debug_breakpoints_;
+            auto bp_list = L_CTX.debug_breakpoints_;
             while (bp_list not_eq L_NIL) {
                 if (is_equal(bp_list->cons().car(), fn_expr)) {
                     return true;
@@ -4546,34 +4524,31 @@ void push_suspend(EvalStack& eval_stack, u32 op_stack_init)
     }
 
     ListBuilder lat;
-    lat.push_back(bound_context->lexical_bindings_);
-    lat.push_back(bound_context->callstack_);
+    lat.push_back(L_CTX.lexical_bindings_);
+    lat.push_back(L_CTX.callstack_);
     eval_stack.push_back({.expr_ = lat.result(),
                           .state_ = EvalFrame::await_resume,
-                          .await_resume_ = {bound_context->arguments_break_loc_,
-                                            bound_context->current_fn_argc_}});
+                          .await_resume_ = {L_CTX.arguments_break_loc_,
+                                            L_CTX.current_fn_argc_}});
     // Execution suspended. Prior to resume, the interpreter
     // will expect the caller to pop the promise and push the
     // result in the captured execution context.
     setup_promise(result->promise(), eval_stack);
-    while (bound_context->operand_stack_->size() > op_stack_init) {
+    while (L_CTX.operand_stack_->size() > op_stack_init) {
         pop_op();
     }
     push_op(L_NIL);
-    bound_context->lexical_bindings_ = L_NIL;
+    L_CTX.lexical_bindings_ = L_NIL;
     reset_callstack();
 }
 
 
-bool destructure_binding(Value* sym,
-                         Value* value,
-                         ListBuilder& binding_list)
+bool destructure_binding(Value* sym, Value* value, ListBuilder& binding_list)
 {
     if (is_list(sym)) {
         if (not is_list(value)) {
-            push_op(make_error(::format("cannot destructure % into %",
-                                        value,
-                                        sym)));
+            push_op(make_error(
+                ::format("cannot destructure % into %", value, sym)));
             return false;
         }
         if (length(sym) not_eq length(value)) {
@@ -4651,7 +4626,8 @@ bool destructure_binding(Value* sym,
                 }
                 auto car = sym->cons().car();
                 if (car->type() == Value::Type::symbol) {
-                    binding_list.push_back(L_CONS(car, value_lat->cons().car()));
+                    binding_list.push_back(
+                        L_CONS(car, value_lat->cons().car()));
                 } else {
                     push_op(make_error(::format("Invalid value % in "
                                                 "destructuring let %",
@@ -4693,9 +4669,7 @@ static bool is_recursive_invocation(Value* function)
 }
 
 
-static bool apply_tail_funcall(Value* fn,
-                               int argc,
-                               EvalStack& eval_stack)
+static bool apply_tail_funcall(Value* fn, int argc, EvalStack& eval_stack)
 {
     if (eval_stack.size() == 0) {
         // We aren't executing a function
@@ -4721,8 +4695,7 @@ static bool apply_tail_funcall(Value* fn,
     }
 
     while (lexical_pop_count) {
-        bound_context->lexical_bindings_ =
-            bound_context->lexical_bindings_->cons().cdr();
+        L_CTX.lexical_bindings_ = L_CTX.lexical_bindings_->cons().cdr();
         eval_stack.pop_back();
         --lexical_pop_count;
     }
@@ -4763,7 +4736,8 @@ static bool apply_tail_funcall(Value* fn,
         if (expression_list == get_nil()) {
             push_op(get_nil());
         } else {
-            eval_stack.push_back({expression_list, EvalFrame::lisp_funcall_body});
+            eval_stack.push_back(
+                {expression_list, EvalFrame::lisp_funcall_body});
         }
         return true;
     }
@@ -4774,7 +4748,7 @@ static bool apply_tail_funcall(Value* fn,
 
 void eval_loop(EvalStack& eval_stack)
 {
-    const u32 op_stack_init = bound_context->operand_stack_->size();
+    const u32 op_stack_init = L_CTX.operand_stack_->size();
 
     while (eval_stack.size() not_eq 0) {
         EvalFrame frame = eval_stack.back();
@@ -4794,29 +4768,29 @@ void eval_loop(EvalStack& eval_stack)
             // debugger. EvalFrame::State::start turns off the debug break flag,
             // and pushes a future state to re-enable it at the end of the
             // current expression.
-            bound_context->debug_break_ = true;
+            L_CTX.debug_break_ = true;
             break;
 
         case EvalFrame::State::start: {
-            if (UNLIKELY(bound_context->debug_mode_)) {
+            if (UNLIKELY(L_CTX.debug_mode_)) {
                 if (debug::check_breakpoint(frame.expr_)) {
-                    bound_context->debug_break_ = true;
-                    if (bound_context->debug_handler_) {
-                        auto& handler = *bound_context->debug_handler_;
+                    L_CTX.debug_break_ = true;
+                    if (L_CTX.debug_handler_) {
+                        auto& handler = *L_CTX.debug_handler_;
                         auto reason = debug::Interrupt::breakpoint;
                         handler(reason, frame.expr_);
                     }
                 }
-                if (bound_context->debug_break_) {
-                    if (bound_context->debug_handler_) {
-                        auto& handler = *bound_context->debug_handler_;
+                if (L_CTX.debug_break_) {
+                    if (L_CTX.debug_handler_) {
+                        auto& handler = *L_CTX.debug_handler_;
                         auto reason = debug::Interrupt::step;
                         switch (handler(reason, frame.expr_)) {
                         case debug::Action::step:
                             break;
 
                         case debug::Action::step_over:
-                            bound_context->debug_break_ = false;
+                            L_CTX.debug_break_ = false;
                             eval_stack.push_back(
                                 {L_NIL, EvalFrame::State::debug_enable_break});
                             break;
@@ -4826,7 +4800,7 @@ void eval_loop(EvalStack& eval_stack)
                             break;
                         }
                     } else {
-                        bound_context->debug_break_ = false;
+                        L_CTX.debug_break_ = false;
                     }
                 }
             }
@@ -4922,11 +4896,10 @@ void eval_loop(EvalStack& eval_stack)
         case EvalFrame::State::await_resume: {
             // Restore all the saved state
             auto saved_list = frame.expr_;
-            bound_context->lexical_bindings_ = saved_list->cons().car();
-            bound_context->callstack_ = saved_list->cons().cdr()->cons().car();
-            bound_context->arguments_break_loc_ =
-                frame.await_resume_.saved_break_loc_;
-            bound_context->current_fn_argc_ = frame.await_resume_.saved_argc_;
+            L_CTX.lexical_bindings_ = saved_list->cons().car();
+            L_CTX.callstack_ = saved_list->cons().cdr()->cons().car();
+            L_CTX.arguments_break_loc_ = frame.await_resume_.saved_break_loc_;
+            L_CTX.current_fn_argc_ = frame.await_resume_.saved_argc_;
             break;
         }
 
@@ -4995,8 +4968,8 @@ void eval_loop(EvalStack& eval_stack)
             }
 
             // Install bindings
-            bound_context->lexical_bindings_ = make_cons(
-                binding_list.result(), bound_context->lexical_bindings_);
+            L_CTX.lexical_bindings_ =
+                make_cons(binding_list.result(), L_CTX.lexical_bindings_);
 
             // After body, cleanup bindings
             eval_stack.push_back({frame.expr_, EvalFrame::let_cleanup});
@@ -5045,8 +5018,7 @@ void eval_loop(EvalStack& eval_stack)
 
         case EvalFrame::State::let_cleanup: {
             // Restore previous bindings
-            bound_context->lexical_bindings_ =
-                bound_context->lexical_bindings_->cons().cdr();
+            L_CTX.lexical_bindings_ = L_CTX.lexical_bindings_->cons().cdr();
             // Result already on stack
             break;
         }
@@ -5100,12 +5072,12 @@ void eval_loop(EvalStack& eval_stack)
 
             // Stack is currently: [... saved_bindings function arg1 arg2 arg3]
 
-            bound_context->lexical_bindings_ =
+            L_CTX.lexical_bindings_ =
                 dcompr(fn->function().lisp_impl_.lexical_bindings_);
 
-            const auto break_loc = bound_context->operand_stack_->size() - 1;
-            bound_context->arguments_break_loc_ = break_loc;
-            bound_context->current_fn_argc_ = argc;
+            const auto break_loc = L_CTX.operand_stack_->size() - 1;
+            L_CTX.arguments_break_loc_ = break_loc;
+            L_CTX.current_fn_argc_ = argc;
 
             push_callstack(fn);
 
@@ -5139,12 +5111,11 @@ void eval_loop(EvalStack& eval_stack)
 
             auto saved_bindings = get_op0();
             pop_op();
-            bound_context->lexical_bindings_ = saved_bindings;
+            L_CTX.lexical_bindings_ = saved_bindings;
 
-            bound_context->arguments_break_loc_ =
+            L_CTX.arguments_break_loc_ =
                 frame.lisp_funcall_cleanup_.saved_break_loc_;
-            bound_context->current_fn_argc_ =
-                frame.lisp_funcall_cleanup_.saved_argc_;
+            L_CTX.current_fn_argc_ = frame.lisp_funcall_cleanup_.saved_argc_;
 
             push_op(result);
             break;
@@ -5162,7 +5133,7 @@ void eval_loop(EvalStack& eval_stack)
                 break;
             }
 
-            push_op(bound_context->lexical_bindings_);
+            push_op(L_CTX.lexical_bindings_);
             push_op(fn);
 
             int argc = 0;
@@ -5194,12 +5165,12 @@ void eval_loop(EvalStack& eval_stack)
                     pop_op();
                     auto saved_bindings = get_op0();
                     pop_op(); // saved bindings
-                    bound_context->lexical_bindings_ = saved_bindings;
+                    L_CTX.lexical_bindings_ = saved_bindings;
                     push_op(make_error(Error::Code::invalid_argc, fn));
                     break;
                 }
 
-                if (bound_context->strict_) {
+                if (L_CTX.strict_) {
                     auto arg_error = [&](auto exp_type, auto got_type) {
                         return ::format<256>(
                             "invalid arg type for %! expected %, got %",
@@ -5214,13 +5185,12 @@ void eval_loop(EvalStack& eval_stack)
                         }
                     };
 
-                    auto& ctx = *bound_context;
-                    auto saved_break_loc = ctx.arguments_break_loc_;
-                    auto saved_argc = ctx.current_fn_argc_;
+                    auto saved_break_loc = L_CTX.arguments_break_loc_;
+                    auto saved_argc = L_CTX.current_fn_argc_;
 
-                    const auto break_loc = ctx.operand_stack_->size() - 1;
-                    ctx.arguments_break_loc_ = break_loc;
-                    ctx.current_fn_argc_ = argc;
+                    const auto break_loc = L_CTX.operand_stack_->size() - 1;
+                    L_CTX.arguments_break_loc_ = break_loc;
+                    L_CTX.current_fn_argc_ = argc;
 
 #define CHECK_ARG_TYPE_INL(ARG, FIELD)                                         \
     if (fn->function().sig_.FIELD not_eq Value::Type::nil and                  \
@@ -5233,8 +5203,8 @@ void eval_loop(EvalStack& eval_stack)
         pop_args();                                                            \
         pop_op();                                                              \
         pop_op();                                                              \
-        ctx.arguments_break_loc_ = saved_break_loc;                            \
-        ctx.current_fn_argc_ = saved_argc;                                     \
+        L_CTX.arguments_break_loc_ = saved_break_loc;                          \
+        L_CTX.current_fn_argc_ = saved_argc;                                   \
         push_op(make_error(                                                    \
             arg_error(fn->function().sig_.FIELD, get_arg(ARG)->type())         \
                 .c_str()));                                                    \
@@ -5257,8 +5227,8 @@ void eval_loop(EvalStack& eval_stack)
                         CHECK_ARG_TYPE_INL(0, arg0_type_);
                     }
 
-                    ctx.arguments_break_loc_ = saved_break_loc;
-                    ctx.current_fn_argc_ = saved_argc;
+                    L_CTX.arguments_break_loc_ = saved_break_loc;
+                    L_CTX.current_fn_argc_ = saved_argc;
                 }
 
                 if (fn->hdr_.mode_bits_ == Function::ModeBits::lisp_function) {
@@ -5270,18 +5240,17 @@ void eval_loop(EvalStack& eval_stack)
                             .state_ = EvalFrame::lisp_funcall_cleanup,
                             .lisp_funcall_cleanup_ = {
                                 argc,
-                                bound_context->arguments_break_loc_,
-                                bound_context->current_fn_argc_}};
+                                L_CTX.arguments_break_loc_,
+                                L_CTX.current_fn_argc_}};
                         eval_stack.push_back(cleanup_frame);
 
-                        eval_stack.push_back({.expr_ = fn,
-                                              .state_ = EvalFrame::lisp_funcall_setup,
-                                              .funcall_apply_ = {argc}});
+                        eval_stack.push_back(
+                            {.expr_ = fn,
+                             .state_ = EvalFrame::lisp_funcall_setup,
+                             .funcall_apply_ = {argc}});
                     }
                 } else if (fn->hdr_.mode_bits_ ==
                            Function::ModeBits::lisp_bytecode_function) {
-
-                    auto& ctx = *bound_context;
 
                     push_callstack(fn);
                     gc_safepoint();
@@ -5291,21 +5260,21 @@ void eval_loop(EvalStack& eval_stack)
                          .state_ = EvalFrame::vm_cleanup,
                          .lisp_funcall_cleanup_ = {
                              .argc_ = argc,
-                             .saved_break_loc_ = ctx.arguments_break_loc_,
-                             .saved_argc_ = ctx.current_fn_argc_}});
+                             .saved_break_loc_ = L_CTX.arguments_break_loc_,
+                             .saved_argc_ = L_CTX.current_fn_argc_}});
 
-                    const auto break_loc = ctx.operand_stack_->size() - 1;
-                    ctx.arguments_break_loc_ = break_loc;
-                    ctx.current_fn_argc_ = argc;
+                    const auto break_loc = L_CTX.operand_stack_->size() - 1;
+                    L_CTX.arguments_break_loc_ = break_loc;
+                    L_CTX.current_fn_argc_ = argc;
 
-                    if (UNLIKELY(bound_context->debug_break_)) {
+                    if (UNLIKELY(L_CTX.debug_break_)) {
                         if (debug_break_compiled_fn(fn)) {
                             eval_stack.push_back(
                                 {L_NIL, EvalFrame::debug_enable_break});
                         }
                     }
 
-                    ctx.lexical_bindings_ =
+                    L_CTX.lexical_bindings_ =
                         dcompr(fn->function().lisp_impl_.lexical_bindings_);
 
                     eval_stack.push_back(
@@ -5503,10 +5472,10 @@ void apropos(const char* match, Vector<const char*>& completion_strs)
     get_env(handle_completion);
     get_interns(handle_completion);
 
-    if (bound_context->external_constant_tab_) {
+    if (L_CTX.external_constant_tab_) {
         u32 i = 0;
-        for (; i < bound_context->external_constant_tab_size_;) {
-            auto ptr = bound_context->external_constant_tab_ + i;
+        for (; i < L_CTX.external_constant_tab_size_;) {
+            auto ptr = L_CTX.external_constant_tab_ + i;
             u8 field_size = ((ConstantTabEntryHeader*)ptr)->field_size_;
             u8 value_size = ((ConstantTabEntryHeader*)ptr)->value_size_;
             const char* name = ptr + sizeof(ConstantTabEntryHeader);
@@ -5522,8 +5491,8 @@ const char* nameof(Function::CPP_Impl impl);
 
 Value* stacktrace()
 {
-    bound_context->callstack_untouched_ = false;
-    return bound_context->callstack_->cons().cdr();
+    L_CTX.callstack_untouched_ = false;
+    return L_CTX.callstack_->cons().cdr();
 }
 
 
@@ -5547,7 +5516,7 @@ s32 to_integer(Value* v)
         auto& ratio = v->ratio();
         return dcompr(ratio.numerator_)->integer().value_ / ratio.divisor_;
     }
-    if (bound_context->strict_) {
+    if (L_CTX.strict_) {
         PLATFORM.fatal(::format("cannot convert % to integer!",
                                 val_to_string<64>(v).c_str()));
     }
@@ -5658,7 +5627,7 @@ BUILTIN_TABLE(
                return get_op0();
            }
 
-           bool define_if_missing = not bound_context->strict_;
+           bool define_if_missing = not L_CTX.strict_;
 
            GC_REQUIRE_SPACE(4);
 
@@ -5687,7 +5656,7 @@ BUILTIN_TABLE(
       {SIG1(nil, integer),
        [](int argc) {
            L_EXPECT_OP(0, integer);
-           bound_context->strict_ = L_LOAD_INT(0);
+           L_CTX.strict_ = L_LOAD_INT(0);
            return L_NIL;
        }}},
      {"signature",
@@ -5725,8 +5694,8 @@ BUILTIN_TABLE(
      {"breakpoint",
       {SIG0(nil),
        [](int argc) {
-           bound_context->debug_mode_ = true;
-           bound_context->debug_break_ = true;
+           L_CTX.debug_mode_ = true;
+           L_CTX.debug_break_ = true;
            return L_NIL;
        }}},
      {"breakpoint-register",
@@ -6709,12 +6678,12 @@ BUILTIN_TABLE(
        }}},
      {"lisp-mem-stack-used",
       {SIG0(integer),
-       [](int argc) { return L_INT(bound_context->operand_stack_->size()); }}},
+       [](int argc) { return L_INT(L_CTX.operand_stack_->size()); }}},
      {"lisp-mem-stack-contents",
       {SIG0(cons),
        [](int argc) {
            lisp::ListBuilder b;
-           for (auto& v : *bound_context->operand_stack_) {
+           for (auto& v : *L_CTX.operand_stack_) {
                b.push_back(v);
            }
            return b.result();
@@ -6774,7 +6743,7 @@ BUILTIN_TABLE(
       {SIG1(nil, integer),
        [](int) {
            L_EXPECT_OP(0, integer);
-           bound_context->critical_gc_alert_ = L_LOAD_INT(0);
+           L_CTX.critical_gc_alert_ = L_LOAD_INT(0);
            return L_NIL;
        }}},
      {"lisp-mem-vals-remaining",
@@ -6792,20 +6761,16 @@ BUILTIN_TABLE(
      {"lisp-mem-global-count",
       {SIG0(integer),
        [](int argc) {
-           auto& ctx = bound_context;
            int globals_used = 0;
            globals_tree_traverse(
-               ctx->globals_tree_,
+               L_CTX.globals_tree_,
                [&globals_used](Value&, Value&) { ++globals_used; });
 
            return L_INT(globals_used);
        }}},
      {"lisp-mem-string-internb",
       {SIG0(integer),
-       [](int argc) {
-           auto& ctx = bound_context;
-           return L_INT(ctx->string_intern_pos_);
-       }}},
+       [](int argc) { return L_INT(L_CTX.string_intern_pos_); }}},
      {"lisp-mem-sbr-used",
       {SIG0(integer),
        [](int argc) {
@@ -7341,9 +7306,7 @@ BUILTIN_TABLE(
      {"stacktrace", {SIG0(cons), [](int argc) { return stacktrace(); }}},
      {"this",
       {SIG0(function),
-       [](int argc) {
-           return bound_context->callstack_->cons().cdr()->cons().car();
-       }}},
+       [](int argc) { return L_CTX.callstack_->cons().cdr()->cons().car(); }}},
      {"sort",
       {SIG2(cons, cons, function),
        [](int argc) {
@@ -7919,12 +7882,10 @@ int toplevel_count()
 {
     int count = 0;
 
-    auto& ctx = bound_context;
-
-    globals_tree_traverse(ctx->globals_tree_,
+    globals_tree_traverse(L_CTX.globals_tree_,
                           [&count](Value& val, Value&) { ++count; });
 
-    ctx->native_interface_.get_symbols_([&count](const char*) { ++count; });
+    L_CTX.native_interface_.get_symbols_([&count](const char*) { ++count; });
     count += builtin_table.size();
 
     return count;
@@ -7933,19 +7894,17 @@ int toplevel_count()
 
 void get_env(SymbolCallback callback)
 {
-    auto& ctx = bound_context;
-
     for (auto& kvp : builtin_table) {
         callback(kvp.first.c_str());
     }
 
-    ctx->native_interface_.get_symbols_(callback);
+    L_CTX.native_interface_.get_symbols_(callback);
 
-    globals_tree_traverse(ctx->globals_tree_, [&callback](Value& val, Value&) {
+    globals_tree_traverse(L_CTX.globals_tree_, [&callback](Value& val, Value&) {
         callback((const char*)val.cons().car()->symbol().name());
     });
 
-    l_foreach(ctx->macros_,
+    l_foreach(L_CTX.macros_,
               [&](Value* v) { callback(v->cons().car()->symbol().name()); });
 }
 
@@ -7955,8 +7914,6 @@ const char* intern(const char* string)
 {
     const auto len = strlen(string);
 
-    auto& ctx = bound_context;
-
     auto found_builtin = builtin_table.find(string);
     if (found_builtin not_eq builtin_table.end()) {
         // If the string exists as a constant in the builtin table, then it
@@ -7964,14 +7921,14 @@ const char* intern(const char* string)
         return found_builtin->first.c_str();
     }
 
-    if (auto ni_sym = ctx->native_interface_.resolve_intern_sym_(string)) {
+    if (auto ni_sym = L_CTX.native_interface_.resolve_intern_sym_(string)) {
         return ni_sym;
     }
 
-    if (ctx->external_symtab_contents_) {
-        const char* search = ctx->external_symtab_contents_;
+    if (L_CTX.external_symtab_contents_) {
+        const char* search = L_CTX.external_symtab_contents_;
         u32 left = 0;
-        u32 right = ctx->external_symtab_size_ / 32;
+        u32 right = L_CTX.external_symtab_size_ / 32;
 
         while (left < right) {
             u32 mid = left + (right - left) / 2;
@@ -7991,21 +7948,20 @@ const char* intern(const char* string)
     // Ok, no stable pointer to the string exists anywhere, so we'll have to
     // preserve the string contents in intern memory.
 
-    if (len + 1 >
-        string_intern_table_size - bound_context->string_intern_pos_) {
+    if (len + 1 > string_intern_table_size - L_CTX.string_intern_pos_) {
 
         PLATFORM.fatal("string intern table full");
     }
 
-    if (not ctx->string_intern_table_) {
-        ctx->string_intern_table_ =
+    if (not L_CTX.string_intern_table_) {
+        L_CTX.string_intern_table_ =
             allocate<StringInternTable>("string-intern-table");
         info(::format("allocating string intern table (due to symbol %)",
                       string));
     }
 
-    const char* search = (*ctx->string_intern_table_)->data_;
-    for (int i = 0; i < ctx->string_intern_pos_;) {
+    const char* search = (*L_CTX.string_intern_table_)->data_;
+    for (int i = 0; i < L_CTX.string_intern_pos_;) {
         if (str_eq(search + i, string)) {
             return search + i;
         } else {
@@ -8016,13 +7972,14 @@ const char* intern(const char* string)
         }
     }
 
-    auto result = (*ctx->string_intern_table_)->data_ + ctx->string_intern_pos_;
+    auto result =
+        (*L_CTX.string_intern_table_)->data_ + L_CTX.string_intern_pos_;
 
     for (u32 i = 0; i < len; ++i) {
-        ((*ctx->string_intern_table_)->data_)[ctx->string_intern_pos_++] =
+        ((*L_CTX.string_intern_table_)->data_)[L_CTX.string_intern_pos_++] =
             string[i];
     }
-    ((*ctx->string_intern_table_)->data_)[ctx->string_intern_pos_++] = '\0';
+    ((*L_CTX.string_intern_table_)->data_)[L_CTX.string_intern_pos_++] = '\0';
 
     return result;
 }
@@ -8030,7 +7987,7 @@ const char* intern(const char* string)
 
 Value* __get_local(LocalVariableOffset off)
 {
-    auto stack = bound_context->lexical_bindings_;
+    auto stack = L_CTX.lexical_bindings_;
 
     while (off.first) {
         stack = stack->cons().cdr();
@@ -8054,8 +8011,8 @@ Optional<LocalVariableOffset> __find_local(const char* intern_str)
 
     auto symbol = make_symbol(intern_str, Symbol::ModeBits::stable_pointer);
 
-    if (bound_context->lexical_bindings_ not_eq get_nil()) {
-        auto stack = bound_context->lexical_bindings_;
+    if (L_CTX.lexical_bindings_ not_eq get_nil()) {
+        auto stack = L_CTX.lexical_bindings_;
 
         while (stack not_eq get_nil()) {
 
@@ -8089,7 +8046,7 @@ NativeInterface::LookupResult __load_builtin(const char* name)
         return found_builtin->second;
     }
 
-    auto found_ni_fn = bound_context->native_interface_.lookup_function_(name);
+    auto found_ni_fn = L_CTX.native_interface_.lookup_function_(name);
 
     if (found_ni_fn.second) {
         return found_ni_fn;
@@ -8105,7 +8062,7 @@ Value* get_var(Value* symbol)
         if (symbol->symbol().name()[1] == 'V') {
             // Special case: use '$V' to access arguments as a list.
             ListBuilder lat;
-            for (int i = bound_context->current_fn_argc_ - 1; i > -1; --i) {
+            for (int i = L_CTX.current_fn_argc_ - 1; i > -1; --i) {
                 lat.push_front(get_arg(i));
             }
             return lat.result();
@@ -8124,8 +8081,8 @@ Value* get_var(Value* symbol)
 
     // First, check to see if any lexical (non-global) bindings exist for a
     // symbol.
-    if (bound_context->lexical_bindings_ not_eq get_nil()) {
-        auto stack = bound_context->lexical_bindings_;
+    if (L_CTX.lexical_bindings_ not_eq get_nil()) {
+        auto stack = L_CTX.lexical_bindings_;
         auto sym_id = symbol->symbol().unique_id();
 
         while (stack not_eq get_nil()) {
@@ -8170,10 +8127,10 @@ Value* get_var(Value* symbol)
 
     // Ok, and as a final step, let's look for any builtin constants, if the
     // system is running with a precomputed constant table.
-    if (bound_context->external_constant_tab_) {
+    if (L_CTX.external_constant_tab_) {
         u32 i = 0;
-        for (; i < bound_context->external_constant_tab_size_;) {
-            auto ptr = bound_context->external_constant_tab_ + i;
+        for (; i < L_CTX.external_constant_tab_size_;) {
+            auto ptr = L_CTX.external_constant_tab_ + i;
             u8 name_size = ((ConstantTabEntryHeader*)ptr)->field_size_;
             u8 value_size = ((ConstantTabEntryHeader*)ptr)->value_size_;
             const char* name = ptr + sizeof(ConstantTabEntryHeader);
@@ -8204,25 +8161,25 @@ Value* get_var(Value* symbol)
 
 Value* set_var(Value* symbol, Value* val, bool define_var)
 {
-    if (bound_context->debug_watchpoints_ not_eq get_nil()) {
-        bool watchpoint = contains(bound_context->debug_watchpoints_, symbol);
-        if (watchpoint and bound_context->debug_handler_) {
+    if (L_CTX.debug_watchpoints_ not_eq get_nil()) {
+        bool watchpoint = contains(L_CTX.debug_watchpoints_, symbol);
+        if (watchpoint and L_CTX.debug_handler_) {
             auto reason = debug::Interrupt::watchpoint;
             Protected pack(L_CONS(symbol, val));
-            auto resp = (*bound_context->debug_handler_)(reason, pack);
+            auto resp = (*L_CTX.debug_handler_)(reason, pack);
             if (resp == debug::Action::step) {
-                bound_context->debug_break_ = true;
+                L_CTX.debug_break_ = true;
             } else {
-                bound_context->debug_break_ = false;
-                if (bound_context->debug_breakpoints_ == L_NIL) {
-                    bound_context->debug_mode_ = false;
+                L_CTX.debug_break_ = false;
+                if (L_CTX.debug_breakpoints_ == L_NIL) {
+                    L_CTX.debug_mode_ = false;
                 }
             }
         }
     }
 
-    if (bound_context->lexical_bindings_ not_eq get_nil()) {
-        auto stack = bound_context->lexical_bindings_;
+    if (L_CTX.lexical_bindings_ not_eq get_nil()) {
+        auto stack = L_CTX.lexical_bindings_;
 
         while (stack not_eq get_nil()) {
 
@@ -8258,7 +8215,7 @@ const char* nameof(Function::CPP_Impl impl)
         }
     }
 
-    if (auto n = bound_context->native_interface_.lookup_name_(impl)) {
+    if (auto n = L_CTX.native_interface_.lookup_name_(impl)) {
         return n;
     }
 
@@ -8269,14 +8226,13 @@ const char* nameof(Function::CPP_Impl impl)
 const char* nameof(Value* value)
 {
     const char* name = nullptr;
-    globals_tree_traverse(bound_context->globals_tree_,
-                          [&](Value& car, Value& node) {
-                              auto sym = car.cons().car();
-                              auto v = car.cons().cdr();
-                              if (value == v) {
-                                  name = sym->symbol().name();
-                              }
-                          });
+    globals_tree_traverse(L_CTX.globals_tree_, [&](Value& car, Value& node) {
+        auto sym = car.cons().car();
+        auto v = car.cons().cdr();
+        if (value == v) {
+            name = sym->symbol().name();
+        }
+    });
 
     if (name) {
         return name;
@@ -8305,38 +8261,35 @@ void init(Optional<std::pair<const char*, u32>> external_symtab,
     bound_context.emplace();
 
     if (external_symtab and external_symtab->second) {
-        bound_context->external_symtab_contents_ = external_symtab->first;
-        bound_context->external_symtab_size_ = external_symtab->second;
+        L_CTX.external_symtab_contents_ = external_symtab->first;
+        L_CTX.external_symtab_size_ = external_symtab->second;
     }
 
     if (external_constant_tab and external_constant_tab->second) {
-        bound_context->external_constant_tab_ = external_constant_tab->first;
-        bound_context->external_constant_tab_size_ =
-            external_constant_tab->second;
+        L_CTX.external_constant_tab_ = external_constant_tab->first;
+        L_CTX.external_constant_tab_size_ = external_constant_tab->second;
     }
 
-    auto& ctx = bound_context;
-
     value_pool_init();
-    ctx->nil_ = alloc_value();
-    ctx->nil_->hdr_.type_ = Value::Type::nil;
-    ctx->nil_->hdr_.mode_bits_ = 0;
-    ctx->globals_tree_ = ctx->nil_;
-    ctx->callstack_ = ctx->nil_;
-    ctx->lexical_bindings_ = ctx->nil_;
-    ctx->debug_breakpoints_ = ctx->nil_;
-    ctx->debug_watchpoints_ = ctx->nil_;
+    L_CTX.nil_ = alloc_value();
+    L_CTX.nil_->hdr_.type_ = Value::Type::nil;
+    L_CTX.nil_->hdr_.mode_bits_ = 0;
+    L_CTX.globals_tree_ = L_CTX.nil_;
+    L_CTX.callstack_ = L_CTX.nil_;
+    L_CTX.lexical_bindings_ = L_CTX.nil_;
+    L_CTX.debug_breakpoints_ = L_CTX.nil_;
+    L_CTX.debug_watchpoints_ = L_CTX.nil_;
 
-    ctx->string_buffer_ = ctx->nil_;
-    ctx->macros_ = ctx->nil_;
+    L_CTX.string_buffer_ = L_CTX.nil_;
+    L_CTX.macros_ = L_CTX.nil_;
 
 #ifdef USE_SYMBOL_CACHE
-    for (auto& v : ctx->symbol_cache_) {
-        v = ctx->nil_;
+    for (auto& v : L_CTX.symbol_cache_) {
+        v = L_CTX.nil_;
     }
 #endif
 
-    ctx->tree_nullnode_ = L_CONS(get_nil(), L_CONS(get_nil(), get_nil()));
+    L_CTX.tree_nullnode_ = L_CONS(get_nil(), L_CONS(get_nil(), get_nil()));
 
     reset_operand_stack();
 
@@ -8347,21 +8300,21 @@ void init(Optional<std::pair<const char*, u32>> external_symtab,
     reset_callstack();
 
     for (int i = 0; i < MAX_NAMED_ARGUMENTS; ++i) {
-        ctx->argument_symbols_[i] = make_symbol(::format("$%", i).c_str());
+        L_CTX.argument_symbols_[i] = make_symbol(::format("$%", i).c_str());
     }
 
-    ctx->if_symbol_id_ = make_symbol("if")->symbol().unique_id();
-    ctx->let_symbol_id_ = make_symbol("let")->symbol().unique_id();
-    ctx->while_symbol_id_ = make_symbol("while")->symbol().unique_id();
-    ctx->lambda_symbol_id_ = make_symbol("lambda")->symbol().unique_id();
-    ctx->fn_symbol_id_ = make_symbol("fn")->symbol().unique_id();
-    ctx->quote_symbol_id_ = make_symbol("'")->symbol().unique_id();
-    ctx->quasiquote_symbol_id_ = make_symbol("`")->symbol().unique_id();
-    ctx->macro_symbol_id_ = make_symbol("macro")->symbol().unique_id();
-    ctx->defconstant_symbol_id_ = make_symbol("defconstant")->symbol().unique_id();
-    ctx->await_symbol_id_ = make_symbol("await")->symbol().unique_id();
-    ctx->apply_symbol_id_ = make_symbol("apply")->symbol().unique_id();
-
+    L_CTX.if_symbol_id_ = make_symbol("if")->symbol().unique_id();
+    L_CTX.let_symbol_id_ = make_symbol("let")->symbol().unique_id();
+    L_CTX.while_symbol_id_ = make_symbol("while")->symbol().unique_id();
+    L_CTX.lambda_symbol_id_ = make_symbol("lambda")->symbol().unique_id();
+    L_CTX.fn_symbol_id_ = make_symbol("fn")->symbol().unique_id();
+    L_CTX.quote_symbol_id_ = make_symbol("'")->symbol().unique_id();
+    L_CTX.quasiquote_symbol_id_ = make_symbol("`")->symbol().unique_id();
+    L_CTX.macro_symbol_id_ = make_symbol("macro")->symbol().unique_id();
+    L_CTX.defconstant_symbol_id_ =
+        make_symbol("defconstant")->symbol().unique_id();
+    L_CTX.await_symbol_id_ = make_symbol("await")->symbol().unique_id();
+    L_CTX.apply_symbol_id_ = make_symbol("apply")->symbol().unique_id();
 }
 
 
