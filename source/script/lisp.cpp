@@ -7059,7 +7059,9 @@ BUILTIN_TABLE(
 
            for (int i = argc - 1; i > -1; --i) {
                auto val = get_op(i);
-               if (val->type() == Value::Type::string) {
+               if (val->type() == Value::Type::error) {
+                   return val;
+               } else if (val->type() == Value::Type::string) {
                    p.put_str(val->string().value());
                } else {
                    format_impl(val, p, 0);
