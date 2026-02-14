@@ -557,7 +557,14 @@
                   (fn (+ a b $0 $1)))))
 
 ;; Make sure that argument type checking works
-(assert-eq (error-info (set 1 1)) "expected type symbol in arg 1, got int")
+(let ((err (length ((lambda ()
+                      ;; NOTE: we need to pass the integer argument to
+                      ;; set indirectly, otherwise the linter will
+                      ;; notice and raise an error when checking
+                      ;; unittest.lisp for correctness.
+                      1)))))
+  (assert-eq (error-info err) "expected type pair in arg 0, got int"))
+
 
 ;; Let's make sure that argument closure nesting works correctly...
 (assert-eq (disassemble (lambda (a)
