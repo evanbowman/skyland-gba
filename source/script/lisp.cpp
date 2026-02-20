@@ -4679,11 +4679,18 @@ static bool apply_tail_funcall(Value* fn, int argc, EvalStack& eval_stack)
     auto it = eval_stack.end();
     --it;
     while (it not_eq eval_stack.begin()) {
+        // We can do tail call optimization if the next state on the eval stack
+        // is function call cleanup (exit the current function), or if the only
+        // eval frames between the current frame and the funcall cleanup frame
+        // consist of popping lexical scopes.
         if (it->state_ == EvalFrame::lisp_funcall_cleanup) {
             break;
         } else if (it->state_ == EvalFrame::let_cleanup) {
             ++lexical_pop_count;
         } else {
+            // FIXME: this does not perform tail call optimization in some cases
+            // if we're within debug mode and there are step_over states on the
+            // eval stack. That's a bit of an extreme edge case though...
             return false;
         }
         --it;
@@ -4697,11 +4704,14 @@ static bool apply_tail_funcall(Value* fn, int argc, EvalStack& eval_stack)
 
     auto& last_frame = eval_stack.back();
 
-    // FIXME: this does not perform tail call optimization if we're within a let
-    // expression, due to let_cleanup states, and also perhaps not if we're in
-    // debug mode, due to step_over states being pushed. Idk. But the
-    // let_cleanup could be fixed by preemtively evaluating those states here if
-    // that's all there is between the stack top and the funcall cleanup frame.
+    // NOTE: if our next evaluation state just consists of cleaning up after the
+    // currently execution function call, and the currently executing funciton
+    // is the same as the recursion, we can inline the cleanup step and jump to
+    // the top of the current function... There's no need to actually do
+    // anything special to detect if an expression is in tail position in a
+    // stack-based state machine, because you can see what the future states
+    // are, and if the only future state is function call cleanup, the fact that
+    // you're in tail position is implicit.
     if (last_frame.state_ == EvalFrame::lisp_funcall_cleanup and
         last_frame.expr_ == fn and
         last_frame.lisp_funcall_cleanup_.argc_ == argc) {
