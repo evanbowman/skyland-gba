@@ -694,6 +694,8 @@ struct Value
 
 bool is_boolean_true(Value* val);
 bool is_equal(Value* lhs, Value* rhs);
+bool is_error(Value* val);
+bool is_numeric(Value* val);
 
 
 Value* wrap(Value* input, Value* type_sym);
@@ -823,6 +825,7 @@ Value* get_nil();
 void set_list(Value* list, u32 position, Value* value);
 Value* get_list(Value* list, u32 position);
 int length(Value* lat);
+bool contains(Value* list, Value* val);
 
 bool is_list(Value* maybe_lat); // slow
 

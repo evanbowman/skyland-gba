@@ -437,6 +437,11 @@
               ((groups-reset) (+= reward 1400)))
             (range 4)))))
 
+(let ((temp nil))
+  (foreach (lambda (n)
+             (setq temp (cons (* 2 n) temp)))
+           (range 5))
+  (assert-eq (apply + temp) 20))
 
 (end-test)
 

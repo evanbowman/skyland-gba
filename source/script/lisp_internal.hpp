@@ -12,6 +12,7 @@
 #pragma once
 
 #include "lisp.hpp"
+#include "debug.hpp"
 
 
 namespace lisp

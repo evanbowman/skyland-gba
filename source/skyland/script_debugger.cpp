@@ -720,12 +720,11 @@ lisp::debug::Action handle_error_occurred(lisp::Value* expr)
 
     Text::print("error:", {1, 1}, text_colors_inv);
     TextView tv;
-    tv.assign(
-        lisp::val_to_string<128>(lisp::dcompr(expr->error().context_)).c_str(),
-        {1, 3},
-        {28, 8},
-        0,
-        text_colors);
+    tv.assign(lisp::val_to_string<128>(expr).c_str(),
+              {1, 3},
+              {28, 8},
+              0,
+              text_colors);
 
     auto resp = lisp::debug::Action::step;
 
@@ -741,8 +740,7 @@ lisp::debug::Action handle_error_occurred(lisp::Value* expr)
         PLATFORM_EXTENSION(feed_watchdog);
         PLATFORM.delta_clock().reset();
 
-        if (button_down<Button::left>() or
-            button_down<Button::right>()) {
+        if (button_down<Button::left>() or button_down<Button::right>()) {
             tab = not tab;
             redisplay = true;
             scroll = 0;
@@ -779,12 +777,16 @@ lisp::debug::Action handle_error_occurred(lisp::Value* expr)
                     break;
                 }
                 scroll = clamp((int)scroll, 0, (int)lisp::get_argc() - 1);
-                for (u32 i = scroll; i < lisp::get_argc() and (i - scroll) * 2 + start_y < 20; ++i) {
+                for (u32 i = scroll;
+                     i < lisp::get_argc() and (i - scroll) * 2 + start_y < 20;
+                     ++i) {
                     auto arg = lisp::get_arg(i);
                     u8 y = (start_y + (i - scroll) * 2);
-                    Text::print(format("$% %", i, lisp::val_to_string<28>(arg).c_str()).c_str(),
-                                {1, y},
-                                text_colors);
+                    Text::print(
+                        format("$% %", i, lisp::val_to_string<28>(arg).c_str())
+                            .c_str(),
+                        {1, y},
+                        text_colors);
                 }
                 break;
             }

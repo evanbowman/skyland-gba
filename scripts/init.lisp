@@ -152,16 +152,6 @@
   (dialog-await-binary-q text "yes" "no"))
 
 
-;; A foreach implementation compatible with functions that use await.
-(defn foreach-async ((cb . lambda) (lat . pair))
-  (if (nil? lat)
-      nil
-      (let ((v (cb (car lat))))
-        (if (error? v)
-            v
-            (foreach-async cb (cdr lat))))))
-
-
 ;; shortcut accessors for room metadata
 (defn/c rinfo (key sym)
   (lookup key (room-meta sym)))

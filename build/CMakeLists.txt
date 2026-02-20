@@ -368,6 +368,7 @@ target_compile_options(FASTPATH PRIVATE
 
 set(LISP_SOURCES
   ${SOURCE_DIR}/script/lisp.cpp
+  ${SOURCE_DIR}/script/builtins.cpp
   ${SOURCE_DIR}/script/compiler.cpp
   ${SOURCE_DIR}/script/vm.cpp)
 

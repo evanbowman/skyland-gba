@@ -99,6 +99,12 @@ void add_rationals(s32& result_num,
 }
 
 
+bool rational_less(s32 a_num, s32 a_div, s32 b_num, s32 b_div)
+{
+    // a/b < c/d  iff  a*d < c*b  (when denominators are positive)
+    return a_num * b_div < b_num * a_div;
+}
+
 
 Ratio operator+(const Ratio& lhs, const Ratio& rhs)
 {

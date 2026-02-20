@@ -140,8 +140,8 @@
         (room-mut (player) (get del 1) (get del 2) 'backup-core)
         (room-mut (opponent) 5 11 'power-core)
 
-        (foreach-async add-crewmember (range 3))
-        (foreach-async add-weapon (range 2))
+        (foreach add-crewmember (range 3))
+        (foreach add-weapon (range 2))
 
         (adventure-log-add 36 (list (rinfo 'name wpn) 3))
 

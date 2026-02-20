@@ -180,3 +180,7 @@
 
 (defn/c file-size (file)
   (get (unwrap file) 1))
+
+
+;; Used by the runtime to put something on the callstack when inlining foreach.
+(defn --inline-foreach ())

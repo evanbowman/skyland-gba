@@ -49,6 +49,8 @@ void add_rationals(s32& result_num,
 void reduce_fraction(s32& num, s32& div);
 
 
+bool rational_less(s32 a_num, s32 a_div, s32 b_num, s32 b_div);
+
 
 struct Ratio
 {

@@ -1,0 +1,136 @@
+
+The LISP debugger allows you
+to step through scripts and
+follow what scripts are doing.
+
+The script debugger offers a
+few features:
+
+o----------------------------o
+
+Breakpoints:
+
+You may register a breakpoint
+by function symbol.
+
+For example:
+
+(breakpoint-register 'on-fadein)
+
+When reaching the on-fadein
+callback, the game will break
+and enter the debugger.
+
+You may remove breakpoints
+with:
+
+(breakpoint-unregister <symbol>)
+
+In addition to registering
+breakpoints based on function
+name, you can add a breakpoint
+anywhere in a script by
+calling (breakpoint).
+
+
+o----------------------------o
+
+Watchpoints:
+
+Watchpoints allow you to set
+up alerts for whenever a
+variable is written to.
+
+When a watchpoint triggers,
+you will see what value was
+written to a variable, and
+the stack trace where the
+write occurred. The debugger
+will raise a debug break and
+you will have the option to
+continue stepping through the
+code at the point after the
+line where the variable write
+occurred.
+
+(watchpoint-register <symbol>)
+
+
+o----------------------------o
+
+
+ Using the debugger:
+
+
+ The debug window will show
+ the currently executing
+ expression at the top of
+ the screen, and a series of
+ tabs at the bottom of the
+ screen.
+
+ To step into an expression,
+ press A. To step over an
+ expression, press the right
+ bumper. To resume execution
+ until the next breakpoint,
+ press B.
+
+
+ Tabs:
+ 1) code:
+ The code tab shows you the
+ code surrounding the
+ currently executing
+ expression, with the current
+ line(s) highlighted in
+ yellow. Because the code
+ has been macro-expanded and
+ transformed in various ways
+ after being loaded from a
+ script file, the code may
+ not look exactly like what
+ you wrote, it'll be in a
+ slightly more primitive form.
+
+ 2) callstack:
+ The stack trace up to and
+ including the current
+ function.
+
+ 3) variables:
+ Anything bound in a let
+ expression, including all
+ variables in outer enclosing
+ scopes. Beneath local
+ variables, the debugger will
+ list global variables,
+ prefixed with "g:".
+
+ 4) value stack:
+ A low-level representation
+ of the interpreter's operand
+ stack. For most people this
+ isn't too useful, unless
+ you're working on adding
+ features to the lisp
+ interpreter C++ code itself.
+
+ 5) arguments:
+ Arguments passed to the
+ current function, if any.
+
+
+NOTE: For native or compiled
+functions, only the arguments
+tab will be visible.
+
+For your convenience, the
+debugger also shows how many
+lisp values are currently
+allocated in the top right
+corner of the screen.
+Many of these values may be
+garbage, and you'll see the
+number go up and down
+periodically as the gc runs.
