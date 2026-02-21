@@ -17,18 +17,19 @@
 
 
 (let ((val (+ 1000 (choice 800))))
-  (setq on-converge
-        (lambda ()
-          (dialog
-           "The pirates seem to have stolen a powerful imperial assault vessel. They demand "
-           (string val)
-           "@ and make crude gestures. Will you pay?")
-
-          (dialog-setup-binary-q-w/lore (format "Pay %@." val) "No way!"
+  (defn on-converge ()
+    (setq on-converge nil)
+    (let ((msg (string "The pirates seem to have stolen a powerful imperial assault vessel. "
+                       "They demand "
+                       val
+                       "@ and make crude gestures. Will you pay?")))
+      (if (dialog-await-binary-q-w/lore msg
+                                        (format "Pay %@." val)
+                                        "No way!"
                                         '(("What's an assault ship?" .
                                            "Imperial assault ships were involved in the surface wars. Not many still exist, and not much is known about them. <B:0> The pirates are getting impatient. Pay the bribe?")))
-
-          (setq on-converge nil)))
+          (on-dialog-accepted)
+          (on-dialog-declined))))
 
 
   (setq on-dialog-accepted

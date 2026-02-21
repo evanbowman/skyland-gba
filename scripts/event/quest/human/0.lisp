@@ -63,43 +63,46 @@
   (ring-bell 2 9))
 
 
-(setq on-converge
-      (lambda ()
-        (dialog
-         "<c:Merchant:7>We promised to deliver some cargo to our customers, but with "
-         "this storm approaching, we don't think we can make the delivery. "
-         "Can you help? We'll pay you a bit upfront, and I'm sure that they'll tip "
-         "you generously.")
-        (dialog-setup-binary-q-w/lore "I accept!" "Sorry, but no."
+(defn on-converge ()
+  (let ((request (string
+                  "<c:Merchant:7>We promised to deliver some cargo to our customers, but with "
+                  "this storm approaching, we don't think we can make the delivery. "
+                  "Can you help? We'll pay you a bit upfront, and I'm sure that they'll tip "
+                  "you generously.")))
+    (if (dialog-await-binary-q-w/lore request
+                                      "I accept!"
+                                      "Sorry, but no."
                                       '(("Explain deliveries?" .
                                          "<c:Merchant:7>Usually we have stuff delivered by balloon. Customers place orders, and we send then out by airship. But with this terrible weather coming in, it's too risky to send anything. Can you help us out?")))
+        (on-dialog-accepted)
+        (on-dialog-declined))))
 
-        (setq on-dialog-accepted
-              (lambda ()
-                (let ((m (eval-file "/scripts/event/quest/make_quest_marker.lisp")))
-                  (if m
-                      (find-or-create-cargo-bay
-                       (lambda (x y)
-                         (push 'quests (cons "delivery.lisp" m))
-                         (coins-add 500)
-                         (push 'qids 0)
-                         (adventure-log-add 16 '())
-                         (cargo-set (player) x y "parcel")
-                         (dialog "<c:Merchant:7>Wonderful! I'll mark the address "
-                                 "with an * on your sky chart!")
-                         (pickup-cart-cb 5
-                                         "Amazed by the picturesque view from the market center, one of your crew members took a photo, and recorded it on a data cartridge..."
-                                         exit)))
-                      (progn
-                        (dialog
-                         "<c:Merchant:7>Oh, I'm so sorry! I just got a call from the customer, "
-                         "she had to relocate to flee the storm. Here's 400@ for your trouble.")
-                        (setq on-dialog-closed
-                              (lambda ()
-                                (coins-add 400)
-                                (exit))))))))
 
-        (setq on-dialog-declined
-              (lambda ()
-                (dialog "<c:Merchant:7>I understand... I guess we'll try to find someone else...")
-                (setq on-dialog-closed exit)))))
+(defn on-dialog-accepted ()
+  (let ((m (eval-file "/scripts/event/quest/make_quest_marker.lisp")))
+    (if m
+        (find-or-create-cargo-bay
+         (lambda (x y)
+           (push 'quests (cons "delivery.lisp" m))
+           (coins-add 500)
+           (push 'qids 0)
+           (adventure-log-add 16 '())
+           (cargo-set (player) x y "parcel")
+           (dialog "<c:Merchant:7>Wonderful! I'll mark the address "
+                   "with an * on your sky chart!")
+           (pickup-cart-cb 5
+                           "Amazed by the picturesque view from the market center, one of your crew members took a photo, and recorded it on a data cartridge..."
+                           exit)))
+        (progn
+          (dialog
+           "<c:Merchant:7>Oh, I'm so sorry! I just got a call from the customer, "
+           "she had to relocate to flee the storm. Here's 400@ for your trouble.")
+          (setq on-dialog-closed
+                (lambda ()
+                  (coins-add 400)
+                  (exit)))))))
+
+
+(defn on-dialog-declined ()
+  (dialog "<c:Merchant:7>I understand... I guess we'll try to find someone else...")
+  (setq on-dialog-closed exit))

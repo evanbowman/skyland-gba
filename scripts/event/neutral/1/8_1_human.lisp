@@ -22,10 +22,12 @@
   (setq on-converge nil)
   (await (dialog* "<c:Explorer:22>Hey there! You know, looks like we're going in the same direction! How about we join up?"))
 
-  (dialog "He seems harmless, invite him aboard?")
-  (dialog-setup-binary-q-w/lore "Welcome aboard!" "Sorry, but no."
-                                '(("Let's chat…" . "<c:Explorer:22>I'm obsessed with finding new islands! When I find one, I mark it with a signal beacon. That's how you can find islands on your sky chart! Neat huh? <B:0> Anyway, can I come aboard?"))))
-
+  (if (dialog-await-binary-q-w/lore "He seems harmless, invite him aboard?"
+                                    "Welcome aboard!"
+                                    "Sorry, but no."
+                                    '(("Let's chat…" . "<c:Explorer:22>I'm obsessed with finding new islands! When I find one, I mark it with a signal beacon. That's how you can find islands on your sky chart! Neat huh? <B:0> Anyway, can I come aboard?")))
+      (on-dialog-accepted)
+      (on-dialog-declined)))
 
 
 (defn/temp join-crew (xy messages)

@@ -376,7 +376,12 @@
                   (cdr spl))
          (let ((r (lint-file path)))
            (if (error? r)
-               (fatal (string "in file " (cdr spl) ": " r)))))))))
+               (fatal (string "in file "
+                              (apply string
+                                     (flatten
+                                      (map (curry list "/")
+                                           (cdr spl))))
+                              ": " (error-info r))))))))))
 
 
 ;; Clear directory listing from screen.

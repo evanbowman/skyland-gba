@@ -19,49 +19,48 @@
 
 
 (defn on-converge ()
-  (dialog "A small injured boy begins speaking softly in an archaic language...")
+  (setq on-converge nil)
+  (await (dialog* "A small injured boy begins speaking softly in an archaic language..."))
+  (await (dialog* "<c:Injured Boy:26> "
+                  "<S:1>I am the only survivor! Can you help me get back home?"))
 
-  (defn on-dialog-closed ()
-    (dialog "<c:Injured Boy:26> "
-            "<S:1>I am the only survivor! Can you help me get back home?")
-
-    (defn on-dialog-closed ()
-      (dialog "You can't understand a word he's saying. But he seems to want to join your crew.<B:0> Invite him aboard?")
-
-      (setq on-dialog-closed nil)
-
-      (dialog-setup-binary-q-w/lore "Yes." "I'll pass."
+  (if (dialog-await-binary-q-w/lore "You can't understand a word he's saying. But he seems to want to join your crew.<B:0> Invite him aboard?"
+                                    "Yes."
+                                    "I'll pass."
                                     '(("Who might he be?" .
                                        "He looks like he might be a Sylph child. They've been up here a long time, but not much is known about them. <B:0> Invite him aboard?")))
+      (on-dialog-accepted)
+      (on-dialog-declined)))
 
-      (defn on-dialog-accepted ()
 
-        (let ((sl (chr-slots (player))))
-          (when (not sl)
-            (alloc-space 'ladder)
-            (let ((site (construction-sites (player) '(1 . 2))))
-              (sound "build0")
-              (room-new (player) `(ladder ,(caar site) ,(cdar site)))))
+(defn on-dialog-accepted ()
+  (let ((sl (chr-slots (player))))
+    (when (not sl)
+      (alloc-space 'ladder)
+      (let ((site (construction-sites (player) '(1 . 2))))
+        (sound "build0")
+        (room-new (player) `(ladder ,(caar site) ,(cdar site)))))
 
-          (setq sl (chr-slots (player)))
-          (let ((id (chr-new (player)
-                             (caar sl)
-                             (cdar sl)
-                             'neutral
-                             '((icon . 26)
-                               (race . 4)))))
-            (chr-hp id 128)
-            (let ((m (eval-file "/scripts/event/quest/make_quest_marker.lisp")))
-              (if m
-                  (progn
-                    (adventure-log-add 54 nil)
-                    (push 'qids 6)
-                    (push 'quests (cons "civ.lisp" m))
-                    (push 'qvar (cons 6 id))
-                    (dialog "The orphan boy joined your crew! <B:0> Upon discovering your sky chart, he marked a location with an *...")
-                    (exit))
-                (progn
-                  (dialog "The injured boy joined your crew! Wonder where he came from...")
-                  (exit)))))))
+    (setq sl (chr-slots (player)))
+    (let ((id (chr-new (player)
+                       (caar sl)
+                       (cdar sl)
+                       'neutral
+                       '((icon . 26)
+                         (race . 4)))))
+      (chr-hp id 128)
+      (let ((m (eval-file "/scripts/event/quest/make_quest_marker.lisp")))
+        (if m
+            (progn
+              (adventure-log-add 54 nil)
+              (push 'qids 6)
+              (push 'quests (cons "civ.lisp" m))
+              (push 'qvar (cons 6 id))
+              (dialog "The orphan boy joined your crew! <B:0> Upon discovering your sky chart, he marked a location with an *...")
+              (exit))
+            (progn
+              (dialog "The injured boy joined your crew! Wonder where he came from...")
+              (exit)))))))
 
-      (setq on-dialog-declined exit))))
+
+(setq on-dialog-declined exit)

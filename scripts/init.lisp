@@ -85,30 +85,6 @@
 ;; be a bunch of worldbuilding questions. If you select a middle option, the
 ;; game will show the text, and then re-display the query box of options, with
 ;; the previously selected one removed.
-(defn/c dialog-setup-binary-q-w/lore ((txty . string) (txtn . string) lore)
-  (dialog-opts-reset)
-  (dialog-opts-push txty --try-dialog-accept)
-
-  (let ((lr lore)
-        (ty txty)
-        (tn txtn)
-        (t (this))) ; note: re-invoke current function.
-    (foreach (lambda (kvp)
-               (let ((k kvp))
-                 (dialog-opts-push (first kvp)
-                                   (let ((str (second kvp)))
-                                     (lambda ()
-                                       (t ty tn (remove lr k))
-                                       (dialog str))))))
-             lore))
-
-  (dialog-opts-push txtn --try-dialog-decline))
-
-
-
-;; Return 1 if yes, 0 if no, redisplay prompt with option removed if selecting
-;; one of the lore options.
-;; TODO: support await in bytecode so that this function can be compiled!
 (defn/c dialog-await-binary-q-w/lore ((message . string)
                                       (texty . string)
                                       (textn . string)
