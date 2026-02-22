@@ -1764,6 +1764,15 @@ RestoreDebugBreak debug_break_compiled_fn(Value* obj)
 }
 
 
+template <typename... Args>
+void push_error(const char* msg, Args&& ...args)
+{
+    auto buf = allocate_small<StringBuffer<255>>("error-msg");
+    make_format(*buf, msg, std::forward<Args>(args)...);
+    push_op(make_error(buf->c_str()));
+}
+
+
 // The function arguments should be sitting at the top of the operand stack
 // prior to calling funcall. The arguments will be consumed, and replaced with
 // the result of the function call.
@@ -1793,10 +1802,10 @@ void funcall(Value* obj, u8 argc)
         }
 
         auto arg_error = [&](auto exp_type, auto got_type) {
-            return ::format<256>("invalid arg type for %! expected %, got %",
-                                 obj,
-                                 type_to_string((ValueHeader::Type)exp_type),
-                                 type_to_string((ValueHeader::Type)got_type));
+            push_error("invalid arg type for %! expected %, got %",
+                       obj,
+                       type_to_string((ValueHeader::Type)exp_type),
+                       type_to_string((ValueHeader::Type)got_type));
         };
 
 #define CHECK_ARG_TYPE(ARG, FIELD)                                             \
@@ -1808,8 +1817,7 @@ void funcall(Value* obj, u8 argc)
             (obj->function().sig_.FIELD == Value::Type::integer or             \
              obj->function().sig_.FIELD == Value::Type::ratio))) {             \
         pop_args();                                                            \
-        push_op(make_error(                                                    \
-            arg_error(obj->function().sig_.FIELD, get_arg(ARG)->type())));     \
+            arg_error(obj->function().sig_.FIELD, get_arg(ARG)->type());     \
         break;                                                                 \
     }
 
@@ -1924,13 +1932,12 @@ void funcall(Value* obj, u8 argc)
             break;
         }
         auto sym_name = dcompr(obj->wrapped().type_sym_)->symbol().name();
-        if (auto handler = get_var(::format("-invoke-%", sym_name).c_str())) {
+        if (auto handler = get_var(::format<64>("-invoke-%", sym_name).c_str())) {
             insert_op(argc, obj);
             funcall(handler, argc + 1);
         } else {
             pop_args();
-            push_op(
-                make_error(::format("missing -invoke-%", sym_name).c_str()));
+            push_error("missing -invoke-%", sym_name);
         }
         break;
     }
@@ -2221,11 +2228,99 @@ void lint_push_arg_error(Value* expr, Value* fn, int arg, u8 exp)
 }
 
 
+bool lint_check_let_bindings(Value* expr,
+                             Value*& variable_list,
+                             lisp::Protected& gvar_list)
+{
+    if (length(expr) < 2) {
+        push_op(make_error("malformed let expr!"));
+        return false;
+    }
+    auto bindings = get_list(expr, 1);
+    while (bindings not_eq L_NIL) {
+        if (bindings->type() not_eq Value::Type::cons) {
+            push_op(make_error("invalid let binding list"));
+            return false;
+        }
+        auto binding = bindings->cons().car();
+        if (not is_list(binding)) {
+            push_op(make_error("invalid let binding list"));
+            return false;
+        }
+        auto sym = get_list(binding, 0);
+        if (sym->type() == Value::Type::symbol) {
+            variable_list = L_CONS(sym, variable_list);
+        } else if (is_list(sym)) {
+            auto destructure_list = sym;
+            while (destructure_list not_eq L_NIL) {
+                auto dsym = destructure_list->cons().car();
+                if (dsym->type() not_eq Value::Type::symbol) {
+                    push_op(make_error("non-symbol in "
+                                       "destructuring let"));
+                    return false;
+                }
+                variable_list = L_CONS(dsym, variable_list);
+                destructure_list =
+                    destructure_list->cons().cdr();
+            }
+        } else if (sym->type() == Value::Type::cons) {
+            auto car_sym = sym->cons().car();
+            auto cdr_sym = sym->cons().cdr();
+            if (car_sym->type() == Value::Type::symbol and
+                cdr_sym->type() == Value::Type::symbol) {
+                variable_list = L_CONS(car_sym, variable_list);
+                variable_list = L_CONS(cdr_sym, variable_list);
+            } else if (car_sym->type() ==
+                       Value::Type::symbol and
+                       cdr_sym->type() == Value::Type::cons) {
+                auto lat = sym;
+                while (lat->type() == Value::Type::cons) {
+                    auto lsym = lat->cons().car();
+                    if (lsym->type() not_eq
+                        Value::Type::symbol) {
+                        push_error("invalid value % "
+                                   "in destructuring "
+                                   "let %",
+                                   lsym,
+                                   sym);
+                        return false;
+                    } else {
+                        variable_list =
+                            L_CONS(lsym, variable_list);
+                    }
+                    lat = lat->cons().cdr();
+                }
+                if (lat->type() not_eq Value::Type::symbol) {
+                    push_error("invalid value % in "
+                               "destructuring let %",
+                               lat,
+                               sym);
+                    return false;
+                } else {
+                    variable_list = L_CONS(lat, variable_list);
+                }
+            } else {
+                push_op(make_error("pair in destructuring let "
+                                   "must contain symbols!"));
+                return false;
+            }
+        } else {
+            push_op(make_error("let binding missing symbol"));
+            return false;
+        }
+        bindings = bindings->cons().cdr();
+    }
+    return true;
+}
+
+
 // Checks for undefined variable access, checks to make sure enough function
 // params are supplied, checks the proper structure of special forms, etc...
 void lint(Value* expr, Value* variable_list, lisp::Protected& gvar_list)
 {
-    Protected var_list(variable_list);
+    push_op(variable_list);
+    gc_safepoint();
+    pop_op(); // variable_list
 
     bool is_special_form = false;
 
@@ -2272,89 +2367,8 @@ void lint(Value* expr, Value* variable_list, lisp::Protected& gvar_list)
                     is_special_form = true;
                 } else if (str_eq(name, "let")) {
                     // (let ([(sym val)...]) [body])
-                    if (length(expr) < 2) {
-                        push_op(make_error("malformed let expr!"));
+                    if (not lint_check_let_bindings(expr, variable_list, gvar_list)) {
                         return;
-                    }
-                    auto bindings = get_list(expr, 1);
-                    while (bindings not_eq L_NIL) {
-                        if (bindings->type() not_eq Value::Type::cons) {
-                            push_op(make_error("invalid let binding list"));
-                            return;
-                        }
-                        auto binding = bindings->cons().car();
-                        if (not is_list(binding)) {
-                            push_op(make_error("invalid let binding list"));
-                            return;
-                        }
-                        auto sym = get_list(binding, 0);
-                        if (sym->type() == Value::Type::symbol) {
-                            variable_list = L_CONS(sym, variable_list);
-                            var_list = variable_list;
-                        } else if (is_list(sym)) {
-                            auto destructure_list = sym;
-                            while (destructure_list not_eq L_NIL) {
-                                auto dsym = destructure_list->cons().car();
-                                if (dsym->type() not_eq Value::Type::symbol) {
-                                    push_op(make_error("non-symbol in "
-                                                       "destructuring let"));
-                                    return;
-                                }
-                                variable_list = L_CONS(dsym, variable_list);
-                                var_list = variable_list;
-                                destructure_list =
-                                    destructure_list->cons().cdr();
-                            }
-                        } else if (sym->type() == Value::Type::cons) {
-                            auto car_sym = sym->cons().car();
-                            auto cdr_sym = sym->cons().cdr();
-                            if (car_sym->type() == Value::Type::symbol and
-                                cdr_sym->type() == Value::Type::symbol) {
-                                variable_list = L_CONS(car_sym, variable_list);
-                                variable_list = L_CONS(cdr_sym, variable_list);
-                                var_list = variable_list;
-                            } else if (car_sym->type() ==
-                                           Value::Type::symbol and
-                                       cdr_sym->type() == Value::Type::cons) {
-                                auto lat = sym;
-                                while (lat->type() == Value::Type::cons) {
-                                    auto lsym = lat->cons().car();
-                                    if (lsym->type() not_eq
-                                        Value::Type::symbol) {
-                                        auto fmt = ::format("invalid value % "
-                                                            "in destructuring "
-                                                            "let %",
-                                                            lsym,
-                                                            sym);
-                                        push_op(make_error(fmt));
-                                        return;
-                                    } else {
-                                        variable_list =
-                                            L_CONS(lsym, variable_list);
-                                        var_list = variable_list;
-                                    }
-                                    lat = lat->cons().cdr();
-                                }
-                                if (lat->type() not_eq Value::Type::symbol) {
-                                    auto fmt = ::format("invalid value % in "
-                                                        "destructuring let %",
-                                                        lat,
-                                                        sym);
-                                    return;
-                                } else {
-                                    variable_list = L_CONS(lat, variable_list);
-                                    var_list = variable_list;
-                                }
-                            } else {
-                                push_op(make_error("pair in destructuring let "
-                                                   "must contain symbols!"));
-                                return;
-                            }
-                        } else {
-                            push_op(make_error("let binding missing symbol"));
-                            return;
-                        }
-                        bindings = bindings->cons().cdr();
                     }
                     is_special_form = true;
                 } else if (str_eq(name, "fn")) {
@@ -2385,7 +2399,6 @@ void lint(Value* expr, Value* variable_list, lisp::Protected& gvar_list)
                             return;
                         }
                         variable_list = L_CONS(arg_sym, variable_list);
-                        var_list = variable_list;
                         args = args->cons().cdr();
                     }
                     is_special_form = true;
@@ -2414,15 +2427,10 @@ void lint(Value* expr, Value* variable_list, lisp::Protected& gvar_list)
                 if (fn->type() == Value::Type::function) {
                     int reqd_args = fn->function().sig_.required_args_;
                     if (length(expr) - 1 < reqd_args) {
-                        push_op(
-                            make_error(::format("insufficient args for %!",
-                                                val_to_string<64>(fn).c_str())
-                                           .c_str()));
+                        push_error("insufficient args for %!", fn);
                         return;
                     }
                     auto& fn_var = fn->function();
-
-
 
                     if (fn_var.sig_.arg0_type_ not_eq ValueHeader::Type::nil) {
                         if (not lint_type_check(
@@ -2467,9 +2475,7 @@ void lint(Value* expr, Value* variable_list, lisp::Protected& gvar_list)
             if (not is_special_form) {
                 auto cv = expr->cons().car();
                 if (not lint_find_variable(cv, variable_list, gvar_list)) {
-                    push_op(make_error(::format("invalid variable access: %",
-                                                val_to_string<32>(cv).c_str())
-                                           .c_str()));
+                    push_error("invalid variable access: %", cv);
                     return;
                 }
 
@@ -2493,10 +2499,8 @@ void lint(Value* expr, Value* variable_list, lisp::Protected& gvar_list)
 
                             if (not lint_find_variable(
                                     set_sym, variable_list, gvar_list)) {
-                                push_op(make_error(
-                                    ::format("set for unknown variable %",
-                                             set_sym->symbol().name())
-                                        .c_str()));
+                                push_error("set for unknown variable %",
+                                           set_sym->symbol().name());
                                 return;
                             }
                         }
@@ -2504,15 +2508,14 @@ void lint(Value* expr, Value* variable_list, lisp::Protected& gvar_list)
                 }
             }
 
-            auto current = expr->cons().cdr();
-            while (current not_eq L_NIL) {
+            expr = expr->cons().cdr();
+            while (expr not_eq L_NIL) {
 
-                auto cv = current->cons().car();
+                auto cv = expr->cons().car();
 
                 if (not lint_find_variable(cv, variable_list, gvar_list)) {
-                    push_op(make_error(::format("invalid variable access: %",
-                                                cv->symbol().name())
-                                           .c_str()));
+                    push_error("invalid variable access: %",
+                               cv->symbol().name());
                     return;
                 }
 
@@ -2522,7 +2525,7 @@ void lint(Value* expr, Value* variable_list, lisp::Protected& gvar_list)
                     return;
                 }
                 pop_op();
-                current = current->cons().cdr();
+                expr = expr->cons().cdr();
             }
         }
         break;
@@ -3193,7 +3196,7 @@ static int gc_sweep()
 
     if (used_count > L_CTX.alloc_highwater_) {
         L_CTX.alloc_highwater_ = used_count;
-        info(::format("LISP mem %", used_count));
+        info(::format<32>("LISP mem %", used_count));
     }
 
     collect_count += compact_string_memory();
@@ -4541,17 +4544,16 @@ bool destructure_binding(Value* sym, Value* value, ListBuilder& binding_list)
 {
     if (is_list(sym)) {
         if (not is_list(value)) {
-            push_op(make_error(
-                ::format("cannot destructure % into %", value, sym)));
+            push_error("cannot destructure % into %", value, sym);
             return false;
         }
         if (length(sym) not_eq length(value)) {
             if (is_list(value) and length(value) < length(sym)) {
-                push_op(make_error(::format("expression result % is"
-                                            " too short to bind to "
-                                            "destructuring let %",
-                                            value,
-                                            sym)));
+                push_error("expression result % is"
+                            " too short to bind to "
+                            "destructuring let %",
+                            value,
+                            sym);
             } else if (is_list(value)) {
                 StringBuffer<64> suggestion;
                 suggestion += "(";
@@ -4572,10 +4574,9 @@ bool destructure_binding(Value* sym, Value* value, ListBuilder& binding_list)
                             suggestion);
                 push_op(make_error(*fmt_buffer));
             } else {
-                push_op(make_error(::format("cannot destructure % "
-                                            "into %",
-                                            value,
-                                            sym)));
+                push_error("cannot destructure % into %",
+                            value,
+                            sym);
             }
             return false;
         }
@@ -4583,9 +4584,7 @@ bool destructure_binding(Value* sym, Value* value, ListBuilder& binding_list)
         while (sym not_eq L_NIL) {
             auto car = sym->cons().car();
             if (car->type() not_eq Value::Type::symbol) {
-                push_op(make_error(::format("non-symbol % in "
-                                            "destructuring let!",
-                                            car)));
+                push_error("non-symbol % in destructuring let!", car);
                 return false;
             }
             binding_list.push_back(L_CONS(car, get_list(value, j++)));
@@ -4597,10 +4596,7 @@ bool destructure_binding(Value* sym, Value* value, ListBuilder& binding_list)
         if (car->type() == Value::Type::symbol and
             cdr->type() == Value::Type::symbol) {
             if (value->type() not_eq Value::Type::cons) {
-                push_op(make_error(::format("cannot destructure % "
-                                            "into %",
-                                            value,
-                                            sym)));
+                push_error("cannot destructure % into %", value, sym);
                 return false;
             }
             binding_list.push_back(L_CONS(car, value->cons().car()));
@@ -4611,11 +4607,11 @@ bool destructure_binding(Value* sym, Value* value, ListBuilder& binding_list)
             auto sym_lat = sym;
             while (sym->type() == Value::Type::cons) {
                 if (value_lat->type() not_eq Value::Type::cons) {
-                    push_op(make_error(::format("expression result % is too "
-                                                "short to bind to destructuring"
-                                                " let %",
-                                                value,
-                                                sym_lat)));
+                    push_error("expression result % is too "
+                                "short to bind to destructuring"
+                                " let %",
+                                value,
+                                sym_lat);
                     return false;
                 }
                 auto car = sym->cons().car();
@@ -4623,10 +4619,10 @@ bool destructure_binding(Value* sym, Value* value, ListBuilder& binding_list)
                     binding_list.push_back(
                         L_CONS(car, value_lat->cons().car()));
                 } else {
-                    push_op(make_error(::format("Invalid value % in "
-                                                "destructuring let %",
-                                                car,
-                                                sym_lat)));
+                    push_error("Invalid value % in "
+                               "destructuring let %",
+                               car,
+                               sym_lat);
                     return false;
                 }
                 value_lat = value_lat->cons().cdr();
@@ -4635,22 +4631,22 @@ bool destructure_binding(Value* sym, Value* value, ListBuilder& binding_list)
             if (sym->type() == Value::Type::symbol) {
                 binding_list.push_back(L_CONS(sym, value_lat));
             } else {
-                push_op(make_error(::format("Invalid value % in destructuring "
-                                            "let %",
-                                            sym,
-                                            sym_lat)));
+                push_error("Invalid value % in destructuring "
+                            "let %",
+                            sym,
+                            sym_lat);
                 return false;
             }
         } else {
-            push_op(make_error(::format("non-symbol % in "
-                                        "destructuring let!",
-                                        sym)));
+            push_error("non-symbol % in "
+                        "destructuring let!",
+                        sym);
             return false;
         }
     } else {
-        push_op(make_error(::format("invalid value % in let "
-                                    "expression",
-                                    sym)));
+        push_error("invalid value % in let "
+                   "expression",
+                   sym);
         return false;
     }
     return true;
@@ -4931,9 +4927,8 @@ void eval_loop(EvalStack& eval_stack)
             auto result = get_op0();
             if (result->type() not_eq Value::Type::promise) {
                 pop_op();
-                push_op(make_error(::format("await expects a promise object, "
-                                            "got %",
-                                            result)));
+                push_error("await expects a promise object, got %",
+                           result);
             } else {
                 StringBuffer<48> agitant;
                 if (can_suspend(eval_stack, agitant)) {
@@ -4941,10 +4936,9 @@ void eval_loop(EvalStack& eval_stack)
                     return;
                 } else {
                     pop_op(); // The promise
-                    auto err_str = ::format("await failed: compiled caller % "
-                                            "cannot call functions that await",
-                                            agitant);
-                    push_op(make_error(err_str));
+                    push_error("await failed: compiled caller % "
+                               "cannot call functions that await",
+                               agitant);
                 }
             }
             break;
@@ -5213,7 +5207,7 @@ void eval_loop(EvalStack& eval_stack)
 
                 if (L_CTX.strict_) {
                     auto arg_error = [&](auto exp_type, auto got_type) {
-                        return ::format<256>(
+                        push_error(
                             "invalid arg type for %! expected %, got %",
                             val_to_string<64>(fn).c_str(),
                             type_to_string((ValueHeader::Type)exp_type),
@@ -5246,9 +5240,7 @@ void eval_loop(EvalStack& eval_stack)
         pop_op();                                                              \
         L_CTX.arguments_break_loc_ = saved_break_loc;                          \
         L_CTX.current_fn_argc_ = saved_argc;                                   \
-        push_op(make_error(                                                    \
-            arg_error(fn->function().sig_.FIELD, get_arg(ARG)->type())         \
-                .c_str()));                                                    \
+        arg_error(fn->function().sig_.FIELD, get_arg(ARG)->type());     \
         break;                                                                 \
     }
 
