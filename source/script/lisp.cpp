@@ -920,7 +920,7 @@ Value* clone(Value* value)
 
 template <typename... Args> void unrecoverable(const char* msg, Args&&... args)
 {
-    auto buf = allocate_small<StringBuffer<255>>("error-msg");
+    auto buf = allocate_small<StringBuffer<238>>("error-msg");
     make_format(*buf, msg, std::forward<Args>(args)...);
     PLATFORM.fatal(*buf);
 }
@@ -1780,7 +1780,7 @@ RestoreDebugBreak debug_break_compiled_fn(Value* obj)
 
 template <typename... Args> void push_error(const char* msg, Args&&... args)
 {
-    auto buf = allocate_small<StringBuffer<255>>("error-msg");
+    auto buf = allocate_small<StringBuffer<238>>("error-msg");
     make_format(*buf, msg, std::forward<Args>(args)...);
     push_op(make_error(buf->c_str()));
 }
