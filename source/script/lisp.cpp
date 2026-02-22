@@ -911,6 +911,14 @@ Value* clone(Value* value)
 }
 
 
+template <typename... Args> void unrecoverable(const char* msg, Args&&... args)
+{
+    auto buf = allocate_small<StringBuffer<255>>("error-msg");
+    make_format(*buf, msg, std::forward<Args>(args)...);
+    PLATFORM.fatal(*buf);
+}
+
+
 static int examine_argument_list(Value* function_impl)
 {
     auto arg_lat = function_impl->cons().car();
@@ -928,16 +936,16 @@ static int examine_argument_list(Value* function_impl)
             if (val->type() == Value::Type::cons) {
                 if (not(val->cons().car()->type() == Value::Type::symbol and
                         val->cons().cdr()->type() == Value::Type::symbol)) {
-                    PLATFORM.fatal(::format("invalid type declaration: %",
-                                            val_to_string<96>(val)));
+                    unrecoverable("invalid type declaration: %",
+                                  val_to_string<96>(val));
                 } else {
                     sym = val->cons().car();
                 }
             } else {
-                PLATFORM.fatal(::format(
+                unrecoverable(
                     "value \'%\' in argument list \'%\' is non-symbol!",
                     val,
-                    arg_lat));
+                    arg_lat);
             }
         } else {
             sym = val;
@@ -945,11 +953,11 @@ static int examine_argument_list(Value* function_impl)
 
         if (not L_CTX.external_symtab_contents_ and
             sym->hdr_.mode_bits_ not_eq (u8) Symbol::ModeBits::small) {
-            PLATFORM.fatal(::format(
+            unrecoverable(
                 "symbol name \'%\' in argument list \'%\' is too long! "
                 "(4 char limit)",
                 sym->symbol().name(),
-                arg_lat));
+                arg_lat);
         }
     });
 
@@ -991,8 +999,7 @@ ArgBindings make_arg_bindings(Value* arg_lat, ArgBindings* parent)
             } else if (str_eq(type_symbol.name(), "wrapped")) {
                 type = Value::Type::wrapped;
             } else {
-                PLATFORM.fatal(
-                    ::format("invalid type symbol %", type_symbol.name()));
+                unrecoverable("invalid type symbol %", type_symbol.name());
             }
         } else {
             sym = val;
@@ -1028,10 +1035,10 @@ static void arg_substitution_impl(Value* impl, ArgBindings& bindings)
                                 if (sym->symbol().unique_id() ==
                                     binding.sym_->unique_id()) {
 
-                                    PLATFORM.fatal(::format(
+                                    unrecoverable(
                                         "let binding % shadows argument %",
                                         binding.sym_->name(),
-                                        sym->symbol().name()));
+                                        sym->symbol().name());
                                 }
                             }
 
@@ -1040,10 +1047,10 @@ static void arg_substitution_impl(Value* impl, ArgBindings& bindings)
                                 for (auto& b : current->bindings_) {
                                     if (b.sym_->unique_id() ==
                                         sym->symbol().unique_id()) {
-                                        PLATFORM.fatal(
-                                            ::format("let binding shadows "
-                                                     "captured parent arg '%' ",
-                                                     sym->symbol().name()));
+                                        unrecoverable(
+                                            "let binding shadows "
+                                            "captured parent arg '%' ",
+                                            sym->symbol().name());
                                     }
                                 }
                                 current = current->parent_;
@@ -1764,8 +1771,7 @@ RestoreDebugBreak debug_break_compiled_fn(Value* obj)
 }
 
 
-template <typename... Args>
-void push_error(const char* msg, Args&& ...args)
+template <typename... Args> void push_error(const char* msg, Args&&... args)
 {
     auto buf = allocate_small<StringBuffer<255>>("error-msg");
     make_format(*buf, msg, std::forward<Args>(args)...);
@@ -1817,7 +1823,7 @@ void funcall(Value* obj, u8 argc)
             (obj->function().sig_.FIELD == Value::Type::integer or             \
              obj->function().sig_.FIELD == Value::Type::ratio))) {             \
         pop_args();                                                            \
-            arg_error(obj->function().sig_.FIELD, get_arg(ARG)->type());     \
+        arg_error(obj->function().sig_.FIELD, get_arg(ARG)->type());           \
         break;                                                                 \
     }
 
@@ -1932,7 +1938,8 @@ void funcall(Value* obj, u8 argc)
             break;
         }
         auto sym_name = dcompr(obj->wrapped().type_sym_)->symbol().name();
-        if (auto handler = get_var(::format<64>("-invoke-%", sym_name).c_str())) {
+        if (auto handler =
+                get_var(::format<64>("-invoke-%", sym_name).c_str())) {
             insert_op(argc, obj);
             funcall(handler, argc + 1);
         } else {
@@ -2260,8 +2267,7 @@ bool lint_check_let_bindings(Value* expr,
                     return false;
                 }
                 variable_list = L_CONS(dsym, variable_list);
-                destructure_list =
-                    destructure_list->cons().cdr();
+                destructure_list = destructure_list->cons().cdr();
             }
         } else if (sym->type() == Value::Type::cons) {
             auto car_sym = sym->cons().car();
@@ -2270,14 +2276,12 @@ bool lint_check_let_bindings(Value* expr,
                 cdr_sym->type() == Value::Type::symbol) {
                 variable_list = L_CONS(car_sym, variable_list);
                 variable_list = L_CONS(cdr_sym, variable_list);
-            } else if (car_sym->type() ==
-                       Value::Type::symbol and
+            } else if (car_sym->type() == Value::Type::symbol and
                        cdr_sym->type() == Value::Type::cons) {
                 auto lat = sym;
                 while (lat->type() == Value::Type::cons) {
                     auto lsym = lat->cons().car();
-                    if (lsym->type() not_eq
-                        Value::Type::symbol) {
+                    if (lsym->type() not_eq Value::Type::symbol) {
                         push_error("invalid value % "
                                    "in destructuring "
                                    "let %",
@@ -2285,8 +2289,7 @@ bool lint_check_let_bindings(Value* expr,
                                    sym);
                         return false;
                     } else {
-                        variable_list =
-                            L_CONS(lsym, variable_list);
+                        variable_list = L_CONS(lsym, variable_list);
                     }
                     lat = lat->cons().cdr();
                 }
@@ -2367,7 +2370,8 @@ void lint(Value* expr, Value* variable_list, lisp::Protected& gvar_list)
                     is_special_form = true;
                 } else if (str_eq(name, "let")) {
                     // (let ([(sym val)...]) [body])
-                    if (not lint_check_let_bindings(expr, variable_list, gvar_list)) {
+                    if (not lint_check_let_bindings(
+                            expr, variable_list, gvar_list)) {
                         return;
                     }
                     is_special_form = true;
@@ -2679,7 +2683,7 @@ Value* dostring(CharSequence& code,
     }
 
     if (L_CTX.strict_ and L_CTX.operand_stack_->size() not_eq prev_stk) {
-        PLATFORM.fatal(::format(
+        PLATFORM.fatal(::format<64>(
             "stack spill! % %", L_CTX.operand_stack_->size(), prev_stk));
     }
 
@@ -2723,7 +2727,7 @@ void format_impl(Value* value, Printer& p, int depth, bool skip_quotes = false)
         auto type = dcompr(value->wrapped().type_sym_);
 
         auto decorator_fn =
-            get_var(::format("-decorate-%", type->symbol().name()).c_str());
+            get_var(::format<64>("-decorate-%", type->symbol().name()).c_str());
 
         if (decorator_fn->type() == Value::Type::function) {
             push_op(value); // argument
@@ -2731,8 +2735,8 @@ void format_impl(Value* value, Printer& p, int depth, bool skip_quotes = false)
             format_impl(get_op0(), p, depth + 1, true);
             pop_op(); // result
         } else {
-            Platform::fatal(::format("missing decorator function for %",
-                                     type->symbol().name()));
+            Platform::fatal(::format<64>("missing decorator function for %",
+                                         type->symbol().name()));
         }
         break;
     }
@@ -4550,10 +4554,10 @@ bool destructure_binding(Value* sym, Value* value, ListBuilder& binding_list)
         if (length(sym) not_eq length(value)) {
             if (is_list(value) and length(value) < length(sym)) {
                 push_error("expression result % is"
-                            " too short to bind to "
-                            "destructuring let %",
-                            value,
-                            sym);
+                           " too short to bind to "
+                           "destructuring let %",
+                           value,
+                           sym);
             } else if (is_list(value)) {
                 StringBuffer<64> suggestion;
                 suggestion += "(";
@@ -4574,9 +4578,7 @@ bool destructure_binding(Value* sym, Value* value, ListBuilder& binding_list)
                             suggestion);
                 push_op(make_error(*fmt_buffer));
             } else {
-                push_error("cannot destructure % into %",
-                            value,
-                            sym);
+                push_error("cannot destructure % into %", value, sym);
             }
             return false;
         }
@@ -4608,10 +4610,10 @@ bool destructure_binding(Value* sym, Value* value, ListBuilder& binding_list)
             while (sym->type() == Value::Type::cons) {
                 if (value_lat->type() not_eq Value::Type::cons) {
                     push_error("expression result % is too "
-                                "short to bind to destructuring"
-                                " let %",
-                                value,
-                                sym_lat);
+                               "short to bind to destructuring"
+                               " let %",
+                               value,
+                               sym_lat);
                     return false;
                 }
                 auto car = sym->cons().car();
@@ -4632,15 +4634,15 @@ bool destructure_binding(Value* sym, Value* value, ListBuilder& binding_list)
                 binding_list.push_back(L_CONS(sym, value_lat));
             } else {
                 push_error("Invalid value % in destructuring "
-                            "let %",
-                            sym,
-                            sym_lat);
+                           "let %",
+                           sym,
+                           sym_lat);
                 return false;
             }
         } else {
             push_error("non-symbol % in "
-                        "destructuring let!",
-                        sym);
+                       "destructuring let!",
+                       sym);
             return false;
         }
     } else {
@@ -4900,7 +4902,7 @@ void eval_loop(EvalStack& eval_stack)
             // intentional fallthrough to foreach_iter_start
 
         case EvalFrame::State::foreach_iter_start: {
-            FOREACH_START:
+        FOREACH_START:
             auto fn = get_op1();
             auto list = get_op0();
             if (list->type() == Value::Type::nil) {
@@ -4909,16 +4911,16 @@ void eval_loop(EvalStack& eval_stack)
             } else {
                 auto car = list->cons().car();
                 list = list->cons().cdr();
-                pop_op(); // pop old list of stack
+                pop_op();      // pop old list of stack
                 push_op(list); // push list remainder
 
                 push_op(L_CTX.lexical_bindings_);
-                push_op(fn);  // setup arguments for funcall on stack
+                push_op(fn); // setup arguments for funcall on stack
                 push_op(car);
                 eval_stack.push_back({L_NIL, EvalFrame::foreach_iter});
                 eval_stack.push_back({.expr_ = fn,
-                        .state_ = EvalFrame::funcall_apply,
-                        .funcall_apply_ = {1}});
+                                      .state_ = EvalFrame::funcall_apply,
+                                      .funcall_apply_ = {1}});
             }
             break;
         }
@@ -4927,8 +4929,7 @@ void eval_loop(EvalStack& eval_stack)
             auto result = get_op0();
             if (result->type() not_eq Value::Type::promise) {
                 pop_op();
-                push_error("await expects a promise object, got %",
-                           result);
+                push_error("await expects a promise object, got %", result);
             } else {
                 StringBuffer<48> agitant;
                 if (can_suspend(eval_stack, agitant)) {
@@ -5207,11 +5208,10 @@ void eval_loop(EvalStack& eval_stack)
 
                 if (L_CTX.strict_) {
                     auto arg_error = [&](auto exp_type, auto got_type) {
-                        push_error(
-                            "invalid arg type for %! expected %, got %",
-                            val_to_string<64>(fn).c_str(),
-                            type_to_string((ValueHeader::Type)exp_type),
-                            type_to_string((ValueHeader::Type)got_type));
+                        push_error("invalid arg type for %! expected %, got %",
+                                   val_to_string<64>(fn).c_str(),
+                                   type_to_string((ValueHeader::Type)exp_type),
+                                   type_to_string((ValueHeader::Type)got_type));
                     };
 
                     auto pop_args = [argc] {
@@ -5240,7 +5240,7 @@ void eval_loop(EvalStack& eval_stack)
         pop_op();                                                              \
         L_CTX.arguments_break_loc_ = saved_break_loc;                          \
         L_CTX.current_fn_argc_ = saved_argc;                                   \
-        arg_error(fn->function().sig_.FIELD, get_arg(ARG)->type());     \
+        arg_error(fn->function().sig_.FIELD, get_arg(ARG)->type());            \
         break;                                                                 \
     }
 
@@ -5426,7 +5426,7 @@ bool is_equal(Value* lhs, Value* rhs)
         }
         auto type = dcompr(lhs->wrapped().type_sym_);
         auto equal_fn =
-            get_var(::format("-equal-%", type->symbol().name()).c_str());
+            get_var(::format<64>("-equal-%", type->symbol().name()).c_str());
 
         if (equal_fn->type() == Value::Type::function) {
             push_op(rhs);
@@ -5436,8 +5436,8 @@ bool is_equal(Value* lhs, Value* rhs)
             pop_op(); // result
             return ret;
         } else {
-            Platform::fatal(::format("missing equal function for %",
-                                     type->symbol().name()));
+            Platform::fatal(::format<64>("missing equal function for %",
+                                         type->symbol().name()));
         }
         break;
     }
@@ -5538,8 +5538,7 @@ s32 to_integer(Value* v)
         return dcompr(ratio.numerator_)->integer().value_ / ratio.divisor_;
     }
     if (L_CTX.strict_) {
-        PLATFORM.fatal(::format("cannot convert % to integer!",
-                                val_to_string<64>(v).c_str()));
+        PLATFORM.fatal(::format<64>("cannot convert % to integer!", v));
     }
     return 1;
 }

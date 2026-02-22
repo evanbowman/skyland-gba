@@ -11,8 +11,8 @@
 
 #pragma once
 
-#include "lisp.hpp"
 #include "debug.hpp"
+#include "lisp.hpp"
 
 
 namespace lisp
