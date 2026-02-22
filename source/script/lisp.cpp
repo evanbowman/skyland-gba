@@ -240,6 +240,7 @@ struct Context
 
     Value* nil_ = nullptr;
     Value* string_buffer_ = nullptr;
+    Value* bytecode_buffer_ = nullptr;
     Value* globals_tree_ = nullptr;
     Value* tree_nullnode_ = nullptr;
 
@@ -296,6 +297,12 @@ struct Context
 
 static Optional<Context> bound_context;
 #define L_CTX (*bound_context)
+
+
+Value*& get_bytecode_buffer()
+{
+    return L_CTX.bytecode_buffer_;
+}
 
 
 void reset_operand_stack()
@@ -3174,6 +3181,10 @@ static int gc_sweep()
         L_CTX.string_buffer_remaining_ = 0;
     }
 
+    if (not L_CTX.bytecode_buffer_->hdr_.mark_bit_) {
+        L_CTX.bytecode_buffer_ = L_NIL;
+    }
+
     int collect_count = 0;
     u32 used_count = 0;
 
@@ -4115,7 +4126,8 @@ void resolve_promise(Value* pr, Value* result)
         return;
     }
 
-    L_CTX.operand_stack_->clear();
+    auto op_stack_before = L_CTX.operand_stack_->size();
+
     for (int i = 0; i < promise.operand_stack_elems_; ++i) {
         L_CTX.operand_stack_->push_back(promise.load_operand(i));
     }
@@ -4131,6 +4143,17 @@ void resolve_promise(Value* pr, Value* result)
     pop_op();        // pop the promise
     push_op(result); // replace promise on stack with result
     eval_loop(eval_stack);
+
+    auto new_result = get_op0();
+    pop_op(); // result
+
+    // NOTE: if, in the process of resolving a promise, we re-suspended
+    // execution, then there may be more elements on the operand stack than when
+    // we started, so pop extraneous args.
+    while (L_CTX.operand_stack_->size() > op_stack_before) {
+        pop_op();
+    }
+    push_op(new_result); // place the result back on the operand stack.
 
     // Because only this promise value retained references to these two
     // databuffers, they can be collected prematurely to free up databuffer
@@ -6326,6 +6349,7 @@ void init(Optional<std::pair<const char*, u32>> external_symtab,
     L_CTX.debug_breakpoints_ = L_CTX.nil_;
     L_CTX.debug_watchpoints_ = L_CTX.nil_;
 
+    L_CTX.bytecode_buffer_ = L_CTX.nil_;
     L_CTX.string_buffer_ = L_CTX.nil_;
     L_CTX.macros_ = L_CTX.nil_;
 
