@@ -1877,7 +1877,6 @@ void funcall(Value* obj, u8 argc)
         }
 
         case Function::ModeBits::lisp_bytecode_function: {
-            PLATFORM_EXTENSION(stack_check);
             gc_safepoint();
 
             const auto break_loc = L_CTX.operand_stack_->size() - 1;
@@ -5111,8 +5110,6 @@ void eval_loop(EvalStack& eval_stack)
         case EvalFrame::State::lisp_funcall_setup: {
             auto fn = frame.expr_;
             int argc = frame.funcall_apply_.argc_;
-
-            PLATFORM_EXTENSION(stack_check);
 
             // Stack is currently: [... saved_bindings function arg1 arg2 arg3]
 
