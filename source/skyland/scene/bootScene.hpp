@@ -381,7 +381,10 @@ public:
         TIMEPOINT(t2);
 
         APP.set_initialized();
-        info(format("boot took %", PLATFORM.delta_clock().reset()));
+        auto dt = PLATFORM.delta_clock().reset();
+        info(format("boot took % (~% seconds)",
+                    dt,
+                    (dt + milliseconds(500)) / seconds(1)));
 
         settings::apply();
 
