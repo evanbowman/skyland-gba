@@ -499,6 +499,8 @@ public:
     void shutdown();
 
 
+    void set_initialized();
+
 private:
     // NOTE: As islands take a lot of memory, and App is created on the stack, I
     // ended up moving them into a scratch buffer.
@@ -589,6 +591,7 @@ private:
         simple_console,
         lisp,
     } remote_console_syntax_ = RemoteConsoleSyntax::none;
+    bool initialized_ = false;
 
 
     void record_score_diff(int diff);

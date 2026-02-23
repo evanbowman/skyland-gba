@@ -15,6 +15,7 @@
 #ifndef __GBA__
 #include <iostream>
 #endif
+#include "lisp_internal.hpp"
 
 
 namespace lisp
@@ -474,6 +475,9 @@ TOP:
                                     jump_offset,
                                     tail_expr);
 
+        } else if (fn->type() == Value::Type::symbol and
+                   str_eq(fn->symbol().name(), "yield")) {
+            PLATFORM.fatal("yield unsupported in compiled bytecode");
         } else if (fn->type() == Value::Type::symbol and
                    str_eq(fn->symbol().name(), "await")) {
             lat = lat->cons().cdr();
@@ -1033,11 +1037,11 @@ void compile(Value* code)
     pop_op();
     push_op(fn);
 
-#ifndef _WIN32
-    __builtin_memset(buffer->data_, 0, sizeof buffer->data_);
-#else
-    memset(buffer->data_, 0, sizeof buffer->data_);
-#endif
+// #ifndef _WIN32
+//     __builtin_memset(buffer->data_, 0, sizeof buffer->data_);
+// #else
+//     memset(buffer->data_, 0, sizeof buffer->data_);
+// #endif
     int write_pos = 0;
 
     CompilerContext ctx;
@@ -1057,49 +1061,46 @@ void compile(Value* code)
     // if possible.
 
     const int bytes_used = write_pos;
-    bool done = false;
 
-    live_values([fn, &done, bytes_used](Value& val) {
-        if (done) {
-            return;
-        }
-
-        if (fn not_eq &val and val.type() == Value::Type::function and
-            val.hdr_.mode_bits_ == Function::ModeBits::lisp_bytecode_function) {
-
-            auto buf = val.function().bytecode_impl_.databuffer();
-            int used = SCRATCH_BUFFER_SIZE - 1;
-            for (; used > 0; --used) {
-                if ((Opcode)buf->databuffer().value()->data_[used] not_eq
-                    instruction::Fatal::op()) {
-                    ++used;
-                    break;
-                }
-            }
-
-            const int remaining = SCRATCH_BUFFER_SIZE - used;
-            if (remaining >= bytes_used) {
-                done = true;
-
-                // std::cout << "found another buffer with remaining space: "
-                //           << remaining
-                //           << ", copying " << bytes_used
-                //           << " bytes to dest buffer offset "
-                //           << used;
-
-                auto src_buffer = fn->function().bytecode_impl_.databuffer();
-                for (int i = 0; i < bytes_used; ++i) {
-                    buf->databuffer().value()->data_[used + i] =
-                        src_buffer->databuffer().value()->data_[i];
-                }
-
-                Protected used_bytes(make_integer(used));
-
-                fn->function().bytecode_impl_.bytecode_ =
-                    compr(make_cons(used_bytes, buf));
+    auto existing_buffer = get_bytecode_buffer();
+    if (existing_buffer == L_NIL) {
+        // There's no existing bytecode buffer to merge our bytecode into.
+        get_bytecode_buffer() = fn->function().bytecode_impl_.databuffer();
+    } else {
+        auto buf = existing_buffer;
+        int used = SCRATCH_BUFFER_SIZE - 1;
+        for (; used > 0; --used) {
+            if ((Opcode)buf->databuffer().value()->data_[used] not_eq
+                instruction::Fatal::op()) {
+                ++used;
+                break;
             }
         }
-    });
+
+        const int remaining = SCRATCH_BUFFER_SIZE - used;
+        if (remaining >= bytes_used) {
+            // std::cout << "found another buffer with remaining space: "
+            //           << remaining
+            //           << ", copying " << bytes_used
+            //           << " bytes to dest buffer offset "
+            //           << used;
+
+            auto src_buffer = fn->function().bytecode_impl_.databuffer();
+            for (int i = 0; i < bytes_used; ++i) {
+                buf->databuffer().value()->data_[used + i] =
+                    src_buffer->databuffer().value()->data_[i];
+            }
+
+            Protected used_bytes(make_integer(used));
+
+            fn->function().bytecode_impl_.bytecode_ =
+                compr(make_cons(used_bytes, buf));
+        } else {
+            // No more space, replace the full buffer with our own bytecode
+            // buffer.
+            get_bytecode_buffer() = fn->function().bytecode_impl_.databuffer();
+        }
+    }
 }
 
 

@@ -47,12 +47,14 @@
 
 
 (defn on-converge ()
-  (dialog "Upon closer inspection, you find that the castle may contain valuable cargo, but it's overgrown with mycelium. You can explore, although there's some risk of cross-contamination. Board anyway?")
-  (dialog-setup-binary-q-w/lore
-   "Let's explore!"
-   "No way!"
-   '(("What's mycelium?" .
-      "Mycelium is a substance that started infesting islands recently. It's pretty difficult to contain; some ships have a policy of burning infested islands on sight. Mycelium grows over the whole surface of an island, sucking a bit more power each time it grows larger. But it does have some defensive potential; when carefully contained, it can be useful as hull. <B:0> Anyway, should we board?"))))
+  (setq on-converge nil)
+  (if (dialog-await-binary-q-w/lore "Upon closer inspection, you find that the castle may contain valuable cargo, but it's overgrown with mycelium. You can explore, although there's some risk of cross-contamination. Board anyway?"
+                                    "Let's explore!"
+                                    "No way!"
+                                    '(("What's mycelium?" .
+                                       "Mycelium is a substance that started infesting islands recently. It's pretty difficult to contain; some ships have a policy of burning infested islands on sight. Mycelium grows over the whole surface of an island, sucking a bit more power each time it grows larger. But it does have some defensive potential; when carefully contained, it can be useful as hull. <B:0> Anyway, should we board?")))
+      (on-dialog-accepted)
+      (on-dialog-declined)))
 
 
 (defn on-dialog-accepted ()

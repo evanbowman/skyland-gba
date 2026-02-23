@@ -39,16 +39,15 @@
 
 
 (defn on-converge ()
-  (dialog
-   "<c:Sylph Researcher:49>Someone's here! Thank the winds. <B:0> I was conducting field research when raiders attacked. I tried to warn the villagers - they thought I was overreacting. 'Sylph paranoia,' one said. <B:0> When the attack came, I tried to help defend, but... <B:0> I'm a researcher, not a soldier. The building collapsed. Everyone scattered or was taken. <B:0> By the time I dug myself out, I was alone.")
-  (setq on-dialog-closed
-        (lambda ()
-          (dialog "He seems shaken, invite him aboard?")
-          (dialog-setup-binary-q-w/lore "Welcome aboard!" "Not today."
-                                        '(("field research?" .
-                                           "<c:Sylph Researcher:49>We document adaptation strategies - how humans build efficiently, manage with limited resources. <B:0> The Conclave thought understanding survival methods might help our cities. <B:0> <d:800> I told them their defenses were inadequate. They didn't listen. <B:0> Maybe I didn't explain it right. Maybe they thought I was... condescending.")))
-          (setq on-dialog-closed '())))
-  (setq on-converge nil))
+  (setq on-converge nil)
+  (await (dialog*
+          "<c:Sylph Researcher:49>Someone's here! Thank the winds. <B:0> I was conducting field research when raiders attacked. I tried to warn the villagers - they thought I was overreacting. 'Sylph paranoia,' one said. <B:0> When the attack came, I tried to help defend, but... <B:0> I'm a researcher, not a soldier. The building collapsed. Everyone scattered or was taken. <B:0> By the time I dug myself out, I was alone."))
+  (if (dialog-await-binary-q-w/lore "He seems shaken, invite him aboard?"
+                                    "Welcome aboard!" "Not today."
+                                    '(("field research?" .
+                                       "<c:Sylph Researcher:49>We document adaptation strategies - how humans build efficiently, manage with limited resources. <B:0> The Conclave thought understanding survival methods might help our cities. <B:0> <d:800> I told them their defenses were inadequate. They didn't listen. <B:0> Maybe I didn't explain it right. Maybe they thought I was... condescending.")))
+      (on-dialog-accepted)
+      (on-dialog-declined)))
 
 
 (defn on-dialog-accepted ()

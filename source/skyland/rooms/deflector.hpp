@@ -114,6 +114,9 @@ public:
     void project_deflector_shield() override;
 
 
+    u8 shield_radius() const;
+
+
 private:
     Time active_timer_ = 0;
 };

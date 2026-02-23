@@ -99,6 +99,13 @@ void Deflector::on_powerchange()
 
 
 
+u8 Deflector::shield_radius() const
+{
+    return 3;
+}
+
+
+
 void Deflector::display_on_hover(Platform::Screen& screen,
                                  const RoomCoord& cursor)
 {
@@ -109,11 +116,12 @@ void Deflector::display_on_hover(Platform::Screen& screen,
     sprite.set_size(Sprite::Size::w16_h16);
     sprite.set_tidx_16x16(13, 0);
 
-    int left = clamp(position().x - 3, 0, 15);
+    auto rad = shield_radius();
+    int left = clamp(position().x - rad, 0, 15);
     int right =
-        clamp(position().x + 3, 0, (int)(parent()->terrain().size() - 1));
-    int top = clamp(position().y - 3, 4, 15);
-    int bot = clamp(position().y + 3, 0, 15);
+        clamp(position().x + rad, 0, (int)(parent()->terrain().size() - 1));
+    int top = clamp(position().y - rad, 4, 15);
+    int bot = clamp(position().y + rad, 0, 15);
 
     for (int x = left; x < right + 1; ++x) {
         for (int y = top; y < bot + 1; ++y) {
@@ -135,11 +143,12 @@ void Deflector::project_deflector_shield()
         return;
     }
 
-    int left = clamp(position().x - 3, 0, 15);
+    auto rad = shield_radius();
+    int left = clamp(position().x - rad, 0, 15);
     int right =
-        clamp(position().x + 3, 0, (int)(parent()->terrain().size() - 1));
-    int top = clamp(position().y - 3, 4, 15);
-    int bot = clamp(position().y + 3, 0, 15);
+        clamp(position().x + rad, 0, (int)(parent()->terrain().size() - 1));
+    int top = clamp(position().y - rad, 4, 15);
+    int bot = clamp(position().y + rad, 0, 15);
 
     for (u8 x = left; x < right + 1; ++x) {
         for (u8 y = top; y < bot + 1; ++y) {
@@ -175,11 +184,12 @@ void Deflector::render_exterior(App* app, TileId buffer[16][16])
         return;
     }
 
-    int left = clamp(position().x - 3, 0, 15);
+    auto rad = shield_radius();
+    int left = clamp(position().x - rad, 0, 15);
     int right =
-        clamp(position().x + 3, 0, (int)(parent()->terrain().size() - 1));
-    int top = clamp(position().y - 3, 4, 15);
-    int bot = clamp(position().y + 3, 0, 15);
+        clamp(position().x + rad, 0, (int)(parent()->terrain().size() - 1));
+    int top = clamp(position().y - rad, 4, 15);
+    int bot = clamp(position().y + rad, 0, 15);
 
     auto set_if_empty = [&](int x, int y, TileId t) {
         auto prev = buffer[x][y];

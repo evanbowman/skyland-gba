@@ -18,20 +18,18 @@
 
 
 (defn on-converge ()
-  (dialog "<c:Spotter:45>Sssaw your ship from my watching post! Been tracking island pathsss, marking which ones are ripe for raiding. Know all the bessst hunting groundsss!")
+  (setq on-converge nil)
+  (await (dialog* "<c:Spotter:45>Sssaw your ship from my watching post! Been tracking island pathsss, marking which ones are ripe for raiding. Know all the bessst hunting groundsss!"))
 
-  (setq on-dialog-closed
-        (lambda ()
-          (dialog "He seems harmless, invite him aboard?")
-
-          (dialog-setup-binary-q-w/lore "Welcome aboard!" "Sorry, but no."
-                                        '(("Let's chat…" .
-                                           "<c:Spotter:45>When rich islandsss passs overhead, I track their movement patterns. Could show you where the fat merchantsss like to hide... <B:0> Need a ssspotter on your crew?")
-                                          ("Explain your goggles?" .
-                                           "<c:Spotter:45>Ohhh! These ssspecial goggles are necesssary! <B:0> It's so bright when staring out at the cloudsss, without this visor, I'd go sssun-blind! <B:0> Anyway, I've got lotsss of experience, need a ssspotter?")))
-
-          (setq on-dialog-closed '())))
-  (setq on-converge nil))
+  (if (dialog-await-binary-q-w/lore "He seems harmless, invite him aboard?"
+                                    "Welcome aboard!"
+                                    "Sorry, but no."
+                                    '(("Let's chat…" .
+                                       "<c:Spotter:45>When rich islandsss passs overhead, I track their movement patterns. Could show you where the fat merchantsss like to hide... <B:0> Need a ssspotter on your crew?")
+                                      ("Explain your goggles?" .
+                                       "<c:Spotter:45>Ohhh! These ssspecial goggles are necesssary! <B:0> It's so bright when staring out at the cloudsss, without this visor, I'd go sssun-blind! <B:0> Anyway, I've got lotsss of experience, need a ssspotter?")))
+      (on-dialog-accepted)
+      (on-dialog-declined)))
 
 
 (chr-new (opponent) 1 14 'neutral '((icon . 45) (race . 1)))

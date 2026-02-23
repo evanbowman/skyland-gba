@@ -26,20 +26,17 @@
 
 
 (defn on-converge ()
-  (dialog
-   "<c:Castaway:38>Yargh!! About time sssomeone showed up! <B:0> I don't even know how long I've been ssstranded here. I've been kicked out of the goblin horde, how could they do this!?")
+  (setq on-converge nil)
+  (await (dialog*
+          "<c:Castaway:38>Yargh!! About time sssomeone showed up! <B:0> I don't even know how long I've been ssstranded here. I've been kicked out of the goblin horde, how could they do this!?"))
 
-  (setq on-dialog-closed
-        (lambda ()
-            (dialog "He seems decent, invite him aboard?")
-
-          (dialog-setup-binary-q-w/lore "Welcome aboard!" "Not today."
-                                        '(("what happened?" .
-                                           "<c:Castaway:38> We were given ordersss to raid a human ssship. <B:0> Nothing ssspecial. For sssome reason I hesssitated, and was thrown overboard. <B:0> I can make amendsss, I'll show you, I'm ssstill vicious, I ssswear!")))
-
-          (setq on-dialog-closed '())))
-
-  (setq on-converge nil))
+  (if (dialog-await-binary-q-w/lore "He seems decent, invite him aboard?"
+                                    "Welcome aboard!"
+                                    "Not today."
+                                    '(("what happened?" .
+                                       "<c:Castaway:38> We were given ordersss to raid a human ssship. <B:0> Nothing ssspecial. For sssome reason I hesssitated, and was thrown overboard. <B:0> I can make amendsss, I'll show you, I'm ssstill vicious, I ssswear!")))
+      (on-dialog-accepted)
+      (on-dialog-declined)))
 
 
 (defn on-dialog-accepted ()

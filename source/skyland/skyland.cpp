@@ -777,7 +777,7 @@ lisp::Value* App::invoke_script(
             lisp::VectorCharSequence seq(buffer);
             auto result = lisp::dostring(seq, *err_handler);
             // In case the script took a bit to execute.
-            if (not conf.exclude_delta_) {
+            if (not conf.exclude_delta_ and initialized_) {
                 PLATFORM.delta_clock().reset();
             }
             return result;
@@ -791,7 +791,7 @@ lisp::Value* App::invoke_script(
     if (auto contents = PLATFORM.load_file_contents("", path)) {
         lisp::BasicCharSequence seq(contents);
         auto result = lisp::dostring(seq, *err_handler);
-        if (not conf.exclude_delta_) {
+        if (not conf.exclude_delta_ and initialized_) {
             PLATFORM.delta_clock().reset();
         }
         return result;
@@ -883,6 +883,13 @@ void App::shutdown()
 {
     player_island().clear_rooms();
     with_opponent_island([&](auto& island) { island.clear_rooms(); });
+}
+
+
+
+void App::set_initialized()
+{
+    initialized_ = true;
 }
 
 

@@ -19,42 +19,44 @@
 
 
 (defn on-converge ()
-  (dialog
-   "<c:Conclave Elder:51>We have monitored your vessel's progress, your fortress demonstrates... adaptability. <B:0> This quality is required for a matter of immediate concern. <B:0>"
-   "City Aestria has ceased all transmissions. Core crystal failure - complete power loss. <B:0> The city carried a particle lance, mining technology from our mountain era. In trained hands, merely a tool. <B:0> In desperate or ignorant hands... the device destabilizes catastrophically. <B:0>"
-   "We cannot allow scavengers to claim what remains. You will retrieve the particle lance before the city falls into the wrong hands.")
+  (let ((request (string
+                  "<c:Conclave Elder:51>We have monitored your vessel's progress, your fortress demonstrates... adaptability. <B:0> This quality is required for a matter of immediate concern. <B:0>"
+                  "City Aestria has ceased all transmissions. Core crystal failure - complete power loss. <B:0> The city carried a particle lance, mining technology from our mountain era. In trained hands, merely a tool. <B:0> In desperate or ignorant hands... the device destabilizes catastrophically. <B:0>"
+                  "We cannot allow scavengers to claim what remains. You will retrieve the particle lance before the city falls into the wrong hands.")))
+    (if (dialog-await-binary-q-w/lore request
+                                      "We'll retrieve it."
+                                      "Sorry, we can't."
+                                      '(("Particle lance?" .
+                                         "<c:Conclave Elder:51>An adapted bore-beam designed for extracting ore from dense mountain deposits. <B:0> Its focused particle stream can cut through virtually any material. <B:0> If mishandled or damaged, the containment field collapses. The resulting energy release is... significant.")
+                                        ("Why us?" .
+                                         "<c:Conclave Elder:51>Our own vessels are engaged in evacuations and core stabilization efforts across multiple cities. <B:0> You are capable, and more importantly, you are proximate. <B:0> Time is not on our side.")))
+        (on-dialog-accepted)
+        (on-dialog-declined))))
 
-  (dialog-setup-binary-q-w/lore
-   "We'll retrieve it."
-   "Sorry, we can't."
-   '(("Particle lance?" .
-      "<c:Conclave Elder:51>An adapted bore-beam designed for extracting ore from dense mountain deposits. <B:0> Its focused particle stream can cut through virtually any material. <B:0> If mishandled or damaged, the containment field collapses. The resulting energy release is... significant.")
-     ("Why us?" .
-      "<c:Conclave Elder:51>Our own vessels are engaged in evacuations and core stabilization efforts across multiple cities. <B:0> You are capable, and more importantly, you are proximate. <B:0> Time is not on our side.")))
 
-  (defn on-dialog-accepted ()
-    (let ((m (eval-file "/scripts/event/quest/make_quest_marker.lisp")))
-      (setq on-dialog-closed exit)
-      (if m
-          (progn
-            (adventure-log-add 63 '())
-            (push 'qids 8)
-            (push 'quests (cons "particle_lance.lisp" m))
-            (dialog "<c:Conclave Elder:51>The coordinates have been transmitted to your navigation system. <B:0> I will accompany you personally to ensure proper handling of the device.")
-            (defn on-dialog-closed ()
-              (setq on-dialog-closed nil)
-              (find-crew-slot-cb
-               "<c:Conclave Elder:51>Your fortress layout is... unconventional. I will need a position from which to work."
-               'ladder
-               "Place block (1x2):"
-               (lambda (x y _)
-                 (chr-new (player) x y 'neutral '((icon . 51) (race . 4)))
-                 (dialog "The Conclave Elder joined your crew!")
-                 (defn on-dialog-closed ()
-                   (exit))))))
-          (progn
-            (dialog "<c:Conclave Elder:51>Unfortunate. The navigation data indicates you lack sufficient range to reach City Aestria before the storm front overtakes it. <B:0> We will seek alternative solutions.")))))
+(defn on-dialog-accepted ()
+  (let ((m (eval-file "/scripts/event/quest/make_quest_marker.lisp")))
+    (setq on-dialog-closed exit)
+    (if m
+        (progn
+          (adventure-log-add 63 '())
+          (push 'qids 8)
+          (push 'quests (cons "particle_lance.lisp" m))
+          (dialog "<c:Conclave Elder:51>The coordinates have been transmitted to your navigation system. <B:0> I will accompany you personally to ensure proper handling of the device.")
+          (defn on-dialog-closed ()
+            (setq on-dialog-closed nil)
+            (find-crew-slot-cb
+             "<c:Conclave Elder:51>Your fortress layout is... unconventional. I will need a position from which to work."
+             'ladder
+             "Place block (1x2):"
+             (lambda (x y _)
+               (chr-new (player) x y 'neutral '((icon . 51) (race . 4)))
+               (dialog "The Conclave Elder joined your crew!")
+               (defn on-dialog-closed ()
+                 (exit))))))
+        (progn
+          (dialog "<c:Conclave Elder:51>Unfortunate. The navigation data indicates you lack sufficient range to reach City Aestria before the storm front overtakes it. <B:0> We will seek alternative solutions.")))))
 
-  (defn on-dialog-declined ()
-    (dialog "<c:Conclave Elder:51>Your caution is noted...")
-    (setq on-dialog-closed exit)))
+(defn on-dialog-declined ()
+  (dialog "<c:Conclave Elder:51>Your caution is noted...")
+  (setq on-dialog-closed exit))

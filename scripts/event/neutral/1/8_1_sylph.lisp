@@ -19,16 +19,15 @@
 
 
 (defn on-converge ()
-  (dialog "<c:Sylph Artisan:46>They're calling everyone to military service. Everyone! <B:0> I'm a crystal sculptor. I know nothing of weapons. But the Conclave says 'all resources must be optimized for defense.' <B:0> They're converting our workshops into armories. Our archives into barracks. <B:0> I... I couldn't do it. I left.")
+  (setq on-converge nil)
+  (await (dialog* "<c:Sylph Artisan:46>They're calling everyone to military service. Everyone! <B:0> I'm a crystal sculptor. I know nothing of weapons. But the Conclave says 'all resources must be optimized for defense.' <B:0> They're converting our workshops into armories. Our archives into barracks. <B:0> I... I couldn't do it. I left."))
 
-  (defn on-dialog-closed ()
-    (dialog "He seems harmless, invite him aboard?")
-
-    (dialog-setup-binary-q-w/lore "Join up with us!" "Best of luck…"
-                                  '(("Why leave now?" . "<c:Sylph Artisan:46>Three days ago, they ordered me to disassemble the Hall of Echoes, a resonance chamber that took my mentor forty years to tune. <B:0> 'Salvage the crystals for weapon cores,' they said. <B:0> I asked if we were at least recording the acoustic patterns, preserving the knowledge. <B:0> The overseer told me: 'We can rebuild archives after we survive. We cannot rebuild if we are dead.' <B:0> [pause] <B:0> But what survives if we destroy everything that made us worth saving?")))
-    (setq on-dialog-closed '()))
-
-  (setq on-converge nil))
+  (if (dialog-await-binary-q-w/lore "He seems harmless, invite him aboard?"
+                                    "Join up with us!"
+                                    "Best of luck…"
+                                    '(("Why leave now?" . "<c:Sylph Artisan:46>Three days ago, they ordered me to disassemble the Hall of Echoes, a resonance chamber that took my mentor forty years to tune. <B:0> 'Salvage the crystals for weapon cores,' they said. <B:0> I asked if we were at least recording the acoustic patterns, preserving the knowledge. <B:0> The overseer told me: 'We can rebuild archives after we survive. We cannot rebuild if we are dead.' <B:0> [pause] <B:0> But what survives if we destroy everything that made us worth saving?")))
+      (on-dialog-accepted)
+      (on-dialog-declined)))
 
 
 (chr-new (opponent) 0 14 'neutral '((icon . 46) (race . 4)))

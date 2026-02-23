@@ -30,6 +30,22 @@ namespace skyland
 
 
 
+BoxedDialogScene::BoxedDialogScene(DialogBuffer buffer)
+    : text_state_(buffer_.end()),
+      data_(allocate<Data>("dialog-data"))
+{
+    utf8::scan([this](const utf8::Codepoint& cp, const char*, int) {
+        buffer_.push_back(cp);
+        return true;
+    }, buffer->c_str(), strlen(buffer->c_str()));
+    buffer_.push_back('\0');
+    text_state_.current_word_ = buffer_.begin();
+    goto_tutorial_ = 0;
+    allow_fastforward_ = true;
+}
+
+
+
 void __draw_image(TileDesc start_tile,
                   u16 start_x,
                   u16 start_y,
@@ -295,23 +311,18 @@ bool BoxedDialogScene::advance_text(Time delta, bool sfx)
             if (text_state_.timer_ < 0) {
                 return true;
             }
-            bool done = false;
             bool seen_char = false;
-            utf8::scan(
-                [&](const utf8::Codepoint& cp, const char*, int) {
-                    if (done) {
-                        return false;
-                    }
-                    if (cp == ' ' or cp == '<' or cp == '\0') {
-                        done = true;
-                    } else {
-                        seen_char = true;
-                        text_state_.current_word_remaining_++;
-                    }
-                    return true;
-                },
-                text_state_.current_word_,
-                strlen(text_state_.current_word_));
+            auto seek = text_state_.current_word_;
+            while (seek not_eq buffer_.end()) {
+                auto glyph = *seek;
+                if (glyph == ' ' or glyph == '<' or glyph == '\0') {
+                    break;
+                } else {
+                    seen_char = true;
+                    text_state_.current_word_remaining_++;
+                }
+                ++seek;
+            }
 
             if (not seen_char and *text_state_.current_word_ == '\0') {
                 display_mode_ = DisplayMode::button_released_check2;
@@ -344,8 +355,7 @@ bool BoxedDialogScene::advance_text(Time delta, bool sfx)
             }
         }
 
-        int bytes_consumed = 0;
-        const auto cp = utf8::getc(text_state_.current_word_, &bytes_consumed);
+        const auto cp = *text_state_.current_word_;
 
         const auto mapping_info = locale_texture_map()(cp);
 
@@ -382,7 +392,7 @@ bool BoxedDialogScene::advance_text(Time delta, bool sfx)
         }
 
         text_state_.current_word_remaining_--;
-        text_state_.current_word_ += bytes_consumed;
+        text_state_.current_word_++;
         text_state_.pos_++;
 
         if (*text_state_.current_word_ == '\0') {
@@ -489,7 +499,6 @@ void BoxedDialogScene::enter(Scene& prev)
     clear_textbox();
 
     text_state_.current_word_remaining_ = 0;
-    text_state_.current_word_ = buffer_->c_str();
     text_state_.timer_ = 0;
     text_state_.line_ = 0;
     text_state_.pos_ = 0;
