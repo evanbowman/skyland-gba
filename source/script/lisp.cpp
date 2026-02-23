@@ -4126,8 +4126,7 @@ void resolve_promise(Value* pr, Value* result)
         return;
     }
 
-    auto op_stack_before = L_CTX.operand_stack_->size();
-
+    L_CTX.operand_stack_->clear();
     for (int i = 0; i < promise.operand_stack_elems_; ++i) {
         L_CTX.operand_stack_->push_back(promise.load_operand(i));
     }
@@ -4143,17 +4142,6 @@ void resolve_promise(Value* pr, Value* result)
     pop_op();        // pop the promise
     push_op(result); // replace promise on stack with result
     eval_loop(eval_stack);
-
-    auto new_result = get_op0();
-    pop_op(); // result
-
-    // NOTE: if, in the process of resolving a promise, we re-suspended
-    // execution, then there may be more elements on the operand stack than when
-    // we started, so pop extraneous args.
-    while (L_CTX.operand_stack_->size() > op_stack_before) {
-        pop_op();
-    }
-    push_op(new_result); // place the result back on the operand stack.
 
     // Because only this promise value retained references to these two
     // databuffers, they can be collected prematurely to free up databuffer
