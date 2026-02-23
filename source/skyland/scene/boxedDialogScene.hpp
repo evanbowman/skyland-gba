@@ -34,12 +34,8 @@ namespace skyland
 class BoxedDialogScene : public Scene
 {
 public:
-    BoxedDialogScene(DialogBuffer buffer)
-        : buffer_(std::move(buffer)), data_(allocate<Data>("dialog-data"))
-    {
-        goto_tutorial_ = 0;
-        allow_fastforward_ = true;
-    }
+
+    BoxedDialogScene(DialogBuffer buffer);
 
 
     void disallow_fastforward()
@@ -104,7 +100,12 @@ private:
 
     struct TextWriterState
     {
-        const char* current_word_;
+        TextWriterState(Vector<utf8::Codepoint>::Iterator it) :
+            current_word_(it)
+        {
+        }
+
+        Vector<utf8::Codepoint>::Iterator current_word_;
         Time timer_;
         u8 line_;
         u8 pos_;
@@ -114,10 +115,10 @@ private:
 
     DisplayMode display_mode_ = DisplayMode::animate_in;
 
+    Vector<utf8::Codepoint> buffer_;
+
     TextWriterState text_state_;
     bool halt_text_ = false;
-
-    DialogBuffer buffer_;
 
     u8 goto_tutorial_ : 6;
     u8 allow_fastforward_ : 1;
