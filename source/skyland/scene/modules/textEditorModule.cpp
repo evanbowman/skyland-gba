@@ -614,7 +614,7 @@ TextEditorModule::Glyph TextEditorModule::load_glyph(utf8::Codepoint c)
 
 void TextEditorModule::init_glyph_table()
 {
-    for (char c = 0; c < 128; ++c) {
+    for (u8 c = 0; c < 128; ++c) {
         glyph_table_.push_back(c);
     }
 
