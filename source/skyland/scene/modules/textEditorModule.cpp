@@ -183,8 +183,8 @@ void TextEditorModule::render_completions()
 
 
 
-void TextEditorModule::handle_char(Vector<char>::Iterator data,
-                                   char c,
+void TextEditorModule::handle_char(Vector<Glyph>::Iterator data,
+                                   utf8::Codepoint c,
                                    ParserState& ps)
 {
     ps.parse_word_.clear();
@@ -199,7 +199,7 @@ void TextEditorModule::handle_char(Vector<char>::Iterator data,
         } else {
             auto iter_cpy = data;
             --iter_cpy;
-            if (*iter_cpy == '\n') {
+            if (*iter_cpy == newline_glyph_) {
                 start_of_line = true;
             }
         }
@@ -223,11 +223,13 @@ void TextEditorModule::handle_char(Vector<char>::Iterator data,
 
             auto& word = ps.parse_word_;
 
-            while (*seek not_eq '\0' and *seek not_eq ' ' and
-                   *seek not_eq '(' and *seek not_eq ')' and
-                   *seek not_eq '\n') {
-                word.push_back(*seek);
+            auto seek_cp = seek->cp(*this);
+            while (seek_cp not_eq '\0' and seek_cp not_eq ' ' and
+                   seek_cp not_eq '(' and seek_cp not_eq ')' and
+                   seek_cp not_eq '\n') {
+                word.push_back(seek_cp);
                 ++seek;
+                seek_cp = seek->cp(*this);
             }
 
             if (word.empty()) {
@@ -265,11 +267,13 @@ void TextEditorModule::handle_char(Vector<char>::Iterator data,
 
             auto& word = ps.parse_word_;
 
-            while (*seek not_eq '\0' and *seek not_eq ' ' and
-                   *seek not_eq '(' and *seek not_eq ')' and
-                   *seek not_eq '\n') {
-                word.push_back(*seek);
+            auto seek_cp = seek->cp(*this);
+            while (seek_cp not_eq '\0' and seek_cp not_eq ' ' and
+                   seek_cp not_eq '(' and seek_cp not_eq ')' and
+                   seek_cp not_eq '\n') {
+                word.push_back(seek_cp);
                 ++seek;
+                seek_cp = seek->cp(*this);
             }
 
             if (word.empty()) {
@@ -289,18 +293,18 @@ void TextEditorModule::handle_char(Vector<char>::Iterator data,
 
 
 template <typename F>
-void parse_words(TextEditorModule& m, Vector<char>::Iterator data, F&& callback)
+void parse_words(TextEditorModule& m, Vector<TextEditorModule::Glyph>::Iterator data, F&& callback)
 {
     TextEditorModule::ParserState ps;
 
-    while (*data not_eq '\0') {
+    while (data->cp(m) not_eq '\0') {
 
         ps.endquote = false;
 
-        if (*data == '\n') {
+        if (data->cp(m) == '\n') {
             ps = TextEditorModule::ParserState{};
         } else {
-            m.handle_char(data, *data, ps);
+            m.handle_char(data, data->cp(m), ps);
         }
 
         if (ps.endquote) {
@@ -329,11 +333,11 @@ void TextEditorModule::render(int start_line)
     auto data = text_buffer_.begin();
 
     while (start_line) {
-        if (*data == '\0') {
+        if (*data == null_glyph_) {
             break;
         }
 
-        if (*data == '\n') {
+        if (*data == newline_glyph_) {
             --start_line;
         }
 
@@ -345,7 +349,7 @@ void TextEditorModule::render(int start_line)
     ParserState ps;
 
 
-    while (*data not_eq '\0' and y not_eq y_max()) {
+    while (data->cp(*this) not_eq '\0' and y not_eq y_max()) {
 
         ps.endquote = false;
 
@@ -357,8 +361,8 @@ void TextEditorModule::render(int start_line)
         };
 
         if (x == calc_screen_tiles().x) {
-            while (*data not_eq '\n') {
-                if (*data == '\0') {
+            while (*data not_eq newline_glyph_) {
+                if (*data == null_glyph_) {
                     goto FILL;
                 }
                 ++data;
@@ -375,9 +379,9 @@ void TextEditorModule::render(int start_line)
                 data >= *state_->sel_begin_ and data <= *state_->sel_end_;
         }
 
-        if (*data == '\n') {
+        if (*data == newline_glyph_) {
 
-            const char c = ' ';
+            const utf8::Codepoint c = ' ';
 
             auto mapping_info = locale_texture_map()(c);
             const u16 t = PLATFORM.map_glyph(c, *mapping_info);
@@ -397,7 +401,7 @@ void TextEditorModule::render(int start_line)
 
         if (skipped < column_offset_) {
             ++skipped;
-            handle_char(data, *data, ps);
+            handle_char(data, data->cp(*this), ps);
             if (ps.endquote) {
                 ps.quotation = false;
             }
@@ -405,7 +409,7 @@ void TextEditorModule::render(int start_line)
             continue;
         }
 
-        const char c = *data;
+        const auto c = data->cp(*this);
 
         handle_char(data, c, ps);
 
@@ -443,7 +447,7 @@ void TextEditorModule::render(int start_line)
 
 FILL:
 
-    const char c = ' ';
+    const utf8::Codepoint c = ' ';
 
     auto mapping_info = locale_texture_map()(c);
     const u16 t = PLATFORM.map_glyph(c, *mapping_info);
@@ -481,11 +485,11 @@ StringBuffer<32> TextEditorModule::current_word()
         return c == '\n' or c == ' ' or c == '(' or c == ')';
     };
 
-    while (data not_eq begin and not is_delim(*data)) {
+    while (data not_eq begin and not is_delim(data->cp(*this))) {
         --data;
     }
 
-    if (is_delim(*data)) {
+    if (is_delim(data->cp(*this))) {
         ++data;
     }
 
@@ -495,8 +499,8 @@ StringBuffer<32> TextEditorModule::current_word()
     // }
 
     StringBuffer<32> result;
-    while (*data not_eq '\0' and not is_delim(*data)) {
-        result.push_back(*(data++));
+    while (data->cp(*this) not_eq '\0' and not is_delim(data->cp(*this))) {
+        result.push_back((data++)->cp(*this));
     }
 
     return result;
@@ -509,11 +513,11 @@ int TextEditorModule::skip_word()
     auto data = insert_pos();
 
     int count = 0;
-    while (*data not_eq '\0' and *data not_eq '\n' and *data not_eq ' ') {
+    while (*data not_eq null_glyph_ and *data not_eq newline_glyph_ and data->cp(*this) not_eq ' ') {
         ++count;
         ++data;
     }
-    while (*data == ' ') {
+    while (data->cp(*this) == ' ') {
         ++count;
         ++data;
     }
@@ -532,12 +536,12 @@ int TextEditorModule::back_word()
     auto data = insert_pos();
 
     int count = 0;
-    while (data not_eq begin and *data not_eq '\0' and *data not_eq '\n' and
-           *data not_eq ' ') {
+    while (data not_eq begin and data->cp(*this) not_eq '\0' and data->cp(*this) not_eq '\n' and
+           data->cp(*this) not_eq ' ') {
         ++count;
         --data;
     }
-    while (*data == ' ') {
+    while (data->cp(*this) == ' ') {
         ++count;
         --data;
     }
@@ -549,13 +553,13 @@ int TextEditorModule::back_word()
 
 
 
-Vector<char>::Iterator TextEditorModule::current_line()
+Vector<TextEditorModule::Glyph>::Iterator TextEditorModule::current_line()
 {
     auto data = text_buffer_.begin();
 
     int line = 0;
-    while (*data not_eq '\0' and line not_eq cursor_.y) {
-        if (*data == '\n') {
+    while (*data not_eq null_glyph_ and line not_eq cursor_.y) {
+        if (*data == newline_glyph_) {
             ++line;
         }
 
@@ -573,12 +577,49 @@ int TextEditorModule::line_length()
 
     int length = 0;
 
-    while (*data not_eq '\0' and *data not_eq '\n') {
+    while (*data not_eq null_glyph_ and *data not_eq newline_glyph_) {
         ++length;
         ++data;
     }
 
     return length;
+}
+
+
+
+utf8::Codepoint TextEditorModule::Glyph::cp(TextEditorModule& te) const
+{
+    return te.glyph_table_[table_entry_];
+}
+
+
+
+TextEditorModule::Glyph TextEditorModule::load_glyph(utf8::Codepoint c)
+{
+    if (c < 128) {
+        return {(u16)c};
+    }
+    int i = 0;
+    for (auto cp : glyph_table_) {
+        if (cp == c) {
+            return {(u16)i};
+        }
+        ++i;
+    }
+    glyph_table_.push_back(c);
+    return {(u16)(glyph_table_.size() - 1)};
+}
+
+
+
+void TextEditorModule::init_glyph_table()
+{
+    for (char c = 0; c < 128; ++c) {
+        glyph_table_.push_back(c);
+    }
+
+    newline_glyph_ = load_glyph('\n');
+    null_glyph_ = load_glyph('\0');
 }
 
 
@@ -590,12 +631,14 @@ TextEditorModule::TextEditorModule(UserContext&& context)
 {
     state_->file_path_ = "/";
 
+    init_glyph_table();
+
     if (PLATFORM.logger().data()) {
         for (char c : *PLATFORM.logger().data()) {
-            text_buffer_.push_back(c);
+            text_buffer_.push_back(load_glyph(c));
         }
-        text_buffer_.push_back('\n');
-        text_buffer_.push_back('\0');
+        text_buffer_.push_back(newline_glyph_);
+        text_buffer_.push_back(null_glyph_);
     }
 }
 
@@ -612,23 +655,30 @@ TextEditorModule::TextEditorModule(UserContext&& user_context,
 {
     state_->file_path_ = file_path;
 
+    init_glyph_table();
+
     if (file_mode == FileMode::update) {
         if (filesystem_ == FileSystem::sram) {
-            flash_filesystem::read_file_data_text(file_path, text_buffer_);
+            Vector<char> tmp_buffer;
+            flash_filesystem::read_file_data_text(file_path, tmp_buffer);
+            for (char c : tmp_buffer) {
+                text_buffer_.push_back(load_glyph(c));
+            }
         } else {
             if (file_path[0] == '/') {
                 ++file_path;
             }
             auto data = PLATFORM.load_file_contents("", file_path);
 
-            while (*data not_eq '\0') {
-                text_buffer_.push_back(*(data++));
-            }
-            text_buffer_.push_back('\0');
+            utf8::scan([this](const utf8::Codepoint& cp, const char*, int) {
+                text_buffer_.push_back(load_glyph(cp));
+                return true;
+            }, data, strlen(data));
+            text_buffer_.push_back(load_glyph('\0'));
         }
     } else {
-        text_buffer_.push_back('\n');
-        text_buffer_.push_back('\0');
+        text_buffer_.push_back(load_glyph('\n'));
+        text_buffer_.push_back(load_glyph('\0'));
     }
 
     StringBuffer<8> lisp_ext(".lisp");
@@ -642,20 +692,20 @@ TextEditorModule::TextEditorModule(UserContext&& user_context,
 
 void TextEditorModule::tabs_to_spaces()
 {
-    Vector<char> temp_buffer;
-    for (char c : text_buffer_) {
+    Vector<Glyph> temp_buffer;
+    for (Glyph c : text_buffer_) {
         temp_buffer.push_back(c);
     }
     text_buffer_.clear();
 
-    for (char c : temp_buffer) {
-        if (c == '\v') {
+    for (Glyph c : temp_buffer) {
+        if (c.cp(*this) == '\v') {
             for (int i = 0; i < 3; ++i) {
-                text_buffer_.push_back(' ');
+                text_buffer_.push_back(load_glyph(' '));
             }
-        } else if (c == '\t') {
+        } else if (c.cp(*this) == '\t') {
             for (int i = 0; i < 4; ++i) {
-                text_buffer_.push_back(' ');
+                text_buffer_.push_back(load_glyph(' '));
             }
         } else {
             text_buffer_.push_back(c);
@@ -708,8 +758,8 @@ void TextEditorModule::enter(Scene& prev)
     status_.emplace(OverlayCoord{0, u8((calc_screen_tiles().y - yo))});
 
 
-    for (char c : text_buffer_) {
-        if (c == '\n') {
+    for (Glyph c : text_buffer_) {
+        if (c.cp(*this) == '\n') {
             ++line_count_;
         }
     }
@@ -730,9 +780,15 @@ void TextEditorModule::repaint()
 
 void TextEditorModule::exit(Scene& next)
 {
-    PLATFORM_EXTENSION(force_vsync);
-    PLATFORM.screen().fade(0.9f, ColorConstant::rich_black, {}, true, true);
-    PLATFORM.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
+    PLATFORM.fill_overlay(0);
+    PLATFORM.screen().clear();
+    PLATFORM.screen().display();
+    auto clr = ColorConstant::rich_black;
+    if (exit_to_browser_) {
+        clr = custom_color(0x007cbf);
+    }
+    PLATFORM.screen().fade(0.9f, clr, {}, true, true);
+    PLATFORM.screen().fade(1.f, clr, {}, true, true);
 
     header_.reset();
     status_.reset();
@@ -753,21 +809,46 @@ ScenePtr TextEditorModule::save()
     if (file_mode_ == FileMode::readonly) {
         // Do not save the file
     } else if (filesystem_ == FileSystem::sram) {
-        flash_filesystem::StorageOptions opts{.use_compression_ = true};
-        flash_filesystem::store_file_data_text(
-            state_->file_path_.c_str(), text_buffer_, opts);
+       Vector<char> output;
+        if (export_as_ascii(output)) {
+            flash_filesystem::StorageOptions opts{.use_compression_ = true};
+            flash_filesystem::store_file_data_text(
+                state_->file_path_.c_str(), output, opts);
+        } else {
+            PLATFORM.fatal("Text editor cannot save edited file containing "
+                           "non-ascii bytes! Sorry!");
+        }
     } else {
-        return make_scene<SramFileWritebackScene>(state_->file_path_.c_str(),
-                                                  std::move(text_buffer_),
-                                                  std::move(user_context_));
+        Vector<char> output;
+        if (export_as_ascii(output)) {
+           return make_scene<SramFileWritebackScene>(state_->file_path_.c_str(),
+                                                     std::move(output),
+                                                     std::move(user_context_));
+        } else {
+            PLATFORM.fatal("Text editor cannot save edited file containing "
+                           "non-ascii bytes! Sorry!");
+        }
     }
 
     return null_scene();
 }
 
 
+bool TextEditorModule::export_as_ascii(Vector<char>& output)
+{
+    for (auto glyph : text_buffer_) {
+        if (glyph.cp(*this) > 127) {
+            return false;
+        }
+    }
+    for (auto glyph : text_buffer_) {
+        output.push_back(glyph.cp(*this));
+    }
+    return true;
+}
 
-void TextEditorModule::copy_selected(Vector<char>& output)
+
+void TextEditorModule::copy_selected(Vector<utf8::Codepoint>& output)
 {
     output.clear();
     if (state_->sel_begin_) {
@@ -778,7 +859,7 @@ void TextEditorModule::copy_selected(Vector<char>& output)
 
 
 
-void TextEditorModule::paste(Vector<char>& contents)
+void TextEditorModule::paste(Vector<utf8::Codepoint>& contents)
 {
     paste_selection(contents);
     render(start_line_);
@@ -815,6 +896,13 @@ void TextEditorModule::shade_cursor()
 
     const auto t = PLATFORM.get_tile(Layer::overlay, x, y);
     PLATFORM.set_tile(x, y, t, highlight_colors);
+}
+
+
+
+bool TextEditorModule::should_smooth_scroll() const
+{
+    return not PLATFORM.has_slow_cpu() or text_buffer_.size() < 4000;
 }
 
 
@@ -966,13 +1054,13 @@ ScenePtr TextEditorModule::update(Time delta)
 
                 cursor_.x = 0;
 
-                while (*insert_pos() == '\n') {
+                while (*insert_pos() == newline_glyph_) {
                     ++cursor_.y;
                 }
 
                 while (cursor_.y not_eq line_count_) {
                     ++cursor_.y;
-                    if (*insert_pos() == '\n') {
+                    if (*insert_pos() == newline_glyph_) {
                         break;
                     }
                 }
@@ -1016,13 +1104,13 @@ ScenePtr TextEditorModule::update(Time delta)
 
                 cursor_.x = 0;
 
-                while (*insert_pos() == '\n') {
+                while (insert_pos()->cp(*this) == '\n') {
                     --cursor_.y;
                 }
 
                 while (cursor_.y not_eq 0) {
                     --cursor_.y;
-                    if (*insert_pos() == '\n') {
+                    if (insert_pos()->cp(*this) == '\n') {
                         break;
                     }
                 }
@@ -1063,23 +1151,23 @@ ScenePtr TextEditorModule::update(Time delta)
             if (APP.player().button_down(Button::action_1) and
                 not user_context_.readonly_) {
                 auto pos = insert_pos();
-                insert_char('\n', pos);
+                insert_char(load_glyph('\n'), pos);
                 cursor_.x = 0; // newline
                 cursor_.y += 1;
                 ++pos;
                 int paren_balance = 0;
                 auto begin = text_buffer_.begin();
                 while (begin not_eq pos) {
-                    if (*begin == '(') {
+                    if (begin->cp(*this) == '(') {
                         ++paren_balance;
                     }
-                    if (*begin == ')') {
+                    if (begin->cp(*this) == ')') {
                         --paren_balance;
                     }
                     ++begin;
                 }
                 while (paren_balance) {
-                    insert_char(' ', pos++);
+                    insert_char(load_glyph(' '), pos++);
                     ++cursor_.x;
                     --paren_balance;
                 }
@@ -1171,7 +1259,7 @@ ScenePtr TextEditorModule::update(Time delta)
             bool do_render = false;
 
             if (cursor_.y < start_line_) {
-                if (syntax_mode_ == SyntaxMode::plain_text) {
+                if (should_smooth_scroll()) {
                     --start_line_;
                 } else {
                     start_line_ = std::max(0, cursor_.y - ((y_max() - 2) / 2));
@@ -1220,7 +1308,7 @@ ScenePtr TextEditorModule::update(Time delta)
             }
 
             if (cursor_.y > start_line_ + (y_max() - yo)) {
-                if (syntax_mode_ == SyntaxMode::plain_text) {
+                if (should_smooth_scroll()) {
                     ++start_line_;
                 } else {
                     start_line_ = std::max(0, cursor_.y - ((y_max() - 2) / 2));
@@ -1385,13 +1473,18 @@ ScenePtr TextEditorModule::update(Time delta)
                         return ret;
                     }
                 }
+                exit_to_browser_ = true;
                 if (filesystem_ == FileSystem::device) {
                     return make_scene<FileBrowserModule>();
                 }
-                return make_scene<FileBrowserModule>(std::move(user_context_),
+                auto next = make_scene<FileBrowserModule>(std::move(user_context_),
                                                      state_->file_path_.c_str(),
                                                      filesystem_ ==
                                                          FileSystem::rom);
+                if (browser_index_ > -1) {
+                    next->scroll_index_ = browser_index_;
+                }
+                return next;
             }
         } else if (APP.player().button_down(Button::action_1) and
                    not user_context_.readonly_ and
@@ -1455,9 +1548,9 @@ ScenePtr TextEditorModule::update(Time delta)
                     ++column_offset_;
                 }
             } else {
-                auto do_insert = [&](char c) {
+                auto do_insert = [&](Glyph c) {
                     insert_char(c);
-                    if (c == '\n') {
+                    if (c.cp(*this) == '\n') {
                         cursor_.x = 0;
                         cursor_.y += 1;
                     } else {
@@ -1474,13 +1567,13 @@ ScenePtr TextEditorModule::update(Time delta)
                     ideal_cursor_right_ = cursor_.x;
                 };
                 char c = keyboard[keyboard_cursor_.y][keyboard_cursor_.x][0];
-                do_insert(c);
+                do_insert(load_glyph(c));
 
                 if (c == '(') {
-                    do_insert(')');
+                    do_insert(load_glyph(')'));
                     --cursor_.x;
                 } else if (c == '"') {
-                    do_insert('"');
+                    do_insert(load_glyph('"'));
                     --cursor_.x;
                 }
             }
@@ -1571,7 +1664,7 @@ ScenePtr TextEditorModule::update(Time delta)
             auto insert = insert_pos();
             for (u32 i = state_->current_word_.length(); i < cpl.length();
                  ++i) {
-                insert_char(cpl[i], insert);
+                insert_char(load_glyph(cpl[i]), insert);
                 ++cursor_.x;
                 ++insert;
             }
@@ -1624,7 +1717,7 @@ StringBuffer<32> TextEditorModule::extract_filename(const char* path)
 
 
 
-Vector<char>::Iterator TextEditorModule::insert_pos()
+Vector<TextEditorModule::Glyph>::Iterator TextEditorModule::insert_pos()
 {
     auto data = text_buffer_.begin();
 
@@ -1632,11 +1725,11 @@ Vector<char>::Iterator TextEditorModule::insert_pos()
     int offset = cursor_.x;
 
     while (line) {
-        if (*data == '\0') {
+        if (*data == null_glyph_) {
             break;
         }
 
-        if (*data == '\n') {
+        if (*data == newline_glyph_) {
             --line;
         }
 
@@ -1644,7 +1737,7 @@ Vector<char>::Iterator TextEditorModule::insert_pos()
     }
 
     while (offset) {
-        if (*data == '\0' or *data == '\n') {
+        if (*data == null_glyph_ or *data == newline_glyph_) {
             break;
         }
 
@@ -1657,7 +1750,7 @@ Vector<char>::Iterator TextEditorModule::insert_pos()
 
 
 
-void TextEditorModule::erase_char(Optional<Vector<char>::Iterator> hint)
+void TextEditorModule::erase_char(Optional<Vector<Glyph>::Iterator> hint)
 {
     if (cursor_.x == 0 and cursor_.y == 0) {
         // Nothing left to delete.
@@ -1668,7 +1761,7 @@ void TextEditorModule::erase_char(Optional<Vector<char>::Iterator> hint)
 
     auto begin = hint ? *hint : --(insert_pos());
 
-    if (*begin == '\n') {
+    if (begin->cp(*this) == '\n') {
         --line_count_;
     }
 
@@ -1682,20 +1775,20 @@ void TextEditorModule::delete_selection()
     int cursor_y_shift = 0;
 
     while (*state_->sel_end_ not_eq *state_->sel_begin_) {
-        if (**state_->sel_end_ == '\n') {
+        if ((*state_->sel_end_)->cp(*this) == '\n') {
             ++cursor_y_shift;
         }
         // TODO: erase range instead, this repeated erase call is very slow.
         erase_char(*state_->sel_end_);
         --(*state_->sel_end_);
     }
-    if (**state_->sel_end_ == '\n') {
+    if ((*state_->sel_end_)->cp(*this) == '\n') {
         ++cursor_y_shift;
     }
 
     int cursor_x = -1;
     auto temp = *state_->sel_begin_;
-    while (temp not_eq text_buffer_.begin() and *temp not_eq '\n') {
+    while (temp not_eq text_buffer_.begin() and temp->cp(*this) not_eq '\n') {
         // Seek backwards to the beginning of the current line.
         --temp;
         ++cursor_x;
@@ -1723,7 +1816,7 @@ void TextEditorModule::delete_selection()
 
 
 
-void TextEditorModule::paste_selection(Vector<char>& source)
+void TextEditorModule::paste_selection(Vector<utf8::Codepoint>& source)
 {
     if (state_->sel_begin_) {
         delete_selection();
@@ -1731,10 +1824,11 @@ void TextEditorModule::paste_selection(Vector<char>& source)
 
     auto insert = insert_pos();
 
-    for (char c : source) {
+    for (auto cp : source) {
         PLATFORM_EXTENSION(feed_watchdog);
-        insert_char(c, insert);
-        if (c == '\n') {
+        auto glyph = load_glyph(cp);
+        insert_char(glyph, insert);
+        if (cp == '\n') {
             ++cursor_.y;
             cursor_.x = 0;
             // Because we jumped down a line, we want to re-adjust the insert
@@ -1749,7 +1843,7 @@ void TextEditorModule::paste_selection(Vector<char>& source)
 
 
 
-void TextEditorModule::save_selection(Vector<char>& output)
+void TextEditorModule::save_selection(Vector<utf8::Codepoint>& output)
 {
     if (not state_->sel_begin_ or not state_->sel_end_) {
         return;
@@ -1764,21 +1858,21 @@ void TextEditorModule::save_selection(Vector<char>& output)
     }
 
     while (begin not_eq end) {
-        output.push_back(*begin);
+        output.push_back(begin->cp(*this));
         ++begin;
     }
 
-    output.push_back(*end);
+    output.push_back(end->cp(*this));
 }
 
 
 
-void TextEditorModule::insert_char(char c,
-                                   Optional<Vector<char>::Iterator> hint)
+void TextEditorModule::insert_char(Glyph c,
+                                   Optional<Vector<Glyph>::Iterator> hint)
 {
     state_->modified_ = true;
 
-    if (c == '\n') {
+    if (c.cp(*this) == '\n') {
         ++line_count_;
     }
 

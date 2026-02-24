@@ -39,8 +39,20 @@ public:
     ScenePtr save();
 
 
-    void copy_selected(Vector<char>& output);
-    void paste(Vector<char>& contents);
+    struct Glyph
+    {
+        u16 table_entry_;
+
+        bool operator==(const Glyph& other) const
+        {
+            return table_entry_ == other.table_entry_;
+        }
+
+        utf8::Codepoint cp(TextEditorModule& te) const;
+    };
+
+    void copy_selected(Vector<utf8::Codepoint>& output);
+    void paste(Vector<utf8::Codepoint>& contents);
 
 
     enum class SyntaxMode : u8 {
@@ -110,7 +122,7 @@ public:
     };
 
 
-    void handle_char(Vector<char>::Iterator data, char c, ParserState& ps);
+    void handle_char(Vector<Glyph>::Iterator data, utf8::Codepoint c, ParserState& ps);
 
 
     void repaint();
@@ -120,6 +132,12 @@ public:
 
 
     int y_max() const;
+
+
+    Glyph load_glyph(utf8::Codepoint c);
+
+    Vector<utf8::Codepoint> glyph_table_;
+    void init_glyph_table();
 
 
     bool gui_mode_ = false;
@@ -133,6 +151,8 @@ public:
 
     FileSystem which_fs() const;
 
+    s8 browser_index_ = -1;
+
 
 private:
     void render(int start_line);
@@ -140,26 +160,32 @@ private:
     void render_completions();
 
 
-    Vector<char>::Iterator insert_pos();
-    void insert_char(char c, Optional<Vector<char>::Iterator> insert_hint = {});
-    void erase_char(Optional<Vector<char>::Iterator> erase_hint = {});
+    bool export_as_ascii(Vector<char>& output);
+
+
+    Vector<Glyph>::Iterator insert_pos();
+    void insert_char(Glyph c, Optional<Vector<Glyph>::Iterator> insert_hint = {});
+    void erase_char(Optional<Vector<Glyph>::Iterator> erase_hint = {});
 
 
     void delete_selection();
-    void save_selection(Vector<char>& output);
-    void paste_selection(Vector<char>& source);
+    void save_selection(Vector<utf8::Codepoint>& output);
+    void paste_selection(Vector<utf8::Codepoint>& source);
+
+
+    bool should_smooth_scroll() const;
 
 
     void show_status();
 
 
-    Vector<char> text_buffer_;
+    Vector<Glyph> text_buffer_;
 
 
     void tabs_to_spaces();
 
 
-    Vector<char>::Iterator current_line();
+    Vector<Glyph>::Iterator current_line();
     int line_length();
 
     int skip_word();
@@ -180,9 +206,9 @@ private:
         StringBuffer<24> current_word_;
         Buffer<StringBuffer<20>, 6> completions_;
 
-        Optional<Vector<char>::Iterator> sel_begin_;
-        Optional<Vector<char>::Iterator> sel_end_;
-        Optional<Vector<char>::Iterator> sel_center_;
+        Optional<Vector<Glyph>::Iterator> sel_begin_;
+        Optional<Vector<Glyph>::Iterator> sel_end_;
+        Optional<Vector<Glyph>::Iterator> sel_center_;
     };
 
     DynamicMemory<State> state_;
@@ -204,6 +230,7 @@ private:
 
     bool show_keyboard_ = false;
     bool show_completions_ = false;
+    bool exit_to_browser_ = false;
 
     Vec2<int> cursor_;
     Vec2<int> keyboard_cursor_;
@@ -212,10 +239,12 @@ private:
     Time cursor_flicker_timer_ = 0;
     bool cursor_shaded_ = false;
 
+    Glyph newline_glyph_;
+    Glyph null_glyph_;
 
     Optional<Text> header_;
     Optional<Text> status_;
-
+    Optional<std::pair<int, Vector<Glyph>::Iterator>> cached_start_;
 
     static Factory factory_;
 };

@@ -6,7 +6,7 @@ follow what scripts are doing.
 The script debugger offers a
 few features:
 
-o----------------------------o
+o────────────────────────────o
 
 Breakpoints:
 
@@ -33,7 +33,7 @@ anywhere in a script by
 calling (breakpoint).
 
 
-o----------------------------o
+o────────────────────────────o
 
 Watchpoints:
 
@@ -56,7 +56,7 @@ occurred.
 (watchpoint-register <symbol>)
 
 
-o----------------------------o
+o────────────────────────────o
 
 
  Using the debugger:

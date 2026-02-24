@@ -113,6 +113,9 @@ public:
     } selected_filesystem_ = SelectedFilesystem::none;
 
 
+    int scroll_index_ = 0;
+
+
 private:
     Buffer<Text, 15> lines_;
     Optional<Text> info_;
@@ -131,9 +134,8 @@ private:
         options,
     } mode_ = Mode::browse;
 
-    int scroll_index_ = 0;
-
     u8 opt_index_ = 0;
+    bool exit_to_title_ = false;
 
     void show_opts();
 

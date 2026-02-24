@@ -1312,7 +1312,7 @@ public:
     };
 
 
-    Optional<Vector<char>> clipboard_;
+    Optional<Vector<utf8::Codepoint>> clipboard_;
 
 
     class LispWindow : public Window

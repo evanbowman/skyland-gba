@@ -23,7 +23,7 @@ namespace skyland
 
 struct UserContext
 {
-    Optional<Vector<char>> yank_buffer_;
+    Optional<Vector<utf8::Codepoint>> yank_buffer_;
     Optional<DeferredScene> browser_exit_scene_;
     u8 hide_path_ = 0;
     bool allow_backtrack_ = true;

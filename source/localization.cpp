@@ -212,6 +212,7 @@ standard_charset_map(const utf8::Codepoint& cp)
         case UTF8_GETCHR(u8"("): return 69;
         case UTF8_GETCHR(u8")"): return 70;
         case UTF8_GETCHR(u8":"): return 71;
+        case UTF8_GETCHR(u8""):
         case UTF8_GETCHR(u8" "): return 72;
         case UTF8_GETCHR(u8"%"): return 93;
         case UTF8_GETCHR(u8"!"): return 94;
@@ -474,8 +475,23 @@ standard_charset_map(const utf8::Codepoint& cp)
         case UTF8_GETCHR(u8"Ö"): return 314;
         case UTF8_GETCHR(u8"ẞ"): return 315;
         case UTF8_GETCHR(u8"&"): return 316;
+        case UTF8_GETCHR(u8"┌"): return 319;
+        case UTF8_GETCHR(u8"┐"): return 320;
+        case UTF8_GETCHR(u8"└"): return 321;
+        case UTF8_GETCHR(u8"┘"): return 322;
+        case UTF8_GETCHR(u8"│"): return 323;
+        case UTF8_GETCHR(u8"─"): return 324;
+        case UTF8_GETCHR(u8"├"): return 325;
+        case UTF8_GETCHR(u8"┤"): return 326;
+        case UTF8_GETCHR(u8"┼"): return 327;
+        case UTF8_GETCHR(u8"┴"): return 328;
+        case UTF8_GETCHR(u8"┬"): return 329;
 
-            // clang-format on
+        case UTF8_GETCHR(u8"█"): return 330;
+        case UTF8_GETCHR(u8"▓"): return 331;
+        case UTF8_GETCHR(u8"▒"): return 332;
+        case UTF8_GETCHR(u8"░"): return 333;
+        // clang-format on
 
         default:
             return std::nullopt;
@@ -484,7 +500,12 @@ standard_charset_map(const utf8::Codepoint& cp)
     if (mapping) {
         return Platform::TextureMapping{font_image, *mapping};
     } else {
-        return extended_charset_map(cp);
+        auto ext = extended_charset_map(cp);
+        if (not ext) {
+            return Platform::TextureMapping{font_image, 318}; // Missing glyph id
+        } else {
+            return ext;
+        }
     }
 }
 

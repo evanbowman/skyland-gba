@@ -91,6 +91,7 @@ void FileBrowserModule::exit(Scene& next)
 {
     lines_.clear();
     info_.reset();
+    cwd_names_.reset();
     PLATFORM.screen().schedule_fade(1, {custom_color(0x007cbf)});
     PLATFORM.screen().clear();
     PLATFORM.fill_overlay(0);
@@ -102,6 +103,9 @@ void FileBrowserModule::exit(Scene& next)
             PLATFORM.screen().schedule_fade(1);
             PLATFORM.screen().schedule_fade(0);
         }
+    } else if (exit_to_title_) {
+        PLATFORM.clear_layer(Layer::map_0);
+        PLATFORM.clear_layer(Layer::map_1);
     }
 }
 
@@ -553,6 +557,7 @@ ScenePtr FileBrowserModule::update(Time delta)
             if (user_context_.browser_exit_scene_) {
                 return (*user_context_.browser_exit_scene_)();
             }
+            exit_to_title_ = true;
             return make_scene<TitleScreenScene>(3);
         }
         break;
@@ -598,11 +603,12 @@ ScenePtr FileBrowserModule::update(Time delta)
                     } else if (get_extension(path) == ".img") {
                         return make_scene<PaintScene>(path.c_str(), false);
                     } else {
-                        return make_scene<TextEditorModule>(
-
+                        auto next = make_scene<TextEditorModule>(
                             std::move(user_context_),
                             path.c_str(),
                             file_edit_mode(path));
+                        next->browser_index_ = scroll_index_;
+                        return next;
                     }
                 }
             }
@@ -662,13 +668,14 @@ ScenePtr FileBrowserModule::update(Time delta)
                     } else if (get_extension(path) == ".photo") {
                     }
 
-                    return make_scene<TextEditorModule>(
-
+                    auto next = make_scene<TextEditorModule>(
                         std::move(user_context_),
                         path.c_str(),
                         file_edit_mode(path),
                         TextEditorModule::FileMode::update,
                         TextEditorModule::FileSystem::rom);
+                    next->browser_index_ = scroll_index_;
+                    return next;
                 }
             }
         }

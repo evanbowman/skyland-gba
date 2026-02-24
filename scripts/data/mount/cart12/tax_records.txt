@@ -6,19 +6,19 @@ Eastern Administrative Zone
 Solar Cycle 47, Third Quarter
 
 
-/////////////////////////////
-
-TRANSIT TOLL RECEIPT
-
-Form ITA-609-B (Rev. 12)
-
-/////////////////////////////
+┌────────────────────────────┐
+│                            │
+│ TRANSIT TOLL RECEIPT       │
+│                            │
+│ Form ITA-609-B (Rev. 12)   │
+│                            │
+└────────────────────────────┘
 
 
 VESSEL IDENTIFICATION:
 
 
- ____________________________
+ ────────────────────────────
 
 (Transfer from Form
 
@@ -39,11 +39,11 @@ TOLL ASSESSED: 600@
 AUTHENTICATION: A7-4F-92-1D-CC
 
 
-/////////////////////////////
-
-TAX FILING GUIDANCE
-
-/////////////////////////////
+┌────────────────────────────┐
+│                            │
+│ TAX FILING GUIDANCE        │
+│                            │
+└────────────────────────────┘
 
 
 Per Imperial Tax Code &14.2_c,
@@ -106,18 +106,19 @@ Guidelines for Merchant
 
 Vessels).
 
-
-/////////////////////////////
-
-NOTICE: Failure to maintain 
-
-proper documentation may
-
-result in audit proceedings
-
-per Imperial Decree 447.
-
-/////////////////////////////
+┌────────────────────────────┐
+│                            │
+│ NOTICE: Failure to         │
+│                            │
+│ maintain proper            │
+│                            │
+│ documentation may result   │
+│                            │
+│ in audit proceedings per   │
+│                            │
+│ Imperial Decree 447.       │
+│                            │
+└────────────────────────────┘
 
 
 Unauthorized duplication
