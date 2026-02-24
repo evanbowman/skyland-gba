@@ -609,6 +609,9 @@ ScenePtr BoxedDialogScene::update(Time delta)
             if (text_state_.speed_ == 0 and allow_fastforward_ and
                 (button_down<Button::action_2>() or is_action_button_down())) {
 
+                if (not state_bit_load(StateBit::regression)) {
+                    PLATFORM.sleep(3);
+                }
                 while (advance_text(delta, false)) {
                     if (display_mode_ not_eq DisplayMode::busy) {
                         break;
