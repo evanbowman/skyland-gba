@@ -51,18 +51,47 @@ public:
             // In practice, I'll never bundle binary blobs with the game in the
             // rom filesystem. There's no reason, really.  P.S.: Hah! This is no
             // longer true. Oh well. But I also have no reason to look at a
-            // large binary blob from within a GBA game.
+            // large binary blob from within a GBA game. P.S.S: This is no
+            // longer true either.
+            rom_file_ = PLATFORM.load_file("", file_path);
+            if (rom_file_->second == 0) {
+                PLATFORM.fatal(format("failed to load %", file_path));
+            }
         } else {
             flash_filesystem::read_file_data_binary(file_path, data_);
         }
     }
 
 
+    u8 get_byte(u32 offset)
+    {
+        if (rom_file_) {
+            return rom_file_->first[offset];
+        } else {
+            return data_[offset];
+        }
+    }
+
+
+    u32 get_size() const
+    {
+        if (rom_file_) {
+            return rom_file_->second;
+        } else {
+            return data_.size();
+        }
+    }
+
+
+    static const ColorConstant fg_color = custom_color(0xffffff);
+    static const ColorConstant bg_color = custom_color(0x007cbf);
+
+
     void enter(Scene&) override
     {
         Text title(OverlayCoord{1, 1});
         auto colors =
-            FontColors{custom_color(0xffe763), custom_color(0x00210f)};
+            FontColors{fg_color, bg_color};
         title.append(path_.c_str(), colors);
         title.__detach();
 
@@ -71,13 +100,23 @@ public:
 
         Text sz(OverlayCoord{1, 18});
         sz.append("size ", colors);
-        sz.append(data_.size(), colors);
+        sz.append(get_size(), colors);
         sz.__detach();
 
         Text t("abcdef0123456789.", OverlayCoord{0, 20});
         t.__detach();
 
-        PLATFORM.screen().schedule_fade(1.f, {.color = custom_color(0x00210f)});
+        PLATFORM.screen().schedule_fade(1.f, {.color = bg_color});
+    }
+
+
+    static bool is_printable_ascii(char c)
+    {
+        if (c >= 32 && c <= 126) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
 
@@ -87,7 +126,7 @@ public:
 
         Text offset(OverlayCoord{14, 18});
         auto colors =
-            FontColors{custom_color(0xffe763), custom_color(0x00210f)};
+            FontColors{fg_color, bg_color};
         offset.append("offset ", colors);
         offset.append(row_offset * 8, colors);
         offset.append("       ", colors);
@@ -104,11 +143,11 @@ public:
             const u32 end = row * 8 + 8;
 
             for (u32 i = start; i < end; ++i) {
-                if (i >= data_.size()) {
+                if (i >= get_size()) {
                     line.push_back('?');
                     line.push_back('?');
                 } else {
-                    u8 byte = data_[i];
+                    u8 byte = get_byte(i);
                     line.push_back(hex[(byte & 0xf0) >> 4]);
                     line.push_back(hex[(byte & 0x0f)]);
                 }
@@ -129,13 +168,16 @@ public:
                     1 + i,
                     y,
                     t,
-                    FontColors{custom_color(0xffe763), custom_color(0x00210f)});
+                    FontColors{fg_color, bg_color});
             }
 
             for (u32 i = start; i < end; ++i) {
                 char c = '?';
-                if (i < data_.size()) {
-                    c = data_[i];
+                if (i < get_size()) {
+                    c = get_byte(i);
+                }
+                if (not is_printable_ascii(c)) {
+                    c = '.';
                 }
                 auto mapping_info = locale_texture_map()(c);
                 if (not mapping_info) {
@@ -147,7 +189,7 @@ public:
                     21 + (i - start),
                     y,
                     t,
-                    FontColors{custom_color(0xffe763), custom_color(0x00210f)});
+                    FontColors{fg_color, bg_color});
             }
         };
 
@@ -206,8 +248,9 @@ public:
                 return (*next_scene_)();
             }
 
+            bool is_rom_file = (bool)rom_file_;
             return make_scene<FileBrowserModule>(
-                std::move(user_context_), path_.c_str(), false);
+                std::move(user_context_), path_.c_str(), is_rom_file);
         }
 
         return null_scene();
@@ -220,6 +263,7 @@ public:
 private:
     StringBuffer<86> path_;
     Vector<char> data_;
+    Optional<Platform::FileSlice> rom_file_;
 
     UserContext user_context_;
 

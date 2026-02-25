@@ -385,8 +385,8 @@ public:
     // For historical reasons, allows you to specify a folder and filename
     // separately. If you do not care for this behavior, supply an empty string
     // in the folder argument, and the path in the filename argument.
-    std::pair<const char*, u32> load_file(const char* folder,
-                                          const char* filename) const;
+    using FileSlice = std::pair<const char*, u32>;
+    FileSlice load_file(const char* folder, const char* filename) const;
 
 
     const char* load_file_contents(const char* folder,

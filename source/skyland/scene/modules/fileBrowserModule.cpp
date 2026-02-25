@@ -598,7 +598,6 @@ ScenePtr FileBrowserModule::update(Time delta)
                         }
                     } else if (get_extension(path) == ".dat") {
                         return make_scene<HexViewerModule>(
-
                             std::move(user_context_), path.c_str(), false);
                     } else if (get_extension(path) == ".img") {
                         return make_scene<PaintScene>(path.c_str(), false);
@@ -663,9 +662,10 @@ ScenePtr FileBrowserModule::update(Time delta)
                         }
                     }
 
-                    if (get_extension(path) == ".exe") {
-
-                    } else if (get_extension(path) == ".photo") {
+                    if (get_extension(path) == ".dat") {
+                        return make_scene<HexViewerModule>(std::move(user_context_),
+                                                           path.c_str(),
+                                                           true);
                     }
 
                     auto next = make_scene<TextEditorModule>(
