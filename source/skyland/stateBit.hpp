@@ -32,6 +32,7 @@ enum class StateBit {
     sel_menu_help_prompt,
     regression,
     show_fps,
+    show_ping,
     verbose_boot,
     minimap_on,
     rumble_enabled,

@@ -1234,7 +1234,8 @@ ScenePtr TitleScreenScene::update(Time delta)
                 play_gust_sound();
                 timer_ = 0;
             } else if (menu_selection_ == 0) {
-                if (PLATFORM.device_name() == "PC") {
+                if (PLATFORM.device_name() == "PC" and
+                    not APP.is_developer_mode()) {
                     // TODO... none of these screens to the left on the title
                     // screen are supported by the desktop (SDL) implementation.
                     // I need to add support for networked multiplayer and other

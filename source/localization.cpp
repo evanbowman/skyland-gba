@@ -491,7 +491,7 @@ standard_charset_map(const utf8::Codepoint& cp)
         case UTF8_GETCHR(u8"▓"): return 331;
         case UTF8_GETCHR(u8"▒"): return 332;
         case UTF8_GETCHR(u8"░"): return 333;
-        // clang-format on
+            // clang-format on
 
         default:
             return std::nullopt;
@@ -502,7 +502,8 @@ standard_charset_map(const utf8::Codepoint& cp)
     } else {
         auto ext = extended_charset_map(cp);
         if (not ext) {
-            return Platform::TextureMapping{font_image, 318}; // Missing glyph id
+            return Platform::TextureMapping{font_image,
+                                            318}; // Missing glyph id
         } else {
             return ext;
         }

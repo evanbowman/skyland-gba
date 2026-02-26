@@ -31,9 +31,16 @@
 #include <thread>
 #include <unordered_set>
 #if defined(__APPLE__)
+#include <fcntl.h>
+#include <limits.h>
 #include <mach-o/dyld.h> // for _NSGetExecutablePath
-#include <unistd.h>      // for fork, execl
+#include <pwd.h>
+#include <sys/resource.h>
+#include <unistd.h> // for fork, execl
 #elif defined(__linux__)
+#include <fcntl.h>
+#include <limits.h>
+#include <pwd.h>
 #include <unistd.h> // for fork, execl, readlink
 #elif defined(_WIN32)
 #include <windows.h> // for GetModuleFileNameA, CreateProcessA
@@ -365,6 +372,35 @@ struct RectInfo
 std::vector<RectInfo> rect_draw_queue;
 
 
+StringBuffer<28> get_username()
+{
+    StringBuffer<28> result;
+#ifdef _WIN32
+    char username[UNLEN + 1];
+    DWORD username_len = UNLEN + 1;
+    if (::GetUserNameA(username, &username_len)) {
+        result = username;
+        return result;
+    }
+    result = "unknown";
+    return result;
+#else
+    if (auto name = getlogin()) {
+        result = name;
+        return result;
+    }
+    // Fallback if getlogin_r fails (e.g., process not attached to a terminal)
+    const struct passwd* pw = getpwuid(geteuid());
+    if (pw) {
+        result = pw->pw_name;
+        return result;
+    }
+    result = "unknown";
+    return result;
+#endif
+}
+
+
 static const Platform::Extensions extensions{
     .update_parallax_r1 =
         [](u8 scroll) {
@@ -461,7 +497,8 @@ static const Platform::Extensions extensions{
                 }
             }
             buttonmap[scancode] = k;
-        }};
+        },
+    .get_username = [](StringBuffer<28>& output) { output = get_username(); }};
 
 
 
@@ -673,6 +710,10 @@ int main(int argc, char** argv)
 {
     process_argc = argc;
     process_argv = argv;
+
+#ifdef __APPLE__
+    setpriority(PRIO_PROCESS, 0, -10);
+#endif
 
     for (int i = 0; i < argc; ++i) {
         if (str_eq(argv[i], "--help")) {
@@ -3797,89 +3838,6 @@ ColorConstant passthrough_shader(int palette, ColorConstant k, int arg)
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// NetworkPeer
-////////////////////////////////////////////////////////////////////////////////
-
-
-
-Platform::NetworkPeer::NetworkPeer() : impl_(nullptr)
-{
-}
-
-
-void Platform::NetworkPeer::disconnect()
-{
-}
-
-
-bool Platform::NetworkPeer::is_host() const
-{
-    return true;
-}
-
-
-void Platform::NetworkPeer::listen()
-{
-    return;
-}
-
-
-void Platform::NetworkPeer::connect(const char* peer)
-{
-    return;
-}
-
-
-bool Platform::NetworkPeer::is_connected() const
-{
-    return false; // TODO
-}
-
-
-bool Platform::NetworkPeer::send_message(const Message& message)
-{
-    return true; // TODO
-}
-
-
-static std::vector<u8> receive_buffer;
-
-
-void Platform::NetworkPeer::update()
-{
-}
-
-
-Optional<Platform::NetworkPeer::Message> Platform::NetworkPeer::poll_message()
-{
-    return {};
-}
-
-
-void Platform::NetworkPeer::poll_consume(u32 length)
-{
-}
-
-
-Platform::NetworkPeer::~NetworkPeer()
-{
-}
-
-
-Platform::NetworkPeer::Interface Platform::NetworkPeer::interface() const
-{
-    return Interface::internet;
-}
-
-
-int Platform::NetworkPeer::send_queue_size() const
-{
-    return 100000;
-}
-
-
-
-////////////////////////////////////////////////////////////////////////////////
 // RemoteConsole
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -4130,6 +4088,510 @@ bool Platform::RemoteConsole::printline(const char* text, const char* prompt)
     std::lock_guard<std::mutex> lock(console_mutex);
     outgoing_lines.push(std::string(text));
     return client_socket != INVALID_SOCKET;
+}
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+// NetworkPeer
+////////////////////////////////////////////////////////////////////////////////
+
+
+
+struct NetworkPeerImpl
+{
+    socket_t sock = INVALID_SOCKET;        // the active session socket
+    socket_t listen_sock = INVALID_SOCKET; // host only: the accept() socket
+    std::thread session_thread;
+    std::atomic<bool> connected{false};
+    std::atomic<bool> running{false};
+    std::atomic<bool> stop_broadcast{false};
+    bool is_host_ = false;
+
+    std::mutex send_mutex;
+    using SendQueue = std::queue<std::array<u8, 6>>;
+    SendQueue send_queue;
+
+    std::mutex recv_mutex;
+    std::vector<u8> recv_buffer;
+};
+
+
+
+static void session_thread_main(NetworkPeerImpl* impl)
+{
+#ifdef _WIN32
+    u_long nonblocking = 1;
+    ioctlsocket(impl->sock, FIONBIO, &nonblocking);
+#else
+    int flags = fcntl(impl->sock, F_GETFL, 0);
+    fcntl(impl->sock, F_SETFL, flags | O_NONBLOCK);
+#endif
+
+    while (impl->running) {
+        // --- Send ---
+        {
+            std::lock_guard<std::mutex> lock(impl->send_mutex);
+            while (!impl->send_queue.empty()) {
+                auto& msg = impl->send_queue.front();
+                int result =
+                    send(impl->sock, (const char*)msg.data(), msg.size(), 0);
+                if (result == SOCKET_ERROR) {
+#ifdef _WIN32
+                    int err = WSAGetLastError();
+                    if (err == WSAEWOULDBLOCK)
+                        break;
+                    info(format("send error: %", err));
+#else
+                    if (errno == EAGAIN || errno == EWOULDBLOCK)
+                        break;
+                    info(format("session send error: %", strerror(errno)));
+#endif
+                    impl->connected = false;
+                    impl->running = false;
+                    break;
+                }
+                impl->send_queue.pop();
+            }
+        }
+
+        if (!impl->running)
+            break;
+
+        // --- Wait for data with short timeout ---
+        fd_set read_fds;
+        FD_ZERO(&read_fds);
+        FD_SET(impl->sock, &read_fds);
+        struct timeval tv
+        {
+            0, 1000
+        }; // 1ms
+        int ready =
+            select((int)impl->sock + 1, &read_fds, nullptr, nullptr, &tv);
+
+        if (ready < 0) {
+#ifdef _WIN32
+            info(format("session select error: %", WSAGetLastError()));
+#else
+            info(format("session select error: %", strerror(errno)));
+#endif
+            impl->connected = false;
+            impl->running = false;
+            break;
+        }
+
+        if (ready == 0)
+            continue;
+
+        // --- Recv ---
+        u8 buf[256];
+        int n = recv(impl->sock, (char*)buf, sizeof(buf), 0);
+        if (n > 0) {
+            std::lock_guard<std::mutex> lock(impl->recv_mutex);
+            impl->recv_buffer.insert(impl->recv_buffer.end(), buf, buf + n);
+        } else if (n == 0) {
+            impl->connected = false;
+            impl->running = false;
+        } else {
+#ifdef _WIN32
+            int err = WSAGetLastError();
+            if (err != WSAEWOULDBLOCK) {
+                impl->connected = false;
+                impl->running = false;
+            }
+#else
+            if (errno != EAGAIN && errno != EWOULDBLOCK) {
+                impl->connected = false;
+                impl->running = false;
+            }
+#endif
+        }
+    }
+
+    CLOSE_SOCKET(impl->sock);
+    impl->sock = INVALID_SOCKET;
+}
+
+
+Platform::NetworkPeer::NetworkPeer() : impl_(nullptr)
+{
+}
+
+
+void Platform::NetworkPeer::disconnect()
+{
+    if (!impl_)
+        return;
+    info("disconnect called!");
+    auto impl = (NetworkPeerImpl*)impl_;
+    impl->running = false;
+    impl->stop_broadcast = true;
+    if (impl->session_thread.joinable())
+        impl->session_thread.join();
+    if (impl->listen_sock != INVALID_SOCKET) {
+        CLOSE_SOCKET(impl->listen_sock);
+        impl->listen_sock = INVALID_SOCKET;
+    }
+    delete impl;
+    impl_ = nullptr;
+}
+
+
+bool Platform::NetworkPeer::is_host() const
+{
+    if (!impl_) {
+        return false;
+    }
+    return ((NetworkPeerImpl*)impl_)->is_host_;
+}
+
+
+struct DiscoveryPacket
+{
+    uint32_t magic; // e.g. 0x534B594C "SKYL"
+    uint16_t port;  // TCP port clients should connect to
+    char username_[29];
+};
+
+
+void broadcast_hosting()
+{
+    socket_t sock = socket(AF_INET, SOCK_DGRAM, 0);
+
+    int opt = 1;
+    setsockopt(sock, SOL_SOCKET, SO_BROADCAST, (const char*)&opt, sizeof(opt));
+
+    sockaddr_in dest = {};
+    dest.sin_family = AF_INET;
+    Conf conf;
+    auto disc_port =
+        conf.expect<Conf::Integer>("hardware.desktop", "lan_discovery_port");
+    dest.sin_port = htons(disc_port);
+    dest.sin_addr.s_addr = INADDR_BROADCAST;
+
+    u16 connect_port =
+        conf.expect<Conf::Integer>("hardware.desktop", "lan_connect_port");
+    info(format("broadcasting availability on port % to discovery port %",
+                connect_port,
+                disc_port));
+    DiscoveryPacket pkt;
+    pkt.magic = 0x534B594C;
+    pkt.port = connect_port;
+    auto uname = get_username();
+    memset(pkt.username_, 0, sizeof pkt.username_);
+    memcpy(pkt.username_, uname.c_str(), sizeof pkt.username_);
+    static_assert(sizeof pkt.username_ == decltype(uname)::Buffer::capacity());
+    sendto(sock,
+           (const char*)&pkt,
+           sizeof(pkt),
+           0,
+           (sockaddr*)&dest,
+           sizeof(dest));
+    CLOSE_SOCKET(sock);
+}
+
+
+struct DiscoveryResult
+{
+    std::string host_ip;
+    uint16_t port;
+    std::string username;
+};
+
+
+std::vector<DiscoveryResult> discover_hosts(Time timeout)
+{
+    socket_t sock = socket(AF_INET, SOCK_DGRAM, 0);
+
+#ifdef _WIN32
+    DWORD win_timeout = 200; // short poll interval
+    setsockopt(sock,
+               SOL_SOCKET,
+               SO_RCVTIMEO,
+               (const char*)&win_timeout,
+               sizeof(win_timeout));
+#else
+    struct timeval tv
+    {
+        0, 200000
+    }; // 200ms
+    setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
+#endif
+
+    sockaddr_in bind_addr = {};
+    bind_addr.sin_family = AF_INET;
+
+    Conf conf;
+    auto disc_port =
+        conf.expect<Conf::Integer>("hardware.desktop", "lan_discovery_port");
+
+    bind_addr.sin_port = htons(disc_port);
+    bind_addr.sin_addr.s_addr = INADDR_ANY;
+    bind(sock, (sockaddr*)&bind_addr, sizeof(bind_addr));
+
+    std::vector<DiscoveryResult> results;
+
+    while (timeout > 0) {
+        PLATFORM.screen().clear();
+        PLATFORM.input().poll();
+        if (not sdl_running) {
+            break;
+        }
+        if (button_down<Button::action_2>()) {
+            break;
+        }
+        PLATFORM.screen().display();
+        DiscoveryPacket pkt;
+        sockaddr_in sender = {};
+        socklen_t sender_len = sizeof(sender);
+
+        int received = recvfrom(
+            sock, (char*)&pkt, sizeof(pkt), 0, (sockaddr*)&sender, &sender_len);
+
+        if (received == sizeof(pkt) && pkt.magic == 0x534B594C) {
+            char ip_buf[INET_ADDRSTRLEN];
+            inet_ntop(AF_INET, &sender.sin_addr, ip_buf, sizeof(ip_buf));
+
+            // Deduplicate — same host might broadcast multiple times
+            std::string ip(ip_buf);
+            bool already_found = false;
+            for (auto& r : results) {
+                if (r.host_ip == ip) {
+                    already_found = true;
+                    break;
+                }
+            }
+            if (not already_found) {
+                std::string username;
+                const char* read_ptr = pkt.username_;
+                while (*read_ptr not_eq '\0' and
+                       read_ptr < pkt.username_ + sizeof pkt.username_) {
+                    username.push_back(*read_ptr);
+                    ++read_ptr;
+                }
+                results.push_back({ip, pkt.port, username});
+            }
+        }
+        timeout -= PLATFORM.delta_clock().reset();
+    }
+
+    CLOSE_SOCKET(sock);
+    return results;
+}
+
+
+void Platform::NetworkPeer::host(Time timeout)
+{
+    auto impl = new NetworkPeerImpl();
+    impl_ = impl;
+    impl->is_host_ = true;
+
+    Conf conf;
+    u16 connect_port =
+        conf.expect<Conf::Integer>("hardware.desktop", "lan_connect_port");
+
+    // Set up the TCP listen socket
+    impl->listen_sock = socket(AF_INET, SOCK_STREAM, 0);
+    int opt = 1;
+    setsockopt(impl->listen_sock,
+               SOL_SOCKET,
+               SO_REUSEADDR,
+               (const char*)&opt,
+               sizeof(opt));
+
+    sockaddr_in addr = {};
+    addr.sin_family = AF_INET;
+    addr.sin_addr.s_addr = INADDR_ANY;
+    addr.sin_port = htons(connect_port);
+    bind(impl->listen_sock, (sockaddr*)&addr, sizeof(addr));
+    ::listen(impl->listen_sock, 1);
+
+    // Set a short accept() timeout so we can keep the game loop alive
+    // and also check our own timeout
+#ifdef _WIN32
+    DWORD accept_timeout = 200;
+    setsockopt(impl->listen_sock,
+               SOL_SOCKET,
+               SO_RCVTIMEO,
+               (const char*)&accept_timeout,
+               sizeof(accept_timeout));
+#else
+    struct timeval accept_tv
+    {
+        0, 200000
+    };
+    setsockopt(impl->listen_sock,
+               SOL_SOCKET,
+               SO_RCVTIMEO,
+               &accept_tv,
+               sizeof(accept_tv));
+#endif
+
+    // Broadcast thread
+    impl->stop_broadcast = false;
+    std::thread broadcast_thread([impl]() {
+        while (!impl->stop_broadcast) {
+            broadcast_hosting();
+            for (int i = 0; i < 10 && !impl->stop_broadcast; ++i) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            }
+        }
+    });
+
+    // Accept loop — keeps game loop ticking
+    while (timeout > 0) {
+        PLATFORM.screen().clear();
+        PLATFORM.input().poll();
+        PLATFORM.screen().display();
+
+        if (button_down<Button::action_2>() || !sdl_running) {
+            break;
+        }
+
+        socket_t client = accept(impl->listen_sock, nullptr, nullptr);
+        if (client != INVALID_SOCKET) {
+            impl->stop_broadcast = true;
+            impl->sock = client;
+            impl->connected = true;
+            impl->running = true;
+            impl->session_thread = std::thread(session_thread_main, impl);
+            break;
+        }
+
+        timeout -= PLATFORM.delta_clock().reset();
+    }
+
+    impl->stop_broadcast = true;
+    broadcast_thread.join();
+
+    CLOSE_SOCKET(impl->listen_sock);
+    impl->listen_sock = INVALID_SOCKET;
+}
+
+
+void Platform::NetworkPeer::connect(const char* ip, int port)
+{
+    auto impl = new NetworkPeerImpl();
+    impl_ = impl;
+    impl->is_host_ = false;
+
+    impl->sock = socket(AF_INET, SOCK_STREAM, 0);
+    if (impl->sock == INVALID_SOCKET) {
+        delete impl;
+        impl_ = nullptr;
+        return;
+    }
+
+    sockaddr_in addr = {};
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(port);
+    if (inet_pton(AF_INET, ip, &addr.sin_addr) <= 0) {
+        CLOSE_SOCKET(impl->sock);
+        delete impl;
+        impl_ = nullptr;
+        return;
+    }
+
+    if (::connect(impl->sock, (sockaddr*)&addr, sizeof(addr)) == SOCKET_ERROR) {
+        CLOSE_SOCKET(impl->sock);
+        delete impl;
+        impl_ = nullptr;
+        return;
+    }
+
+    impl->connected = true;
+    impl->running = true;
+    impl->session_thread = std::thread(session_thread_main, impl);
+}
+
+
+void Platform::NetworkPeer::listen(
+    Time timeout,
+    Function<32, void(const char*, int, const char*)> callback)
+{
+    auto hosts = discover_hosts(timeout);
+    for (auto& host : hosts) {
+        callback(host.host_ip.c_str(), host.port, host.username.c_str());
+    }
+    return;
+}
+
+
+bool Platform::NetworkPeer::is_connected() const
+{
+    if (!impl_)
+        return false;
+    return ((NetworkPeerImpl*)impl_)->connected;
+}
+
+
+bool Platform::NetworkPeer::send_message(const Message& message)
+{
+    if (!impl_)
+        return false;
+    auto impl = (NetworkPeerImpl*)impl_;
+    if (!impl->connected)
+        return false;
+
+    std::array<u8, 6> buf;
+    memcpy(buf.data(), message.data_, message.length_);
+    std::lock_guard<std::mutex> lock(impl->send_mutex);
+    impl->send_queue.push(buf);
+    return true;
+}
+
+
+static std::vector<u8> receive_buffer;
+
+
+void Platform::NetworkPeer::update()
+{
+}
+
+
+Optional<Platform::NetworkPeer::Message> Platform::NetworkPeer::poll_message()
+{
+    if (!impl_)
+        return {};
+    auto impl = (NetworkPeerImpl*)impl_;
+    std::lock_guard<std::mutex> lock(impl->recv_mutex);
+    if (impl->recv_buffer.size() >= 6) {
+        return Message{impl->recv_buffer.data(), 6};
+    }
+    return {};
+}
+
+
+void Platform::NetworkPeer::poll_consume(u32 length)
+{
+    if (!impl_)
+        return;
+    auto impl = (NetworkPeerImpl*)impl_;
+    std::lock_guard<std::mutex> lock(impl->recv_mutex);
+    impl->recv_buffer.erase(impl->recv_buffer.begin(),
+                            impl->recv_buffer.begin() + length);
+}
+
+
+Platform::NetworkPeer::~NetworkPeer()
+{
+    disconnect();
+}
+
+
+Platform::NetworkPeer::Interface Platform::NetworkPeer::interface() const
+{
+    return Interface::internet;
+}
+
+
+int Platform::NetworkPeer::send_queue_size() const
+{
+    if (!impl_)
+        return 0;
+    auto impl = (NetworkPeerImpl*)impl_;
+    std::lock_guard<std::mutex> lock(impl->send_mutex);
+    return (int)impl->send_queue.size();
 }
 
 

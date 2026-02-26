@@ -1037,11 +1037,11 @@ void compile(Value* code)
     pop_op();
     push_op(fn);
 
-// #ifndef _WIN32
-//     __builtin_memset(buffer->data_, 0, sizeof buffer->data_);
-// #else
-//     memset(buffer->data_, 0, sizeof buffer->data_);
-// #endif
+    // #ifndef _WIN32
+    //     __builtin_memset(buffer->data_, 0, sizeof buffer->data_);
+    // #else
+    //     memset(buffer->data_, 0, sizeof buffer->data_);
+    // #endif
     int write_pos = 0;
 
     CompilerContext ctx;

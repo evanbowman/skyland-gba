@@ -56,13 +56,24 @@ struct ProgramVersion
 
 
 
-struct Heartbeat
+struct Ping
 {
     Header header_;
+    host_u16 id_;
+    u8 unused_[3];
 
-    u8 unused_[5];
+    static const auto mt = Header::MessageType::ping;
+};
 
-    static const auto mt = Header::MessageType::heartbeat;
+
+
+struct Echo
+{
+    Header header_;
+    host_u16 id_;
+    u8 unused_[3];
+
+    static const auto mt = Header::MessageType::echo;
 };
 
 
@@ -742,7 +753,13 @@ public:
     }
 
 
-    virtual void receive(const packet::Heartbeat& p)
+    virtual void receive(const packet::Ping& p)
+    {
+        unhandled_message(p.header_);
+    }
+
+
+    virtual void receive(const packet::Echo& p)
     {
         unhandled_message(p.header_);
     }

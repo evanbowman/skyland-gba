@@ -751,6 +751,12 @@ enum class SystemString {
 
     multi_session_connecting,
     multi_connection_failure,
+    multi_opt_host,
+    multi_opt_client,
+    multi_broadcast_avail,
+    multi_listen_avail,
+    multi_your_addr,
+    multi_found_hosts,
 
     misc_hibernate_message,
     misc_dlc_message,
@@ -821,6 +827,8 @@ enum class SystemString {
     sel_menu_eight_bells,
     sel_menu_resize_bridge,
     sel_menu_flag_info,
+    sel_menu_show_ping,
+    sel_menu_hide_ping,
 
     drone_info_heading,
     drone_info_notes,

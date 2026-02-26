@@ -626,6 +626,12 @@ Beep... collating... Welcome back! <B:0><j:datacarts_flattened> <B:0> Find any n
 The Storm King's stronghold disintegrates... the dark clouds clear, bringing calm to SKYLAND once again! <d:1000>T<d:1000>H<d:1000>E <d:1000>E<d:1000>N<d:1000>D<d:500>.<d:500>.<d:500>.
 session connecting...
 Failed to connect to multiplayer peer!
+LAN host
+LAN client
+Broadcasting availability...
+Searching for hosts...
+your username:
+Found hosts:
 The system will now enter a low-power mode. Press L+R+SELECT to wake!
 The system will now accept software updates from another Game Boy Advance console. If you have a SKYLAND software update ROM, or an e-Reader card, connect a link cable to install updates. Press A when ready...
 WARNING: Gravitational collapse detected!!!
@@ -683,6 +689,8 @@ drone info
 eight bells
 resize bridge
 describe flag
+show ping
+hide ping
 -- Drone Service Log --
 technician's notes:
 -- Crewmember Passport --

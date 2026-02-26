@@ -58,7 +58,7 @@ public:
         }
 
         case State::connect: {
-            PLATFORM.network_peer().listen();
+            PLATFORM.network_peer().listen(seconds(20));
 
             if (not PLATFORM.network_peer().is_connected()) {
                 state_ = State::failure;

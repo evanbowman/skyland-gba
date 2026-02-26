@@ -75,7 +75,7 @@ public:
 
             auto s = m.load_sector(exchange_sector_);
 
-            PLATFORM.network_peer().listen();
+            PLATFORM.network_peer().listen(seconds(20));
             if (not PLATFORM.network_peer().is_connected()) {
                 return make_scene<MacroverseScene>(true);
             }

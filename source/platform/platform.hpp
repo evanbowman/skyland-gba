@@ -830,8 +830,13 @@ public:
         NetworkPeer(const NetworkPeer&) = delete;
         ~NetworkPeer();
 
-        void connect(const char* peer_address);
-        void listen();
+        void connect(const char* peer_address, int port);
+        void host(Time timeout);
+        void listen(
+            Time timeout,
+            Function<32, void(const char* ip, int port, const char* username)>
+                callback = [](const char*, int, const char*) {});
+
 
         void disconnect();
 
@@ -1002,6 +1007,8 @@ public:
             bool include_background_ = false;
         };
         void (*quickfade)(u8 amount, ColorConstant k, QuickfadeConfig conf);
+
+        void (*get_username)(StringBuffer<28>& output);
     };
 
 

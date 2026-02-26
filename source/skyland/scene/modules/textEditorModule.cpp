@@ -293,7 +293,9 @@ void TextEditorModule::handle_char(Vector<Glyph>::Iterator data,
 
 
 template <typename F>
-void parse_words(TextEditorModule& m, Vector<TextEditorModule::Glyph>::Iterator data, F&& callback)
+void parse_words(TextEditorModule& m,
+                 Vector<TextEditorModule::Glyph>::Iterator data,
+                 F&& callback)
 {
     TextEditorModule::ParserState ps;
 
@@ -513,7 +515,8 @@ int TextEditorModule::skip_word()
     auto data = insert_pos();
 
     int count = 0;
-    while (*data not_eq null_glyph_ and *data not_eq newline_glyph_ and data->cp(*this) not_eq ' ') {
+    while (*data not_eq null_glyph_ and *data not_eq newline_glyph_ and
+           data->cp(*this) not_eq ' ') {
         ++count;
         ++data;
     }
@@ -536,8 +539,8 @@ int TextEditorModule::back_word()
     auto data = insert_pos();
 
     int count = 0;
-    while (data not_eq begin and data->cp(*this) not_eq '\0' and data->cp(*this) not_eq '\n' and
-           data->cp(*this) not_eq ' ') {
+    while (data not_eq begin and data->cp(*this) not_eq '\0' and
+           data->cp(*this) not_eq '\n' and data->cp(*this) not_eq ' ') {
         ++count;
         --data;
     }
@@ -670,10 +673,13 @@ TextEditorModule::TextEditorModule(UserContext&& user_context,
             }
             auto data = PLATFORM.load_file_contents("", file_path);
 
-            utf8::scan([this](const utf8::Codepoint& cp, const char*, int) {
-                text_buffer_.push_back(load_glyph(cp));
-                return true;
-            }, data, strlen(data));
+            utf8::scan(
+                [this](const utf8::Codepoint& cp, const char*, int) {
+                    text_buffer_.push_back(load_glyph(cp));
+                    return true;
+                },
+                data,
+                strlen(data));
             text_buffer_.push_back(load_glyph('\0'));
         }
     } else {
@@ -809,7 +815,7 @@ ScenePtr TextEditorModule::save()
     if (file_mode_ == FileMode::readonly) {
         // Do not save the file
     } else if (filesystem_ == FileSystem::sram) {
-       Vector<char> output;
+        Vector<char> output;
         if (export_as_ascii(output)) {
             flash_filesystem::StorageOptions opts{.use_compression_ = true};
             flash_filesystem::store_file_data_text(
@@ -821,9 +827,10 @@ ScenePtr TextEditorModule::save()
     } else {
         Vector<char> output;
         if (export_as_ascii(output)) {
-           return make_scene<SramFileWritebackScene>(state_->file_path_.c_str(),
-                                                     std::move(output),
-                                                     std::move(user_context_));
+            return make_scene<SramFileWritebackScene>(
+                state_->file_path_.c_str(),
+                std::move(output),
+                std::move(user_context_));
         } else {
             PLATFORM.fatal("Text editor cannot save edited file containing "
                            "non-ascii bytes! Sorry!");
@@ -1477,10 +1484,10 @@ ScenePtr TextEditorModule::update(Time delta)
                 if (filesystem_ == FileSystem::device) {
                     return make_scene<FileBrowserModule>();
                 }
-                auto next = make_scene<FileBrowserModule>(std::move(user_context_),
-                                                     state_->file_path_.c_str(),
-                                                     filesystem_ ==
-                                                         FileSystem::rom);
+                auto next = make_scene<FileBrowserModule>(
+                    std::move(user_context_),
+                    state_->file_path_.c_str(),
+                    filesystem_ == FileSystem::rom);
                 if (browser_index_ > -1) {
                     next->scroll_index_ = browser_index_;
                 }

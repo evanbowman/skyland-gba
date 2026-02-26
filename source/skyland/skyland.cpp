@@ -22,6 +22,7 @@
 #include "save.hpp"
 #include "scene/notificationScene.hpp"
 #include "scene/readyScene.hpp"
+#include "script/debug.hpp"
 #include "script/lisp.hpp"
 #include "serial.hpp"
 #include "sound.hpp"
@@ -134,12 +135,38 @@ void create_crash_report(const char* error_text)
 
     append("");
 
-    append("lisp stack:");
+    append("o----------------------------o");
+    append("| lisp callstack:            |");
+    append("o----------------------------o");
+    if (lisp::get_this() not_eq L_NIL) {
+        append(lisp::val_to_string<96>(lisp::get_this()).c_str());
+    }
     lisp::l_foreach(lisp::stacktrace(), [&](lisp::Value* v) {
         append(lisp::val_to_string<96>(v).c_str());
     });
 
     append("");
+
+    append("o----------------------------o");
+    append("| lisp stack:                |");
+    append("o----------------------------o");
+    for (int i = 0; i < lisp::get_op_count(); ++i) {
+        append(lisp::val_to_string<96>(lisp::get_op(i)).c_str());
+    }
+
+    append("");
+    append("o----------------------------o");
+    append("| variables:                 |");
+    append("o----------------------------o");
+
+    Vector<lisp::debug::VariableBinding> vars;
+    lisp::debug::get_locals(vars);
+    lisp::debug::get_globals(vars);
+    for (auto& b : vars) {
+        append(
+            format("%: %", b.name_, lisp::val_to_string<96>(b.value_).c_str())
+                .c_str());
+    }
 
     flash_filesystem::store_file_data("/crash/report.txt", text);
 }
@@ -890,6 +917,25 @@ void App::shutdown()
 void App::set_initialized()
 {
     initialized_ = true;
+}
+
+
+
+void App::record_ping(Time tm)
+{
+    if (tm == 0) {
+        // FIXME: because we're using the existing level_timer object for
+        // timestamps, the ping will read as zero when the game's paused.
+        return;
+    }
+    ping_ms_ = tm / 1000; // Convert from microseconds to milliseconds
+}
+
+
+
+Ping App::get_ping() const
+{
+    return ping_ms_;
 }
 
 

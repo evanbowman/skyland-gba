@@ -663,9 +663,8 @@ ScenePtr FileBrowserModule::update(Time delta)
                     }
 
                     if (get_extension(path) == ".dat") {
-                        return make_scene<HexViewerModule>(std::move(user_context_),
-                                                           path.c_str(),
-                                                           true);
+                        return make_scene<HexViewerModule>(
+                            std::move(user_context_), path.c_str(), true);
                     }
 
                     auto next = make_scene<TextEditorModule>(

@@ -12,6 +12,7 @@
 #pragma once
 
 
+#include "allocator.hpp"
 #include "graphics/overlay.hpp"
 #include "skyland/scene.hpp"
 
@@ -36,8 +37,27 @@ public:
 
 
 private:
-    bool ready_ = false;
+    enum class HostPeerState {
+        select = -1,
+        host,
+        peer,
+        peer_select_host,
+    };
+    HostPeerState internet_host_peer_state_ = HostPeerState::select;
     Optional<Text> text_;
+
+    struct HostInfo
+    {
+        StringBuffer<32> ip_;
+        int port_;
+        StringBuffer<32> username_;
+    };
+    using HostInfoList = Buffer<HostInfo, 8>;
+    Optional<DynamicMemory<HostInfoList>> hosts_;
+
+    bool ready_ = false;
+    u8 internet_choice_sel_ = 0;
+    u8 host_choice_sel_ = 0;
 };
 
 

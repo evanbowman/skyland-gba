@@ -535,6 +535,28 @@ void WorldScene::multiplayer_vs_timeout_step(Time delta)
 
 
 
+void WorldScene::update_ping()
+{
+    auto ping = APP.get_ping();
+    bool ping_is_bad = ping >= 100;
+    if ((state_bit_load(StateBit::show_ping) or ping_is_bad) and
+        not disable_ui_) {
+        auto msg = format<32>("ping: %ms", ping);
+        for (int x = 0; x < 32; ++x) {
+            PLATFORM.set_tile(Layer::overlay, x, 0, 0);
+        }
+        auto clr = Text::OptColors{
+            {custom_color(0xa3c447), ColorConstant::rich_black}};
+        if (ping_is_bad) {
+            clr = Text::OptColors{
+                {ColorConstant::rich_black, ColorConstant::aerospace_orange}};
+        }
+        Text::print(msg.c_str(), {0, 0}, clr);
+    }
+}
+
+
+
 ScenePtr WorldScene::update(Time delta)
 {
     auto& g = globals();
@@ -578,9 +600,9 @@ ScenePtr WorldScene::update(Time delta)
 
 
     if (PLATFORM.network_peer().is_connected()) {
+        update_ping();
         if (mt_prep_seconds) {
-            if (APP.game_speed() not_eq GameSpeed::stopped and
-                not disable_ui_) {
+            if (APP.game_speed() not_eq GameSpeed::stopped) {
 
                 mt_prep_timer += delta;
                 if (mt_prep_timer > seconds(1)) {
@@ -603,9 +625,10 @@ ScenePtr WorldScene::update(Time delta)
 
                     const u8 margin = centered_text_margins(msg.length());
 
-
-                    g.multiplayer_prep_text_.emplace(msg.c_str(),
-                                                     OverlayCoord{margin, 4});
+                    if (not disable_ui_) {
+                        g.multiplayer_prep_text_.emplace(
+                            msg.c_str(), OverlayCoord{margin, 4});
+                    }
                 }
             }
         } else {

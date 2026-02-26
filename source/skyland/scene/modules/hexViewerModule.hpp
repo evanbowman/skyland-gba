@@ -90,8 +90,7 @@ public:
     void enter(Scene&) override
     {
         Text title(OverlayCoord{1, 1});
-        auto colors =
-            FontColors{fg_color, bg_color};
+        auto colors = FontColors{fg_color, bg_color};
         title.append(path_.c_str(), colors);
         title.__detach();
 
@@ -125,8 +124,7 @@ public:
         PLATFORM_EXTENSION(force_vsync);
 
         Text offset(OverlayCoord{14, 18});
-        auto colors =
-            FontColors{fg_color, bg_color};
+        auto colors = FontColors{fg_color, bg_color};
         offset.append("offset ", colors);
         offset.append(row_offset * 8, colors);
         offset.append("       ", colors);
@@ -164,11 +162,7 @@ public:
             for (u32 i = 0; i < line.length(); ++i) {
                 auto mapping_info = locale_texture_map()(line[i]);
                 const u16 t = PLATFORM.map_glyph(line[i], *mapping_info);
-                PLATFORM.set_tile(
-                    1 + i,
-                    y,
-                    t,
-                    FontColors{fg_color, bg_color});
+                PLATFORM.set_tile(1 + i, y, t, FontColors{fg_color, bg_color});
             }
 
             for (u32 i = start; i < end; ++i) {
@@ -186,10 +180,7 @@ public:
 
                 const u16 t = PLATFORM.map_glyph(c, *mapping_info);
                 PLATFORM.set_tile(
-                    21 + (i - start),
-                    y,
-                    t,
-                    FontColors{fg_color, bg_color});
+                    21 + (i - start), y, t, FontColors{fg_color, bg_color});
             }
         };
 

@@ -75,7 +75,6 @@ void MultiplayerSettingsScene::enter(Scene& prev)
 
     const auto msg = SYSTR(mt_hint);
     msg_.emplace(
-
         msg->c_str(),
         OverlayCoord{(u8)centered_text_margins(utf8::len(msg->c_str())), 18});
 
@@ -340,6 +339,7 @@ void MultiplayerSettingsScene::display()
 
     Sprite spr;
     spr.set_size(Sprite::Size::w16_h32);
+    spr.set_priority(0);
     spr.set_texture_index(59);
     spr.set_position(
         {2.0_fixed, 31.0_fixed + Fixnum::from_integer(player_cursor_ * 16)});

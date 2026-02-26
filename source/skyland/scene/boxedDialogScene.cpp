@@ -31,13 +31,15 @@ namespace skyland
 
 
 BoxedDialogScene::BoxedDialogScene(DialogBuffer buffer)
-    : text_state_(buffer_.end()),
-      data_(allocate<Data>("dialog-data"))
+    : text_state_(buffer_.end()), data_(allocate<Data>("dialog-data"))
 {
-    utf8::scan([this](const utf8::Codepoint& cp, const char*, int) {
-        buffer_.push_back(cp);
-        return true;
-    }, buffer->c_str(), strlen(buffer->c_str()));
+    utf8::scan(
+        [this](const utf8::Codepoint& cp, const char*, int) {
+            buffer_.push_back(cp);
+            return true;
+        },
+        buffer->c_str(),
+        strlen(buffer->c_str()));
     buffer_.push_back('\0');
     text_state_.current_word_ = buffer_.begin();
     goto_tutorial_ = 0;

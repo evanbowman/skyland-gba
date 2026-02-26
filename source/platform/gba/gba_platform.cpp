@@ -6262,7 +6262,7 @@ void Platform::NetworkPeer::poll_consume(u32 size)
 
 
 
-static void multiplayer_init()
+static void multiplayer_init(Time timeout)
 {
     Microseconds delta = 0;
 
@@ -6285,7 +6285,7 @@ MASTER_RETRY:
 
     while (not multiplayer_validate()) {
         delta += ::__platform__->delta_clock().reset();
-        if (delta > seconds(20)) {
+        if (delta > timeout) {
             if (not multiplayer_validate_modes()) {
                 error("not all GBAs are in MULTI mode");
             }
@@ -6321,7 +6321,7 @@ MASTER_RETRY:
     while (true) {
         PLATFORM_EXTENSION(feed_watchdog);
         delta += ::__platform__->delta_clock().reset();
-        if (delta > seconds(20)) {
+        if (delta > timeout) {
             StringBuffer<64> err =
                 "no valid handshake received within a reasonable window ";
             err += stringify(multiplayer_comms.rx_message_count);
@@ -6371,28 +6371,31 @@ MASTER_RETRY:
 
 
 
-void Platform::NetworkPeer::connect(const char* peer)
+void Platform::NetworkPeer::connect(const char* peer, int port)
 {
-    // If the gameboy player is active, any multiplayer initialization would
-    // clobber the Normal_32 serial transfer between the gameboy player and the
-    // gameboy advance.
     if (get_gflag(GlobalFlag::gbp_unlocked)) {
         return;
     }
 
-    audio_update_swap(audio_update_fast_cb);
-
-    multiplayer_init();
+    multiplayer_init(seconds(20));
 }
 
 
-void Platform::NetworkPeer::listen()
+void Platform::NetworkPeer::listen(
+    Time timeout,
+    Function<32, void(const char*, int, const char*)> callback)
 {
     if (get_gflag(GlobalFlag::gbp_unlocked)) {
         return;
     }
 
-    multiplayer_init();
+    multiplayer_init(timeout);
+}
+
+
+void Platform::NetworkPeer::host(Time timeout)
+{
+    // Does nothing...
 }
 
 

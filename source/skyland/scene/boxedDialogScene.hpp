@@ -34,7 +34,6 @@ namespace skyland
 class BoxedDialogScene : public Scene
 {
 public:
-
     BoxedDialogScene(DialogBuffer buffer);
 
 
@@ -100,8 +99,8 @@ private:
 
     struct TextWriterState
     {
-        TextWriterState(Vector<utf8::Codepoint>::Iterator it) :
-            current_word_(it)
+        TextWriterState(Vector<utf8::Codepoint>::Iterator it)
+            : current_word_(it)
         {
         }
 

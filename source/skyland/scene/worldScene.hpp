@@ -137,6 +137,8 @@ private:
 
     void multiplayer_vs_timeout_step(Time delta);
 
+    void update_ping();
+
 protected:
     bool power_fraction_opponent_island_ = false;
 };

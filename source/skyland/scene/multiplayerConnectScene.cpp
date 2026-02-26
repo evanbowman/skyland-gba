@@ -87,22 +87,21 @@ ScenePtr MultiplayerConnectScene::setup()
         *buffer = SYSTR(error_link_nds)->c_str();
         return make_scene<FullscreenDialogScene>(std::move(buffer),
                                                  future_scene);
-    } else if (PLATFORM.device_name() == "GameboyAdvance") {
+    } else {
 
         auto future_scene = [] { return make_scene<LinkScene>(); };
 
         if (not state_bit_load(StateBit::successful_multiplayer_connect)) {
             *buffer = SYSTR(link_gba_setup)->c_str();
 
-
+            if (PLATFORM.device_name() == "PC") {
+                return future_scene();
+            }
             return make_scene<FullscreenDialogScene>(std::move(buffer),
                                                      future_scene);
         } else {
             return future_scene();
         }
-
-    } else {
-        return make_scene<TitleScreenScene>();
     }
 }
 
@@ -115,11 +114,91 @@ ScenePtr MultiplayerConnectScene::update(Time delta)
         return null_scene();
     }
 
-
     auto future_scene = [] { return make_scene<TitleScreenScene>(); };
 
+    switch (PLATFORM.network_peer().interface()) {
+    case Platform::NetworkPeer::Interface::internet:
+        for (int x = 0; x < 30; ++x) {
+            for (int y = 3; y < 20; ++y) {
+                PLATFORM.set_tile(Layer::overlay, x, y, 0);
+            }
+        }
+        switch (internet_host_peer_state_) {
+        case HostPeerState::select:
+            Text::print(SYS_CSTR(multi_opt_host), {3, 4});
+            Text::print(SYS_CSTR(multi_opt_client), {3, 6});
+            PLATFORM.set_tile(
+                Layer::overlay, 1, 4 + internet_choice_sel_ * 2, 475);
+            if (button_down<Button::down>() or button_down<Button::up>()) {
+                internet_choice_sel_ = not internet_choice_sel_;
+            }
 
-    PLATFORM.network_peer().listen();
+            if (button_down<Button::action_1>() or
+                button_down<Button::action_2>()) {
+                internet_host_peer_state_ = (HostPeerState)internet_choice_sel_;
+            }
+            return null_scene();
+            break;
+
+        case HostPeerState::host: {
+            Text::print(SYS_CSTR(multi_broadcast_avail), {1, 4});
+            Text::print(SYS_CSTR(multi_your_addr), {1, 6});
+            StringBuffer<28> username;
+            PLATFORM_EXTENSION(get_username, username);
+            Text::print(username.c_str(), {2, 8});
+            PLATFORM.network_peer().host(seconds(120));
+            break;
+        }
+
+        case HostPeerState::peer: {
+            hosts_ = allocate<HostInfoList>("host-info");
+            Text::print(SYS_CSTR(multi_listen_avail), {1, 4});
+            PLATFORM.network_peer().listen(
+                seconds(2),
+                [this](const char* host, int port, const char* username) {
+                    (*hosts_)->push_back({host, port, username});
+                });
+            if (not(*hosts_)->empty()) {
+                internet_host_peer_state_ = HostPeerState::peer_select_host;
+            }
+            return null_scene();
+            break;
+        }
+
+        case HostPeerState::peer_select_host:
+            Text::print(SYS_CSTR(multi_found_hosts), {1, 4});
+            for (u32 i = 0; i < (*hosts_)->size(); ++i) {
+                auto& host = (**hosts_)[i];
+                Text::print(host.username_.c_str(), {3, (u8)(6 + i * 2)});
+            }
+            PLATFORM.set_tile(Layer::overlay, 1, 6 + host_choice_sel_ * 2, 475);
+            if (button_down<Button::action_2>()) {
+                break;
+            }
+            if (button_down<Button::action_1>()) {
+                auto host = (**hosts_)[host_choice_sel_];
+                PLATFORM.network_peer().connect(host.ip_.c_str(), host.port_);
+                break;
+            }
+            if (button_down<Button::down>() and
+                host_choice_sel_ < (*hosts_)->size() - 1) {
+                ++host_choice_sel_;
+            }
+            if (button_down<Button::up>() and host_choice_sel_ > 0) {
+                --host_choice_sel_;
+            }
+            return null_scene();
+            break;
+        }
+        break;
+
+    case Platform::NetworkPeer::Interface::serial_cable: {
+        // For the gba, the link cable determines who is the host and who is the
+        // peer, so there's no need to check anything.
+        PLATFORM.network_peer().listen(seconds(20));
+        break;
+    }
+    }
 
     if (not PLATFORM.network_peer().is_connected()) {
 

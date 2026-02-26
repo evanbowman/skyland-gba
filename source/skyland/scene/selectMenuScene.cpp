@@ -570,6 +570,20 @@ void SelectMenuScene::enter(Scene& scene)
         });
     }
 
+    if (PLATFORM.network_peer().is_connected()) {
+        if (not state_bit_load(StateBit::show_ping)) {
+            add_line(SystemString::sel_menu_show_ping, "", false, []() {
+                state_bit_store(StateBit::show_ping, true);
+                return null_scene();
+            });
+        } else {
+            add_line(SystemString::sel_menu_hide_ping, "", false, []() {
+                state_bit_store(StateBit::show_ping, false);
+                return null_scene();
+            });
+        }
+    }
+
     add_line(
         SystemString::sel_menu_back, "", false, []() { return null_scene(); });
 

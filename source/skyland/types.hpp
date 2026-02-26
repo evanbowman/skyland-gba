@@ -44,5 +44,7 @@ using MetaclassIndex = u16;
 using CharacterId = u16;
 using DroneId = u16;
 
+using Ping = u16; // in milliseconds
+
 
 } // namespace skyland

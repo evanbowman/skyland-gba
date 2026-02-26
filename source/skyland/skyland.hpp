@@ -501,6 +501,11 @@ public:
 
     void set_initialized();
 
+
+    void record_ping(Time tm);
+    Ping get_ping() const;
+
+
 private:
     // NOTE: As islands take a lot of memory, and App is created on the stack, I
     // ended up moving them into a scratch buffer.
@@ -573,6 +578,7 @@ private:
     ////////////////////////////////////////////////////////////////////////////
     // Fields with two-byte alignment
     u16 pause_count_ = 0;
+    Ping ping_ms_ = 0;
 
 public:
     u16 dropped_frames_ = 0;
