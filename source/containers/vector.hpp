@@ -13,6 +13,7 @@
 
 
 #include "allocator.hpp"
+#include "vector_fwd.hpp"
 
 
 
@@ -39,26 +40,26 @@
 // Other features, such as logging, also leverage the Vector class.
 
 
-template <typename T> class Vector
+template <typename T, typename Mem> class Vector
 {
 private:
     struct Chunk
     {
         struct Header
         {
-            Optional<ScratchBufferPtr> next_;
+            Optional<typename Mem::PtrType> next_;
             Chunk* prev_;
         };
 
         static constexpr u32 elems()
         {
-            return ((SCRATCH_BUFFER_SIZE - sizeof(Chunk::Header)) -
+            return ((Mem::Type::size - sizeof(Chunk::Header)) -
                     alignof(T)) /
                    sizeof(T);
         }
 
 
-        static void initialize(ScratchBufferPtr source, Chunk* prev)
+        static void initialize(typename Mem::PtrType source, Chunk* prev)
         {
             new (source->data_) Chunk();
             ((Chunk*)source->data_)->header_.prev_ = prev;
@@ -294,13 +295,13 @@ public:
     }
 
 
-    Vector(ScratchBuffer::Tag t = "") : data_(make_zeroed_sbr(t))
+    Vector(ScratchBuffer::Tag t = "") : data_(Mem::create(t))
     {
         Chunk::initialize(data_, nullptr);
     }
 
 
-    Vector(ScratchBufferPtr prealloc_buffer) : data_(prealloc_buffer)
+    Vector(typename Mem::PtrType prealloc_buffer) : data_(prealloc_buffer)
     {
         Chunk::initialize(data_, nullptr);
     }
@@ -337,7 +338,7 @@ public:
         }
 
         if (size == (int)Chunk::elems() and not current->header_.next_) {
-            auto sbr = make_zeroed_sbr(t);
+            auto sbr = Mem::create(t);
             Chunk::initialize(sbr, current);
             current->header_.next_ = sbr;
             current = (Chunk*)(*current->header_.next_)->data_;
@@ -482,7 +483,7 @@ public:
 
 
 private:
-    ScratchBufferPtr data_;
+    typename Mem::PtrType data_;
     u32 size_ = 0;
 
     // Improves the performance of push_back() and end() and other operations

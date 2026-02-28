@@ -217,12 +217,26 @@ constexpr const std::array<FinalizerTableEntry, Value::Type::count> fin_table =
 };
 
 
+struct MacroDescription
+{
+    Symbol::UniqueId name_;
+    const char* string_name_;
+    Value* definition_;
+    // After macro-expansion, we need to run macro-expansion repeatedly in case
+    // a macro instantiates other macros. This can be somewhat computationally
+    // intensive, and we can avoid some of the overhead in simple cases by
+    // storing a flag indicating whether a macro contains unexpanded macros.
+    bool contains_macros_;
+};
+
+
 struct Context
 {
     using OperandStack = Buffer<Value*, 497>;
 
 
-    Context() : operand_stack_(allocate<OperandStack>("lisp-operand-stack"))
+    Context() : operand_stack_(allocate<OperandStack>("lisp-operand-stack")),
+                macros_("lisp-macro-array")
     {
         if (not operand_stack_) {
             PLATFORM.fatal("pointer compression test failed");
@@ -245,7 +259,8 @@ struct Context
     Value* tree_nullnode_ = nullptr;
 
     Value* lexical_bindings_ = nullptr;
-    Value* macros_ = nullptr;
+
+    CompactVector<MacroDescription> macros_;
 
     Value* callstack_ = nullptr;
 
@@ -3058,7 +3073,9 @@ static void gc_mark()
 {
     gc_mark_value(L_CTX.nil_);
     gc_mark_value(L_CTX.lexical_bindings_);
-    gc_mark_value(L_CTX.macros_);
+    for (auto& mcr : L_CTX.macros_) {
+        gc_mark_value(mcr.definition_);
+    }
     gc_mark_value(L_CTX.tree_nullnode_);
     gc_mark_value(L_CTX.debug_breakpoints_);
     gc_mark_value(L_CTX.debug_watchpoints_);
@@ -3664,16 +3681,13 @@ static void macroexpand()
 
     if (lat->cons().car()->type() == Value::Type::symbol) {
 
-        auto macros = L_CTX.macros_;
-        for (; macros not_eq get_nil(); macros = macros->cons().cdr()) {
-
+        for (auto& mcr : L_CTX.macros_) {
             // if Symbol matches?
-            if (macros->cons().car()->cons().car()->symbol().unique_id() ==
-                lat->cons().car()->symbol().unique_id()) {
+            if (mcr.name_ == lat->cons().car()->symbol().unique_id()) {
 
                 auto supplied_macro_args = lat->cons().cdr();
 
-                auto macro = macros->cons().car()->cons().cdr();
+                auto macro = mcr.definition_;
                 auto macro_args = macro->cons().car();
 
                 if (length(macro_args) > length(supplied_macro_args)) {
@@ -3737,9 +3751,11 @@ static void macroexpand()
 
                 push_op(result);
 
-                // OK, so... we want to allow users to recursively instantiate
-                // macros, so we aren't done!
-                macroexpand_macro();
+                if (mcr.contains_macros_) {
+                    // OK, so... we want to allow users to recursively
+                    // instantiate macros, so we aren't done!
+                    macroexpand_macro();
+                }
                 return;
             } else {
                 // ... no match ...
@@ -3998,10 +4014,52 @@ static void eval_let_recursive(Value* code)
 }
 
 
+static bool search_recursive_macros(Value* v)
+{
+    if (v->type() == Value::Type::symbol) {
+        auto id = v->symbol().unique_id();
+        for (auto& mcr : L_CTX.macros_) {
+            if (mcr.name_ == id) {
+                return true;
+            }
+        }
+    } else if (v->type() == Value::Type::cons) {
+        if (search_recursive_macros(v->cons().car())) {
+            return true;
+        }
+        if (search_recursive_macros(v->cons().cdr())) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+
+static void refresh_macros()
+{
+    for (auto& mcr : L_CTX.macros_) {
+        if (not mcr.contains_macros_) {
+            mcr.contains_macros_ = search_recursive_macros(mcr.definition_);
+            // if (mcr.contains_macros_) {
+            //     info(::format("% contains macros!", mcr.string_name_));
+            // }
+        }
+    }
+}
+
+
 static void eval_macro(Value* code)
 {
     if (code->cons().car()->type() == Value::Type::symbol) {
-        L_CTX.macros_ = make_cons(code, L_CTX.macros_);
+        L_CTX.macros_.push_back({
+                code->cons().car()->symbol().unique_id(),
+                code->cons().car()->symbol().name(),
+                code->cons().cdr(),
+                false
+            },
+            "lisp-macro-array");
+        refresh_macros();
         push_op(get_nil());
     } else {
         // TODO: raise error!
@@ -5981,8 +6039,8 @@ void get_env(SymbolCallback callback)
         callback((const char*)val.cons().car()->symbol().name());
     });
 
-    l_foreach(L_CTX.macros_,
-              [&](Value* v) { callback(v->cons().car()->symbol().name()); });
+    // l_foreach(L_CTX.macros_,
+    //           [&](Value* v) { callback(v->cons().car()->symbol().name()); });
 }
 
 
@@ -6359,7 +6417,6 @@ void init(Optional<std::pair<const char*, u32>> external_symtab,
 
     L_CTX.bytecode_buffer_ = L_CTX.nil_;
     L_CTX.string_buffer_ = L_CTX.nil_;
-    L_CTX.macros_ = L_CTX.nil_;
 
 #ifdef USE_SYMBOL_CACHE
     for (auto& v : L_CTX.symbol_cache_) {

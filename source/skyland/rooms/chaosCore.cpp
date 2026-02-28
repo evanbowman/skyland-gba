@@ -41,7 +41,7 @@ Power ChaosCore::power_usage() const
     }
 
     auto mt = room_metatable();
-    Vector<bool> seen_rooms;
+    Vector<bool> seen_rooms(make_scratch_buffer("chaos-core-pwr-buf"));
     for (int i = 0; i < mt.second; ++i) {
         seen_rooms.push_back(false);
     }

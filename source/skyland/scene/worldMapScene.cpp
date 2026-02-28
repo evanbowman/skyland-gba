@@ -2207,7 +2207,7 @@ void WorldMapScene::display()
         if (not discretized_range_cache_) {
             ShadeIntensity matrix[30][20];
             memset(matrix, 0, sizeof matrix);
-            discretized_range_cache_.emplace();
+            discretized_range_cache_.emplace(make_scratch_buffer("move-range"));
             build_range_cache(matrix, *discretized_range_cache_);
         }
 
