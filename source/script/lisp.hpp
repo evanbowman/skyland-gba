@@ -930,9 +930,9 @@ public:
 
     char operator[](int index) override
     {
-        // if (index < 0 or index >= (int)len_) {
-        //     return '\0';
-        // }
+        if (index < 0 or index >= (int)len_) {
+            return '\0';
+        }
         return ptr_[index];
     }
 
@@ -956,9 +956,9 @@ public:
 
     char operator[](int index) override
     {
-        // if (index < 0 or index >= (int)v_.size()) {
-        //     return '\0';
-        // }
+        if (index < 0 or index >= (int)v_.size()) {
+            return '\0';
+        }
         return v_[index];
     }
 
