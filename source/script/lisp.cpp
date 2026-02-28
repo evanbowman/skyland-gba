@@ -6039,8 +6039,9 @@ void get_env(SymbolCallback callback)
         callback((const char*)val.cons().car()->symbol().name());
     });
 
-    // l_foreach(L_CTX.macros_,
-    //           [&](Value* v) { callback(v->cons().car()->symbol().name()); });
+    for (auto& mcr : L_CTX.macros_) {
+        callback(mcr.string_name_);
+    }
 }
 
 
