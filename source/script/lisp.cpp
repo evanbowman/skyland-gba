@@ -3296,8 +3296,8 @@ push_reader_error(CharSequence& code, int byte_offset, Error::Code ec)
 }
 
 
-
-static u32 read_list(CharSequence& code, int offset)
+template <typename T>
+u32 read_list(T& code, int offset)
 {
     int i = 0;
 
@@ -3338,8 +3338,8 @@ static u32 read_list(CharSequence& code, int offset)
 
         case ';':
             while (true) {
-                if (code[offset + i] == '\0' or code[offset + i] == '\r' or
-                    code[offset + i] == '\n') {
+                auto current = code[offset + i];
+                if (current == '\0' or current == '\r' or current == '\n') {
                     break;
                 } else {
                     ++i;
@@ -3383,7 +3383,8 @@ static u32 read_list(CharSequence& code, int offset)
 }
 
 
-static u32 read_string(CharSequence& code, int offset)
+template <typename T>
+u32 read_string(T& code, int offset)
 {
     auto temp = make_scratch_buffer("lisp-string-memory");
     auto write = temp->data_;
@@ -3402,26 +3403,8 @@ static u32 read_string(CharSequence& code, int offset)
             return i;
         }
 
-        // UTF-8. We need special parsing, in case a utf-8 sequence contains a "
-        // character.
-        const Bitvector<8> parsed(current);
-        if ((current & 0x80) == 0) {
-            *(write++) = code[offset + i++];
-        } else if (parsed[7] == 1 and parsed[6] == 1 and parsed[5] == 0) {
-            *(write++) = code[offset + i++];
-            *(write++) = code[offset + i++];
-        } else if (parsed[7] == 1 and parsed[6] == 1 and parsed[5] == 1 and
-                   parsed[4] == 0) {
-            *(write++) = code[offset + i++];
-            *(write++) = code[offset + i++];
-            *(write++) = code[offset + i++];
-        } else if (parsed[7] == 1 and parsed[6] == 1 and parsed[5] == 1 and
-                   parsed[4] == 1 and parsed[3] == 0) {
-            *(write++) = code[offset + i++];
-            *(write++) = code[offset + i++];
-            *(write++) = code[offset + i++];
-            *(write++) = code[offset + i++];
-        }
+        *(write++) = current;
+        ++i;
     }
 
     if (code[offset + i] == '"') {
@@ -3435,15 +3418,16 @@ static u32 read_string(CharSequence& code, int offset)
 }
 
 
-static u32 read_symbol(CharSequence& code, int offset)
+template <typename T>
+u32 read_symbol(T& code, int offset)
 {
     int i = 0;
 
     StringBuffer<64> symbol;
 
-    if (code[offset] == '\'' or code[offset] == '`' or code[offset] == ',' or
-        code[offset] == '@') {
-        symbol.push_back(code[offset]);
+    auto first = code[offset];
+    if (first == '\'' or first == '`' or first == ',' or first == '@') {
+        symbol.push_back(first);
 
         auto mode = Symbol::ModeBits::requires_intern;
         if (symbol.length() <= Symbol::buffer_size) {
@@ -3482,7 +3466,8 @@ static u32 read_symbol(CharSequence& code, int offset)
     }
 
     while (true) {
-        switch (code[offset + i]) {
+        auto c = code[offset + i];
+        switch (c) {
         case '[':
         case ']':
         case '(':
@@ -3500,7 +3485,8 @@ static u32 read_symbol(CharSequence& code, int offset)
             goto FINAL;
 
         default:
-            symbol.push_back(code[offset + i++]);
+            symbol.push_back(c);
+            ++i;
             break;
         }
     }
@@ -3523,7 +3509,8 @@ FINAL:
 }
 
 
-static u32 read_number(CharSequence& code, int offset)
+template <typename T>
+static u32 read_number(T& code, int offset)
 {
     int i = 0;
 
@@ -3534,7 +3521,8 @@ static u32 read_number(CharSequence& code, int offset)
     bool is_ratio = false;
 
     while (true) {
-        switch (code[offset + i]) {
+        auto current = code[offset + i];
+        switch (current) {
         case 'x':
         case 'a':
         case 'b':
@@ -3553,10 +3541,11 @@ static u32 read_number(CharSequence& code, int offset)
         case '8':
         case '9':
             if (is_ratio) {
-                num_str2.push_back(code[offset + i++]);
+                num_str2.push_back(current);
             } else {
-                num_str.push_back(code[offset + i++]);
+                num_str.push_back(current);
             }
+            ++i;
             break;
 
         case '/': {
@@ -3772,7 +3761,8 @@ static void negate_number(Value* v)
 }
 
 
-u32 read(CharSequence& code, int offset)
+template <typename T>
+u32 read_impl(T& code, int offset)
 {
     int i = 0;
 
@@ -3797,8 +3787,8 @@ u32 read(CharSequence& code, int offset)
 
         case ';':
             while (true) {
-                if (code[offset + i] == '\0' or code[offset + i] == '\r' or
-                    code[offset + i] == '\n') {
+                auto current = code[offset + i];
+                if (current == '\0' or current == '\r' or current == '\n') {
                     break;
                 } else {
                     ++i;
@@ -3892,6 +3882,36 @@ u32 read(CharSequence& code, int offset)
             return i;
         }
     }
+}
+
+
+class ReadCharSequenceVisitor : public CharSequenceVisitor
+{
+public:
+    int offset = 0;
+    int i = 0;
+
+
+    void visit(BasicCharSequence& cs) override
+    {
+        i = read_impl(cs, offset);
+    }
+
+
+    void visit(VectorCharSequence& cs) override
+    {
+        i = read_impl(cs, offset);
+    }
+
+};
+
+
+u32 read(CharSequence& code, int offset)
+{
+    ReadCharSequenceVisitor v;
+    v.offset = offset;
+    code.accept(v);
+    return v.i;
 }
 
 

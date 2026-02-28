@@ -883,6 +883,26 @@ inline Value* set_var(const char* name, Value* value)
 Value* get_var(const char* name);
 
 
+class BasicCharSequence;
+class VectorCharSequence;
+
+
+class CharSequenceVisitor
+{
+public:
+    virtual void visit(BasicCharSequence&) {};
+    virtual void visit(VectorCharSequence&) {};
+};
+
+
+// TODO: refactor and remove CharSequence. The visitor pattern is a temporary
+// measure until I get around to removing CharSequence from code throughout the
+// application and passing Vector or the pointer directly to two different read
+// functions, rather than having one read function that accepts a
+// CharSequence. I originally specified read() as accepting a CharSequence
+// object, because I didn't know what different data I would need to pass into
+// the library. But a pointer/len slice and a vector covers everything I need
+// pretty much.
 class CharSequence
 {
 public:
@@ -890,22 +910,29 @@ public:
     {
     }
 
+    virtual void accept(CharSequenceVisitor& v) = 0;
+
     virtual char operator[](int index) = 0;
 };
 
 
-class BasicCharSequence : public CharSequence
+class BasicCharSequence final : public CharSequence
 {
 public:
     BasicCharSequence(const char* ptr) : ptr_(ptr), len_(strlen(ptr))
     {
     }
 
+    void accept(CharSequenceVisitor& v) override
+    {
+        v.visit(*this);
+    }
+
     char operator[](int index) override
     {
-        if (index < 0 or index >= (int)len_) {
-            return '\0';
-        }
+        // if (index < 0 or index >= (int)len_) {
+        //     return '\0';
+        // }
         return ptr_[index];
     }
 
@@ -915,18 +942,23 @@ private:
 };
 
 
-class VectorCharSequence : public CharSequence
+class VectorCharSequence final : public CharSequence
 {
 public:
     VectorCharSequence(Vector<char>& v) : v_(v)
     {
     }
 
+    void accept(CharSequenceVisitor& v) override
+    {
+        v.visit(*this);
+    }
+
     char operator[](int index) override
     {
-        if (index < 0 or index >= (int)v_.size()) {
-            return '\0';
-        }
+        // if (index < 0 or index >= (int)v_.size()) {
+        //     return '\0';
+        // }
         return v_[index];
     }
 
