@@ -217,7 +217,9 @@ void BoxedDialogScene::process_command()
             PLATFORM.screen().clear();
             PLATFORM.screen().display();
         }
+        PLATFORM.screen().set_shader(passthrough_shader);
         PLATFORM.load_sprite_texture(img_name.c_str());
+        PLATFORM.screen().set_shader(APP.environment().shader());
         for (u8 x = 2; x < 28; ++x) {
             for (u8 y = 1; y < 12; ++y) {
                 PLATFORM.set_tile(Layer::overlay, x, y, 82);
