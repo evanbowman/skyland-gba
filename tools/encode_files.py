@@ -91,13 +91,99 @@ def build_lisp_symtab(codestring):
     for string in parsed:
         if ';' in string:
             break
-        if not string.lstrip('-').isnumeric() and not '"' in string and string and not string.startswith("0x"):
+        if not string.replace('/', '0').isnumeric() and not string.lstrip('-').isnumeric() and not '"' in string and string and not string.startswith("0x") and string != "false":
             if len(string) > 4: # The interpreter does a small string optimization already
                 if string in lisp_symbol_tab:
                     lisp_symbol_tab[string] = lisp_symbol_tab[string] + 1
                 else:
                     lisp_symbol_tab[string] = 1
 
+
+def build_symbol_index_map():
+    """Build a fast lookup dict mapping symbol_str -> '#N' replacement string.
+    Called once after all files have been preprocessed."""
+    result = {}
+    for i, (sym, _) in enumerate(sorted(lisp_symbol_tab.items(), key=lambda item: item[0])):
+        result[sym] = "#{}".format(i)
+    return result
+
+
+def replace_symbols_in_code(code, index_map):
+    """Replace whole symbol tokens in a code region (no strings, no comments)."""
+    result = []
+    i = 0
+    while i < len(code):
+        c = code[i]
+        if c in '() \t\n\r,\'@':
+            result.append(c)
+            i += 1
+        else:
+            # Collect a token
+            j = i
+            while j < len(code) and code[j] not in '() \t\n\r,\'@':
+                j += 1
+            token = code[i:j]
+            replacement = index_map.get(token)
+            if replacement is not None:
+                result.append(replacement)
+            else:
+                result.append(token)
+            i = j
+    return ''.join(result)
+
+
+def replace_symbols(contents, index_map):
+    """Replace symbols in a lisp source file, correctly handling string
+    literals and comments."""
+    decoded = contents.decode('utf-8')
+    result = []
+    i = 0
+    while i < len(decoded):
+        # Find the next string literal or comment start
+        str_pos = decoded.find('"', i)
+        cmt_pos = decoded.find(';', i)
+
+        # Pick whichever comes first
+        next_special = min(
+            str_pos if str_pos != -1 else len(decoded),
+            cmt_pos if cmt_pos != -1 else len(decoded)
+        )
+
+        # Everything up to next_special is plain code — replace symbols
+        if next_special > i:
+            result.append(replace_symbols_in_code(decoded[i:next_special], index_map))
+
+        if next_special == len(decoded):
+            break
+
+        if decoded[next_special] == ';':
+            # Comment: emit everything up to and including the newline verbatim
+            end = decoded.find('\n', next_special)
+            if end == -1:
+                result.append(decoded[next_special:])
+                i = len(decoded)
+            else:
+                result.append(decoded[next_special:end + 1])
+                i = end + 1
+        else:
+            # String literal: find the closing quote, respecting escapes
+            result.append('"')
+            i = next_special + 1
+            while i < len(decoded):
+                ch = decoded[i]
+                result.append(ch)
+                if ch == '\\':
+                    i += 1
+                    if i < len(decoded):
+                        result.append(decoded[i])
+                        i += 1
+                elif ch == '"':
+                    i += 1
+                    break
+                else:
+                    i += 1
+
+    return ''.join(result).encode('utf-8')
 
 
 def extension(path):
@@ -117,8 +203,16 @@ def make_index_file(path):
                 b = test_file.read(1)
 
 
+def preprocess_file(path, real_name, out):
+    with open(path, 'rb') as test_file:
+        data = test_file.read()
+        if extension(path) == 'lisp':
+            src_contents = data.decode('utf-8')
+            build_lisp_symtab(src_contents)
+            build_lisp_constant_tab(src_contents)
 
-def encode_file(path, real_name, out):
+
+def encode_file(path, real_name, out, symbol_index_map=None):
 
     with open(path, 'rb') as test_file:
 
@@ -144,9 +238,7 @@ def encode_file(path, real_name, out):
         file_contents = data
 
         if extension(path) == 'lisp':
-            src_contents = data.decode('utf-8')
-            build_lisp_symtab(src_contents)
-            build_lisp_constant_tab(src_contents)
+            file_contents = replace_symbols(file_contents, symbol_index_map or {})
 
         null_padding = 1
 
@@ -221,8 +313,12 @@ with open('fs.bin', 'wb') as filesystem:
 
     filesystem.write(fs_count.to_bytes(4, 'little'))
 
+    # Pass 1: scan all files to build the symbol and constant tables
     for info in files_list:
-        encode_file(info[1], info[0], filesystem)
+        preprocess_file(info[1], info[0], filesystem)
+
+    # Build fast index map once, after all files have been scanned
+    symbol_index_map = build_symbol_index_map()
 
     symtab_fname = "lisp_symtab.dat"
     symtab_path = os.path.join(project_root_path, symtab_fname)
@@ -230,11 +326,15 @@ with open('fs.bin', 'wb') as filesystem:
         for sym, v in sorted(lisp_symbol_tab.items(), key=lambda item: item[0]):
             enc_sym = sym.encode('utf-8')
             if len(enc_sym) > 30:
-                raise Error("symbol " + sym + " too long!")
+                raise Exception("symbol " + sym + " too long!")
             sym_file.write(sym.encode('utf-8'))
             for i in range(len(enc_sym), 31):
                 sym_file.write('\0'.encode('utf-8'))
             sym_file.write('\n'.encode('utf-8')) # This is just to make the file easier to read in an editor. Yes, it wastes space.
+
+    # Pass 2: encode all files with symbol replacement
+    for info in files_list:
+        encode_file(info[1], info[0], filesystem, symbol_index_map)
 
     encode_file(symtab_path, "/" + symtab_fname, filesystem)
     print("symbol tab count: %d" % len(lisp_symbol_tab))
@@ -252,7 +352,7 @@ with open('fs.bin', 'wb') as filesystem:
             const_file.write(enc_constant)
             const_file.write('\0'.encode('utf-8'))
             if len(enc_constant) > 255:
-                raise Error("constant value " + enc_constant + " for constant " + enc_sym + " exceeds 255 bytes!")
+                raise Exception("constant value " + str(enc_constant) + " for constant " + str(enc_sym) + " exceeds 255 bytes!")
 
     encode_file(consttab_path, "/" + consttab_fname, filesystem)
     print("constant tab count: %d" % len(lisp_constant_tab))

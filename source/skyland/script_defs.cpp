@@ -210,13 +210,6 @@ using Binding = lisp::NativeInterface::LookupResult;
 #endif
 
 
-SYMTAB({{"on-fadein", 0},
-        {"on-converge", 0},
-        {"on-room-destroyed", 0},
-        {"on-crew-died", 0},
-        {"on-shop-item-sel", 0}});
-
-
 
 lisp::Value* wrap_island(Island* isle)
 {
@@ -2800,10 +2793,6 @@ static void binding_name_getter(lisp::SymbolCallback cb)
         cb(fn.first.c_str());
     }
 
-    for (auto& sym : symtab) {
-        cb(sym.first.c_str());
-    }
-
     auto [mt, ms] = room_metatable();
 
     for (int i = 0; i < plugin_rooms_begin(); ++i) {
@@ -2818,11 +2807,6 @@ static const char* binding_intern_sym_resolver(const char* name)
     auto found_intern = binding_table.find(name);
     if (found_intern not_eq binding_table.end()) {
         return found_intern->first.c_str();
-    }
-
-    auto found_sym = symtab.find(name);
-    if (found_sym not_eq symtab.end()) {
-        return found_sym->first.c_str();
     }
 
     if (auto mt = load_metaclass(name)) {

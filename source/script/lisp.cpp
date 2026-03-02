@@ -3515,6 +3515,24 @@ FINAL:
     } else if (symbol == "true") {
         push_op(make_integer(1));
     } else {
+        if (symbol[0] == '#') {
+            u32 symtab_index = 0;
+            auto ptr = symbol.c_str() + 1;
+            while (*ptr not_eq '\0') {
+                symtab_index = symtab_index * 10 + *ptr - '0';
+                ++ptr;
+            }
+            u32 symtab_offset = 32 * symtab_index;
+            if (symtab_offset >= bound_context->external_symtab_size_) {
+                PLATFORM.fatal(::format("invalid symtab offset %",
+                                        symtab_offset));
+            }
+            if (auto tab = bound_context->external_symtab_contents_) {
+                auto mode = Symbol::ModeBits::stable_pointer;
+                push_op(make_symbol(tab + symtab_offset, mode));
+                return i;
+            }
+        }
         auto mode = Symbol::ModeBits::requires_intern;
         if (symbol.length() <= Symbol::buffer_size) {
             mode = Symbol::ModeBits::small;
@@ -6048,19 +6066,6 @@ void get_env(SymbolCallback callback)
 
 const char* intern(const char* string)
 {
-    const auto len = strlen(string);
-
-    auto found_builtin = builtin_table.find(string);
-    if (found_builtin not_eq builtin_table.end()) {
-        // If the string exists as a constant in the builtin table, then it
-        // needn't be copied to the string intern table.
-        return found_builtin->first.c_str();
-    }
-
-    if (auto ni_sym = L_CTX.native_interface_.resolve_intern_sym_(string)) {
-        return ni_sym;
-    }
-
     if (L_CTX.external_symtab_contents_) {
         const char* search = L_CTX.external_symtab_contents_;
         u32 left = 0;
@@ -6080,6 +6085,19 @@ const char* intern(const char* string)
             }
         }
     }
+
+    auto found_builtin = builtin_table.find(string);
+    if (found_builtin not_eq builtin_table.end()) {
+        // If the string exists as a constant in the builtin table, then it
+        // needn't be copied to the string intern table.
+        return found_builtin->first.c_str();
+    }
+
+    if (auto ni_sym = L_CTX.native_interface_.resolve_intern_sym_(string)) {
+        return ni_sym;
+    }
+
+    const auto len = strlen(string);
 
     // Ok, no stable pointer to the string exists anywhere, so we'll have to
     // preserve the string contents in intern memory.

@@ -206,6 +206,9 @@ private:
     void center_view();
 
 
+    void load_lisp_script(const char* data);
+
+
     struct State
     {
         StringBuffer<64> file_path_;
@@ -223,7 +226,6 @@ private:
 
 
     UserContext user_context_;
-
 
     u16 start_line_ = 0;
     u16 column_offset_ = 0;

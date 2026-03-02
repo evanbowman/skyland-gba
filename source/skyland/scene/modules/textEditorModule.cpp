@@ -660,6 +660,9 @@ TextEditorModule::TextEditorModule(UserContext&& user_context,
 
     init_glyph_table();
 
+    StringBuffer<8> lisp_ext(".lisp");
+    const bool is_lisp_script = str_eq(get_extension(file_path), lisp_ext);
+
     if (file_mode == FileMode::update) {
         if (filesystem_ == FileSystem::sram) {
             Vector<char> tmp_buffer;
@@ -673,25 +676,80 @@ TextEditorModule::TextEditorModule(UserContext&& user_context,
             }
             auto data = PLATFORM.load_file_contents("", file_path);
 
-            utf8::scan(
+            if (is_lisp_script) {
+                load_lisp_script(data);
+            } else {
+                utf8::scan(
                 [this](const utf8::Codepoint& cp, const char*, int) {
                     text_buffer_.push_back(load_glyph(cp));
                     return true;
                 },
                 data,
                 strlen(data));
+            }
+
             text_buffer_.push_back(load_glyph('\0'));
         }
     } else {
         text_buffer_.push_back(load_glyph('\n'));
         text_buffer_.push_back(load_glyph('\0'));
     }
+}
 
-    StringBuffer<8> lisp_ext(".lisp");
 
-    if (str_eq(get_extension(file_path), lisp_ext)) {
-        // tabs_to_spaces();
-    }
+
+void TextEditorModule::load_lisp_script(const char* data)
+{
+    bool in_comment = false;
+    bool in_string = false;
+    bool in_index = false;
+    u32 current_index = 0;
+
+    auto symtab = PLATFORM.load_file("", "/lisp_symtab.dat");
+
+    utf8::scan([&](const utf8::Codepoint& cp, const char*, int) {
+                   if (in_index) {
+                       if (cp >= '0' && cp <= '9') {
+                           current_index = current_index * 10 + (cp - '0');
+                           return true;
+                       } else {
+                           // Index is complete, expand the symbol
+                           in_index = false;
+                           u32 offset = 32 * current_index;
+                           if (auto tab = symtab.first) {
+                               if (offset < symtab.second) {
+                                   const char* sym = tab + offset;
+                                   while (*sym != '\0' && *sym != '\n') {
+                                       text_buffer_.push_back(load_glyph(*sym++));
+                                   }
+                               }
+                           }
+                           // Fall through to handle the current cp normally
+                       }
+                   }
+
+                   if (in_comment) {
+                       if (cp == '\n') in_comment = false;
+                       text_buffer_.push_back(load_glyph(cp));
+                   } else if (in_string) {
+                       if (cp == '"') in_string = false;
+                       text_buffer_.push_back(load_glyph(cp));
+                   } else if (cp == ';') {
+                       in_comment = true;
+                       text_buffer_.push_back(load_glyph(cp));
+                   } else if (cp == '"') {
+                       in_string = true;
+                       text_buffer_.push_back(load_glyph(cp));
+                   } else if (cp == '#') {
+                       in_index = true;
+                       current_index = 0;
+                   } else {
+                       text_buffer_.push_back(load_glyph(cp));
+                   }
+                   return true;
+               },
+               data,
+               strlen(data));
 }
 
 
