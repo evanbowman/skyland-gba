@@ -34,6 +34,19 @@
  mix of scheme and common
  lisp.
 
+ Some notable features:
+ * Asynchronous execution
+   (async/await).
+ * Optional bytecode
+   compilation.
+ * A Numerical tower, with
+   integers, ratios, and
+   floating point.
+ * Lexical scope.
+ * A Customizable type system.
+ * Tail call optimization.
+ * Macros.
+
  While I've greatly improved
  it over the years, I should
  mention a few of its

@@ -1576,7 +1576,6 @@ BINDING_TABLE({
 
           if (auto c = load_metaclass(name)) {
               (*c)->create(island, RoomCoord{x, y});
-              island->repaint();
           } else {
               Platform::fatal(name);
           }

@@ -65,6 +65,7 @@
  `(setq ,NAME (+ ,NAME ,@VAL)))
 
 (macro setq (NAME EXPR) `(set ,(cons $q NAME) ,@EXPR))
+(macro setq/temp (NAME EXPR) `(set-temp ,(cons $q NAME) ,@EXPR))
 
 (macro when (EXPR BODY) `(if ,EXPR (progn ,@BODY)))
 (macro unless (EXPR BODY) `(if (not ,EXPR) (progn ,@BODY)))

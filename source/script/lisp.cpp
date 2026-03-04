@@ -30,7 +30,7 @@
 #endif
 
 
-#define USE_SYMBOL_CACHE
+// #define USE_SYMBOL_CACHE
 
 
 namespace lisp
@@ -1027,7 +1027,9 @@ ArgBindings make_arg_bindings(Value* arg_lat, ArgBindings* parent)
             sym = val;
         }
         if (not b.bindings_.push_back(
-                ArgBinding{&sym->symbol(), (u8)arg++, type, false})) {
+                ArgBinding{&sym->symbol(),
+                           sym->symbol().unique_id(),
+                           (u8)arg++, type, false})) {
             PLATFORM.fatal("too many named arguments for function! Max 5");
         }
     });
@@ -1055,7 +1057,7 @@ static void arg_substitution_impl(Value* impl, ArgBindings& bindings)
                             auto sym = val->cons().car();
                             for (auto& binding : bindings.bindings_) {
                                 if (sym->symbol().unique_id() ==
-                                    binding.sym_->unique_id()) {
+                                    binding.unique_id_) {
 
                                     unrecoverable(
                                         "let binding % shadows argument %",
@@ -1143,9 +1145,9 @@ static void arg_substitution_impl(Value* impl, ArgBindings& bindings)
                 }
             } else if (val->type() == Value::Type::symbol) {
                 bool replaced = false;
+                auto sym_id = val->symbol().unique_id();
                 for (auto& binding : bindings.bindings_) {
-                    if (binding.sym_->unique_id() ==
-                        val->symbol().unique_id()) {
+                    if (binding.unique_id_ == sym_id) {
 
                         auto sym =
                             L_CTX.argument_symbols_[binding.replacement_];
@@ -2362,12 +2364,21 @@ void lint(Value* expr, Value* variable_list, lisp::Protected& gvar_list)
             } else if (fn_sym->type() == Value::Type::symbol) {
                 auto name = fn_sym->symbol().name();
 
-                if (str_eq(name, "setfn") or str_eq(name, "set-temp") or
+                bool is_set_temp = str_eq(name, "set-temp");
+                if (str_eq(name, "setfn") or is_set_temp or
                     str_eq(name, "defconstant")) {
                     auto pair = get_list(expr, 1);
                     if (pair->type() == Value::Type::cons) {
                         auto sym = pair->cons().cdr();
                         if (sym->type() == Value::Type::symbol) {
+                            if (is_set_temp) {
+                                if (contains(gvar_list, sym) or globals_tree_find(sym)) {
+                                    push_error("set-temp % shadows existing "
+                                               "global!",
+                                               sym);
+                                    return;
+                                }
+                            }
                             gvar_list = L_CONS(sym, gvar_list);
                         }
                     }
@@ -2626,6 +2637,16 @@ Value* lint_code(CharSequence& code)
                     if (pair->type() == Value::Type::cons) {
                         auto sym = pair->cons().cdr();
                         if (sym->type() == Value::Type::symbol) {
+                            if (str_eq(invoke->symbol().name(), "set-temp")) {
+                                if (contains(gvar_list, sym) or globals_tree_find(sym)) {
+                                    push_error("set-temp % shadows existing "
+                                               "global!",
+                                               sym);
+                                    auto err = get_op0();
+                                    pop_op();
+                                    return err;
+                                }
+                            }
                             varlist = L_CONS(sym, varlist);
                         }
                     }
@@ -3435,12 +3456,16 @@ u32 read_string(T& code, int offset)
 }
 
 
+template <u32 Capacity>
+using ReadBuffer = StringAdapter<Capacity, Buffer<char, Capacity + 1, false>>;
+
+
 template <typename T>
 u32 read_symbol(T& code, int offset)
 {
     int i = 0;
 
-    StringBuffer<64> symbol;
+    ReadBuffer<64> symbol;
 
     auto first = code[offset];
     if (first == '\'' or first == '`' or first == ',' or first == '@') {
@@ -3549,8 +3574,8 @@ static u32 read_number(T& code, int offset)
 {
     int i = 0;
 
-    StringBuffer<64> num_str;
-    StringBuffer<64> num_str2;
+    ReadBuffer<64> num_str;
+    ReadBuffer<64> num_str2;
 
     bool is_fp = false;
     bool is_ratio = false;
@@ -4455,11 +4480,8 @@ eval_iter_start(EvalFrame& frame, EvalStack& eval_stack)
         push_op(L_CTX.lexical_bindings_);
         auto funcall_expr = code->cons().car();
         auto arg_list = code->cons().cdr();
-        const int argc = length(arg_list);
-        eval_stack.push_back({.expr_ = code,
-                              .state_ = EvalFrame::funcall_apply,
-                              .funcall_apply_ = {argc}});
         Buffer<Value*, 32> tmp_buf;
+        int argc = 0;
         while (true) {
             if (arg_list == get_nil()) {
                 break;
@@ -4469,7 +4491,11 @@ eval_iter_start(EvalFrame& frame, EvalStack& eval_stack)
             }
             tmp_buf.push_back(arg_list->cons().car()); // todo: check full
             arg_list = arg_list->cons().cdr();
+            ++argc;
         }
+        eval_stack.push_back({.expr_ = code,
+                              .state_ = EvalFrame::funcall_apply,
+                              .funcall_apply_ = {argc}});
         for (auto arg : reversed(tmp_buf)) {
             eval_stack.push_back({arg, EvalFrame::start});
         }

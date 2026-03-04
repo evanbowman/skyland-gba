@@ -1154,6 +1154,7 @@ struct ArgBinding
 {
     Symbol* sym_; // This symbol should be safe to store a pointer to... it's in
                   // the input source code list, so it's a proper gc root...
+    Symbol::UniqueId unique_id_;
 
     u8 replacement_;
     u8 type_;
@@ -1163,7 +1164,7 @@ struct ArgBinding
 
 struct ArgBindings
 {
-    Buffer<ArgBinding, MAX_NAMED_ARGUMENTS> bindings_;
+    Buffer<ArgBinding, MAX_NAMED_ARGUMENTS, false> bindings_;
     ArgBindings* parent_ = nullptr;
 };
 

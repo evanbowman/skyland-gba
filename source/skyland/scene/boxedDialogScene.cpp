@@ -202,6 +202,7 @@ void BoxedDialogScene::process_command()
     case 'b': {
         const auto img_name = parse_command_str();
         img_view_ = true;
+        show_coins_ = false;
         int frames = 16;
         for (int i = 0; i < frames; ++i) {
             auto amt = Float(i / 2) / frames;
@@ -215,16 +216,25 @@ void BoxedDialogScene::process_command()
                 {.color = ColorConstant::rich_black, .include_sprites = false});
             PLATFORM.input().poll();
             PLATFORM.screen().clear();
+            parallax_background_task(nullptr);
             PLATFORM.screen().display();
         }
         PLATFORM.screen().set_shader(passthrough_shader);
         PLATFORM.load_sprite_texture(img_name.c_str());
         PLATFORM.screen().set_shader(APP.environment().shader());
         for (u8 x = 2; x < 28; ++x) {
-            for (u8 y = 1; y < 12; ++y) {
-                PLATFORM.set_tile(Layer::overlay, x, y, 82);
+                for (u8 y = 1; y < 12; ++y) {
+                    if (x == 2 or x == 27) {
+                        PLATFORM.set_tile(Layer::overlay, x, y, 82);
+                    } else if (y == 1) {
+                        PLATFORM.set_tile(Layer::overlay, x, y, 93);
+                    } else if (y == 11) {
+                        PLATFORM.set_tile(Layer::overlay, x, y, 94);
+                    } else {
+                        PLATFORM.set_tile(Layer::overlay, x, y, 0);
+                    }
+                }
             }
-        }
         break;
     }
 
@@ -943,12 +953,12 @@ void BoxedDialogScene::display()
         Sprite spr;
         spr.set_size(Sprite::Size::w32_h32);
         spr.set_texture_index(0);
-        spr.set_priority(0);
 
         auto p = PLATFORM.screen().get_view().int_center();
         int t = 0;
+        int x_span = 6;
         for (int y = 0; y < 3; ++y) {
-            for (int x = 0; x < 6; ++x) {
+            for (int x = 0; x < x_span; ++x) {
                 spr.set_position({Fixnum::from_integer(p.x + x * 32 + 24),
                                   Fixnum::from_integer(p.y + y * 32 + 12)});
                 spr.set_texture_index(t++);
