@@ -235,8 +235,9 @@ struct Context
     using OperandStack = Buffer<Value*, 497>;
 
 
-    Context() : operand_stack_(allocate<OperandStack>("lisp-operand-stack")),
-                macros_("lisp-macro-array")
+    Context()
+        : operand_stack_(allocate<OperandStack>("lisp-operand-stack")),
+          macros_("lisp-macro-array")
     {
         if (not operand_stack_) {
             PLATFORM.fatal("pointer compression test failed");
@@ -1026,10 +1027,11 @@ ArgBindings make_arg_bindings(Value* arg_lat, ArgBindings* parent)
         } else {
             sym = val;
         }
-        if (not b.bindings_.push_back(
-                ArgBinding{&sym->symbol(),
-                           sym->symbol().unique_id(),
-                           (u8)arg++, type, false})) {
+        if (not b.bindings_.push_back(ArgBinding{&sym->symbol(),
+                                                 sym->symbol().unique_id(),
+                                                 (u8)arg++,
+                                                 type,
+                                                 false})) {
             PLATFORM.fatal("too many named arguments for function! Max 5");
         }
     });
@@ -2372,7 +2374,8 @@ void lint(Value* expr, Value* variable_list, lisp::Protected& gvar_list)
                         auto sym = pair->cons().cdr();
                         if (sym->type() == Value::Type::symbol) {
                             if (is_set_temp) {
-                                if (contains(gvar_list, sym) or globals_tree_find(sym)) {
+                                if (contains(gvar_list, sym) or
+                                    globals_tree_find(sym)) {
                                     push_error("set-temp % shadows existing "
                                                "global!",
                                                sym);
@@ -2638,7 +2641,8 @@ Value* lint_code(CharSequence& code)
                         auto sym = pair->cons().cdr();
                         if (sym->type() == Value::Type::symbol) {
                             if (str_eq(invoke->symbol().name(), "set-temp")) {
-                                if (contains(gvar_list, sym) or globals_tree_find(sym)) {
+                                if (contains(gvar_list, sym) or
+                                    globals_tree_find(sym)) {
                                     push_error("set-temp % shadows existing "
                                                "global!",
                                                sym);
@@ -3334,8 +3338,7 @@ push_reader_error(CharSequence& code, int byte_offset, Error::Code ec)
 }
 
 
-template <typename T>
-u32 read_list(T& code, int offset)
+template <typename T> u32 read_list(T& code, int offset)
 {
     int i = 0;
 
@@ -3421,8 +3424,7 @@ u32 read_list(T& code, int offset)
 }
 
 
-template <typename T>
-u32 read_string(T& code, int offset)
+template <typename T> u32 read_string(T& code, int offset)
 {
     auto temp = make_scratch_buffer("lisp-string-memory");
     auto write = temp->data_;
@@ -3460,8 +3462,7 @@ template <u32 Capacity>
 using ReadBuffer = StringAdapter<Capacity, Buffer<char, Capacity + 1, false>>;
 
 
-template <typename T>
-u32 read_symbol(T& code, int offset)
+template <typename T> u32 read_symbol(T& code, int offset)
 {
     int i = 0;
 
@@ -3549,8 +3550,8 @@ FINAL:
             }
             u32 symtab_offset = 32 * symtab_index;
             if (symtab_offset >= bound_context->external_symtab_size_) {
-                PLATFORM.fatal(::format("invalid symtab offset %",
-                                        symtab_offset));
+                PLATFORM.fatal(
+                    ::format("invalid symtab offset %", symtab_offset));
             }
             if (auto tab = bound_context->external_symtab_contents_) {
                 auto mode = Symbol::ModeBits::stable_pointer;
@@ -3569,8 +3570,7 @@ FINAL:
 }
 
 
-template <typename T>
-static u32 read_number(T& code, int offset)
+template <typename T> static u32 read_number(T& code, int offset)
 {
     int i = 0;
 
@@ -3820,8 +3820,7 @@ static void negate_number(Value* v)
 }
 
 
-template <typename T>
-u32 read_impl(T& code, int offset)
+template <typename T> u32 read_impl(T& code, int offset)
 {
     int i = 0;
 
@@ -3961,7 +3960,6 @@ public:
     {
         i = read_impl(cs, offset);
     }
-
 };
 
 
@@ -4095,13 +4093,11 @@ static void refresh_macros()
 static void eval_macro(Value* code)
 {
     if (code->cons().car()->type() == Value::Type::symbol) {
-        L_CTX.macros_.push_back({
-                code->cons().car()->symbol().unique_id(),
-                code->cons().car()->symbol().name(),
-                code->cons().cdr(),
-                false
-            },
-            "lisp-macro-array");
+        L_CTX.macros_.push_back({code->cons().car()->symbol().unique_id(),
+                                 code->cons().car()->symbol().name(),
+                                 code->cons().cdr(),
+                                 false},
+                                "lisp-macro-array");
         refresh_macros();
         push_op(get_nil());
     } else {

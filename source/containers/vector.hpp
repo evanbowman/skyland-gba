@@ -53,8 +53,7 @@ private:
 
         static constexpr u32 elems()
         {
-            return ((Mem::Type::size - sizeof(Chunk::Header)) -
-                    alignof(T)) /
+            return ((Mem::Type::size - sizeof(Chunk::Header)) - alignof(T)) /
                    sizeof(T);
         }
 

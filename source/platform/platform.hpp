@@ -13,6 +13,7 @@
 
 
 #include "button.hpp"
+#include "containers/vector_fwd.hpp"
 #include "dateTime.hpp"
 #include "function.hpp"
 #include "graphics/sprite.hpp"
@@ -27,7 +28,6 @@
 #include "unicode.hpp"
 #include <array>
 #include <optional>
-#include "containers/vector_fwd.hpp"
 
 
 using TileDesc = u16;

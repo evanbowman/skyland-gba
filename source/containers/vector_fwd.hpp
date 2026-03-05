@@ -11,11 +11,10 @@
 
 #pragma once
 
-#include "platform/scratch_buffer.hpp"
 #include "memory/sub_buffer.hpp"
+#include "platform/scratch_buffer.hpp"
 
 
 template <typename T, typename M = ScratchBufferMemory> class Vector;
 
-template <typename T>
-using CompactVector = Vector<T, SubBufferMemory>;
+template <typename T> using CompactVector = Vector<T, SubBufferMemory>;

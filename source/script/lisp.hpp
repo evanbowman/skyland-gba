@@ -890,8 +890,8 @@ class VectorCharSequence;
 class CharSequenceVisitor
 {
 public:
-    virtual void visit(BasicCharSequence&) {};
-    virtual void visit(VectorCharSequence&) {};
+    virtual void visit(BasicCharSequence&){};
+    virtual void visit(VectorCharSequence&){};
 };
 
 

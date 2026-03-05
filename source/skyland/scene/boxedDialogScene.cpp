@@ -223,18 +223,18 @@ void BoxedDialogScene::process_command()
         PLATFORM.load_sprite_texture(img_name.c_str());
         PLATFORM.screen().set_shader(APP.environment().shader());
         for (u8 x = 2; x < 28; ++x) {
-                for (u8 y = 1; y < 12; ++y) {
-                    if (x == 2 or x == 27) {
-                        PLATFORM.set_tile(Layer::overlay, x, y, 82);
-                    } else if (y == 1) {
-                        PLATFORM.set_tile(Layer::overlay, x, y, 93);
-                    } else if (y == 11) {
-                        PLATFORM.set_tile(Layer::overlay, x, y, 94);
-                    } else {
-                        PLATFORM.set_tile(Layer::overlay, x, y, 0);
-                    }
+            for (u8 y = 1; y < 12; ++y) {
+                if (x == 2 or x == 27) {
+                    PLATFORM.set_tile(Layer::overlay, x, y, 82);
+                } else if (y == 1) {
+                    PLATFORM.set_tile(Layer::overlay, x, y, 93);
+                } else if (y == 11) {
+                    PLATFORM.set_tile(Layer::overlay, x, y, 94);
+                } else {
+                    PLATFORM.set_tile(Layer::overlay, x, y, 0);
                 }
             }
+        }
         break;
     }
 

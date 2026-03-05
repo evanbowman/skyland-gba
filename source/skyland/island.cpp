@@ -723,7 +723,8 @@ void Island::FireState::display(Island& island)
 
     auto o = ivec(island.visual_origin());
 
-    auto batch = allocate<Buffer<Vec2<s32>, 64>>("fire-spr-buffer");
+    using Buf = Buffer<Vec2<s32>, 64>;
+    auto batch = allocate_fast<Buf>("fire-spr-buffer", Buf::SkipZeroFill{});
 
     for (int x = 0; x < 16; ++x) {
         for (int y = 0; y < 16; ++y) {
@@ -731,15 +732,25 @@ void Island::FireState::display(Island& island)
                 auto fx = o.x + x * 16;
                 auto fy = o.y + y * 16 - 16;
                 batch->push_back({fx, fy});
+            }
+        }
+    }
 
-                APP.environment().render_glow_effect(
-                    {
-                        Fixnum::from_integer(fx + 8),
-                        Fixnum::from_integer(fy + 8 + 16),
-                    },
-                    50 + rng::choice<8>(rng::utility_state),
-                    ColorConstant::aerospace_orange,
-                    95);
+    if (PLATFORM.get_extensions().draw_point_light) {
+        for (int x = 0; x < 16; ++x) {
+            for (int y = 0; y < 16; ++y) {
+                if (positions_.get(x, y)) {
+                    auto fx = o.x + x * 16;
+                    auto fy = o.y + y * 16 - 16;
+                    APP.environment().render_glow_effect(
+                        {
+                            Fixnum::from_integer(fx + 8),
+                            Fixnum::from_integer(fy + 8 + 16),
+                        },
+                        50 + rng::choice<8>(rng::utility_state),
+                        ColorConstant::aerospace_orange,
+                        95);
+                }
             }
         }
     }
