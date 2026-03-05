@@ -1209,10 +1209,14 @@ void Character::movement_step(Time delta, Room* current_room)
             sprite_.set_flip({true, false});
         }
 
-        auto fpos = interpolate(
-            fvec(dest), fvec(o), Float(timer_) / movement_step_duration(race_));
+        auto interval =
+            Fixnum::create((static_cast<s64>(timer_) *
+                            Fixnum::scale()) /
+                           static_cast<s64>(movement_step_duration(race_)));
 
-        sprite_.set_position(Vec2<Fixnum>{Fixnum(fpos.x), Fixnum(fpos.y)});
+        auto fpos = interpolate_fp(dest, o, interval);
+
+        sprite_.set_position(fpos);
     }
 
     if (timer_ > movement_step_duration(race_)) {

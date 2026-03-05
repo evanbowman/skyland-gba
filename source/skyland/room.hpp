@@ -807,6 +807,9 @@ public:
     void refresh_purchase_cost();
 
 
+    bool habitable() const;
+
+
 protected:
     void set_injured();
 
@@ -904,11 +907,12 @@ private:
     u8 show_damage_delay_frames_ : 6;
 
     u8 powerdown_ : 1;
+    u8 habitable_ : 1;
 
     // Gah! clang wants this field labeled unused, g++ in linux doesn't like
-    // attributes on bitfields, sigh. Just so you know, there are four unused
+    // attributes on bitfields, sigh. Just so you know, there are three unused
     // bits in this structure:
-    // u8 unused_ : 4;
+    // u8 unused_ : 3;
 };
 
 

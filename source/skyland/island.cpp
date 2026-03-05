@@ -1809,9 +1809,7 @@ void Island::plot_walkable_zones(bool matrix[16][16],
     // TODO: label outdoor grass areas as walkable.
 
     for (auto& room : rooms_) {
-        auto props = (*room->metaclass())->properties();
-
-        if (props & RoomProperties::habitable) {
+        if (room->habitable()) {
             room->plot_walkable_zones(matrix, for_character);
         }
     }

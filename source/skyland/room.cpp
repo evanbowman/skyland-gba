@@ -86,6 +86,7 @@ Room::Room(Island* parent, const char* name, const RoomCoord& position)
             size_x_ = mt_size.x;
             size_y_ = mt_size.y;
             health_ = current->full_health();
+            habitable_ = (current->properties() & RoomProperties::habitable) ? 1 : 0;
             refresh_purchase_cost();
 
             ready();
@@ -127,6 +128,13 @@ void Room::refresh_purchase_cost()
     } else {
         purchase_cost_ = (*metaclass())->cost();
     }
+}
+
+
+
+bool Room::habitable() const
+{
+    return habitable_;
 }
 
 
