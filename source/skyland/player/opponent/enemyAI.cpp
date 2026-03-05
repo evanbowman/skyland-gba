@@ -280,7 +280,7 @@ void EnemyAI::update_room(Room& room,
     // rooms that have the capacity to hold 8 characters. The game used to run
     // all character movement logic at once, and it did periodically pause, but
     // the crew movement is more spaced out now.
-    Buffer<std::pair<Character*, Room*>, 8> boarded_ai_characters;
+    Buffer<std::pair<Character*, Room*>, 8, false> boarded_ai_characters;
     for (auto& room : (*target_island).rooms()) {
         for (auto& character : room->characters()) {
             if (character->owner() == owner) {
@@ -484,7 +484,7 @@ void EnemyAI::assign_local_character(Character& character,
         return;
     }
 
-    Buffer<RoomCoord, 32> exclude_slots;
+    Buffer<RoomCoord, 32, false> exclude_slots;
 
     // We may want to keep track of how many of the player's characters have
     // boarded our island. We might not want to transport to the player's island
@@ -513,7 +513,7 @@ void EnemyAI::assign_local_character(Character& character,
 
     bool damaged_habitable_rooms = false;
 
-    Buffer<Room*, 10> radiators;
+    Buffer<Room*, 10, false> radiators;
 
     auto overdrive_mt = load_metaclass("overdrive-core");
 
@@ -607,7 +607,7 @@ void EnemyAI::assign_local_character(Character& character,
         ATP ai_weight_;
     };
 
-    Buffer<Destination, 48> slots;
+    Buffer<Destination, 48, false> slots;
 
     for (u8 x = 0; x < ai_island_->terrain().size(); ++x) {
         for (u8 y = construction_zone_min_y; y < 15; ++y) {
@@ -877,9 +877,9 @@ void EnemyAI::assign_boarded_character(Character& character,
     }
 
 
-    Buffer<RoomCoord, 32> exclude_slots; // Don't move into currently occupied
-                                         // slots, or slots that will be
-                                         // occupied.
+    Buffer<RoomCoord, 32, false> exclude_slots; // Don't move into currently occupied
+                                                // slots, or slots that will be
+                                                // occupied.
 
     for (auto& room : (*target_island_).rooms()) {
         for (auto& other : room->characters()) {
@@ -921,7 +921,7 @@ void EnemyAI::assign_boarded_character(Character& character,
         ATP ai_weight_;
     };
 
-    Buffer<Destination, 48> slots;
+    Buffer<Destination, 48, false> slots;
 
     for (u8 x = 0; x < 16; ++x) {
         for (u8 y = 0; y < 16; ++y) {
@@ -1629,7 +1629,7 @@ void EnemyAI::set_target(RoomsView rooms,
         return;
     }
 
-    Buffer<std::pair<Room*, ATP>, 64> visible_rooms;
+    Buffer<std::pair<Room*, ATP>, 64, false> visible_rooms;
 
 
     for (int x = 0; x < 16; ++x) {
@@ -1717,7 +1717,7 @@ void EnemyAI::set_target_rocketsilo(RoomsView rooms,
         return;
     }
 
-    Buffer<std::pair<Room*, ATP>, 64> visible_rooms;
+    Buffer<std::pair<Room*, ATP>, 64, false> visible_rooms;
 
 
     for (int x = 0; x < 16; ++x) {
@@ -1805,12 +1805,12 @@ void EnemyAI::set_target(RoomsView rooms,
         return;
     }
 
-    Buffer<Room*, 32> visible_rooms;
+    Buffer<Room*, 32, false> visible_rooms;
 
     // In many cases, the player will have covered the entire surface of his/her
     // castle with hull blocks. Peek into the y + 1 tile, in case we get to a
     // point where we only see hull blocks.
-    Buffer<Room*, 32> second_tier;
+    Buffer<Room*, 32, false> second_tier;
 
     for (int x = 0; x < 16; ++x) {
         for (int y = 0; y < 15; ++y) {
@@ -1944,7 +1944,7 @@ void EnemyAI::set_target(RoomsView rooms,
 
     using TargetBuffer = Buffer<Target, Island::Rooms::Rooms::capacity()>;
 
-    auto buffer = allocate<TargetBuffer>("beam-targets");
+    auto buffer = allocate<TargetBuffer>("beam-targets", TargetBuffer::SkipZeroFill{});
 
     for (auto& room : target_island->rooms()) {
         auto pos = room->position();
@@ -1981,7 +1981,7 @@ void EnemyAI::set_target(RoomsView rooms,
         int x_;
         int y_;
     };
-    Buffer<RoomInfo, 32> visible_rooms;
+    Buffer<RoomInfo, 32, false> visible_rooms;
 
     if (ai_island == APP.opponent_island()) {
         for (u8 x = (u8)target_island->terrain().size() - 1; x > 0; --x) {
@@ -2077,7 +2077,7 @@ void EnemyAI::set_target(RoomsView rooms,
         int x_;
         int y_;
     };
-    Buffer<RoomInfo, 32> visible_rooms;
+    Buffer<RoomInfo, 32, false> visible_rooms;
 
     for (u8 y = 0; y < 16; ++y) {
         if (ai_island == APP.opponent_island()) {
@@ -2171,7 +2171,7 @@ void EnemyAI::set_target(RoomsView rooms,
                          Island* ai_island,
                          Island* target_island)
 {
-    Buffer<Room*, 32> visible_rooms;
+    Buffer<Room*, 32, false> visible_rooms;
 
     for (u8 y = 0; y < 16; ++y) {
         if (ai_island == APP.opponent_island()) {
@@ -2269,8 +2269,8 @@ void EnemyAI::set_target(RoomsView rooms,
                          Island* ai_island,
                          Island* target_island)
 {
-    Buffer<Room*, 32> visible_rooms;
-    Buffer<Room*, 32> second_tier;
+    Buffer<Room*, 32, false> visible_rooms;
+    Buffer<Room*, 32, false> second_tier;
 
     for (u8 y = 0; y < 16; ++y) {
         if (ai_island == APP.opponent_island()) {
@@ -2389,8 +2389,8 @@ void EnemyAI::set_target(RoomsView rooms,
                          Island* ai_island,
                          Island* target_island)
 {
-    Buffer<Room*, 32> visible_rooms;
-    Buffer<Room*, 32> second_tier;
+    Buffer<Room*, 32, false> visible_rooms;
+    Buffer<Room*, 32, false> second_tier;
 
     for (u8 y = 0; y < 16; ++y) {
         if (ai_island == APP.opponent_island()) {
