@@ -82,7 +82,7 @@ Sprite::Rotation Sprite::get_rotation() const
 }
 
 
-Sprite::Scale Sprite::get_scale() const
+const Sprite::Scale& Sprite::get_scale() const
 {
     return scale_;
 }

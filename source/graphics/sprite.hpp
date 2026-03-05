@@ -107,7 +107,7 @@ public:
     Rotation get_rotation() const;
 
 
-    Scale get_scale() const;
+    const Scale& get_scale() const;
 
 
     void set_priority(u8 priority)
