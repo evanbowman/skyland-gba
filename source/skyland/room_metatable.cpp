@@ -299,7 +299,7 @@ public:
 
 
 
-using RoomMetatableType = RoomMetatable<4,
+using RoomMetatableType = RoomMetatable<3,
                                         // walls
                                         Hull,
                                         BronzeHull,
@@ -492,6 +492,8 @@ EXT_WORKRAM_DATA G_MT radiator_mt = load_metaclass(Radiator::name());
 EXT_WORKRAM_DATA G_MT infirmary_mt = load_metaclass(Infirmary::name());
 EXT_WORKRAM_DATA G_MT transporter_mt = load_metaclass(Transporter::name());
 EXT_WORKRAM_DATA G_MT chaos_core_mt = load_metaclass(ChaosCore::name());
+EXT_WORKRAM_DATA G_MT overdrive_mt = load_metaclass(OverdriveCore::name());
+EXT_WORKRAM_DATA G_MT portal_mt = load_metaclass(Portal::name());
 
 
 

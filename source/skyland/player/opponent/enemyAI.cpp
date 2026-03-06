@@ -516,8 +516,6 @@ void EnemyAI::assign_local_character(Character& character,
 
     Buffer<Room*, 10, false> radiators;
 
-    auto overdrive_mt = load_metaclass("overdrive-core");
-
     for (auto& room : ai_island_->rooms()) {
         auto mt = room->metaclass();
 
@@ -1833,12 +1831,10 @@ void EnemyAI::set_target(RoomsView rooms,
     Room* highest_weighted_room = nullptr;
     ATP highest_weight = 0.00003_atp;
 
-    auto cannon_metac = load_metaclass("cannon");
-
     bool cannons_remaining = false;
 
     for (auto& room : silo.parent()->rooms()) {
-        if (room->metaclass() == cannon_metac) {
+        if (room->metaclass() == cannon_mt) {
             cannons_remaining = true;
             break;
         }
@@ -1852,7 +1848,7 @@ void EnemyAI::set_target(RoomsView rooms,
 
         // We don't have any cannons left, but the other player does. Try to
         // take out some of those cannons with missiles.
-        if (room->ai_aware() and meta_c == cannon_metac and
+        if (room->ai_aware() and meta_c == cannon_mt and
             not cannons_remaining) {
             w += 200.0_atp;
         }
@@ -1890,7 +1886,7 @@ void EnemyAI::set_target(RoomsView rooms,
 
         // We don't have any cannons left, but the other player does. Try to
         // take out some of those cannons with missiles.
-        if (meta_c == cannon_metac and not cannons_remaining) {
+        if (meta_c == cannon_mt and not cannons_remaining) {
             w += 200.0_atp;
         }
 

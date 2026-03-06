@@ -59,12 +59,12 @@ void flood_fill_through_portals(Island& isle,
     for (auto& room : isle.rooms()) {
         auto pos = room->position();
         if (matrix[pos.x][pos.y] == replace) {
-            if (room->cast<Portal>()) {
+            if (room->metaclass() == portal_mt) {
                 for (u8 xx = 0; xx < (u8)isle.terrain().size(); ++xx) {
                     for (u8 yy = y_min; yy < 15; ++yy) {
                         if (matrix[xx][yy] not_eq replace) {
                             if (auto o = isle.get_room({xx, yy})) {
-                                if (o->cast<Portal>()) {
+                                if (o->metaclass() == portal_mt) {
                                     flood_fill(matrix, replace, xx, yy);
                                 }
                             }

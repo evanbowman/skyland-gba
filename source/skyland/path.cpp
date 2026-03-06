@@ -23,9 +23,13 @@ namespace skyland
 
 struct PathVertexData
 {
-    PathVertexData* prev_ = nullptr;
-    u16 dist_ = std::numeric_limits<u16>::max();
+    PathVertexData* prev_;
+    u16 dist_;
     RoomCoord coord_;
+
+    PathVertexData()
+    {
+    }
 };
 
 
@@ -39,8 +43,8 @@ Optional<Path> find_path(Island* island,
 
     using VertexBuffer = Buffer<PathVertexData*, 256>;
     VertexBuffer priority_q(VertexBuffer::SkipZeroFill{});
-    PathVertexData* vertex_mat[16][16] = {};
-
+    PathVertexData* vertex_mat[16][16];
+    PLATFORM.memset_words(vertex_mat, 0, sizeof(vertex_mat) / sizeof(void*));
 
 
     bool matrix[16][16];
@@ -48,17 +52,20 @@ Optional<Path> find_path(Island* island,
 
     PathVertexData* start_v = nullptr;
 
-    for (u8 x = 0; x < 16; ++x) {
+    for (u8 x = 0; x < island->terrain().size(); ++x) {
         // NOTE: start at the minimum y for which rooms can be built. Do not
         // include the 16th (final) row, because it just contains terrain.
         for (u8 y = construction_zone_min_y; y < 15; ++y) {
             if (matrix[x][y]) {
                 if (auto obj = vertex_memory_.alloc<PathVertexData>()) {
                     obj->coord_ = {x, y};
+                    obj->prev_ = nullptr;
                     if (priority_q.push_back(obj.release())) {
                         if (priority_q.back()->coord_ == start) {
                             start_v = priority_q.back();
                             start_v->dist_ = 0;
+                        } else {
+                            priority_q.back()->dist_ = std::numeric_limits<u16>::max();
                         }
                         vertex_mat[x][y] = priority_q.back();
                     } else {
@@ -142,9 +149,9 @@ Optional<Path> find_path(Island* island,
                 }
             }
             if (auto room = island->get_room(min->coord_)) {
-                if (room->cast<Portal>()) {
+                if (room->metaclass() == portal_mt) {
                     for (auto& o : island->rooms()) {
-                        if (o.get() not_eq room and o->cast<Portal>()) {
+                        if (o.get() not_eq room and o->metaclass() == portal_mt) {
                             auto alt =
                                 min->dist_ +
                                 manhattan_length(min->coord_, o->position());
