@@ -29,7 +29,7 @@ static const u32 max_history_entries = 10;
 
 LispReplScene::LispReplScene()
     : command_(allocate<Command>("lisp-repl-command-buffer")),
-      cpl_(allocate_small<Completions>("lisp-repl-completion-buffer"))
+      cpl_(allocate_small<Completions>({"lisp-repl-completion-buffer"}))
 {
 }
 

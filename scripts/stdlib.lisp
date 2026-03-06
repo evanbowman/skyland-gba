@@ -43,7 +43,7 @@
 
 
 (macro dotimes (N BODY)
- `(map (fn ,@BODY) (range 0 ,N)))
+ `(map (lambda () ,@BODY) (range 0 ,N)))
 
 
 ;; Some useful macros for defining functions

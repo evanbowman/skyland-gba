@@ -68,7 +68,7 @@ void FileBrowserModule::enter(Scene& prev)
         PLATFORM.load_overlay_texture("overlay_editor");
     }
 
-    cwd_names_ = allocate_small<CwdNames>("fs-cwd-names");
+    cwd_names_ = allocate_small<CwdNames>({"fs-cwd-names"});
 
     if (not path_) {
         path_ = allocate<PathBuffer>("fs-path-buffer");

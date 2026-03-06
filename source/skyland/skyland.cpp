@@ -184,7 +184,7 @@ App::App(bool clean_boot)
                                         5,
                                         player())),
       current_scene_(null_scene()), next_scene_(null_scene()),
-      backup_(allocate_small<save::EmergencyBackup>("emergency-backup"))
+      backup_(allocate_small<save::EmergencyBackup>({"emergency-backup"}))
 {
     __app__ = this;
 

@@ -32,30 +32,22 @@
 
 
 
-;; NOTE: In case I haven't explained elsewhere, the interpreter does a small
-;; symbol optimization to save space in the string intern table, hence all of
-;; the four-character variable names.
-(defn mkch (i m)
-  ;; Arg 0: island
-  ;; Arg 1: 'hostile or 'neutral symbol
-  (let ((isle i)
-        (mode m))
-
-    ;; NOTE: conf[5] holds the character count config.
-    (dotimes (get conf 5)
-      (let ((slot (chr-slots isle)))
-        (if (not slot)
-            (let ((s (construction-sites isle '(2 . 2))))
-              (if (not s)
-                  (fatal "Not enough room to place chrs!"))
-              (room-new isle (list 'workshop (caar s) (cdr (car s))))
-              (setq slot (chr-slots isle))))
-        (if slot
-            (chr-new isle
-                     (caar slot)
-                     (cdr (car slot))
-                     mode
-                     nil))))))
+(defn/temp make-chrs (isle mode)
+  ;; NOTE: conf[5] holds the character count config.
+  (dotimes (get conf 5)
+    (let ((slot (chr-slots isle)))
+      (if (not slot)
+          (let ((s (construction-sites isle '(2 . 2))))
+            (if (not s)
+                (fatal "Not enough room to place chrs!"))
+            (room-new isle (list 'workshop (caar s) (cdr (car s))))
+            (setq slot (chr-slots isle))))
+      (if slot
+          (chr-new isle
+                   (caar slot)
+                   (cdr (car slot))
+                   mode
+                   nil)))))
 
 
 (island-configure
@@ -63,7 +55,7 @@
  '((power-core 1 13)))
 
 
-(mkch (player) 'neutral)
+(make-chrs (player) 'neutral)
 (flag-show (player) 0)
 
 
@@ -78,7 +70,7 @@
  (opponent)
  `((power-core ,(- (get conf 1) 3) 13)))
 
-(mkch (opponent) 'hostile)
+(make-chrs (opponent) 'hostile)
 
 
 
@@ -93,7 +85,7 @@
 
 
 
-(unbind 'conf 'mkch)
+(unbind 'conf 'make-chrs)
 
 (setvar "powerdown_allowed" 1)
 (setvar "rewind_disabled" 0)

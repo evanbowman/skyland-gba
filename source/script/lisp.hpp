@@ -127,21 +127,12 @@ struct Nil
 struct Symbol
 {
     ValueHeader hdr_;
-    static constexpr const u32 buffer_size = 4;
-    char reserved_[2];
+    static constexpr const u32 buffer_size = 3;
+    char reserved_[3];
 
     // Small String Optimization Layout:
-    // For symbols ≤4 chars, we store the string inline rather than using a
-    // pointer.  The string is split across two struct members to create a
-    // contiguous 5-byte region: - small_name_begin_: first character (offset 3)
-    // - data_.small_name_rest_: remaining 3 chars + null terminator (offsets
-    // 4-7) When in small mode, name() returns &small_name_begin_, which points
-    // to all 5 bytes.
-    //
-    // CRITICAL: small_name_begin_ must be immediately adjacent to data_ in
-    // memory for this to work. The reserved_ padding ensures correct alignment.
-    char small_name_begin_;
-
+    // For symbols ≤3 chars, we store the string inline rather than using a
+    // pointer.
     union Data
     {
         // For interned symbols: pointer to string in the intern table
@@ -149,14 +140,14 @@ struct Symbol
 
         // For small symbols: last 3 characters + null terminator
         // (first character is in small_name_begin_ above)
-        char small_name_rest_[buffer_size];
+        char small_name_[buffer_size + 1];
     } data_;
 
 
     const char* name() const
     {
         if (hdr_.mode_bits_ == (u8)Symbol::ModeBits::small) {
-            return &small_name_begin_;
+            return data_.small_name_;
         }
         return data_.intern_name_;
     }
@@ -174,13 +165,7 @@ struct Symbol
     using UniqueId = const char*;
     UniqueId unique_id()
     {
-        if (hdr_.mode_bits_ == (u8)ModeBits::small) {
-            const char* result = 0;
-            memcpy(&result, &small_name_begin_, buffer_size);
-            return result;
-        } else {
-            return data_.intern_name_;
-        }
+        return data_.intern_name_;
     }
 
 
@@ -708,6 +693,9 @@ Value* make_integer(s32 value);
 Value* make_list(u32 length);
 Value* make_error(Error::Code error_code, Value* context);
 Value* make_error(const char* message);
+Value* make_symbol(const char* name,
+                   u32 length,
+                   Symbol::ModeBits mode = Symbol::ModeBits::requires_intern);
 Value* make_symbol(const char* name,
                    Symbol::ModeBits mode = Symbol::ModeBits::requires_intern);
 Value* make_databuffer(const char* sbr_tag = "");

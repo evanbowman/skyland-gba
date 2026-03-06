@@ -189,15 +189,25 @@ DynamicMemory<T, ScratchBufferMemory> allocate(const ScratchBuffer::Tag& tag,
 }
 
 
+struct AllocParams
+{
+    const ScratchBuffer::Tag tag_ = "";
+    bool zero_fill_ = true;
+};
+
 
 template <typename T, typename... Args>
-DynamicMemory<T, SubBufferMemory> allocate_small(const ScratchBuffer::Tag& tag,
+DynamicMemory<T, SubBufferMemory> allocate_small(const AllocParams& p,
                                                  Args&&... args)
 {
     using MemT = SubBufferMemory;
     static_assert(sizeof(T) + alignof(T) <= MemT::Type::size);
 
-    auto sc_buf = MemT::create(tag);
+    auto fill_size = SUB_BUFFER_SIZE;
+    if (not p.zero_fill_) {
+        fill_size = 0;
+    }
+    auto sc_buf = MemT::create(p.tag_, fill_size);
 
 
     auto deleter = [](T* val) {

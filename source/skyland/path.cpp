@@ -75,7 +75,7 @@ Optional<Path> find_path(Island* island,
     }
 
     auto neighbors = [&](PathVertexData* data) {
-        Buffer<PathVertexData*, 4> result;
+        Buffer<PathVertexData*, 4, false> result;
         if (data->coord_.x > 0) {
             auto n = vertex_mat[data->coord_.x - 1][data->coord_.y];
             if (n) {
@@ -118,7 +118,8 @@ Optional<Path> find_path(Island* island,
                 return {};
             }
             if (min->coord_ == end) {
-                auto path_mem = allocate_small<PathBuffer>("path-buffer");
+                auto path_mem = allocate_small<PathBuffer>({"path-buffer", false},
+                                                           PathBuffer::SkipZeroFill{});
                 if (not path_mem) {
                     return {};
                 }

@@ -2413,29 +2413,24 @@ static u16 get_map_tile_16p(u8 base, u16 x, u16 y, int palette)
 
 static void set_map_tile_16p(u8 base, u16 x, u16 y, u16 tile_id, int palette)
 {
-    auto ref = [](u16 x_, u16 y_) { return x_ * 2 + y_ * 32 * 2; };
+    u16 screen_block;
+    if (x > 15) {
+        x %= 16;
+        screen_block = base + 1;
+    } else {
+        screen_block = base;
+    }
 
-    auto screen_block = [&]() -> u16 {
-        if (x > 15) {
-            x %= 16;
-            return base + 1;
-        } else {
-            return base;
-        }
-    }();
+    const u16 offset = x * 2 + y * 64;
+    const u16 tile   = tile_id * 4;
+    const u16 pal    = SE_PALBANK(palette);
 
-    MEM_SCREENBLOCKS[screen_block][0 + ref(x % 16, y)] =
-        (tile_id * 4 + 0) | SE_PALBANK(palette);
-
-    MEM_SCREENBLOCKS[screen_block][1 + ref(x % 16, y)] =
-        (tile_id * 4 + 1) | SE_PALBANK(palette);
-
-    MEM_SCREENBLOCKS[screen_block][0 + ref(x % 16, y) + 32] =
-        (tile_id * 4 + 2) | SE_PALBANK(palette);
-
-    MEM_SCREENBLOCKS[screen_block][1 + ref(x % 16, y) + 32] =
-        (tile_id * 4 + 3) | SE_PALBANK(palette);
+    MEM_SCREENBLOCKS[screen_block][offset +  0] = (tile + 0) | pal;
+    MEM_SCREENBLOCKS[screen_block][offset +  1] = (tile + 1) | pal;
+    MEM_SCREENBLOCKS[screen_block][offset + 32] = (tile + 2) | pal;
+    MEM_SCREENBLOCKS[screen_block][offset + 33] = (tile + 3) | pal;
 }
+
 
 
 COLD static void set_map_tile(u8 base, u16 x, u16 y, u16 tile_id, int palette)

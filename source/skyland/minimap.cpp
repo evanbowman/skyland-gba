@@ -731,14 +731,10 @@ void repaint(const Settings& settings)
 
             u8 temp = 0;
             for (int i = 0; i < 8; ++i) {
-                for (int j = 0; j < 8; ++j) {
-                    auto p = pixel_buffer[x * 8 + j][y * 8 + i];
-                    if (j % 2) {
-                        temp |= p << 4;
-                        *(out++) = temp;
-                    } else {
-                        temp = p & 0xff;
-                    }
+                for (int j = 0; j < 8; j += 2) {
+                    temp = pixel_buffer[x * 8 + j][y * 8 + i] & 0xff;
+                    temp |= pixel_buffer[x * 8 + j + 1][y * 8 + i] << 4;
+                    *(out++) = temp;
                 }
             }
 

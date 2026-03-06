@@ -1875,6 +1875,10 @@ bool Island::repaint_alloc_tiles(TileId buffer[16][16], bool retry)
         // last row.
         for (int y = 0; y < 15; ++y) {
 
+            if (buffer[x][y] == 0) {
+                PLATFORM.set_tile(layer_, x, y, buffer[x][y]);
+                continue;
+            }
             if (buffer[x][y] >= Tile::canvas_tiles_begin and
                 buffer[x][y] < Tile::canvas_tiles_begin + 15) {
                 PLATFORM.set_tile(layer_, x, y, buffer[x][y]);

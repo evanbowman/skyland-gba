@@ -60,12 +60,17 @@ private:
 
         static void initialize(typename Mem::PtrType source, Chunk* prev)
         {
-            new (source->data_) Chunk();
-            ((Chunk*)source->data_)->header_.prev_ = prev;
+            new (source->data_) Chunk(prev);
         }
 
 
-        Chunk() = default;
+        Chunk(Chunk* prev) : header_{Optional<typename Mem::PtrType>(), prev}
+        {
+            // NOTE: Chunk is constructed on top of memory that is created by
+            // ScratchBufferMemory::create(), which creates zeroed memory by
+            // default, so we aren't bothering to initialize buffer_ with
+            // anything.
+        }
 
 
         Chunk(const Chunk& other) = delete;

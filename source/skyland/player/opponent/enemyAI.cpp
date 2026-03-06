@@ -498,6 +498,7 @@ void EnemyAI::assign_local_character(Character& character,
     int ai_characters_remote = 0;
     int ai_characters_local = 0;
 
+
     // Should we board the player's castle? Well, if we have no weapons
     // remaining, a boarding party is the only way that we can deal damage,
     // so...
@@ -520,8 +521,8 @@ void EnemyAI::assign_local_character(Character& character,
     for (auto& room : ai_island_->rooms()) {
         auto mt = room->metaclass();
 
-        if (room->health() not_eq room->max_health() and
-            (*mt)->properties() & RoomProperties::habitable) {
+        if (room->habitable() and
+            room->health() not_eq room->max_health()) {
             damaged_habitable_rooms = true;
         }
         if (mt == cannon_mt) {
@@ -579,7 +580,7 @@ void EnemyAI::assign_local_character(Character& character,
 
 
     DynamicMemory<bool[16][16], SubBufferMemory> matrix_ =
-        allocate_small<bool[16][16]>("ai-rooms-plot");
+        allocate_small<bool[16][16]>({"ai-rooms-plot", false});
 
     ai_island_->plot_walkable_zones(*matrix_, &character);
 
@@ -895,7 +896,7 @@ void EnemyAI::assign_boarded_character(Character& character,
 
 
     DynamicMemory<bool[16][16], SubBufferMemory> matrix_ =
-        allocate_small<bool[16][16]>("ai-chr-slots");
+        allocate_small<bool[16][16]>({"ai-chr-slots", false});
 
     (*target_island_).plot_walkable_zones(*matrix_, &character);
 

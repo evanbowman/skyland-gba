@@ -30,9 +30,6 @@
 #endif
 
 
-// #define USE_SYMBOL_CACHE
-
-
 namespace lisp
 {
 
@@ -47,8 +44,6 @@ static const u32 string_intern_table_size = 2000;
 #else
 #define VALUE_POOL_SIZE 200000
 #endif
-
-#define SYMBOL_CACHE_SIZE 8
 
 
 union ValueMemory
@@ -270,11 +265,6 @@ struct Context
     // involving garbage collection that crop up during argument substitution.
     Value* argument_symbols_[MAX_NAMED_ARGUMENTS];
 
-#ifdef USE_SYMBOL_CACHE
-    Value* symbol_cache_[SYMBOL_CACHE_SIZE];
-    u8 symbol_cache_index_ = 0;
-#endif
-
     const char* external_symtab_contents_ = nullptr;
     u32 external_symtab_size_;
 
@@ -370,15 +360,6 @@ static void pop_callstack()
         // If nothing referenced the callstack by calling stacktrace(), then we
         // can deallocate the memory reserved for the stack frame right away.
         collect_value(old);
-    }
-
-    if (length(L_CTX.callstack_) == 1) {
-        // If we're returning back to the toplevel, invoke the GC sometimes if
-        // it looks like we're running low on lisp values...
-        //
-        // Returning to the toplevel should be a very safe place to run the
-        // collector--we aren't in the middle of running any interesting code.
-        gc_safepoint();
     }
 }
 
@@ -936,7 +917,7 @@ Value* clone(Value* value)
 
 template <typename... Args> void unrecoverable(const char* msg, Args&&... args)
 {
-    auto buf = allocate_small<StringBuffer<238>>("error-msg");
+    auto buf = allocate_small<StringBuffer<238>>({"error-msg"});
     make_format(*buf, msg, std::forward<Args>(args)...);
     PLATFORM.fatal(*buf);
 }
@@ -978,7 +959,7 @@ static int examine_argument_list(Value* function_impl)
             sym->hdr_.mode_bits_ not_eq (u8) Symbol::ModeBits::small) {
             unrecoverable(
                 "symbol name \'%\' in argument list \'%\' is too long! "
-                "(4 char limit)",
+                "(3 char limit)",
                 sym->symbol().name(),
                 arg_lat);
         }
@@ -1389,17 +1370,12 @@ Value* make_error(Error::Code error_code, Value* context)
 
 Value* make_symbol(const char* name, Symbol::ModeBits mode)
 {
-#ifdef USE_SYMBOL_CACHE
-    for (int i = 0; i < 8; ++i) {
-        auto v = L_CTX.symbol_cache_[i];
-        if (v not_eq L_NIL and str_eq(name, v->symbol().name())) {
-            return v;
-        }
-    }
-#endif
+    return make_symbol(name, strlen(name), mode);
+}
 
-    const auto len = strlen(name);
 
+Value* make_symbol(const char* name, u32 len, Symbol::ModeBits mode)
+{
     if (mode == Symbol::ModeBits::small and len > Symbol::buffer_size) {
         Platform::fatal("Symbol ModeBits small with len > internal buffer");
     }
@@ -1411,12 +1387,6 @@ Value* make_symbol(const char* name, Symbol::ModeBits mode)
     val->hdr_.type_ = Value::Type::symbol;
     val->hdr_.mode_bits_ = (u8)mode;
     val->symbol().set_name(name);
-
-#ifdef USE_SYMBOL_CACHE
-    L_CTX.symbol_cache_[L_CTX.symbol_cache_index_] = val;
-    L_CTX.symbol_cache_index_ =
-        (L_CTX.symbol_cache_index_ + 1) % SYMBOL_CACHE_SIZE;
-#endif
 
     return val;
 }
@@ -1799,7 +1769,7 @@ RestoreDebugBreak debug_break_compiled_fn(Value* obj)
 
 template <typename... Args> void push_error(const char* msg, Args&&... args)
 {
-    auto buf = allocate_small<StringBuffer<238>>("error-msg");
+    auto buf = allocate_small<StringBuffer<238>>({"error-msg"});
     make_format(*buf, msg, std::forward<Args>(args)...);
     push_op(make_error(buf->c_str()));
 }
@@ -2940,19 +2910,11 @@ void Symbol::set_name(const char* name)
         break;
 
     case ModeBits::small: {
-        char* ptr = &small_name_begin_;
+        char* ptr = data_.small_name_;
         memset(ptr, '\0', buffer_size + 1);
         for (u32 i = 0; i < buffer_size; ++i) {
             if (*name not_eq '\0') {
-#if defined(__GBA__) or defined(__linux__)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wstringop-overflow"
-#pragma GCC diagnostic ignored "-Warray-bounds"
-#endif
                 ptr[i] = *(name++);
-#if defined(__GBA__) or defined(__linux__)
-#pragma GCC diagnostic pop
-#endif
             }
         }
         break;
@@ -3108,12 +3070,6 @@ static void gc_mark()
     for (auto& sym : L_CTX.argument_symbols_) {
         gc_mark_value(sym);
     }
-
-#ifdef USE_SYMBOL_CACHE
-    for (auto v : L_CTX.symbol_cache_) {
-        gc_mark_value(v);
-    }
-#endif
 
     for (auto elem : *L_CTX.operand_stack_) {
         gc_mark_value(elem);
@@ -3458,6 +3414,16 @@ template <typename T> u32 read_string(T& code, int offset)
 }
 
 
+static Value* make_symtab_symbol(int offset)
+{
+    auto val = alloc_value();
+    val->hdr_.type_ = Value::Type::symbol;
+    val->hdr_.mode_bits_ = (u8)Symbol::ModeBits::stable_pointer;
+    val->symbol().set_name(bound_context->external_symtab_contents_ + offset);
+    return val;
+}
+
+
 template <u32 Capacity>
 using ReadBuffer = StringAdapter<Capacity, Buffer<char, Capacity + 1, false>>;
 
@@ -3504,7 +3470,7 @@ template <typename T> u32 read_symbol(T& code, int offset)
 #endif
         }
 
-        push_op(make_symbol(symbol.c_str(), mode));
+        push_op(make_symbol(symbol.c_str(), symbol.length(), mode));
         return 1;
     }
 
@@ -3553,9 +3519,8 @@ FINAL:
                 PLATFORM.fatal(
                     ::format("invalid symtab offset %", symtab_offset));
             }
-            if (auto tab = bound_context->external_symtab_contents_) {
-                auto mode = Symbol::ModeBits::stable_pointer;
-                push_op(make_symbol(tab + symtab_offset, mode));
+            if (bound_context->external_symtab_contents_) {
+                push_op(make_symtab_symbol(symtab_offset));
                 return i;
             }
         }
@@ -3563,7 +3528,7 @@ FINAL:
         if (symbol.length() <= Symbol::buffer_size) {
             mode = Symbol::ModeBits::small;
         }
-        push_op(make_symbol(symbol.c_str(), mode));
+        push_op(make_symbol(symbol.c_str(), symbol.length(), mode));
     }
 
     return i;
@@ -4695,7 +4660,7 @@ bool destructure_binding(Value* sym, Value* value, ListBuilder& binding_list)
                     suggestion += " ";
                 });
                 suggestion += ". rest)";
-                auto fmt_buffer = allocate_small<StringBuffer<200>>("err-fmt");
+                auto fmt_buffer = allocate_small<StringBuffer<200>>({"err-fmt"});
                 make_format(*fmt_buffer,
                             "expression result % is"
                             " too long to bind to "
@@ -5466,6 +5431,7 @@ void eval_loop(EvalStack& eval_stack)
         }
 
         case EvalFrame::vm_resume: {
+            gc_safepoint();
             auto fn = frame.expr_;
             auto suspend = vm_resume(fn->function().bytecode_impl_.databuffer(),
                                      fn->function()
@@ -6458,12 +6424,6 @@ void init(Optional<std::pair<const char*, u32>> external_symtab,
 
     L_CTX.bytecode_buffer_ = L_CTX.nil_;
     L_CTX.string_buffer_ = L_CTX.nil_;
-
-#ifdef USE_SYMBOL_CACHE
-    for (auto& v : L_CTX.symbol_cache_) {
-        v = L_CTX.nil_;
-    }
-#endif
 
     L_CTX.tree_nullnode_ = L_CONS(get_nil(), L_CONS(get_nil(), get_nil()));
 

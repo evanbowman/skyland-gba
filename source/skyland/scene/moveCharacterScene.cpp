@@ -31,7 +31,7 @@ namespace skyland
 
 
 ModifyCharacterScene::ModifyCharacterScene(CharacterId chr_id, bool near)
-    : matrix_(allocate_small<bool[16][16]>("chr-movement-slots")),
+    : matrix_(allocate_small<bool[16][16]>({"chr-movement-slots"})),
       chr_id_(chr_id), near_(near)
 {
     if (not matrix_) {
@@ -53,20 +53,19 @@ void flood_fill_through_portals(Island& isle,
 {
     flood_fill(matrix, replace, x, y);
 
+    const u8 y_min = construction_zone_min_y;
+
     // Good lord this is horrible...
-    for (u8 x = 0; x < 16; ++x) {
-        for (u8 y = 0; y < 16; ++y) {
-            if (matrix[x][y] == replace) {
-                if (auto room = isle.get_room({x, y})) {
-                    if (room->cast<Portal>()) {
-                        for (u8 xx = 0; xx < 16; ++xx) {
-                            for (u8 yy = 0; yy < 16; ++yy) {
-                                if (matrix[xx][yy] not_eq replace) {
-                                    if (auto o = isle.get_room({xx, yy})) {
-                                        if (o->cast<Portal>()) {
-                                            flood_fill(matrix, replace, xx, yy);
-                                        }
-                                    }
+    for (auto& room : isle.rooms()) {
+        auto pos = room->position();
+        if (matrix[pos.x][pos.y] == replace) {
+            if (room->cast<Portal>()) {
+                for (u8 xx = 0; xx < (u8)isle.terrain().size(); ++xx) {
+                    for (u8 yy = y_min; yy < 15; ++yy) {
+                        if (matrix[xx][yy] not_eq replace) {
+                            if (auto o = isle.get_room({xx, yy})) {
+                                if (o->cast<Portal>()) {
+                                    flood_fill(matrix, replace, xx, yy);
                                 }
                             }
                         }
@@ -405,7 +404,8 @@ u32 flood_fill(u8 matrix[16][16], u8 replace, u8 x, u8 y)
 
     ScratchBufferBulkAllocator mem;
 
-    auto stack = mem.alloc<Buffer<Coord, 16 * 16>>();
+    using CoordStack = Buffer<Coord, 16 * 16>;
+    auto stack = mem.alloc<CoordStack>(CoordStack::SkipZeroFill{});
 
     if (UNLIKELY(not stack)) {
         PLATFORM.fatal("fatal error in floodfill");

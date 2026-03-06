@@ -28,36 +28,29 @@ Value* make_bytecode_function(Value* bytecode);
 u16 symbol_offset(const char* symbol);
 
 
-// Just a utility intended for the compiler, not to be used by the vm.
-inline instruction::Header* load_instruction(ScratchBuffer& buffer, int index)
+using InstructionList = Vector<instruction::Header*>;
+
+
+void parse_instructions(ScratchBuffer& buffer, InstructionList& list)
 {
     using namespace instruction;
-
     int offset = 0;
-
     while (true) {
-        switch (buffer.data_[offset]) {
+        auto* inst = (instruction::Header*)(buffer.data_ + offset);
+        list.push_back(inst);
+        switch (inst->op_) {
         case Fatal::op():
-            return nullptr;
-
+            return;
         case PushString::op():
-            if (index == 0) {
-                return (Header*)(buffer.data_ + offset);
-            } else {
-                index--;
-                offset += sizeof(PushString) +
-                          ((PushString*)(buffer.data_ + offset))->length_;
-            }
+            offset += sizeof(PushString) + ((PushString*)inst)->length_;
             break;
+        case Ret::op():
+        case EarlyRet::op():
+            return;
 
-#define MATCH(NAME)                                                            \
-    case NAME::op():                                                           \
-        if (index == 0) {                                                      \
-            return (Header*)(buffer.data_ + offset);                           \
-        } else {                                                               \
-            index--;                                                           \
-            offset += sizeof(NAME);                                            \
-        }                                                                      \
+#define MATCH(NAME)          \
+    case NAME::op():         \
+        offset += sizeof(NAME); \
         break;
 
             MATCH(LoadVar)
@@ -85,8 +78,6 @@ inline instruction::Header* load_instruction(ScratchBuffer& buffer, int index)
             MATCH(Funcall3)
             MATCH(PushList)
             MATCH(Pop)
-            MATCH(Ret)
-            MATCH(EarlyRet)
             MATCH(Dup)
             MATCH(MakePair)
             MATCH(First)
@@ -114,8 +105,8 @@ inline instruction::Header* load_instruction(ScratchBuffer& buffer, int index)
             MATCH(Await)
         }
     }
-    return nullptr;
 }
+
 
 
 struct CompilerContext
@@ -742,7 +733,11 @@ class PeepholeOptimizer
 {
 public:
     template <typename U, typename T>
-    void replace(ScratchBuffer& code_buffer, U& dest, T& source, u32& code_size)
+    void replace(InstructionList& instructions,
+                 ScratchBuffer& code_buffer,
+                 U& dest,
+                 T& source,
+                 u32& code_size)
     {
         static_assert(sizeof dest > sizeof source);
         memcpy(&dest, &source, sizeof source);
@@ -757,17 +752,23 @@ public:
 
         code_size -= diff;
 
-        fixup_jumps(code_buffer, start, -diff);
+        for (auto& p : instructions) {
+            if ((char*)p >= code_buffer.data_ + start) {
+                p = (instruction::Header*)((u8*)p - diff);
+            }
+        }
+
+        fixup_jumps(instructions, code_buffer, start, -diff);
     }
 
 
     u32 run(ScratchBuffer& code_buffer, u32 code_size)
     {
-        int index = 0;
-        while (true) {
-            using namespace instruction;
-            auto inst = load_instruction(code_buffer, index);
+        InstructionList instructions(make_scratch_buffer("instruction-buffer"));
+        parse_instructions(code_buffer, instructions);
 
+        using namespace instruction;
+        for (auto& inst : instructions) {
             switch (inst->op_) {
             case PushLambda::op():
                 // FIXME! We do not support optimization yet when there are
@@ -777,21 +778,21 @@ public:
                 return code_size;
 
             case Ret::op():
-                goto TOP;
+                goto BEGIN;
 
             default:
-                ++index;
                 break;
             }
         }
 
     TOP:
-        index = 0;
+    BEGIN:
+        int index = 0;
 
         while (true) {
             using namespace instruction;
 
-            auto inst = load_instruction(code_buffer, index);
+            auto inst = instructions[index];
             switch (inst->op_) {
             case Ret::op():
                 return code_size;
@@ -801,14 +802,15 @@ public:
 
             case PushSmallInteger::op(): {
                 if (index > 0) {
-                    auto prev = load_instruction(code_buffer, index - 1);
+                    auto prev = instructions[index - 1];
                     if (prev->op_ == PushSmallInteger::op()) {
                         if (((PushSmallInteger*)prev)->value_ ==
                             ((PushSmallInteger*)inst)->value_) {
 
                             Dup d;
                             d.header_.op_ = Dup::op();
-                            replace(code_buffer,
+                            replace(instructions,
+                                    code_buffer,
                                     *(PushSmallInteger*)inst,
                                     d,
                                     code_size);
@@ -817,7 +819,7 @@ public:
                     } else if (prev->op_ == Dup::op()) {
                         int backtrack = index - 2;
                         while (backtrack > 0) {
-                            auto it = load_instruction(code_buffer, backtrack);
+                            auto it = instructions[backtrack];
                             if (it->op_ == Dup::op()) {
                                 --backtrack;
                             } else if (it->op_ == PushSmallInteger::op()) {
@@ -826,7 +828,8 @@ public:
 
                                     Dup d;
                                     d.header_.op_ = Dup::op();
-                                    replace(code_buffer,
+                                    replace(instructions,
+                                            code_buffer,
                                             *(PushSmallInteger*)inst,
                                             d,
                                             code_size);
@@ -851,7 +854,7 @@ public:
                     // instruction.
                     EarlyRet r;
                     r.header_.op_ = EarlyRet::op();
-                    replace(code_buffer, *sj, r, code_size);
+                    replace(instructions, code_buffer, *sj, r, code_size);
                     goto TOP;
                 } else {
                     ++index;
@@ -861,21 +864,21 @@ public:
 
             case PushInteger::op(): {
                 if (index > 0) {
-                    auto prev = load_instruction(code_buffer, index - 1);
+                    auto prev = instructions[index - 1];
                     if (prev->op_ == PushInteger::op()) {
                         if (((PushInteger*)prev)->value_.get() ==
                             ((PushInteger*)inst)->value_.get()) {
 
                             Dup d;
                             d.header_.op_ = Dup::op();
-                            replace(
+                            replace(instructions,
                                 code_buffer, *(PushInteger*)inst, d, code_size);
                             goto TOP;
                         }
                     } else if (prev->op_ == Dup::op()) {
                         int backtrack = index - 2;
                         while (backtrack > 0) {
-                            auto it = load_instruction(code_buffer, backtrack);
+                            auto it = instructions[backtrack];
                             if (it->op_ == Dup::op()) {
                                 --backtrack;
                             } else if (it->op_ == PushInteger::op()) {
@@ -884,7 +887,8 @@ public:
 
                                     Dup d;
                                     d.header_.op_ = Dup::op();
-                                    replace(code_buffer,
+                                    replace(instructions,
+                                            code_buffer,
                                             *(PushInteger*)inst,
                                             d,
                                             code_size);
@@ -905,7 +909,7 @@ public:
                     SmallJump j;
                     j.header_.op_ = SmallJump::op();
                     j.offset_ = ((Jump*)inst)->offset_.get();
-                    replace(code_buffer, *(Jump*)inst, j, code_size);
+                    replace(instructions, code_buffer, *(Jump*)inst, j, code_size);
                     goto TOP;
                 }
                 ++index;
@@ -916,7 +920,7 @@ public:
                     SmallJumpIfFalse j;
                     j.header_.op_ = SmallJumpIfFalse::op();
                     j.offset_ = ((JumpIfFalse*)inst)->offset_.get();
-                    replace(code_buffer, *(JumpIfFalse*)inst, j, code_size);
+                    replace(instructions, code_buffer, *(JumpIfFalse*)inst, j, code_size);
                     goto TOP;
                 }
                 ++index;
@@ -934,7 +938,10 @@ public:
     // through the bytecode, and adjust the offsets of local jumps within the
     // lambda definition.
     void
-    fixup_jumps(ScratchBuffer& code_buffer, int inflection_point, int size_diff)
+    fixup_jumps(InstructionList& instr,
+                ScratchBuffer& code_buffer,
+                int inflection_point,
+                int size_diff)
     {
         int index = 0;
         int depth = 0;
@@ -950,7 +957,7 @@ public:
         while (true) {
             using namespace instruction;
 
-            auto inst = load_instruction(code_buffer, index);
+            auto inst = instr[index];
             switch (inst->op_) {
             case PushLambda::op():
                 ++depth;

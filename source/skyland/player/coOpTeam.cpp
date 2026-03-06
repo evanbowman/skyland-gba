@@ -26,7 +26,7 @@ namespace skyland
 
 
 
-CoOpTeam::CoOpTeam() : data_(allocate_small<Data>("data"))
+CoOpTeam::CoOpTeam() : data_(allocate_small<Data>({"data"}))
 {
     if (PLATFORM.network_peer().interface() ==
         Platform::NetworkPeer::Interface::internet) {

@@ -58,6 +58,13 @@ def build_lisp_constant_tab(codestring):
             lisp_constant_tab[symbol] = constant
 
 
+def is_number(s):
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
+
 # This is just an optimization allowing us to minimize the size of the lisp string
 # intern table. Otherwise, the interpreter we would need to store variable names
 # permanently in memory.
@@ -91,8 +98,8 @@ def build_lisp_symtab(codestring):
     for string in parsed:
         if ';' in string:
             break
-        if not string.replace('/', '0').isnumeric() and not string.lstrip('-').isnumeric() and not '"' in string and string and not string.startswith("0x") and string != "false":
-            if len(string) > 4: # The interpreter does a small string optimization already
+        if not is_number(string.replace('/', '0').lstrip('-')) and not '"' in string and string and not string.startswith("0x") and string != "false" and string != "true":
+            if len(string) > 3: # The interpreter does a small string optimization already
                 if string in lisp_symbol_tab:
                     lisp_symbol_tab[string] = lisp_symbol_tab[string] + 1
                 else:

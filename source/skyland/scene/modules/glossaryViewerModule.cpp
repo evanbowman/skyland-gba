@@ -759,7 +759,7 @@ ScenePtr GlossaryViewerModule::update(Time delta)
 
             auto [mt, ms] = room_metatable();
 
-            filter_buf_ = allocate_small<FilterBuf>("filter-buf");
+            filter_buf_ = allocate_small<FilterBuf>({"filter-buf"});
 
 
             static const auto offset = (int)SystemString::filter_begin;
