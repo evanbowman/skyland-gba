@@ -2422,11 +2422,11 @@ static void set_map_tile_16p(u8 base, u16 x, u16 y, u16 tile_id, int palette)
     }
 
     const u16 offset = x * 2 + y * 64;
-    const u16 tile   = tile_id * 4;
-    const u16 pal    = SE_PALBANK(palette);
+    const u16 tile = tile_id * 4;
+    const u16 pal = SE_PALBANK(palette);
 
-    MEM_SCREENBLOCKS[screen_block][offset +  0] = (tile + 0) | pal;
-    MEM_SCREENBLOCKS[screen_block][offset +  1] = (tile + 1) | pal;
+    MEM_SCREENBLOCKS[screen_block][offset + 0] = (tile + 0) | pal;
+    MEM_SCREENBLOCKS[screen_block][offset + 1] = (tile + 1) | pal;
     MEM_SCREENBLOCKS[screen_block][offset + 32] = (tile + 2) | pal;
     MEM_SCREENBLOCKS[screen_block][offset + 33] = (tile + 3) | pal;
 }

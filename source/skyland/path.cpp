@@ -65,7 +65,8 @@ Optional<Path> find_path(Island* island,
                             start_v = priority_q.back();
                             start_v->dist_ = 0;
                         } else {
-                            priority_q.back()->dist_ = std::numeric_limits<u16>::max();
+                            priority_q.back()->dist_ =
+                                std::numeric_limits<u16>::max();
                         }
                         vertex_mat[x][y] = priority_q.back();
                     } else {
@@ -125,8 +126,8 @@ Optional<Path> find_path(Island* island,
                 return {};
             }
             if (min->coord_ == end) {
-                auto path_mem = allocate_small<PathBuffer>({"path-buffer", false},
-                                                           PathBuffer::SkipZeroFill{});
+                auto path_mem = allocate_small<PathBuffer>(
+                    {"path-buffer", false}, PathBuffer::SkipZeroFill{});
                 if (not path_mem) {
                     return {};
                 }
@@ -151,7 +152,8 @@ Optional<Path> find_path(Island* island,
             if (auto room = island->get_room(min->coord_)) {
                 if (room->metaclass() == portal_mt) {
                     for (auto& o : island->rooms()) {
-                        if (o.get() not_eq room and o->metaclass() == portal_mt) {
+                        if (o.get() not_eq room and
+                            o->metaclass() == portal_mt) {
                             auto alt =
                                 min->dist_ +
                                 manhattan_length(min->coord_, o->position());

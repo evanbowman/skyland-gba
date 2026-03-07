@@ -140,7 +140,8 @@ SubBufferPtr make_sub_buffer(const SubBuffer::Tag& tag, u32 zero_fill_size)
             if (zero_fill_size) {
                 if ((intptr_t)buf->data_ % wordsize == 0 and
                     zero_fill_size % wordsize == 0) {
-                    PLATFORM.memset_words(buf->data_, 0, zero_fill_size / wordsize);
+                    PLATFORM.memset_words(
+                        buf->data_, 0, zero_fill_size / wordsize);
                 } else {
                     memset(buf->data_, 0, zero_fill_size);
                 }

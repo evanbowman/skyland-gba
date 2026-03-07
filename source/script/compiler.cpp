@@ -48,9 +48,9 @@ void parse_instructions(ScratchBuffer& buffer, InstructionList& list)
         case EarlyRet::op():
             return;
 
-#define MATCH(NAME)          \
-    case NAME::op():         \
-        offset += sizeof(NAME); \
+#define MATCH(NAME)                                                            \
+    case NAME::op():                                                           \
+        offset += sizeof(NAME);                                                \
         break;
 
             MATCH(LoadVar)
@@ -872,7 +872,10 @@ public:
                             Dup d;
                             d.header_.op_ = Dup::op();
                             replace(instructions,
-                                code_buffer, *(PushInteger*)inst, d, code_size);
+                                    code_buffer,
+                                    *(PushInteger*)inst,
+                                    d,
+                                    code_size);
                             goto TOP;
                         }
                     } else if (prev->op_ == Dup::op()) {
@@ -909,7 +912,8 @@ public:
                     SmallJump j;
                     j.header_.op_ = SmallJump::op();
                     j.offset_ = ((Jump*)inst)->offset_.get();
-                    replace(instructions, code_buffer, *(Jump*)inst, j, code_size);
+                    replace(
+                        instructions, code_buffer, *(Jump*)inst, j, code_size);
                     goto TOP;
                 }
                 ++index;
@@ -920,7 +924,11 @@ public:
                     SmallJumpIfFalse j;
                     j.header_.op_ = SmallJumpIfFalse::op();
                     j.offset_ = ((JumpIfFalse*)inst)->offset_.get();
-                    replace(instructions, code_buffer, *(JumpIfFalse*)inst, j, code_size);
+                    replace(instructions,
+                            code_buffer,
+                            *(JumpIfFalse*)inst,
+                            j,
+                            code_size);
                     goto TOP;
                 }
                 ++index;
@@ -937,11 +945,10 @@ public:
     // We have just inserted/removed an instruction, and now need to scan
     // through the bytecode, and adjust the offsets of local jumps within the
     // lambda definition.
-    void
-    fixup_jumps(InstructionList& instr,
-                ScratchBuffer& code_buffer,
-                int inflection_point,
-                int size_diff)
+    void fixup_jumps(InstructionList& instr,
+                     ScratchBuffer& code_buffer,
+                     int inflection_point,
+                     int size_diff)
     {
         int index = 0;
         int depth = 0;

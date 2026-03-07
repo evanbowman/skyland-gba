@@ -1210,8 +1210,7 @@ void Character::movement_step(Time delta, Room* current_room)
         }
 
         auto interval =
-            Fixnum::create((static_cast<s64>(timer_) *
-                            Fixnum::scale()) /
+            Fixnum::create((static_cast<s64>(timer_) * Fixnum::scale()) /
                            static_cast<s64>(movement_step_duration(race_)));
 
         auto fpos = interpolate_fp(dest, o, interval);

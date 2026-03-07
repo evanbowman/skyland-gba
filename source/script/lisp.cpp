@@ -4663,7 +4663,8 @@ bool destructure_binding(Value* sym, Value* value, ListBuilder& binding_list)
                     suggestion += " ";
                 });
                 suggestion += ". rest)";
-                auto fmt_buffer = allocate_small<StringBuffer<200>>({"err-fmt"});
+                auto fmt_buffer =
+                    allocate_small<StringBuffer<200>>({"err-fmt"});
                 make_format(*fmt_buffer,
                             "expression result % is"
                             " too long to bind to "

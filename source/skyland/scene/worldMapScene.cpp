@@ -1437,7 +1437,8 @@ ScenePtr WorldMapScene::update(Time delta)
         nav_mode_ = true;
         heading_->assign(SYSTR(wg_nav)->c_str());
         cached_cursor_ = cursor_;
-        cached_world_graph_ = allocate_small<WorldGraph>({"cached-world-graph"});
+        cached_world_graph_ =
+            allocate_small<WorldGraph>({"cached-world-graph"});
         **cached_world_graph_ = APP.world_graph();
         navigation_buffer_.clear();
         navigation_buffer_.push_back(cursor_);

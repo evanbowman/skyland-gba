@@ -519,8 +519,7 @@ void EnemyAI::assign_local_character(Character& character,
     for (auto& room : ai_island_->rooms()) {
         auto mt = room->metaclass();
 
-        if (room->habitable() and
-            room->health() not_eq room->max_health()) {
+        if (room->habitable() and room->health() not_eq room->max_health()) {
             damaged_habitable_rooms = true;
         }
         if (mt == cannon_mt) {
@@ -811,21 +810,27 @@ void EnemyAI::assign_local_character(Character& character,
         }
     }
 
-    std::sort(slots.begin(),
-              slots.end(),
-              [&](const Destination& lhs, const Destination& rhs) {
-                  return lhs.ai_weight_ < rhs.ai_weight_;
-              });
+    if (slots.empty()) {
+        return;
+    }
 
-    if (slots.back().ai_weight_ == 0.0_atp) {
+    u32 target_slot = 0;
+    ATP highest_weight = slots[0].ai_weight_;
+    for (u32 i = 1; i < slots.size(); ++i) {
+        if (slots[i].ai_weight_ > highest_weight) {
+            target_slot = i;
+            highest_weight = slots[i].ai_weight_;
+        }
+    }
+
+    if (highest_weight == 0.0_atp) {
         // Again, perhaps this is overly defensive coding. But we should never
         // end up in a situation where the weights of the rooms are all
         // uninitialized...
         return;
     }
 
-
-    auto target = slots.back();
+    auto target = slots[target_slot];
 
     if (auto path =
             find_path(ai_island_, &character, current_pos, target.coord_)) {
@@ -876,9 +881,10 @@ void EnemyAI::assign_boarded_character(Character& character,
     }
 
 
-    Buffer<RoomCoord, 32, false> exclude_slots; // Don't move into currently occupied
-                                                // slots, or slots that will be
-                                                // occupied.
+    Buffer<RoomCoord, 32, false>
+        exclude_slots; // Don't move into currently occupied
+                       // slots, or slots that will be
+                       // occupied.
 
     for (auto& room : (*target_island_).rooms()) {
         for (auto& other : room->characters()) {
@@ -990,20 +996,23 @@ void EnemyAI::assign_boarded_character(Character& character,
         }
     }
 
-    std::sort(slots.begin(),
-              slots.end(),
-              [&](const Destination& lhs, const Destination& rhs) {
-                  return lhs.ai_weight_ < rhs.ai_weight_;
-              });
+    u32 target_slot = 0;
+    ATP highest_weight = slots[0].ai_weight_;
+    for (u32 i = 1; i < slots.size(); ++i) {
+        if (slots[i].ai_weight_ > highest_weight) {
+            target_slot = i;
+            highest_weight = slots[i].ai_weight_;
+        }
+    }
 
-    if (slots.back().ai_weight_ == 0.0_atp) {
+    if (highest_weight == 0.0_atp) {
         // Again, perhaps this is overly defensive coding. But we should never
         // end up in a situation where the weights of the rooms are all
         // uninitialized...
         return;
     }
 
-    auto target = slots.back();
+    auto target = slots[target_slot];
 
     if (auto path = find_path(
             &(*target_island_), &character, current_pos, target.coord_)) {
@@ -1941,7 +1950,8 @@ void EnemyAI::set_target(RoomsView rooms,
 
     using TargetBuffer = Buffer<Target, Island::Rooms::Rooms::capacity()>;
 
-    auto buffer = allocate<TargetBuffer>("beam-targets", TargetBuffer::SkipZeroFill{});
+    auto buffer =
+        allocate<TargetBuffer>("beam-targets", TargetBuffer::SkipZeroFill{});
 
     for (auto& room : target_island->rooms()) {
         auto pos = room->position();
