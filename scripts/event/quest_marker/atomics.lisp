@@ -14,6 +14,7 @@
 
 
 (defn on-converge ()
+  (setq on-converge nil)
   (dialog-sequence
    "You arrive, but the princess looks troubled..."
    "<c:Warrior Princess of E. Cay:28>Since shortly after we departed, I haven't been able to contact anyone back home. <B:0> I have instructions, if our kingdom is overrun, to activate the atomics and use them to avenge my people's deaths. Please accept this:"

@@ -84,6 +84,7 @@
        (chrs (player)))
   (if child
       (defn on-converge ()
+        (setq on-converge nil)
         (dialog-sequence
          "<c:Goblin Chieftain:42>Who approachesss our territory? <B:0> Sssylph!? State your businessss!"
          "<c:Goblin Child:50>Father! FATHER! It'sss me!"

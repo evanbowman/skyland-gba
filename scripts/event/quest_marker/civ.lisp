@@ -29,6 +29,7 @@
 
   (if boy
       (defn on-converge ()
+        (setq on-converge nil)
         (dialog-sequence
          "<c:Sylph:21><S:1>Hello, traveller..."
          "<c:Orphan Boy:26><S:1>Oh!!! I'm home at last!"

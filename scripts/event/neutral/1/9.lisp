@@ -50,6 +50,7 @@
 
 
 (defn on-converge ()
+  (setq on-converge nil)
   ;; want drones?
   (if (dialog-await-y/n "<c:robot:13> 01010111 01100001 01101110 01110100 00100000 01100100 01110010 01101111 01101110 01100101 01110011 00111111?")
       ;; less than 2?

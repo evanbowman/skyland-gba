@@ -18,6 +18,7 @@
 
 
 (defn on-converge ()
+  (setq on-converge nil)
   (await (dialog* "A small injured boy begins speaking softly in an archaic language..."))
   (await (dialog* "<c:Injured Boy:26> "
                   "<S:1>I am the only survivor! Can you help me get back home?"))

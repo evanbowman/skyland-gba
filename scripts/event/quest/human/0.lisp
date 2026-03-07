@@ -64,6 +64,7 @@
 
 
 (defn on-converge ()
+  (setq on-converge nil)
   (let ((request (string
                   "<c:Merchant:7>We promised to deliver some cargo to our customers, but with "
                   "this storm approaching, we don't think we can make the delivery. "

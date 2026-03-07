@@ -69,6 +69,7 @@
     (if (or (lookup 'backups info) (and (not (lookup 'reactors info))
                                         (not (lookup 'cores info)))) ;; Player must have a core and not already have a backup.
         (defn on-converge ()
+          (setq on-converge nil)
           (await (dialog* "<c:Mayor:10>Nice to meet ya! We were having trouble earlier, "
                           "but we worked it out on our own..."))
           (exit))
