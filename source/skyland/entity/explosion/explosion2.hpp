@@ -138,6 +138,12 @@ public:
     }
 
 
+    void set_color(ColorConstant c)
+    {
+        sprite_.set_mix({c, 255});
+    }
+
+
     void project_glow() override
     {
         APP.environment().render_glow_effect(

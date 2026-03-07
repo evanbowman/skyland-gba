@@ -8,9 +8,11 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-
+#pragma once
 
 #include "skyland/room.hpp"
+#include "skyland/entity/explosion/explosion.hpp"
+#include "skyland/sharedVariable.hpp"
 #include "skyland/systemString.hpp"
 #include "skyland/tile.hpp"
 #include "skyland/types.hpp"
@@ -19,6 +21,10 @@
 
 namespace skyland
 {
+
+
+
+extern SharedVariable energy_glow_color;
 
 
 
@@ -104,6 +110,13 @@ public:
     static Icon unsel_icon()
     {
         return 4104;
+    }
+
+
+    void finalize() override
+    {
+        Room::finalize();
+        radial_explosion(center(), {});
     }
 };
 

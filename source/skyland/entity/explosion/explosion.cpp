@@ -362,6 +362,9 @@ void radial_explosion(const Vec2<Fixnum>& position,
                 spd.x = Fixnum(dir.x);
                 spd.y = Fixnum(dir.y);
                 exp->set_speed(spd);
+                if (conf.color_) {
+                    exp->set_color(*conf.color_);
+                }
                 APP.effects().push(std::move(exp));
             }
         }
