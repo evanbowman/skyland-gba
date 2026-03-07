@@ -2794,7 +2794,7 @@ static void binding_name_getter(lisp::SymbolCallback cb)
 
     auto [mt, ms] = room_metatable();
 
-    for (int i = 0; i < plugin_rooms_begin(); ++i) {
+    for (int i = 0; i < ms; ++i) {
         cb(mt[i]->name());
     }
 }

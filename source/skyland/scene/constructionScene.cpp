@@ -1427,15 +1427,6 @@ bool ConstructionScene::collect_available_buildings()
     for (MetaclassIndex i = 0; i < metatable.second; ++i) {
         auto& meta = metatable.first[i];
 
-        if (APP.game_mode() == App::GameMode::multiplayer or
-            APP.game_mode() == App::GameMode::tutorial or
-            APP.game_mode() == App::GameMode::co_op) {
-            if (i >= plugin_rooms_begin()) {
-                // We disable plugin (dlc) rooms during certain game modes.
-                break;
-            }
-        }
-
         if (not is_enabled(i)) {
             continue;
         }

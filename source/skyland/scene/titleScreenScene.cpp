@@ -259,9 +259,6 @@ void TitleScreenScene::enter(Scene& prev)
     APP.effects().clear();
     APP.birds().clear();
 
-    // Back to the title screen! DLC plugins need to be unloaded...
-    plugin_rooms_unregister();
-
     // By default, we do not allow recording for rewind. Enabled based on game
     // mode when fading into a level.
     APP.time_stream().enable_pushes(false);

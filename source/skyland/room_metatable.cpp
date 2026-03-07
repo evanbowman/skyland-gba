@@ -14,7 +14,6 @@
 #include "script/lisp.hpp"
 
 #include "ext_workram_data.hpp"
-#include "roomPluginInfo.hpp"
 #include "skyland/rooms/amplifier.hpp"
 #include "skyland/rooms/annihilator.hpp"
 #include "skyland/rooms/arcGun.hpp"
@@ -101,7 +100,12 @@
 #include "skyland/rooms/weatherEngine.hpp"
 #include "skyland/rooms/windmill.hpp"
 #include "skyland/rooms/workshop.hpp"
+#include "eternal/eternal.hpp"
 
+
+#if not MAPBOX_ETERNAL_IS_CONSTEXPR
+#error "NON-Constexpr lookup table!"
+#endif
 
 
 namespace skyland
@@ -239,17 +243,7 @@ template <typename T> void RoomMeta::init()
 
 
 
-void RoomMeta::init_plugin()
-{
-    static_assert(sizeof buffer_ >= sizeof(RoomPluginInfo));
-    static_assert(align >= alignof(RoomPluginInfo));
-
-    new (buffer_) RoomPluginInfo(this);
-}
-
-
-
-template <int plugin_slots, typename... Rooms> struct RoomMetatable
+template <typename... Rooms> struct RoomMetatable
 {
 public:
     static constexpr const char* room_names_[sizeof...(Rooms)] = {
@@ -269,11 +263,7 @@ public:
     {
         init<0, Rooms...>();
 
-        for (int i = 0; i < plugin_slots; ++i) {
-            table_[sizeof...(Rooms) + i].init_plugin();
-        }
-
-        for (MetaclassIndex i = 0; i < plugin_rooms_begin(); ++i) {
+        for (MetaclassIndex i = 0; i < sizeof...(Rooms); ++i) {
             if (not(table_[i]->properties() &
                     RoomProperties::locked_by_default)) {
                 enabled_rooms_.set(i, true);
@@ -283,24 +273,27 @@ public:
 
     int size()
     {
-        return sizeof...(Rooms) + plugin_slots;
-    }
-
-    // Returns the number of builtin rooms. Relevant because we may want to
-    // disable plugin (dlc) rooms for certain game modes.
-    static constexpr int builtin_slots_end()
-    {
         return sizeof...(Rooms);
     }
 
-    RoomMeta table_[sizeof...(Rooms) + plugin_slots];
-    Bitvector<sizeof...(Rooms) + plugin_slots> enabled_rooms_;
+    RoomMeta table_[sizeof...(Rooms)];
+    Bitvector<sizeof...(Rooms)> enabled_rooms_;
+
+    static constexpr auto build_string_mapping_table()
+    {
+        return []<std::size_t... Is>(std::index_sequence<Is...>) {
+            return mapbox::eternal::hash_map<mapbox::eternal::string, int>({
+                    std::pair<mapbox::eternal::string, int>{Rooms::name(), static_cast<int>(Is)}...
+                });
+        }(std::index_sequence_for<Rooms...>{});
+    }
+
+    static constexpr auto string_mapping_table = build_string_mapping_table();
 };
 
 
 
-using RoomMetatableType = RoomMetatable<3,
-                                        // walls
+using RoomMetatableType = RoomMetatable<// walls
                                         Hull,
                                         BronzeHull,
                                         Forcefield,
@@ -417,63 +410,7 @@ bool is_enabled(MetaclassIndex index)
 
 void set_enabled(MetaclassIndex index, bool enabled)
 {
-    if (index >= plugin_rooms_begin()) {
-        Platform::fatal("Attempt to manually set enabled bit for plugin room!");
-    }
-
     __metatable().enabled_rooms_.set(index, enabled);
-}
-
-
-
-void plugin_rooms_unregister()
-{
-    for (int i = plugin_rooms_begin(); i < __metatable().size(); ++i) {
-        __metatable().enabled_rooms_.set(i, false);
-
-        // FIXME: do checked cast. RTTI unsupported on some embedded platforms,
-        // due to no libstdc++. This code doesn't run anyway.
-        if (auto b = reinterpret_cast<RoomPluginInfo*>(
-                __metatable().table_[i].box())) {
-            b->info_.reset();
-        } else {
-            Platform::fatal(
-                "Metaclass Boxed in plugin sector is not a PluginInfo?");
-        }
-    }
-}
-
-
-
-bool plugin_room_register(lisp::Value* config)
-{
-    for (int i = plugin_rooms_begin(); i < __metatable().size(); ++i) {
-        if (not __metatable().enabled_rooms_.get(i)) {
-            // We've found an unused slot, where we can register a new plugin
-            // room.
-
-            // Lock the slot.
-            __metatable().enabled_rooms_.set(i, true);
-
-            if (auto b = reinterpret_cast<RoomPluginInfo*>(
-                    __metatable().table_[i].box())) {
-                b->info_ = config;
-            } else {
-                Platform::fatal("program logic error: metaclass"
-                                "in plugin sector is not a plugin.");
-            }
-
-            return true;
-        }
-    }
-    return false;
-}
-
-
-
-MetaclassIndex plugin_rooms_begin()
-{
-    return RoomMetatableType::builtin_slots_end();
 }
 
 
@@ -533,11 +470,9 @@ RoomMeta& require_metaclass(const char* name)
 RoomMeta* load_metaclass(const char* name)
 {
     auto [mt, ms] = room_metatable();
-
-    for (int i = 0; i < __room_metatable.builtin_slots_end(); ++i) {
-        if (str_cmp(mt[i]->name(), name) == 0) {
-            return &mt[i];
-        }
+    auto found = __room_metatable.string_mapping_table.find(name);
+    if (found not_eq __room_metatable.string_mapping_table.end()) {
+        return &mt[found->second];
     }
 
     const char* removed_blocks_from_old_versions[] = {

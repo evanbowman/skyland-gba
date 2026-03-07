@@ -1042,7 +1042,7 @@ ScenePtr GlossaryViewerModule::update(Time delta)
     case State::quickview:
         if (not inspect_) {
             if ((test_button(Button::down) or test_button(Button::right)) and
-                page_ < ms - 1 and page_ < plugin_rooms_begin() - 1 and
+                page_ < ms - 1 and
                 (not filter_end_ or
                  (filter_end_ and filter_end_ - 1 > page_))) {
                 load_page(++page_);

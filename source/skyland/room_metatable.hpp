@@ -70,7 +70,7 @@ struct RoomMeta
 
 
     static constexpr int align = 8;
-    static constexpr int max_size = 10 * sizeof(void*);
+    static constexpr int max_size = 3 * sizeof(void*);
 
     alignas(align) u8 buffer_[max_size];
 
