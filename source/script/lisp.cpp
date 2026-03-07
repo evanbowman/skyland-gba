@@ -1428,6 +1428,7 @@ Value* make_string_from_literal(const char* str)
 {
     auto val = alloc_value();
     val->hdr_.type_ = Value::Type::string;
+    val->string().len_ = strlen(str);
     val->string().data_.literal_.value_ = str;
     val->string().hdr_.mode_bits_ = String::literal_string;
     return val;
@@ -1509,6 +1510,7 @@ Value* make_string(const char* string)
 
     auto val = alloc_value();
     val->hdr_.type_ = Value::Type::string;
+    val->string().len_ = len;
     val->string().data_.memory_.databuffer_ = compr(buffer);
     val->string().data_.memory_.offset_ = offset;
     val->string().hdr_.mode_bits_ = String::memory_string;
@@ -3130,7 +3132,8 @@ int compact_string_memory()
     Protected db = new_buffer();
     u32 write_offset = 0;
 
-    Vector<Value*> recovered_buffers;
+    Vector<Value*, SubBufferMemory> recovered_buffers(
+        make_sub_buffer("str-compact-buffer", 0));
 
     for (int i = 0; i < VALUE_POOL_SIZE; ++i) {
         Value* val = (Value*)&value_pool_data[i];
@@ -3138,7 +3141,7 @@ int compact_string_memory()
         if (val->hdr_.alive_ and val->type() == Value::Type::string and
             val->string().variant() == String::memory_string) {
 
-            const auto len = strlen(val->string().value()) + 1;
+            const auto len = val->string().len_ + 1;
 
             if (write_offset + len >= SCRATCH_BUFFER_SIZE) {
                 write_offset = 0;

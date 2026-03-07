@@ -424,7 +424,7 @@ Value* builtin_slice(int argc)
                 return true;
             },
             inp_str,
-            strlen(inp_str));
+            get_op(2)->string().len_);
 
         return make_string(builder->c_str());
 
@@ -477,7 +477,7 @@ Value* builtin_string_explode(int argc)
             return true;
         },
         str,
-        strlen(str));
+        get_op0()->string().len_);
 
     return list.result();
 }
