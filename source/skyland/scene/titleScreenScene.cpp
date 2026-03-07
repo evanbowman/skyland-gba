@@ -42,6 +42,18 @@ namespace skyland
 
 
 
+static ColorConstant color_blend(ColorConstant from, ColorConstant to, u8 interp)
+{
+    const Color input(from);
+    const Color k2(to);
+    Color result(fast_interpolate(input.r_, k2.r_, interp),
+                 fast_interpolate(input.g_, k2.g_, interp),
+                 fast_interpolate(input.b_, k2.b_, interp));
+    return result.hex();
+}
+
+
+
 class EmberParticle : public Entity
 {
 public:
@@ -78,8 +90,18 @@ public:
             interval = 1.f;
         }
 
-        sprite_.set_mix(
-            {ColorConstant::silver_white, u8(255 - 255 * interval)});
+        auto fade = PLATFORM.screen().fade_amount();
+        if (fade) {
+            auto c1 = color_blend(ColorConstant::silver_white,
+                                  custom_color(0x757ba7),
+                                  u8(255 - 255 * interval));
+            auto c2 = color_blend(ColorConstant::rich_black, c1, fade);
+            sprite_.set_mix({c2, 255});
+        } else {
+            sprite_.set_mix({ColorConstant::silver_white,
+                    u8(255 - 255 * interval)});
+        }
+
 
         sprite_.set_scale({shrink_amount, shrink_amount});
 
@@ -1308,20 +1330,8 @@ ScenePtr TitleScreenScene::update(Time delta)
                     return k;
                 }
 
-                auto blend =
-                    [](ColorConstant from, ColorConstant to, u8 interp) {
-                        const Color input(from);
-                        const Color k2(to);
-                        Color result(fast_interpolate(input.r_, k2.r_, interp),
-                                     fast_interpolate(input.g_, k2.g_, interp),
-                                     fast_interpolate(input.b_, k2.b_, interp));
-                        return result.hex();
-                    };
-
-                // 0x63b5e7;
-
                 if (p == ShaderPalette::tile0) {
-                    return blend(k, custom_color(0x63b5e7), 128);
+                    return color_blend(k, custom_color(0x63b5e7), 128);
                 }
 
                 return k;

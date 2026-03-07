@@ -4960,9 +4960,9 @@ void Platform::Screen::fade(float amount,
 
 
 
-bool Platform::Screen::fade_active() const
+u8 Platform::Screen::fade_amount() const
 {
-    return last_fade_amt > 0;
+    return last_fade_amt * 255;
 }
 
 
