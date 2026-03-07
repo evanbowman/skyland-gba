@@ -13,6 +13,7 @@
 #include "number/random.hpp"
 #include "skyland/alloc_entity.hpp"
 #include "skyland/skyland.hpp"
+#include "explosion2.hpp"
 
 
 
@@ -336,6 +337,36 @@ void dramatic_explosion(const Vec2<Fixnum>& position)
             }
         });
     });
+
+    APP.on_timeout(milliseconds(280), [pos = position] {
+        APP.camera()->shake(20);
+        radial_explosion(pos, {});
+    });
+}
+
+
+
+void radial_explosion(const Vec2<Fixnum>& position,
+                      const RadialExplosionConfig& conf)
+{
+    for (int i = 0; i < conf.rings_; ++i) {
+        int j_max = 4 + i * 2;
+        for (int j = 0; j < j_max; ++j) {
+            const int angle = j * (360 / j_max) + 45 + i * 3;
+            const u8 half_angle = angle / 2;
+            if (auto exp =
+                APP.alloc_entity<Explosion2>(position, half_angle, (u8)i + 1)) {
+                auto dir = rotate({1, 0}, angle);
+                dir = dir * (((i + 1 / 2.f) * 1.5f) * 0.00005f);
+                Vec2<Fixnum> spd;
+                spd.x = Fixnum(dir.x);
+                spd.y = Fixnum(dir.y);
+                exp->set_speed(spd);
+                APP.effects().push(std::move(exp));
+            }
+        }
+    }
+
 }
 
 

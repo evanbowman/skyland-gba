@@ -135,4 +135,14 @@ void big_explosion_inv(const Vec2<Fixnum>& position);
 void dramatic_explosion(const Vec2<Fixnum>& position);
 
 
+struct RadialExplosionConfig
+{
+    int rings_ = 2;
+    Optional<ColorConstant> color_;
+};
+
+void radial_explosion(const Vec2<Fixnum>& position,
+                      const RadialExplosionConfig& conf);
+
+
 } // namespace skyland
