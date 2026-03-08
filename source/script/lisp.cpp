@@ -305,6 +305,12 @@ static Optional<Context> bound_context;
 #define L_CTX (*bound_context)
 
 
+bool is_debug_mode()
+{
+    return L_CTX.debug_mode_;
+}
+
+
 Value*& get_bytecode_buffer()
 {
     return L_CTX.bytecode_buffer_;

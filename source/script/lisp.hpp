@@ -720,6 +720,9 @@ bool to_rational(Value* v, s32& num, s32& div);
 s32 to_integer(Value* v);
 
 
+bool is_debug_mode();
+
+
 void apropos(const char* match, Vector<const char*>& out);
 
 
