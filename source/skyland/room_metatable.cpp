@@ -13,6 +13,7 @@
 
 #include "script/lisp.hpp"
 
+#include "eternal/eternal.hpp"
 #include "ext_workram_data.hpp"
 #include "skyland/rooms/amplifier.hpp"
 #include "skyland/rooms/annihilator.hpp"
@@ -100,7 +101,6 @@
 #include "skyland/rooms/weatherEngine.hpp"
 #include "skyland/rooms/windmill.hpp"
 #include "skyland/rooms/workshop.hpp"
-#include "eternal/eternal.hpp"
 
 
 #if not MAPBOX_ETERNAL_IS_CONSTEXPR
@@ -134,16 +134,10 @@ template <typename T> struct InfoImpl : public RoomMeta::Info
 
     void create(Island* parent,
                 const RoomCoord& position,
-                bool do_repaint) const override
+                const Island::InsertRoomConf& conf) const override
     {
-        parent->add_room<T>(position, do_repaint);
+        parent->add_room<T>(position, conf);
     }
-
-    // RoomPtr<Room> create(Island* parent,
-    //                      const RoomCoord& position) const override
-    // {
-    //     return room_pool::alloc<T>(parent, position);
-    // }
 
     const char* name() const override
     {
@@ -282,9 +276,9 @@ public:
     static constexpr auto build_string_mapping_table()
     {
         return []<std::size_t... Is>(std::index_sequence<Is...>) {
-            return mapbox::eternal::hash_map<mapbox::eternal::string, int>({
-                    std::pair<mapbox::eternal::string, int>{Rooms::name(), static_cast<int>(Is)}...
-                });
+            return mapbox::eternal::hash_map<mapbox::eternal::string, int>(
+                {std::pair<mapbox::eternal::string, int>{
+                    Rooms::name(), static_cast<int>(Is)}...});
         }(std::index_sequence_for<Rooms...>{});
     }
 
@@ -293,100 +287,100 @@ public:
 
 
 
-using RoomMetatableType = RoomMetatable<// walls
-                                        Hull,
-                                        BronzeHull,
-                                        Forcefield,
-                                        Forcefield2,
-                                        PoweredHull,
-                                        IonFizzler,
-                                        Radiator,
-                                        Cloak,
-                                        MirrorHull,
-                                        StackedHull,
-                                        Mycelium,
-                                        Barrier,
-                                        // weapons
-                                        Cannon,
-                                        IonCannon,
-                                        FlakGun,
-                                        ArcGun,
-                                        Nemesis,
-                                        FireCharge,
-                                        SylphCannon,
-                                        Decimator,
-                                        Annihilator,
-                                        SparkCannon,
-                                        Incinerator,
-                                        BeamGun,
-                                        ParticleLance,
-                                        Ballista,
-                                        MissileSilo,
-                                        RocketSilo,
-                                        ClumpBomb,
-                                        Warhead,
-                                        // factories
-                                        Workshop,
-                                        Manufactory,
-                                        // power generation
-                                        Core,
-                                        Reactor,
-                                        SolarCell,
-                                        BackupCore,
-                                        WarEngine,
-                                        ChaosCore,
-                                        OverdriveCore,
-                                        Windmill,
-                                        Balloon,
-                                        // passages
-                                        Stairwell,
-                                        Ladder,
-                                        LadderPlus,
-                                        StairwellPlus,
-                                        StairwellPlusPlus,
-                                        Bridge,
-                                        Portal,
-                                        Bulkhead,
-                                        // misc
-                                        Infirmary,
-                                        CargoBay,
-                                        Crane,
-                                        WeatherEngine,
-                                        Water,
-                                        WaterSource,
-                                        Ice,
-                                        Explosive,
-                                        TNT,
-                                        Radar,
-                                        Transporter,
-                                        TargetingComputer,
-                                        EscapeBeacon,
-                                        Replicator,
-                                        DroneBay,
-                                        Deflector,
-                                        Amplifier,
-                                        PhaseShifter,
-                                        PlunderedRoom,
-                                        // decoration
-                                        Bell,
-                                        TuningCrystal,
-                                        Speaker,
-                                        Synth,
-                                        Statue,
-                                        LadyLiberty,
-                                        Fountain,
-                                        Torch,
-                                        Palm,
-                                        LemonTree,
-                                        Sunflower,
-                                        Shrubbery,
-                                        BananaPlant,
-                                        Masonry,
-                                        QrBlock,
-                                        Basalt,
-                                        Snow,
-                                        MarketStall,
-                                        Canvas>;
+using RoomMetatableType = RoomMetatable< // walls
+    Hull,
+    BronzeHull,
+    Forcefield,
+    Forcefield2,
+    PoweredHull,
+    IonFizzler,
+    Radiator,
+    Cloak,
+    MirrorHull,
+    StackedHull,
+    Mycelium,
+    Barrier,
+    // weapons
+    Cannon,
+    IonCannon,
+    FlakGun,
+    ArcGun,
+    Nemesis,
+    FireCharge,
+    SylphCannon,
+    Decimator,
+    Annihilator,
+    SparkCannon,
+    Incinerator,
+    BeamGun,
+    ParticleLance,
+    Ballista,
+    MissileSilo,
+    RocketSilo,
+    ClumpBomb,
+    Warhead,
+    // factories
+    Workshop,
+    Manufactory,
+    // power generation
+    Core,
+    Reactor,
+    SolarCell,
+    BackupCore,
+    WarEngine,
+    ChaosCore,
+    OverdriveCore,
+    Windmill,
+    Balloon,
+    // passages
+    Stairwell,
+    Ladder,
+    LadderPlus,
+    StairwellPlus,
+    StairwellPlusPlus,
+    Bridge,
+    Portal,
+    Bulkhead,
+    // misc
+    Infirmary,
+    CargoBay,
+    Crane,
+    WeatherEngine,
+    Water,
+    WaterSource,
+    Ice,
+    Explosive,
+    TNT,
+    Radar,
+    Transporter,
+    TargetingComputer,
+    EscapeBeacon,
+    Replicator,
+    DroneBay,
+    Deflector,
+    Amplifier,
+    PhaseShifter,
+    PlunderedRoom,
+    // decoration
+    Bell,
+    TuningCrystal,
+    Speaker,
+    Synth,
+    Statue,
+    LadyLiberty,
+    Fountain,
+    Torch,
+    Palm,
+    LemonTree,
+    Sunflower,
+    Shrubbery,
+    BananaPlant,
+    Masonry,
+    QrBlock,
+    Basalt,
+    Snow,
+    MarketStall,
+    Canvas>;
 
 
 

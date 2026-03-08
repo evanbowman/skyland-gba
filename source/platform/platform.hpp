@@ -516,7 +516,10 @@ public:
 
 
         u8 fade_amount() const;
-        bool fade_active() const { return fade_amount(); }
+        bool fade_active() const
+        {
+            return fade_amount();
+        }
 
 
         void pixelate(u8 amount,

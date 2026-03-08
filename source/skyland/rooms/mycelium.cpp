@@ -95,7 +95,7 @@ void Mycelium::timer_expired()
     };
 
     auto spread = [&](u8 x, u8 y) {
-        (*metaclass())->create(parent(), {x, y}, false);
+        (*metaclass())->create(parent(), {x, y}, {.do_repaint_ = false});
 
         parent()->schedule_repaint();
 

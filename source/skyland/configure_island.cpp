@@ -41,7 +41,12 @@ void configure_island(Island& island, lisp::Value* island_desc_lat)
             u8 y = lisp::to_integer(lisp::get_list(val, 2));
 
             if (auto c = load_metaclass(name_symb->symbol().name())) {
-                (*c)->create(&island, RoomCoord{x, y}, false);
+                (*c)->create(&island,
+                             RoomCoord{x, y},
+                             {
+                                 .do_repaint_ = false,
+                                 .defer_setup_roomtable_ = true,
+                             });
                 if (auto room = island.get_room({x, y})) {
                     room->deserialize(val);
                 }
@@ -49,6 +54,7 @@ void configure_island(Island& island, lisp::Value* island_desc_lat)
         }
     });
 
+    island.rooms().reindex(true);
     island.repaint();
 
     for (auto& room : island.rooms()) {

@@ -45,8 +45,10 @@ struct RoomMeta
         // added this interface as a hack to make multiboot stuff easier to
         // write.
 
-        virtual void
-        create(Island*, const RoomCoord&, bool do_repaint = true) const = 0;
+        virtual void create(Island*,
+                            const RoomCoord&,
+                            const Island::InsertRoomConf& conf =
+                                Island::InsertRoomConf::create()) const = 0;
         // virtual RoomPtr<Room> create(Island*, const RoomCoord&) const = 0;
         virtual const char* name() const = 0;
         virtual SystemStringBuffer ui_name() const = 0;

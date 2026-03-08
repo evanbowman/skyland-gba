@@ -10,8 +10,8 @@
 
 #pragma once
 
-#include "skyland/room.hpp"
 #include "skyland/entity/explosion/explosion.hpp"
+#include "skyland/room.hpp"
 #include "skyland/sharedVariable.hpp"
 #include "skyland/systemString.hpp"
 #include "skyland/tile.hpp"

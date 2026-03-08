@@ -38,13 +38,26 @@ public:
     using Rooms = RoomTable<92, 16>;
 
 
-    bool add_room(RoomPtr<Room> insert, bool do_repaint = true)
+    struct InsertRoomConf
+    {
+        bool do_repaint_ = true;
+        bool defer_setup_roomtable_ = false;
+
+        static InsertRoomConf create()
+        {
+            return {};
+        }
+    };
+
+    bool add_room(RoomPtr<Room> insert,
+                  const InsertRoomConf& conf = InsertRoomConf::create())
     {
         if (rooms().full()) {
             return false;
         }
-        auto result = rooms_.insert_room(std::move(insert));
-        if (do_repaint) {
+        const bool defer = conf.defer_setup_roomtable_;
+        auto result = rooms_.insert_room(std::move(insert), defer);
+        if (conf.do_repaint_) {
             repaint();
         }
         recalculate_power_usage();
@@ -55,15 +68,19 @@ public:
 
 
     template <typename T, typename... Args>
-    bool add_room(const RoomCoord& position, bool do_repaint, Args&&... args)
+    bool add_room(const RoomCoord& position,
+                  const InsertRoomConf& conf,
+                  Args&&... args)
     {
         if (rooms().full()) {
             return false;
         }
         if (auto room = room_pool::alloc<T>(
                 this, position, std::forward<Args>(args)...)) {
-            if (rooms_.insert_room({room.release(), room_pool::deleter})) {
-                if (do_repaint) {
+            const bool defer = conf.defer_setup_roomtable_;
+            if (rooms_.insert_room({room.release(), room_pool::deleter},
+                                   defer)) {
+                if (conf.do_repaint_) {
                     repaint();
                 }
                 recalculate_power_usage();

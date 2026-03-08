@@ -93,10 +93,12 @@ public:
     }
 
 
-    bool insert_room(RoomPtr<Room> room)
+    bool insert_room(RoomPtr<Room> room, bool defer_reindex = false)
     {
         bool result = rooms_.push_back(std::move(room));
-        reindex(true);
+        if (not defer_reindex) {
+            reindex(true);
+        }
         return result;
     }
 

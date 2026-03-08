@@ -10,10 +10,10 @@
 
 
 #include "explosion.hpp"
+#include "explosion2.hpp"
 #include "number/random.hpp"
 #include "skyland/alloc_entity.hpp"
 #include "skyland/skyland.hpp"
-#include "explosion2.hpp"
 
 
 
@@ -354,8 +354,8 @@ void radial_explosion(const Vec2<Fixnum>& position,
         for (int j = 0; j < j_max; ++j) {
             const int angle = j * (360 / j_max) + 45 + i * 3;
             const u8 half_angle = angle / 2;
-            if (auto exp =
-                APP.alloc_entity<Explosion2>(position, half_angle, (u8)i + 1)) {
+            if (auto exp = APP.alloc_entity<Explosion2>(
+                    position, half_angle, (u8)i + 1)) {
                 auto dir = rotate({1, 0}, angle);
                 dir = dir * (((i + 1 / 2.f) * 1.5f) * 0.00005f);
                 Vec2<Fixnum> spd;
@@ -369,7 +369,6 @@ void radial_explosion(const Vec2<Fixnum>& position,
             }
         }
     }
-
 }
 
 

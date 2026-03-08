@@ -140,7 +140,8 @@ void Lava::update(Time delta)
         flood_timer_ -= milliseconds(1000);
 
         auto flood = [&](u8 x, u8 y) {
-            (*load_metaclass("lava"))->create(parent(), {x, y}, false);
+            (*load_metaclass("lava"))
+                ->create(parent(), {x, y}, {.do_repaint_ = false});
 
             parent()->schedule_repaint();
 

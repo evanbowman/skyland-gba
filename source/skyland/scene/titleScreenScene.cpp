@@ -42,7 +42,8 @@ namespace skyland
 
 
 
-static ColorConstant color_blend(ColorConstant from, ColorConstant to, u8 interp)
+static ColorConstant
+color_blend(ColorConstant from, ColorConstant to, u8 interp)
 {
     const Color input(from);
     const Color k2(to);
@@ -98,8 +99,8 @@ public:
             auto c2 = color_blend(ColorConstant::rich_black, c1, fade);
             sprite_.set_mix({c2, 255});
         } else {
-            sprite_.set_mix({ColorConstant::silver_white,
-                    u8(255 - 255 * interval)});
+            sprite_.set_mix(
+                {ColorConstant::silver_white, u8(255 - 255 * interval)});
         }
 
 
