@@ -251,6 +251,8 @@ Conf::Value Conf::get(const char* f, const char* section, const char* key)
 
 Conf::Value Conf::get(const char* section, const char* key)
 {
-    auto f = PLATFORM.load_file_contents("", "boot.ini");
-    return get(f, section, key);
+    if (not cached_file_data_) {
+        cached_file_data_ = PLATFORM.load_file_contents("", "boot.ini");
+    }
+    return get(cached_file_data_, section, key);
 }

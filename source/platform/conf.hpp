@@ -48,4 +48,7 @@ public:
                     .c_str());
         }
     }
+
+private:
+    const char* cached_file_data_ = nullptr;
 };
