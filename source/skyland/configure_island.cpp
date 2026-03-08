@@ -45,7 +45,12 @@ void configure_island(Island& island, lisp::Value* island_desc_lat)
                              RoomCoord{x, y},
                              {
                                  .do_repaint_ = false,
-                                 .defer_setup_roomtable_ = true,
+                                 // TODO: by deferring room table reindexing, we
+                                 // could potentially speed up this function,
+                                 // but doing so seems to break some test
+                                 // cases...
+                                 //
+                                 //.defer_setup_roomtable_ = true,
                              });
                 if (auto room = island.get_room({x, y})) {
                     room->deserialize(val);
