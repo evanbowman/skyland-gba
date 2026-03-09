@@ -1283,6 +1283,7 @@ Value* make_cons(Value* car, Value* cdr)
     val->hdr_.type_ = Value::Type::cons;
     val->cons().set_car(car);
     val->cons().__set_cdr(cdr);
+    val->cons().unused_ = 0;
     val->cons().is_definitely_list_ = false;
     return val;
 }

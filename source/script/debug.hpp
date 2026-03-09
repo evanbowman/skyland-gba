@@ -62,4 +62,8 @@ void get_locals(Vector<VariableBinding>& output);
 void get_globals(Vector<VariableBinding>& output);
 
 
+void disassemble(Value* fn,
+                 ::Function<2 * sizeof(void*), void(const char*)> callback);
+
+
 } // namespace lisp::debug

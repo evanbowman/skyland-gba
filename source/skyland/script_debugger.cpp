@@ -825,9 +825,11 @@ lisp::debug::Action handle_enter_compiled_function(lisp::Value* expr)
     print_heap_usage();
 
     const char* category = "compiled function:";
+    bool is_native = false;
     if (expr->type() == lisp::Value::Type::function and
         expr->hdr_.mode_bits_ == lisp::Function::ModeBits::cpp_function) {
         category = "native function:";
+        is_native = true;
     }
 
     Text::print(category, {1, 1}, text_colors_inv);
@@ -842,25 +844,81 @@ lisp::debug::Action handle_enter_compiled_function(lisp::Value* expr)
 
     Text::print(fmt_str.c_str(), {1, 3}, text_colors);
 
-    Text::print("arguments:", {1, 5}, text_colors_inv);
-    int start_y = 7;
-    if (lisp::get_argc() == 0) {
-        Text::print("none.", {1, (u8)start_y}, text_colors);
-    }
-    for (u32 i = 0; i < lisp::get_argc() and i * 2 + start_y < 20; ++i) {
-        auto arg = lisp::get_arg(i);
-        u8 y = (start_y + i * 2);
-        Text::print(
-            format("$% %", i, lisp::val_to_string<28>(arg).c_str()).c_str(),
-            {1, y},
-            text_colors);
-    }
+    int tab = 0;
+    u32 scroll = 0;
+    bool redisplay = true;
 
     auto resp = lisp::debug::Action::step;
     while (true) {
         PLATFORM.input().poll();
         PLATFORM_EXTENSION(feed_watchdog);
         PLATFORM.delta_clock().reset();
+
+        if (not is_native and (button_down<Button::left>() or button_down<Button::right>())) {
+            tab = not tab;
+            redisplay = true;
+        }
+
+        if (button_down<Button::down>()) {
+            ++scroll;
+            redisplay = true;
+        }
+        if (button_down<Button::up>() and scroll > 0) {
+            --scroll;
+            redisplay = true;
+        }
+
+        if (redisplay) {
+            redisplay = false;
+            for (int x = 0; x < 30; ++x) {
+                for (int y = 5; y < 20; ++y) {
+                    PLATFORM.set_tile(Layer::overlay, x, y, 0);
+                }
+            }
+            switch (tab) {
+            case 0: {
+                if (is_native) {
+                    Text::print("arguments:", {1, 5}, text_colors_inv);
+                } else {
+                    Text::print("<- arguments ->", {1, 5}, text_colors_inv);
+                }
+                int start_y = 7;
+                if (lisp::get_argc() == 0) {
+                    Text::print("none.", {1, (u8)start_y}, text_colors);
+                }
+                for (u32 i = 0; i < lisp::get_argc() and i * 2 + start_y < 20;
+                     ++i) {
+                    auto arg = lisp::get_arg(i);
+                    u8 y = (start_y + i * 2);
+                    Text::print(
+                        format("$% %", i, lisp::val_to_string<28>(arg).c_str())
+                            .c_str(),
+                        {1, y},
+                        text_colors);
+                }
+                break;
+            }
+
+            case 1: {
+                Text::print("<- code ->", {1, 5}, text_colors_inv);
+                u8 y = 7;
+                int skip = scroll;
+                lisp::debug::disassemble(expr, [&y, &skip](const char* l_asm) {
+                    if (skip > 0) {
+                        --skip;
+                        return;
+                    }
+                    if (y >= 20) {
+                        return;
+                    }
+                    StringBuffer<30> truncated(l_asm);
+                    Text::print(truncated.c_str(), {0, y}, text_colors);
+                    y += 2;
+                });
+                break;
+            }
+            }
+        }
 
         if (button_down<Button::action_1>()) {
             break;
