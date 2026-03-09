@@ -238,6 +238,41 @@ int compile_quoted(CompilerContext& ctx,
 }
 
 
+int compile_progn(CompilerContext& ctx,
+                  ScratchBuffer& buffer,
+                  int write_pos,
+                  Value* code,
+                  int jump_offset,
+                  bool tail_expr)
+{
+    if (code->type() not_eq Value::Type::cons) {
+        while (true)
+            ;
+        // TODO: raise error
+    }
+
+    bool first = true;
+
+    while (code not_eq get_nil()) {
+
+        bool tail = tail_expr and code->cons().cdr() == get_nil();
+
+        if (not first) {
+            append<instruction::Pop>(buffer, write_pos);
+        } else {
+            first = false;
+        }
+
+        write_pos = compile_impl(
+            ctx, buffer, write_pos, code->cons().car(), jump_offset, tail);
+
+        code = code->cons().cdr();
+    }
+
+    return write_pos;
+}
+
+
 int compile_let(CompilerContext& ctx,
                 ScratchBuffer& buffer,
                 int write_pos,
@@ -476,8 +511,11 @@ TOP:
                                     tail_expr);
 
         } else if (fn->type() == Value::Type::symbol and
-                   str_eq(fn->symbol().name(), "yield")) {
-            PLATFORM.fatal("yield unsupported in compiled bytecode");
+                   str_eq(fn->symbol().name(), "progn")) {
+            write_pos = compile_progn(ctx, buffer, write_pos,
+                                      lat->cons().cdr(),
+                                      jump_offset,
+                                      tail_expr);
         } else if (fn->type() == Value::Type::symbol and
                    str_eq(fn->symbol().name(), "await")) {
             lat = lat->cons().cdr();

@@ -605,9 +605,9 @@
 ;; sensible...
 (assert-eq (read "(and 1 2 3)") '(if (not 1) 0 (if (not 2) 0 (if (not 3) 0 1))))
 (assert-eq (read "(or 1 2)") '(if 1 1 (if 2 1 0)))
-(assert-eq (read "(when true nil)") '(if 1 (let () ())))
+(assert-eq (read "(when true nil)") '(if 1 (progn ())))
 (assert-eq (read "(cond ((a 5) 6 7 8) (true nil))")
-           '(if (a 5) (let () 6 7 8) (if 1 (let () ()) ())))
+           '(if (a 5) (progn 6 7 8) (if 1 (progn ()) ())))
 
 ;; The $V symbol gives you access to a variadic argument list. Let's make sure
 ;; it works...
@@ -636,10 +636,10 @@
 (assert-eq (read "(case (+ 5 1) (5 0) (6 9) (else 55))")
            '(let ((--TEMP-CASE-V (+ 5 1)))
              (if (equal --TEMP-CASE-V 5)
-                 (let () 0)
+                 (progn 0)
                  (if (equal --TEMP-CASE-V 6)
-                     (let () 9)
-                     (let () 55)))))
+                     (progn 9)
+                     (progn 55)))))
 
 (assert-eq
   3

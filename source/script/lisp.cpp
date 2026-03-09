@@ -288,6 +288,7 @@ struct Context
     Symbol::UniqueId defconstant_symbol_id_;
     Symbol::UniqueId await_symbol_id_;
     Symbol::UniqueId apply_symbol_id_;
+    Symbol::UniqueId progn_symbol_id_;
     Symbol::UniqueId map_symbol_id_;
     Symbol::UniqueId foreach_symbol_id_;
 
@@ -1704,6 +1705,8 @@ struct EvalFrame
         foreach_iter,
         foreach_iter_init,
         foreach_iter_start,
+        progn_body,
+        progn_discard_result,
     } state_;
 
     struct FuncallApplyParams
@@ -2393,6 +2396,9 @@ void lint(Value* expr, Value* variable_list, lisp::Protected& gvar_list)
                             expr, variable_list, gvar_list)) {
                         return;
                     }
+                    is_special_form = true;
+                } else if (str_eq(name, "progn")) {
+                    // (progn [body])
                     is_special_form = true;
                 } else if (str_eq(name, "fn")) {
                     // TODO: syntax checks for low level function primitive
@@ -4407,6 +4413,9 @@ eval_iter_start(EvalFrame& frame, EvalStack& eval_stack)
             } else if (id == L_CTX.fn_symbol_id_) {
                 push_op(make_lisp_function(code->cons().cdr()));
                 return;
+            } else if (id == L_CTX.progn_symbol_id_) {
+                eval_stack.push_back({code->cons().cdr(), EvalFrame::progn_body});
+                return;
             } else if (id == L_CTX.quote_symbol_id_) {
                 push_op(code->cons().cdr());
                 return;
@@ -5072,6 +5081,30 @@ void eval_loop(EvalStack& eval_stack)
             L_CTX.current_fn_argc_ = frame.await_resume_.saved_argc_;
             break;
         }
+
+        case EvalFrame::State::progn_body: {
+            auto body = frame.expr_;
+            if (body == get_nil()) {
+                push_op(get_nil());
+                break;
+            }
+            auto first_expr = body->cons().car();
+            auto rest = body->cons().cdr();
+
+            if (rest == get_nil()) {
+                eval_stack.push_back({first_expr, EvalFrame::start});
+            } else {
+                eval_stack.push_back({rest, EvalFrame::progn_body});
+                eval_stack.push_back(
+                    {first_expr, EvalFrame::progn_discard_result});
+                eval_stack.push_back({first_expr, EvalFrame::start});
+            }
+            break;
+        }
+
+        case EvalFrame::State::progn_discard_result:
+            pop_op();
+            break;
 
         case EvalFrame::State::while_body: {
             auto body = frame.expr_;
@@ -6508,6 +6541,7 @@ void init(Optional<std::pair<const char*, u32>> external_symtab,
     L_CTX.defconstant_symbol_id_ = sym_id("defconstant");
     L_CTX.await_symbol_id_ = sym_id("await");
     L_CTX.apply_symbol_id_ = sym_id("apply");
+    L_CTX.progn_symbol_id_ = sym_id("progn");
     L_CTX.map_symbol_id_ = sym_id("map");
     L_CTX.foreach_symbol_id_ = sym_id("foreach");
 }

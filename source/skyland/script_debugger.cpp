@@ -230,6 +230,23 @@ void pretty_print_impl(PrinterState& ps, lisp::Value* current_expr)
                     }
                 }
                 --ps.depth_;
+            } else if (str_eq(sym->symbol().name(), "progn")) {
+                pretty_print_append(ps, sym->symbol().name());
+                ++ps.depth_;
+                if (lisp::get_list(current_expr, 1) not_eq L_NIL) {
+                    pretty_print_newline(ps);
+                    auto lat = current_expr->cons().cdr();
+                    while (lat not_eq L_NIL) {
+                        pretty_print_impl(ps, lat->cons().car());
+                        lat = lat->cons().cdr();
+                        if (lat not_eq L_NIL) {
+                            pretty_print_newline(ps);
+                        } else {
+                            ps.output_.push_back(')');
+                        }
+                    }
+                }
+                --ps.depth_;
             } else {
                 auto lat = current_expr;
                 bool first = true;

@@ -89,11 +89,6 @@
   (map unbind (filter bound? temp-vals))
   (setq temp-vals nil))
 
-
-(macro progn (BODY)
- `(let () ,@BODY))
-
-
 (defn/c acons (key val alst)
   (cons (cons key val) alst))
 
