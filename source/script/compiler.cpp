@@ -57,6 +57,7 @@ void parse_instructions(ScratchBuffer& buffer, InstructionList& list)
             MATCH(LoadVarRelocatable)
             MATCH(PushSymbol)
             MATCH(PushSymbolRelocatable)
+            MATCH(LoadSymtab)
             MATCH(PushNil)
             MATCH(Push0)
             MATCH(Push1)
@@ -99,10 +100,12 @@ void parse_instructions(ScratchBuffer& buffer, InstructionList& list)
             MATCH(LexicalDefSmallFromArg1)
             MATCH(LexicalDefSmallFromArg2)
             MATCH(LoadVarSmall)
+            MATCH(Set)
             MATCH(PushFloat)
             MATCH(LoadBuiltin)
             MATCH(PushRatio)
             MATCH(Await)
+            MATCH(IsEqual)
         }
     }
 }
@@ -194,8 +197,14 @@ int compile_quoted(CompilerContext& ctx,
             auto name = code->symbol().name();
             memcpy(inst->name_, name, Symbol::buffer_size);
         } else {
-            auto inst = append<instruction::PushSymbol>(buffer, write_pos);
-            inst->ptr_.set(code->symbol().name());
+            auto symtab_offset = code->symbol().symtab_index_.get();
+            if (symtab_offset not_eq Symbol::not_in_symtab) {
+                auto inst = append<instruction::LoadSymtab>(buffer, write_pos);
+                inst->symtab_index_.set(symtab_offset);
+            } else {
+                auto inst = append<instruction::PushSymbol>(buffer, write_pos);
+                inst->ptr_.set(code->symbol().name());
+            }
         }
 
     } else if (code->type() == Value::Type::cons) {
@@ -672,6 +681,12 @@ TOP:
             } else if (fn->type() == Value::Type::symbol and
                        str_eq(fn->symbol().name(), "not") and argc == 1) {
                 append<instruction::Not>(buffer, write_pos);
+            } else if (fn->type() == Value::Type::symbol and
+                       str_eq(fn->symbol().name(), "set") and argc == 2) {
+                append<instruction::Set>(buffer, write_pos);
+            } else if (fn->type() == Value::Type::symbol and
+                       str_eq(fn->symbol().name(), "equal") and argc == 2) {
+                append<instruction::IsEqual>(buffer, write_pos);
             } else {
 
                 write_pos = compile_impl(

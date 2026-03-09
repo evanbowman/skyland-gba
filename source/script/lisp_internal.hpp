@@ -32,7 +32,9 @@ bool is_boolean_true(Value* val);
 
 
 Value* make_bytecode_function(Value* bytecode);
-
+Value* make_symtab_symbol(int index);
+const char* load_from_symtab(int offset);
+static constexpr const u32 symtab_stride = 32;
 
 void lexical_frame_push();
 void lexical_frame_pop();

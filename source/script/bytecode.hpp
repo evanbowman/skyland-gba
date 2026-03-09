@@ -1003,6 +1003,55 @@ struct Await
 };
 
 
+struct Set
+{
+    Header header_;
+
+    static const char* name()
+    {
+        return "SET";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 60;
+    }
+};
+
+
+struct LoadSymtab
+{
+    Header header_;
+    host_u16 symtab_index_;
+
+    static const char* name()
+    {
+        return "LOAD_SYM";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 61;
+    }
+};
+
+
+struct IsEqual
+{
+    Header header_;
+
+    static const char* name()
+    {
+        return "IS_EQUAL";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 63;
+    }
+};
+
+
 } // namespace instruction
 
 } // namespace lisp

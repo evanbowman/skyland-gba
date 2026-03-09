@@ -825,6 +825,10 @@ o──────────────────────────�
  for symbol storage at
  runtime.
 
+ * bytecode-size:
+ Bytes in memory reserved for
+ bytecode.
+
  * sbr-used:
  Number of additional memory
  pages allocated by the

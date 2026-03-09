@@ -38,6 +38,7 @@
 #include "string.hpp"
 #include "unicode.hpp"
 #include "value.hpp"
+#include <limits>
 
 
 class Platform;
@@ -128,7 +129,10 @@ struct Symbol
 {
     ValueHeader hdr_;
     static constexpr const u32 buffer_size = 3;
-    char reserved_[3];
+
+    static constexpr const u16 not_in_symtab = std::numeric_limits<u16>::max();
+    host_u16 symtab_index_;
+    char reserved_[1];
 
     // Small String Optimization Layout:
     // For symbols ≤3 chars, we store the string inline rather than using a

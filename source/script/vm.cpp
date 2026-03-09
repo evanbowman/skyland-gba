@@ -15,6 +15,7 @@
 #include "lisp_internal.hpp"
 #include "listBuilder.hpp"
 #include "number/endian.hpp"
+#include "builtins.hpp"
 
 
 namespace lisp
@@ -114,6 +115,22 @@ TOP:
         }
 
 
+        case Set::op(): {
+            read<Set>(code, pc);
+            auto sym = get_op1();
+            auto v = get_op0();
+            pop_op();
+            pop_op();
+            if (sym->type() not_eq Value::Type::symbol) {
+                push_op(make_error(::format<48>("non-symbol % passed to set!",
+                                                sym).c_str()));
+            } else {
+                push_op(set_var(sym, v, false));
+            }
+            break;
+        }
+
+
         case LoadLocalCached::op(): {
             auto inst = read<LoadLocalCached>(code, pc);
             push_op(__get_local({inst->stack_offset_, inst->frame_offset_}));
@@ -134,6 +151,14 @@ TOP:
             auto fn = make_function((Function::CPP_Impl)inst->addr_.get());
             fn->function().sig_.required_args_ = inst->argc_;
             push_op(fn);
+            break;
+        }
+
+
+        case LoadSymtab::op(): {
+            auto inst = read<LoadSymtab>(code, pc);
+            auto index = inst->symtab_index_.get();
+            push_op(make_symtab_symbol(index));
             break;
         }
 
@@ -711,6 +736,15 @@ TOP:
             read<LexicalFramePop>(code, pc);
             lexical_frame_pop();
             --nested_scope;
+            break;
+        }
+
+        case IsEqual::op(): {
+            read<IsEqual>(code, pc);
+            auto result = builtin_comp_equal(2);
+            pop_op();
+            pop_op(); // args
+            push_op(result);
             break;
         }
 

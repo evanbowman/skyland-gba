@@ -12,6 +12,7 @@
 #include "lisp.hpp"
 #include "allocator.hpp"
 #include "builtins.hpp"
+#include "bytecode.hpp"
 #include "debug.hpp"
 #include "eternal/eternal.hpp"
 #include "ext_workram_data.hpp"
@@ -1394,6 +1395,7 @@ Value* make_symbol(const char* name, u32 len, Symbol::ModeBits mode)
     val->hdr_.type_ = Value::Type::symbol;
     val->hdr_.mode_bits_ = (u8)mode;
     val->symbol().set_name(name);
+    val->symbol().symtab_index_.set(Symbol::not_in_symtab);
 
     return val;
 }
@@ -2330,6 +2332,8 @@ void lint(Value* expr, Value* variable_list, lisp::Protected& gvar_list)
     gc_safepoint();
     pop_op(); // variable_list
 
+    Protected var_list(variable_list);
+
     bool is_special_form = false;
 
     switch (expr->type()) {
@@ -2418,6 +2422,7 @@ void lint(Value* expr, Value* variable_list, lisp::Protected& gvar_list)
                             return;
                         }
                         variable_list = L_CONS(arg_sym, variable_list);
+                        var_list = variable_list;
                         args = args->cons().cdr();
                     }
                     is_special_form = true;
@@ -3424,12 +3429,20 @@ template <typename T> u32 read_string(T& code, int offset)
 }
 
 
-static Value* make_symtab_symbol(int offset)
+const char* load_from_symtab(int offset)
+{
+    return L_CTX.external_symtab_contents_ + offset;
+}
+
+
+Value* make_symtab_symbol(int index)
 {
     auto val = alloc_value();
     val->hdr_.type_ = Value::Type::symbol;
     val->hdr_.mode_bits_ = (u8)Symbol::ModeBits::stable_pointer;
+    auto offset = index * symtab_stride;
     val->symbol().set_name(bound_context->external_symtab_contents_ + offset);
+    val->symbol().symtab_index_.set(index);
     return val;
 }
 
@@ -3530,7 +3543,7 @@ FINAL:
                     ::format("invalid symtab offset %", symtab_offset));
             }
             if (bound_context->external_symtab_contents_) {
-                push_op(make_symtab_symbol(symtab_offset));
+                push_op(make_symtab_symbol(symtab_index));
                 return i;
             }
         }
@@ -5811,6 +5824,36 @@ BUILTIN_TABLE(
            L_CTX.strict_ = is_boolean_true(get_op0());
            return L_NIL;
        }}},
+     {"lisp-mem-bytecode-size",
+      {SIG0(integer),
+       [](int argc) {
+       int count = 0;
+       Vector<ScratchBufferPtr> buffers;
+       live_values([&buffers](Value& val) {
+           if (val.type() == Value::Type::function and
+               val.hdr_.mode_bits_ == Function::ModeBits::lisp_bytecode_function) {
+
+               auto buf = val.function().bytecode_impl_.databuffer()->databuffer().value();
+               for (auto& b : buffers) {
+                   if (b.get() == buf.get()) {
+                       return;
+                   }
+               }
+               buffers.push_back(buf);
+           }
+       });
+       for (auto& b : buffers) {
+           int used = SCRATCH_BUFFER_SIZE - 1;
+           for (; used > 0; --used) {
+               if ((Opcode)b->data_[used] not_eq
+                   instruction::Fatal::op()) {
+                   break;
+               }
+           }
+           count += used;
+       }
+       return L_INT(count);
+       }}},
      {"lisp-mem-stack-used",
       {SIG0(integer),
        [](int argc) { return L_INT(L_CTX.operand_stack_->size()); }}},
@@ -6072,7 +6115,7 @@ const char* intern(const char* string)
 
         while (left < right) {
             u32 mid = left + (right - left) / 2;
-            const char* candidate = search + (mid * 32);
+            const char* candidate = search + (mid * symtab_stride);
 
             int cmp = str_cmp(candidate, string);
             if (cmp == 0) {

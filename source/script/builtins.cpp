@@ -11,6 +11,7 @@
 #include "builtins.hpp"
 #include "bytecode.hpp"
 #include "debug.hpp"
+#include "lisp_internal.hpp"
 #include "listBuilder.hpp"
 #include "localization.hpp"
 #include "number/ratio.hpp"
@@ -1610,6 +1611,11 @@ void disassemble(Value* fn,
             break;
         }
 
+        case Set::op():
+            out += "SET";
+            i += sizeof(Set);
+            break;
+
         case load_var_nonlocal:
         case LoadVar::op():
             out += LoadVar::name();
@@ -1665,6 +1671,16 @@ void disassemble(Value* fn,
             out += name.c_str();
             out += ")";
             i += 4;
+            break;
+        }
+
+        case LoadSymtab::op(): {
+            out += LoadSymtab::name();
+            out += "(";
+            auto off = ((LoadSymtab*)(data->data_ + i))->symtab_index_.get() * symtab_stride;
+            out += load_from_symtab(off);
+            out += ")";
+            i += sizeof(LoadSymtab);
             break;
         }
 
@@ -1995,6 +2011,12 @@ void disassemble(Value* fn,
         case Await::op(): {
             out += Await::name();
             i += sizeof(Await);
+            break;
+        }
+
+        case IsEqual::op(): {
+            out += IsEqual::name();
+            i += sizeof(IsEqual);
             break;
         }
 

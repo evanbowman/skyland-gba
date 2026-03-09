@@ -491,6 +491,7 @@ standard_charset_map(const utf8::Codepoint& cp)
         case UTF8_GETCHR(u8"▓"): return 331;
         case UTF8_GETCHR(u8"▒"): return 332;
         case UTF8_GETCHR(u8"░"): return 333;
+        case UTF8_GETCHR(u8"μ"): return 334;
             // clang-format on
 
         default:
