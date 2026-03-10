@@ -42,6 +42,7 @@ void lexical_frame_store(Value* kvp);
 
 
 NativeInterface::LookupResult __load_builtin(const char* name);
+const char* nameof(Function::CPP_Impl impl);
 
 
 Value*& get_bytecode_buffer();

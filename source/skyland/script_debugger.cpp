@@ -11,6 +11,7 @@
 #include "script_debugger.hpp"
 #include "ext_workram_data.hpp"
 #include "graphics/overlay.hpp"
+#include "script/bytecode.hpp"
 
 
 
@@ -920,7 +921,8 @@ lisp::debug::Action handle_enter_compiled_function(lisp::Value* expr)
                 Text::print("<- code ->", {1, 5}, text_colors_inv);
                 u8 y = 7;
                 int skip = scroll;
-                lisp::debug::disassemble(expr, [&y, &skip](const char* l_asm) {
+                using lisp::instruction::disassemble;
+                disassemble(expr, [&y, &skip](const char* l_asm) {
                     if (skip > 0) {
                         --skip;
                         return;

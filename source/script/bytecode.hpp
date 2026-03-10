@@ -15,6 +15,7 @@
 #include "number/int.h"
 #include "platform/libc.hpp"
 #include "platform/scratch_buffer.hpp"
+#include "value.hpp"
 
 
 // NOTE: Bytecode is not portable, nor is it intended to be.
@@ -1050,6 +1051,10 @@ struct IsEqual
         return 63;
     }
 };
+
+
+void disassemble(Value* fn,
+                 ::Function<2 * sizeof(void*), void(const char*)> callback);
 
 
 } // namespace instruction
