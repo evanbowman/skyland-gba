@@ -1,3 +1,6 @@
+;;;
+;;; autoload/dialog-sequence.lisp
+;;;
 
 (lambda ()
   (let ((args $V))

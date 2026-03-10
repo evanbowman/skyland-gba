@@ -77,6 +77,7 @@
         find-or-create-cargo-bay
         find-crew-slot
         find-crew-slot-cb
+        hash
         dialog-sequence
         cargo-bays
         hostile-pickup-cart

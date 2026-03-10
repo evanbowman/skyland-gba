@@ -1,5 +1,5 @@
 ;;;
-;;; util/debrief.lisp
+;;; autoload/debrief.lisp
 ;;;
 ;;; The game evaluates this script in adventure mode after leaving a level.
 ;;;

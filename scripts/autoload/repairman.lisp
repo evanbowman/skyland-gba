@@ -1,5 +1,5 @@
 ;;;
-;;; util/repairman.lisp
+;;; autoload/repairman.lisp
 ;;;
 
 

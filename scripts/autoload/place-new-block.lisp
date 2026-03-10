@@ -1,5 +1,5 @@
 ;;;
-;;; util/place-new-block.lisp
+;;; autoload/place-new-block.lisp
 ;;;
 
 

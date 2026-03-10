@@ -1,5 +1,5 @@
 ;;;
-;;; util/core-service.lisp
+;;; autoload/core-service.lisp
 ;;;
 
 

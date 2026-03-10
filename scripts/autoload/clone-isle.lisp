@@ -1,5 +1,5 @@
 ;;;
-;;; util/clone-isle.lisp
+;;; autoload/clone-isle.lisp
 ;;;
 
 

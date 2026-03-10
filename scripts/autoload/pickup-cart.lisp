@@ -1,5 +1,5 @@
 ;;;
-;;; util/pickup-cart.lisp
+;;; autoload/pickup-cart.lisp
 ;;;
 
 
