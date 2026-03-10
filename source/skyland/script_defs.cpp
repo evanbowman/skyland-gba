@@ -385,6 +385,51 @@ BINDING_TABLE({
           APP.player_island().repaint();
           return L_NIL;
       }}},
+    {"room-target-get",
+     {SIG3(nil, wrapped, rational, rational),
+      [](int argc) {
+          L_EXPECT_RATIONAL(0);
+          L_EXPECT_RATIONAL(1);
+          L_EXPECT_OP(2, wrapped);
+
+          auto island = unwrap_isle(lisp::get_op(2));
+          u8 x = L_LOAD_INT(1);
+          u8 y = L_LOAD_INT(0);
+
+          if (auto room = island->get_room({x, y})) {
+              if ((*room->metaclass())->category() == Room::Category::weapon) {
+                  auto tgt = room->get_target();
+                  if (tgt) {
+                      return L_CONS(L_INT(tgt->x), L_INT(tgt->y));
+                  }
+              }
+          }
+
+          return L_NIL;
+      }}},
+    {"room-target-set",
+     {EMPTY_SIG(5),
+      [](int argc) {
+          L_EXPECT_RATIONAL(0);
+          L_EXPECT_RATIONAL(1);
+          L_EXPECT_RATIONAL(2);
+          L_EXPECT_RATIONAL(3);
+          L_EXPECT_OP(4, wrapped);
+
+          auto island = unwrap_isle(lisp::get_op(4));
+          u8 x1 = L_LOAD_INT(3);
+          u8 y1 = L_LOAD_INT(2);
+          u8 x2 = L_LOAD_INT(1);
+          u8 y2 = L_LOAD_INT(0);
+
+          if (auto room = island->get_room({x1, y1})) {
+              if ((*room->metaclass())->category() == Room::Category::weapon) {
+                  room->set_target({x2, y2}, true);
+              }
+          }
+
+          return L_NIL;
+      }}},
     {"emit",
      {EMPTY_SIG(5),
       [](int argc) {
