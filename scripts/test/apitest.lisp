@@ -192,8 +192,6 @@
 
 (begin-test "misc")
 
-(assert-eq 767268228 (hash '(8 . 7)))
-
 ;; Just make sure that reading a non-existent ini key returns nil...
 (assert-eq nil (read-ini "/scripts/data/character_inter.ini"
                          "character_1"
@@ -328,6 +326,8 @@
 ;; autoload-test is referenced but not bound (we removed it from the autoload
 ;; list above). Declare it as a global to suppress this expected error.
 (global 'autoload-test)
+
+(assert-eq 767268228 (hash '(8 . 7)))
 
 (end-test)
 
