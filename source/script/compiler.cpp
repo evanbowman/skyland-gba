@@ -55,9 +55,7 @@ void parse_instructions(ScratchBuffer& buffer, InstructionList& list)
 
             MATCH(LoadVarRT)
             MATCH(LoadVarS)
-            MATCH(LoadVarRelocatable)
-            MATCH(PushSymbol)
-            MATCH(PushSymbolRelocatable)
+            MATCH(PushSymbolRT)
             MATCH(LoadSymtab)
             MATCH(PushNil)
             MATCH(Push0)
@@ -91,7 +89,7 @@ void parse_instructions(ScratchBuffer& buffer, InstructionList& list)
             MATCH(PushThis)
             MATCH(Not)
             MATCH(LexicalDef)
-            MATCH(LexicalDefRelocatable)
+            MATCH(LexicalDefRT)
             MATCH(LexicalFramePush)
             MATCH(LexicalFramePop)
             MATCH(LexicalVarLoad)
@@ -103,10 +101,12 @@ void parse_instructions(ScratchBuffer& buffer, InstructionList& list)
             MATCH(LoadVarSmall)
             MATCH(Set)
             MATCH(PushFloat)
-            MATCH(LoadBuiltin)
             MATCH(PushRatio)
             MATCH(Await)
             MATCH(IsEqual)
+            MATCH(LoadCall1)
+            MATCH(LoadCall2)
+            MATCH(LoadCall3)
         }
     }
 }
@@ -184,6 +184,17 @@ int compile_fn(CompilerContext& ctx,
 }
 
 
+Optional<u16> get_symtab_index(Symbol& sym)
+{
+    auto symtab_index = sym.symtab_index_.get();
+    if (symtab_index not_eq Symbol::not_in_symtab) {
+        return symtab_index;
+    } else {
+        return symbol_indexof(sym.name());
+    }
+}
+
+
 int compile_quoted(CompilerContext& ctx,
                    ScratchBuffer& buffer,
                    int write_pos,
@@ -198,12 +209,11 @@ int compile_quoted(CompilerContext& ctx,
             auto name = code->symbol().name();
             memcpy(inst->name_, name, Symbol::buffer_size);
         } else {
-            auto symtab_offset = code->symbol().symtab_index_.get();
-            if (symtab_offset not_eq Symbol::not_in_symtab) {
+            if (auto symtab_index = get_symtab_index(code->symbol())) {
                 auto inst = append<instruction::LoadSymtab>(buffer, write_pos);
-                inst->symtab_index_.set(symtab_offset);
+                inst->symtab_index_.set(*symtab_index);
             } else {
-                auto inst = append<instruction::PushSymbol>(buffer, write_pos);
+                auto inst = append<instruction::PushSymbolRT>(buffer, write_pos);
                 inst->ptr_.set(code->symbol().name());
             }
         }
@@ -347,9 +357,14 @@ int compile_let(CompilerContext& ctx,
                         auto name = sym->symbol().name();
                         memcpy(inst->name_, name, Symbol::buffer_size);
                     } else {
-                        auto inst =
-                            append<instruction::LexicalDef>(buffer, write_pos);
-                        inst->ptr_.set(sym->symbol().name());
+                        if (auto symtab_index = get_symtab_index(sym->symbol())) {
+                            auto inst = append<instruction::LexicalDef>(buffer, write_pos);
+                            inst->symtab_index_.set(*symtab_index);
+                        } else {
+                            auto inst =
+                                append<instruction::LexicalDefRT>(buffer, write_pos);
+                            inst->ptr_.set(sym->symbol().name());
+                        }
                     }
                 }
             } else if (sym->type() == Value::Type::cons) {
@@ -490,10 +505,9 @@ TOP:
                 auto name = code->symbol().name();
                 memcpy(inst->name_, name, Symbol::buffer_size);
             } else {
-                auto symtab_offset = code->symbol().symtab_index_.get();
-                if (symtab_offset not_eq Symbol::not_in_symtab) {
+                if (auto symtab_index = get_symtab_index(code->symbol())) {
                     auto inst = append<instruction::LoadVarS>(buffer, write_pos);
-                    inst->symtab_index_.set(symtab_offset);
+                    inst->symtab_index_.set(*symtab_index);
                 } else {
                     append<instruction::LoadVarRT>(buffer, write_pos)
                         ->ptr_.set(code->symbol().name());
@@ -823,6 +837,30 @@ public:
     }
 
 
+    template <typename T>
+    void remove(InstructionList& instructions,
+                ScratchBuffer& code_buffer,
+                T* inst,
+                u32& code_size)
+    {
+        const int start = (u8*)inst - (u8*)code_buffer.data_;
+
+        for (u32 i = start; i < code_size - sizeof(T); ++i) {
+            code_buffer.data_[i] = code_buffer.data_[i + sizeof(T)];
+        }
+
+        code_size -= sizeof(T);
+
+        for (auto& p : instructions) {
+            if ((char*)p >= code_buffer.data_ + start) {
+                p = (instruction::Header*)((u8*)p - sizeof(T));
+            }
+        }
+
+        fixup_jumps(instructions, code_buffer, start, -(int)sizeof(T));
+    }
+
+
     u32 run(ScratchBuffer& code_buffer, u32 code_size)
     {
         InstructionList instructions(make_scratch_buffer("instruction-buffer"));
@@ -969,7 +1007,7 @@ public:
             }
 
             case Jump::op():
-                if (abs(((Jump*)inst)->offset_.get()) < 127) {
+                if (auto o = ((Jump*)inst)->offset_.get(); o > 0 and o < 256) {
                     SmallJump j;
                     j.header_.op_ = SmallJump::op();
                     j.offset_ = ((Jump*)inst)->offset_.get();
@@ -981,7 +1019,7 @@ public:
                 break;
 
             case JumpIfFalse::op():
-                if (abs(((JumpIfFalse*)inst)->offset_.get()) < 127) {
+                if (auto o = ((Jump*)inst)->offset_.get(); o > 0 and o < 256) {
                     SmallJumpIfFalse j;
                     j.header_.op_ = SmallJumpIfFalse::op();
                     j.offset_ = ((JumpIfFalse*)inst)->offset_.get();
@@ -994,6 +1032,33 @@ public:
                 }
                 ++index;
                 break;
+
+            case LoadVarS::op(): {
+                if (index + 1 < (int)instructions.size()) {
+                    auto next = instructions[index + 1];
+                    switch (next->op_) {
+                    case Funcall1::op():
+                        ((LoadVarS*)inst)->header_.op_ = LoadCall1::op();
+                        remove(instructions, code_buffer, (Funcall1*)next, code_size);
+                        goto TOP;
+
+                    case Funcall2::op():
+                        ((LoadVarS*)inst)->header_.op_ = LoadCall2::op();
+                        remove(instructions, code_buffer, (Funcall2*)next, code_size);
+                        goto TOP;
+
+                    case Funcall3::op():
+                        ((LoadVarS*)inst)->header_.op_ = LoadCall3::op();
+                        remove(instructions, code_buffer, (Funcall3*)next, code_size);
+                        goto TOP;
+
+                    default:
+                        break;
+                    }
+                }
+                ++index;
+                break;
+            }
 
             default:
                 index++;

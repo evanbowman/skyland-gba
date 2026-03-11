@@ -61,19 +61,6 @@ void disassemble(Value* fn,
         case Fatal::op():
             return;
 
-        case LoadBuiltin::op(): {
-            out += LoadBuiltin::name();
-            out += "(";
-            auto ptr = ((UnalignedPtr*)(data->data_ + i + 1))->get();
-            out += nameof((Function::CPP_Impl)ptr);
-            out += ":";
-            out +=
-                stringify(*(u8*)(data->data_ + i + 1 + sizeof(UnalignedPtr)));
-            out += ")";
-            i += sizeof(LoadBuiltin);
-            break;
-        }
-
         case Set::op():
             out += "SET";
             i += sizeof(Set);
@@ -92,13 +79,13 @@ void disassemble(Value* fn,
         case LoadVarSmall::op(): {
             i += 1;
             out += "LOAD_VAR_SMALL(";
-            StringBuffer<4> name;
-            for (int j = 0; j < 4; ++j) {
+            StringBuffer<3> name;
+            for (int j = 0; j < 3; ++j) {
                 name.push_back(*(data->data_ + i + j));
             }
             out += name.c_str();
             out += ")";
-            i += 5;
+            i += 3;
             break;
         }
 
@@ -116,24 +103,26 @@ void disassemble(Value* fn,
             break;
         }
 
-        case LoadVarRelocatable::op():
-            i += 1;
-            out += "LOAD_VAR_RELOCATABLE(";
-            out += to_string<32>(((HostInteger<s16>*)(data->data_ + i))->get());
-            out += ")";
-            i += 2;
-            break;
-
         case PushSmallSymbol::op(): {
             i += 1;
             out += "PUSH_SMALL_SYMBOL(";
-            StringBuffer<4> name;
-            for (int j = 0; j < 4; ++j) {
+            StringBuffer<3> name;
+            for (int j = 0; j < 3; ++j) {
                 name.push_back(*(data->data_ + i + j));
             }
             out += name.c_str();
             out += ")";
-            i += 4;
+            i += 3;
+            break;
+        }
+
+        case LexicalDef::op(): {
+            out += LexicalDef::name();
+            out += "(";
+            auto off = ((LexicalDef*)(data->data_ + i))->symtab_index_.get() * symtab_stride;
+            out += load_from_symtab(off);
+            out += ")";
+            i += sizeof(LexicalDef);
             break;
         }
 
@@ -153,23 +142,45 @@ void disassemble(Value* fn,
             auto off = ((LoadVarS*)(data->data_ + i))->symtab_index_.get() * symtab_stride;
             out += load_from_symtab(off);
             out += ")";
-            i += sizeof(LoadSymtab);
+            i += sizeof(LoadVarS);
             break;
         }
 
-        case PushSymbol::op():
-            out += "PUSH_SYMBOL(";
+        case LoadCall1::op(): {
+            out += LoadCall1::name();
+            out += "(";
+            auto off = ((LoadCall1*)(data->data_ + i))->symtab_index_.get() * symtab_stride;
+            out += load_from_symtab(off);
+            out += ")";
+            i += sizeof(LoadCall1);
+            break;
+        }
+
+        case LoadCall2::op(): {
+            out += LoadCall2::name();
+            out += "(";
+            auto off = ((LoadCall2*)(data->data_ + i))->symtab_index_.get() * symtab_stride;
+            out += load_from_symtab(off);
+            out += ")";
+            i += sizeof(LoadCall2);
+            break;
+        }
+
+        case LoadCall3::op(): {
+            out += LoadCall3::name();
+            out += "(";
+            auto off = ((LoadCall3*)(data->data_ + i))->symtab_index_.get() * symtab_stride;
+            out += load_from_symtab(off);
+            out += ")";
+            i += sizeof(LoadCall3);
+            break;
+        }
+
+        case PushSymbolRT::op():
+            out += "PUSH_SYMBOL_RT(";
             out += ((UnalignedPtr*)(data->data_ + i + 1))->get();
             out += ")";
-            i += sizeof(PushSymbol);
-            break;
-
-        case PushSymbolRelocatable::op():
-            i += 1;
-            out += "PUSH_SYMBOL_RELOCATABLE(";
-            out += to_string<32>(((HostInteger<s16>*)(data->data_ + i))->get());
-            out += ")";
-            i += 2;
+            i += sizeof(PushSymbolRT);
             break;
 
         case PushString::op(): {
@@ -393,25 +404,25 @@ void disassemble(Value* fn,
             i += sizeof(EarlyRet);
             break;
 
-        case LexicalDef::op():
-            out += LexicalDef::name();
+        case LexicalDefRT::op():
+            out += LexicalDefRT::name();
             out += "(";
             out += ((UnalignedPtr*)(data->data_ + i + 1))->get();
             out += ")";
-            i += sizeof(LexicalDef);
+            i += sizeof(LexicalDefRT);
             break;
 
         case LexicalDefSmallFromArg0::op(): {
             out += LexicalDefSmallFromArg0::name();
             out += "(";
             i += 1;
-            StringBuffer<4> name;
-            for (int j = 0; j < 4; ++j) {
+            StringBuffer<3> name;
+            for (int j = 0; j < 3; ++j) {
                 name.push_back(*(data->data_ + i + j));
             }
             out += name.c_str();
             out += ")";
-            i += 4;
+            i += 3;
             break;
         }
 
@@ -419,13 +430,13 @@ void disassemble(Value* fn,
             out += LexicalDefSmallFromArg1::name();
             out += "(";
             i += 1;
-            StringBuffer<4> name;
-            for (int j = 0; j < 4; ++j) {
+            StringBuffer<3> name;
+            for (int j = 0; j < 3; ++j) {
                 name.push_back(*(data->data_ + i + j));
             }
             out += name.c_str();
             out += ")";
-            i += 4;
+            i += 3;
             break;
         }
 
@@ -433,13 +444,13 @@ void disassemble(Value* fn,
             out += LexicalDefSmallFromArg2::name();
             out += "(";
             i += 1;
-            StringBuffer<4> name;
-            for (int j = 0; j < 4; ++j) {
+            StringBuffer<3> name;
+            for (int j = 0; j < 3; ++j) {
                 name.push_back(*(data->data_ + i + j));
             }
             out += name.c_str();
             out += ")";
-            i += 4;
+            i += 3;
             break;
         }
 
@@ -447,24 +458,15 @@ void disassemble(Value* fn,
             out += LexicalDefSmall::name();
             out += "(";
             i += 1;
-            StringBuffer<4> name;
-            for (int j = 0; j < 4; ++j) {
+            StringBuffer<3> name;
+            for (int j = 0; j < 3; ++j) {
                 name.push_back(*(data->data_ + i + j));
             }
             out += name.c_str();
             out += ")";
-            i += 4;
+            i += 3;
             break;
         }
-
-        case LexicalDefRelocatable::op():
-            out += LexicalDefRelocatable::name();
-            out += "(";
-            out += to_string<32>(
-                ((HostInteger<s16>*)(data->data_ + i + 1))->get());
-            out += ")";
-            i += sizeof(LexicalDefRelocatable);
-            break;
 
         case LexicalFramePush::op():
             out += LexicalFramePush::name();

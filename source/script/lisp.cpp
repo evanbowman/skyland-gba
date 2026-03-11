@@ -6138,6 +6138,18 @@ void get_env(SymbolCallback callback)
 }
 
 
+Optional<u16> symbol_indexof(const char* string)
+{
+    if (L_CTX.external_symtab_contents_) {
+        auto start = L_CTX.external_symtab_contents_;
+        auto end = start + L_CTX.external_symtab_size_;
+        if (string >= start and string < end) {
+            return (string - L_CTX.external_symtab_contents_) / symtab_stride;
+        }
+    }
+    return nullopt();
+}
+
 
 const char* intern(const char* string)
 {

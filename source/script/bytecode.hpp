@@ -79,6 +79,9 @@ struct Fatal
 };
 
 
+// NOTE: in practice, most symbols are loaded from a symbol table generated when
+// the scripts are built. For runtime symbols, we need a separate instruction
+// listing, LOAD_VAR_RT.
 struct LoadVarRT
 {
     Header header_;
@@ -195,7 +198,7 @@ struct Push2
 };
 
 
-struct PushSymbol
+struct PushSymbolRT
 {
     Header header_;
     UnalignedPtr ptr_;
@@ -314,7 +317,7 @@ struct Jump
 struct SmallJump
 {
     Header header_;
-    s8 offset_;
+    u8 offset_;
 
     static const char* name()
     {
@@ -348,7 +351,7 @@ struct JumpIfFalse
 struct SmallJumpIfFalse
 {
     Header header_;
-    s8 offset_;
+    u8 offset_;
 
     static const char* name()
     {
@@ -658,14 +661,14 @@ struct Not
 };
 
 
-struct LexicalDef
+struct LexicalDefRT
 {
     Header header_;
     UnalignedPtr ptr_;
 
     static const char* name()
     {
-        return "LEXICAL_DEF";
+        return "LEXICAL_DEF_RT";
     }
 
     static constexpr Opcode op()
@@ -743,66 +746,14 @@ struct PushString
 };
 
 
-// NOTE: These relocatable instructions exist for portable bytecode. The
-// non-relocatable versions of these instructions refer to an index in the
-// interpreter's string intern table. We cannot assume anything about the
-// ordering of the string intern table in the interpreter that ultimately loads
-// the bytecode, so instead, we ship a symbol table along with the portable
-// bytecode. When first seeing this instruction, the VM loads the symbol string
-// from the bytecode's symbol table, and searches the host interpreter's symbol
-// table for the symbol string. The vm then swaps the relocatable instruction
-// for the non-relocatable version, using the symbol offset into the host symbol
-// table. Loading relocatable symbols is a bit slow the first time, but
-// optimized out after the first load.
-struct LoadVarRelocatable : public LoadVarRT
-{
-    static const char* name()
-    {
-        return "LOAD_VAR_RELOCATABLE";
-    }
-
-    static constexpr Opcode op()
-    {
-        return 43;
-    }
-};
-static_assert(sizeof(LoadVarRelocatable) == sizeof(LoadVarRT));
-
-
-struct PushSymbolRelocatable : public PushSymbol
-{
-    static const char* name()
-    {
-        return "PUSH_SYMBOL_RELOCATABLE";
-    }
-
-    static constexpr Opcode op()
-    {
-        return 44;
-    }
-};
-static_assert(sizeof(PushSymbolRelocatable) == sizeof(PushSymbol));
-
-
-struct LexicalDefRelocatable : public LexicalDef
-{
-    static const char* name()
-    {
-        return "LEXICAL_DEF_RELOCATABLE";
-    }
-
-    static constexpr Opcode op()
-    {
-        return 45;
-    }
-};
-static_assert(sizeof(LexicalDefRelocatable) == sizeof(LexicalDef));
+// NOTE: opcodes 43, 44, and 45 have been removed, and are free to use for
+// something else.
 
 
 struct PushSmallSymbol
 {
     Header header_;
-    u8 name_[4];
+    u8 name_[3];
 
     static const char* name()
     {
@@ -819,7 +770,7 @@ struct PushSmallSymbol
 struct LexicalDefSmall
 {
     Header header_;
-    u8 name_[4];
+    u8 name_[3];
 
     static const char* name()
     {
@@ -836,9 +787,7 @@ struct LexicalDefSmall
 struct LoadVarSmall
 {
     Header header_;
-    u8 name_[4];
-    u8 pad_; // Makes LoadVarSmall large enough to swap the instruction with
-             // LoadBuiltin.
+    u8 name_[3];
 
     static const char* name()
     {
@@ -900,7 +849,7 @@ static const Opcode load_var_nonlocal = 53;
 struct LexicalDefSmallFromArg0
 {
     Header header_;
-    u8 name_[4];
+    u8 name_[3];
 
     static const char* name()
     {
@@ -917,7 +866,7 @@ struct LexicalDefSmallFromArg0
 struct LexicalDefSmallFromArg1
 {
     Header header_;
-    u8 name_[4];
+    u8 name_[3];
 
     static const char* name()
     {
@@ -934,7 +883,7 @@ struct LexicalDefSmallFromArg1
 struct LexicalDefSmallFromArg2
 {
     Header header_;
-    u8 name_[4];
+    u8 name_[3];
 
     static const char* name()
     {
@@ -948,26 +897,7 @@ struct LexicalDefSmallFromArg2
 };
 
 
-struct LoadBuiltin
-{
-    Header header_;
-    UnalignedPtr addr_;
-    u8 argc_;
-
-    static const char* name()
-    {
-        return "LOAD_BUILTIN";
-    }
-
-    static constexpr Opcode op()
-    {
-        return 57;
-    }
-};
-static_assert(sizeof(LoadBuiltin) == sizeof(LoadVarRT),
-              "The LOAD_BUILTIN instruction is substituted by the vm in place "
-              "of the LOAD_VAR instruction in some cases at runtime, and, "
-              "therefore, the sizes must match.");
+// opcode removed, 57 unused
 
 
 struct PushRatio
@@ -1068,6 +998,66 @@ struct LoadVarS
         return 64;
     }
 };
+
+
+struct LoadCall1 : public LoadVarS
+{
+    static const char* name()
+    {
+        return "LOAD/CALL1";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 65;
+    }
+};
+
+
+struct LoadCall2 : public LoadVarS
+{
+    static const char* name()
+    {
+        return "LOAD/CALL2";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 66;
+    }
+};
+
+
+struct LoadCall3 : public LoadVarS
+{
+    static const char* name()
+    {
+        return "LOAD/CALL3";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 67;
+    }
+};
+
+
+struct LexicalDef
+{
+    Header header_;
+    host_u16 symtab_index_;
+
+    static const char* name()
+    {
+        return "LEXICAL_DEF";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 68;
+    }
+};
+
 
 
 void disassemble(Value* fn,

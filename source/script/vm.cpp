@@ -146,15 +146,6 @@ TOP:
         }
 
 
-        case LoadBuiltin::op(): {
-            auto inst = read<LoadBuiltin>(code, pc);
-            auto fn = make_function((Function::CPP_Impl)inst->addr_.get());
-            fn->function().sig_.required_args_ = inst->argc_;
-            push_op(fn);
-            break;
-        }
-
-
         case LoadSymtab::op(): {
             auto inst = read<LoadSymtab>(code, pc);
             auto index = inst->symtab_index_.get();
@@ -185,7 +176,6 @@ TOP:
             break;
         }
 
-
         case LoadVarS::op(): {
             auto inst = read<LoadVarS>(code, pc);
             auto index = inst->symtab_index_.get();
@@ -193,89 +183,29 @@ TOP:
             break;
         }
 
-
         case LoadVarRT::op(): {
             auto inst = read<LoadVarRT>(code, pc);
             push_op(get_var_stable(inst->ptr_.get()));
-
-            if (auto found = __find_local(inst->ptr_.get())) {
-                pc -= sizeof(LoadVarRT);
-                LoadLocalCached lc;
-                lc.header_.op_ = LoadLocalCached::op();
-                lc.stack_offset_ = found->first;
-                lc.frame_offset_ = found->second;
-                lc.pad_ = sizeof(LoadVarRT) - sizeof(LoadLocalCached);
-                memcpy(code.data_ + pc, &lc, sizeof lc);
-                pc += sizeof(LoadVarRT);
-            } else {
-                auto builtin = __load_builtin(inst->ptr_.get());
-                if (builtin.second) {
-                    pc -= sizeof(LoadVarRT);
-                    LoadBuiltin lb;
-                    lb.header_.op_ = LoadBuiltin::op();
-                    lb.addr_.set((const char*)builtin.second);
-                    lb.argc_ = builtin.first.required_args_;
-                    memcpy(code.data_ + pc, &lb, sizeof lb);
-                    pc += sizeof(LoadVarRT);
-                } else {
-                    inst->header_.op_ = load_var_nonlocal;
-                }
-            }
             break;
         }
-
 
         case load_var_small_nonlocal: {
             auto inst = read<LoadVarSmall>(code, pc);
-            StringBuffer<4> name;
-            for (int i = 0; i < 4; ++i) {
+            StringBuffer<3> name;
+            for (int i = 0; i < 3; ++i) {
                 name.__push_unsafe(inst->name_[i]);
             }
             push_op(get_var_stable(name.c_str()));
             break;
         }
 
-
         case LoadVarSmall::op(): {
             auto inst = read<LoadVarSmall>(code, pc);
-            StringBuffer<4> name;
-            for (int i = 0; i < 4; ++i) {
+            StringBuffer<3> name;
+            for (int i = 0; i < 3; ++i) {
                 name.__push_unsafe(inst->name_[i]);
             }
             push_op(get_var_stable(name.c_str()));
-
-            if (auto found = __find_local(name.c_str())) {
-                pc -= sizeof(LoadVarSmall);
-                LoadLocalCached lc;
-                lc.header_.op_ = LoadLocalCached::op();
-                lc.stack_offset_ = found->first;
-                lc.frame_offset_ = found->second;
-                lc.pad_ = sizeof(LoadVarSmall) - sizeof(LoadLocalCached);
-                memcpy(code.data_ + pc, &lc, sizeof lc);
-                pc += sizeof(LoadVarSmall);
-            } else {
-                auto builtin = __load_builtin(name.c_str());
-#ifdef __GBA__
-                static_assert(sizeof(LoadBuiltin) == sizeof(LoadVarSmall));
-#endif // __GBA__
-
-                // Unfortunately, this optimization can only be done on 32 bit
-                // systems, because a large 64 bit pointer does not fit in the
-                // space allocated for a LoadVarSmall instruction.
-                if (sizeof(LoadBuiltin) == sizeof(LoadVarSmall) and
-                    builtin.second) {
-
-                    pc -= sizeof(LoadVarSmall);
-                    LoadBuiltin lb;
-                    lb.header_.op_ = LoadBuiltin::op();
-                    lb.addr_.set((const char*)builtin.second);
-                    lb.argc_ = builtin.first.required_args_;
-                    memcpy(code.data_ + pc, &lb, sizeof lb);
-                    pc += sizeof(LoadVarSmall);
-                } else {
-                    inst->header_.op_ = load_var_small_nonlocal;
-                }
-            }
             break;
         }
 
@@ -339,17 +269,17 @@ TOP:
 
         case PushSmallSymbol::op(): {
             auto inst = read<PushSmallSymbol>(code, pc);
-            StringBuffer<4> str;
+            StringBuffer<3> str;
             auto name = inst->name_;
-            for (int i = 0; i < 4; ++i) {
+            for (int i = 0; i < 3; ++i) {
                 str.__push_unsafe(name[i]);
             }
             push_op(make_symbol(str.c_str(), Symbol::ModeBits::small));
             break;
         }
 
-        case PushSymbol::op(): {
-            auto inst = read<PushSymbol>(code, pc);
+        case PushSymbolRT::op(): {
+            auto inst = read<PushSymbolRT>(code, pc);
             push_op(make_symbol(inst->ptr_.get(),
                                 Symbol::ModeBits::stable_pointer));
             break;
@@ -504,10 +434,28 @@ TOP:
             break;
         }
 
-        case LoadCall::op(): {
+        case LoadCall1::op(): {
+            auto inst = read<LoadCall1>(code, pc);
             auto index = inst->symtab_index_.get();
-            push_op();
             Protected fn(get_var(make_symtab_symbol(index)));
+            funcall(fn, 1);
+            break;
+        }
+
+        case LoadCall2::op(): {
+            auto inst = read<LoadCall2>(code, pc);
+            auto index = inst->symtab_index_.get();
+            Protected fn(get_var(make_symtab_symbol(index)));
+            funcall(fn, 2);
+            break;
+        }
+
+        case LoadCall3::op(): {
+            auto inst = read<LoadCall3>(code, pc);
+            auto index = inst->symtab_index_.get();
+            Protected fn(get_var(make_symtab_symbol(index)));
+            funcall(fn, 3);
+            break;
         }
 
         case Funcall::op(): {
@@ -652,6 +600,21 @@ TOP:
 
         case LexicalDef::op(): {
             auto inst = read<LexicalDef>(code, pc);
+            auto index = inst->symtab_index_.get();
+            Protected sym(make_symtab_symbol(index));
+
+            // pair of (sym . value)
+            auto pair = make_cons(sym, get_op0());
+            pop_op();      // pop value
+            push_op(pair); // store pair
+
+            lexical_frame_store(pair);
+            pop_op();
+            break;
+        }
+
+        case LexicalDefRT::op(): {
+            auto inst = read<LexicalDefRT>(code, pc);
             Protected sym(make_symbol(inst->ptr_.get(),
                                       Symbol::ModeBits::stable_pointer));
 
@@ -668,8 +631,8 @@ TOP:
         case LexicalDefSmallFromArg0::op(): {
             auto inst = read<LexicalDefSmallFromArg0>(code, pc);
 
-            StringBuffer<4> name;
-            for (int i = 0; i < 4; ++i) {
+            StringBuffer<3> name;
+            for (int i = 0; i < 3; ++i) {
                 name.__push_unsafe(inst->name_[i]);
             }
 
@@ -686,8 +649,8 @@ TOP:
         case LexicalDefSmallFromArg1::op(): {
             auto inst = read<LexicalDefSmallFromArg1>(code, pc);
 
-            StringBuffer<4> name;
-            for (int i = 0; i < 4; ++i) {
+            StringBuffer<3> name;
+            for (int i = 0; i < 3; ++i) {
                 name.__push_unsafe(inst->name_[i]);
             }
 
@@ -704,8 +667,8 @@ TOP:
         case LexicalDefSmallFromArg2::op(): {
             auto inst = read<LexicalDefSmallFromArg2>(code, pc);
 
-            StringBuffer<4> name;
-            for (int i = 0; i < 4; ++i) {
+            StringBuffer<3> name;
+            for (int i = 0; i < 3; ++i) {
                 name.__push_unsafe(inst->name_[i]);
             }
 
@@ -722,8 +685,8 @@ TOP:
         case LexicalDefSmall::op(): {
             auto inst = read<LexicalDefSmall>(code, pc);
 
-            StringBuffer<4> name;
-            for (int i = 0; i < 4; ++i) {
+            StringBuffer<3> name;
+            for (int i = 0; i < 3; ++i) {
                 name.__push_unsafe(inst->name_[i]);
             }
 
