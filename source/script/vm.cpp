@@ -140,7 +140,7 @@ TOP:
 
 
         case load_var_nonlocal: {
-            auto inst = read<LoadVar>(code, pc);
+            auto inst = read<LoadVarRT>(code, pc);
             push_op(get_var_stable(inst->ptr_.get()));
             break;
         }
@@ -186,29 +186,37 @@ TOP:
         }
 
 
-        case LoadVar::op(): {
-            auto inst = read<LoadVar>(code, pc);
+        case LoadVarS::op(): {
+            auto inst = read<LoadVarS>(code, pc);
+            auto index = inst->symtab_index_.get();
+            push_op(get_var(make_symtab_symbol(index)));
+            break;
+        }
+
+
+        case LoadVarRT::op(): {
+            auto inst = read<LoadVarRT>(code, pc);
             push_op(get_var_stable(inst->ptr_.get()));
 
             if (auto found = __find_local(inst->ptr_.get())) {
-                pc -= sizeof(LoadVar);
+                pc -= sizeof(LoadVarRT);
                 LoadLocalCached lc;
                 lc.header_.op_ = LoadLocalCached::op();
                 lc.stack_offset_ = found->first;
                 lc.frame_offset_ = found->second;
-                lc.pad_ = sizeof(LoadVar) - sizeof(LoadLocalCached);
+                lc.pad_ = sizeof(LoadVarRT) - sizeof(LoadLocalCached);
                 memcpy(code.data_ + pc, &lc, sizeof lc);
-                pc += sizeof(LoadVar);
+                pc += sizeof(LoadVarRT);
             } else {
                 auto builtin = __load_builtin(inst->ptr_.get());
                 if (builtin.second) {
-                    pc -= sizeof(LoadVar);
+                    pc -= sizeof(LoadVarRT);
                     LoadBuiltin lb;
                     lb.header_.op_ = LoadBuiltin::op();
                     lb.addr_.set((const char*)builtin.second);
                     lb.argc_ = builtin.first.required_args_;
                     memcpy(code.data_ + pc, &lb, sizeof lb);
-                    pc += sizeof(LoadVar);
+                    pc += sizeof(LoadVarRT);
                 } else {
                     inst->header_.op_ = load_var_nonlocal;
                 }
@@ -494,6 +502,12 @@ TOP:
                 funcall(fn, 3);
             }
             break;
+        }
+
+        case LoadCall::op(): {
+            auto index = inst->symtab_index_.get();
+            push_op();
+            Protected fn(get_var(make_symtab_symbol(index)));
         }
 
         case Funcall::op(): {

@@ -79,7 +79,7 @@ struct Fatal
 };
 
 
-struct LoadVar
+struct LoadVarRT
 {
     Header header_;
     UnalignedPtr ptr_;
@@ -87,7 +87,7 @@ struct LoadVar
 
     static const char* name()
     {
-        return "LOAD_VAR";
+        return "LOAD_VAR_RT";
     }
 
     static constexpr Opcode op()
@@ -754,7 +754,7 @@ struct PushString
 // for the non-relocatable version, using the symbol offset into the host symbol
 // table. Loading relocatable symbols is a bit slow the first time, but
 // optimized out after the first load.
-struct LoadVarRelocatable : public LoadVar
+struct LoadVarRelocatable : public LoadVarRT
 {
     static const char* name()
     {
@@ -766,7 +766,7 @@ struct LoadVarRelocatable : public LoadVar
         return 43;
     }
 };
-static_assert(sizeof(LoadVarRelocatable) == sizeof(LoadVar));
+static_assert(sizeof(LoadVarRelocatable) == sizeof(LoadVarRT));
 
 
 struct PushSymbolRelocatable : public PushSymbol
@@ -889,7 +889,7 @@ struct LoadLocalCached
         return 51;
     }
 };
-static_assert(sizeof(LoadLocalCached) <= sizeof(LoadVar) and
+static_assert(sizeof(LoadLocalCached) <= sizeof(LoadVarRT) and
               sizeof(LoadLocalCached) <= sizeof(LoadVarSmall));
 
 
@@ -964,7 +964,7 @@ struct LoadBuiltin
         return 57;
     }
 };
-static_assert(sizeof(LoadBuiltin) == sizeof(LoadVar),
+static_assert(sizeof(LoadBuiltin) == sizeof(LoadVarRT),
               "The LOAD_BUILTIN instruction is substituted by the vm in place "
               "of the LOAD_VAR instruction in some cases at runtime, and, "
               "therefore, the sizes must match.");
@@ -1049,6 +1049,23 @@ struct IsEqual
     static constexpr Opcode op()
     {
         return 63;
+    }
+};
+
+
+struct LoadVarS
+{
+    Header header_;
+    host_u16 symtab_index_;
+
+    static const char* name()
+    {
+        return "LOAD_VAR";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 64;
     }
 };
 

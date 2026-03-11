@@ -53,7 +53,8 @@ void parse_instructions(ScratchBuffer& buffer, InstructionList& list)
         offset += sizeof(NAME);                                                \
         break;
 
-            MATCH(LoadVar)
+            MATCH(LoadVarRT)
+            MATCH(LoadVarS)
             MATCH(LoadVarRelocatable)
             MATCH(PushSymbol)
             MATCH(PushSymbolRelocatable)
@@ -489,8 +490,15 @@ TOP:
                 auto name = code->symbol().name();
                 memcpy(inst->name_, name, Symbol::buffer_size);
             } else {
-                append<instruction::LoadVar>(buffer, write_pos)
-                    ->ptr_.set(code->symbol().name());
+                auto symtab_offset = code->symbol().symtab_index_.get();
+                if (symtab_offset not_eq Symbol::not_in_symtab) {
+                    auto inst = append<instruction::LoadVarS>(buffer, write_pos);
+                    inst->symtab_index_.set(symtab_offset);
+                } else {
+                    append<instruction::LoadVarRT>(buffer, write_pos)
+                        ->ptr_.set(code->symbol().name());
+                }
+
             }
         }
 

@@ -80,12 +80,12 @@ void disassemble(Value* fn,
             break;
 
         case load_var_nonlocal:
-        case LoadVar::op():
-            out += LoadVar::name();
+        case LoadVarRT::op():
+            out += LoadVarRT::name();
             out += "(";
             out += ((UnalignedPtr*)(data->data_ + i + 1))->get();
             out += ")";
-            i += sizeof(LoadVar);
+            i += sizeof(LoadVarRT);
             break;
 
         case load_var_small_nonlocal:
@@ -141,6 +141,16 @@ void disassemble(Value* fn,
             out += LoadSymtab::name();
             out += "(";
             auto off = ((LoadSymtab*)(data->data_ + i))->symtab_index_.get() * symtab_stride;
+            out += load_from_symtab(off);
+            out += ")";
+            i += sizeof(LoadSymtab);
+            break;
+        }
+
+        case LoadVarS::op(): {
+            out += LoadVarS::name();
+            out += "(";
+            auto off = ((LoadVarS*)(data->data_ + i))->symtab_index_.get() * symtab_stride;
             out += load_from_symtab(off);
             out += ")";
             i += sizeof(LoadSymtab);
