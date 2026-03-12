@@ -269,14 +269,14 @@ void disassemble(Value* fn,
 
         case SmallJumpIfFalse::op():
             out += "SMALL_JUMP_IF_FALSE(";
-            out += to_string<32>(*(data->data_ + i + 1));
+            out += to_string<32>((u8)*(data->data_ + i + 1));
             out += ")";
             i += 2;
             break;
 
         case SmallJump::op():
             out += "SMALL_JUMP(";
-            out += to_string<32>(*(data->data_ + i + 1));
+            out += to_string<32>((u8)*(data->data_ + i + 1));
             out += ")";
             i += 2;
             break;
