@@ -92,21 +92,23 @@ void parse_instructions(ScratchBuffer& buffer, InstructionList& list)
             MATCH(LexicalDefRT)
             MATCH(LexicalFramePush)
             MATCH(LexicalFramePop)
-            MATCH(LexicalVarLoad)
             MATCH(PushSmallSymbol)
             MATCH(LexicalDefSmall)
-            MATCH(LexicalDefSmallFromArg0)
-            MATCH(LexicalDefSmallFromArg1)
-            MATCH(LexicalDefSmallFromArg2)
             MATCH(LoadVarSmall)
             MATCH(Set)
             MATCH(PushFloat)
             MATCH(PushRatio)
             MATCH(Await)
             MATCH(IsEqual)
+            MATCH(LoadCall0)
             MATCH(LoadCall1)
             MATCH(LoadCall2)
             MATCH(LoadCall3)
+            MATCH(SetVarSmall)
+            MATCH(SetVar)
+            MATCH(SetVarRT)
+            MATCH(LoadReg)
+            MATCH(StoreReg)
         }
     }
 }
@@ -310,61 +312,26 @@ int compile_let(CompilerContext& ctx,
             if (sym->type() == Value::Type::symbol and
                 bind->type() == Value::Type::cons) {
 
-                auto bindv = bind->cons().car();
-                bool small_sym =
-                    sym->hdr_.mode_bits_ == (u8)Symbol::ModeBits::small;
+                write_pos = compile_impl(ctx,
+                                         buffer,
+                                         write_pos,
+                                         bind->cons().car(),
+                                         jump_offset,
+                                         false);
 
-                if (small_sym and bindv->type() == Value::Type::symbol and
-                    str_eq(bindv->symbol().name(), "$0")) {
-
-                    auto inst = append<instruction::LexicalDefSmallFromArg0>(
-                        buffer, write_pos);
-
+                if (sym->hdr_.mode_bits_ == (u8)Symbol::ModeBits::small) {
+                    auto inst = append<instruction::LexicalDefSmall>(
+                                                                     buffer, write_pos);
                     auto name = sym->symbol().name();
                     memcpy(inst->name_, name, Symbol::buffer_size);
-
-                } else if (small_sym and
-                           bindv->type() == Value::Type::symbol and
-                           str_eq(bindv->symbol().name(), "$1")) {
-
-                    auto inst = append<instruction::LexicalDefSmallFromArg1>(
-                        buffer, write_pos);
-
-                    auto name = sym->symbol().name();
-                    memcpy(inst->name_, name, Symbol::buffer_size);
-
-                } else if (small_sym and
-                           bindv->type() == Value::Type::symbol and
-                           str_eq(bindv->symbol().name(), "$2")) {
-
-                    auto inst = append<instruction::LexicalDefSmallFromArg2>(
-                        buffer, write_pos);
-
-                    auto name = sym->symbol().name();
-                    memcpy(inst->name_, name, Symbol::buffer_size);
-
                 } else {
-                    write_pos = compile_impl(ctx,
-                                             buffer,
-                                             write_pos,
-                                             bind->cons().car(),
-                                             jump_offset,
-                                             false);
-
-                    if (sym->hdr_.mode_bits_ == (u8)Symbol::ModeBits::small) {
-                        auto inst = append<instruction::LexicalDefSmall>(
-                            buffer, write_pos);
-                        auto name = sym->symbol().name();
-                        memcpy(inst->name_, name, Symbol::buffer_size);
+                    if (auto symtab_index = get_symtab_index(sym->symbol())) {
+                        auto inst = append<instruction::LexicalDef>(buffer, write_pos);
+                        inst->symtab_index_.set(*symtab_index);
                     } else {
-                        if (auto symtab_index = get_symtab_index(sym->symbol())) {
-                            auto inst = append<instruction::LexicalDef>(buffer, write_pos);
-                            inst->symtab_index_.set(*symtab_index);
-                        } else {
-                            auto inst =
-                                append<instruction::LexicalDefRT>(buffer, write_pos);
-                            inst->ptr_.set(sym->symbol().name());
-                        }
+                        auto inst =
+                            append<instruction::LexicalDefRT>(buffer, write_pos);
+                        inst->ptr_.set(sym->symbol().name());
                     }
                 }
             } else if (sym->type() == Value::Type::cons) {
@@ -399,6 +366,15 @@ int compile_let(CompilerContext& ctx,
     }
 
     return write_pos;
+}
+
+
+bool is_quoted_symbol(Value* v)
+{
+    return v->type() == Value::Type::cons and
+           v->cons().cdr()->type() == Value::Type::symbol and
+           v->cons().car()->type() == Value::Type::symbol and
+           str_eq(v->cons().car()->symbol().name(), "'");
 }
 
 
@@ -548,6 +524,30 @@ TOP:
             write_pos = compile_impl(
                 ctx, buffer, write_pos, lat->cons().car(), jump_offset, false);
             append<instruction::Await>(buffer, write_pos);
+        } else if (fn->type() == Value::Type::symbol and
+                   str_eq(fn->symbol().name(), "set") and length(lat) == 3 and
+                   is_quoted_symbol(lat->cons().cdr()->cons().car())) {
+
+            auto sym = lat->cons().cdr()->cons().car()->cons().cdr();
+
+            auto arg = lat->cons().cdr()->cons().cdr();
+            write_pos = compile_impl(
+                ctx, buffer, write_pos, arg->cons().car(), jump_offset, false);
+
+            if (sym->symbol().hdr_.mode_bits_ == (u8)Symbol::ModeBits::small) {
+                auto inst = append<instruction::SetVarSmall>(buffer, write_pos);
+                auto name = sym->symbol().name();
+                memcpy(inst->name_, name, Symbol::buffer_size);
+            } else {
+                if (auto symtab_index = get_symtab_index(sym->symbol())) {
+                    auto inst = append<instruction::SetVar>(buffer, write_pos);
+                    inst->symtab_index_.set(*symtab_index);
+                } else {
+                    append<instruction::SetVarRT>(buffer, write_pos)
+                        ->ptr_.set(sym->symbol().name());
+                }
+            }
+
         } else if (fn->type() == Value::Type::symbol and
                    str_eq(fn->symbol().name(), "if")) {
 
@@ -851,6 +851,15 @@ public:
 
         code_size -= sizeof(T);
 
+        for (auto it = instructions.begin(); it not_eq instructions.end();) {
+            if (*it == (instruction::Header*)inst) {
+                instructions.erase(it);
+                break;
+            } else {
+                ++it;
+            }
+        }
+
         for (auto& p : instructions) {
             if ((char*)p >= code_buffer.data_ + start) {
                 p = (instruction::Header*)((u8*)p - sizeof(T));
@@ -1051,6 +1060,19 @@ public:
                         ((LoadVarS*)inst)->header_.op_ = LoadCall3::op();
                         remove(instructions, code_buffer, (Funcall3*)next, code_size);
                         goto TOP;
+
+                    case Funcall::op(): {
+                        auto fc = ((Funcall*)next);
+                        if (fc->argc_ == 0) {
+                            ((LoadVarS*)inst)->header_.op_ = LoadCall0::op();
+                            remove(instructions,
+                                   code_buffer,
+                                   (Funcall*)next,
+                                   code_size);
+                            goto TOP;
+                        }
+                        break;
+                    }
 
                     default:
                         break;

@@ -131,21 +131,6 @@ TOP:
         }
 
 
-        case LoadLocalCached::op(): {
-            auto inst = read<LoadLocalCached>(code, pc);
-            push_op(__get_local({inst->stack_offset_, inst->frame_offset_}));
-            pc += inst->pad_;
-            break;
-        }
-
-
-        case load_var_nonlocal: {
-            auto inst = read<LoadVarRT>(code, pc);
-            push_op(get_var_stable(inst->ptr_.get()));
-            break;
-        }
-
-
         case LoadSymtab::op(): {
             auto inst = read<LoadSymtab>(code, pc);
             auto index = inst->symtab_index_.get();
@@ -176,6 +161,43 @@ TOP:
             break;
         }
 
+        case SetVar::op(): {
+            auto inst = read<SetVar>(code, pc);
+            auto index = inst->symtab_index_.get();
+            auto v = get_op0();
+            Protected sym(make_symtab_symbol(index));
+            auto result = set_var(sym, v, false);
+            pop_op(); // v
+            push_op(result);
+            break;
+        }
+
+        case SetVarRT::op(): {
+            auto inst = read<SetVarRT>(code, pc);
+            auto v = get_op0();
+            Protected sym(make_symbol(inst->ptr_.get(),
+                                      Symbol::ModeBits::stable_pointer));
+            auto result = set_var(sym, v, false);
+            pop_op(); // v
+            push_op(result);
+            break;
+        }
+
+        case SetVarSmall::op(): {
+            auto inst = read<SetVarSmall>(code, pc);
+            StringBuffer<3> name;
+            for (int i = 0; i < 3; ++i) {
+                name.__push_unsafe(inst->name_[i]);
+            }
+            Protected sym(
+                make_symbol(name.c_str(), Symbol::ModeBits::stable_pointer));
+            auto v = get_op0();
+            auto result = set_var(sym, v, false);
+            pop_op(); // v
+            push_op(result);
+            break;
+        }
+
         case LoadVarS::op(): {
             auto inst = read<LoadVarS>(code, pc);
             auto index = inst->symtab_index_.get();
@@ -186,16 +208,6 @@ TOP:
         case LoadVarRT::op(): {
             auto inst = read<LoadVarRT>(code, pc);
             push_op(get_var_stable(inst->ptr_.get()));
-            break;
-        }
-
-        case load_var_small_nonlocal: {
-            auto inst = read<LoadVarSmall>(code, pc);
-            StringBuffer<3> name;
-            for (int i = 0; i < 3; ++i) {
-                name.__push_unsafe(inst->name_[i]);
-            }
-            push_op(get_var_stable(name.c_str()));
             break;
         }
 
@@ -434,10 +446,20 @@ TOP:
             break;
         }
 
+        case LoadCall0::op(): {
+            auto inst = read<LoadCall0>(code, pc);
+            auto index = inst->symtab_index_.get();
+            Protected sym(make_symtab_symbol(index));
+            Protected fn(get_var(sym));
+            funcall(fn, 0);
+            break;
+        }
+
         case LoadCall1::op(): {
             auto inst = read<LoadCall1>(code, pc);
             auto index = inst->symtab_index_.get();
-            Protected fn(get_var(make_symtab_symbol(index)));
+            Protected sym(make_symtab_symbol(index));
+            Protected fn(get_var(sym));
             funcall(fn, 1);
             break;
         }
@@ -445,7 +467,8 @@ TOP:
         case LoadCall2::op(): {
             auto inst = read<LoadCall2>(code, pc);
             auto index = inst->symtab_index_.get();
-            Protected fn(get_var(make_symtab_symbol(index)));
+            Protected sym(make_symtab_symbol(index));
+            Protected fn(get_var(sym));
             funcall(fn, 2);
             break;
         }
@@ -453,7 +476,8 @@ TOP:
         case LoadCall3::op(): {
             auto inst = read<LoadCall3>(code, pc);
             auto index = inst->symtab_index_.get();
-            Protected fn(get_var(make_symtab_symbol(index)));
+            Protected sym(make_symtab_symbol(index));
+            Protected fn(get_var(sym));
             funcall(fn, 3);
             break;
         }
@@ -621,60 +645,6 @@ TOP:
             // pair of (sym . value)
             auto pair = make_cons(sym, get_op0());
             pop_op();      // pop value
-            push_op(pair); // store pair
-
-            lexical_frame_store(pair);
-            pop_op();
-            break;
-        }
-
-        case LexicalDefSmallFromArg0::op(): {
-            auto inst = read<LexicalDefSmallFromArg0>(code, pc);
-
-            StringBuffer<3> name;
-            for (int i = 0; i < 3; ++i) {
-                name.__push_unsafe(inst->name_[i]);
-            }
-
-            Protected sym(make_symbol(name.c_str(), Symbol::ModeBits::small));
-            // pair of (sym . value)
-            auto pair = make_cons(sym, get_arg(0));
-            push_op(pair); // store pair
-
-            lexical_frame_store(pair);
-            pop_op();
-            break;
-        }
-
-        case LexicalDefSmallFromArg1::op(): {
-            auto inst = read<LexicalDefSmallFromArg1>(code, pc);
-
-            StringBuffer<3> name;
-            for (int i = 0; i < 3; ++i) {
-                name.__push_unsafe(inst->name_[i]);
-            }
-
-            Protected sym(make_symbol(name.c_str(), Symbol::ModeBits::small));
-            // pair of (sym . value)
-            auto pair = make_cons(sym, get_arg(1));
-            push_op(pair); // store pair
-
-            lexical_frame_store(pair);
-            pop_op();
-            break;
-        }
-
-        case LexicalDefSmallFromArg2::op(): {
-            auto inst = read<LexicalDefSmallFromArg2>(code, pc);
-
-            StringBuffer<3> name;
-            for (int i = 0; i < 3; ++i) {
-                name.__push_unsafe(inst->name_[i]);
-            }
-
-            Protected sym(make_symbol(name.c_str(), Symbol::ModeBits::small));
-            // pair of (sym . value)
-            auto pair = make_cons(sym, get_arg(2));
             push_op(pair); // store pair
 
             lexical_frame_store(pair);

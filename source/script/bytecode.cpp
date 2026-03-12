@@ -9,8 +9,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "bytecode.hpp"
-#include "lisp_internal.hpp"
 #include "lisp.hpp"
+#include "lisp_internal.hpp"
 #include "localization.hpp"
 #include "string.hpp"
 
@@ -22,8 +22,6 @@ namespace lisp::instruction
 void disassemble(Value* fn,
                  ::Function<2 * sizeof(void*), void(const char*)> callback)
 {
-    u8 depth = 0;
-
     if (fn->hdr_.mode_bits_ not_eq Function::ModeBits::lisp_bytecode_function) {
         return;
     }
@@ -31,13 +29,23 @@ void disassemble(Value* fn,
     auto buffer = fn->function().bytecode_impl_.databuffer();
     auto data = buffer->databuffer().value();
 
+    auto start_offset =
+        fn->function().bytecode_impl_.bytecode_offset()->integer().value_;
+
+    disassemble(&*data, start_offset, callback);
+}
+
+
+
+void disassemble(ScratchBuffer* data,
+                 s32 offset,
+                 ::Function<2 * sizeof(void*), void(const char*)> callback)
+{
+    u8 depth = 0;
+
     Buffer<s32, 16> start_offsets;
 
-    start_offsets.push_back(fn
-                                ->function()
-                                .bytecode_impl_.bytecode_offset()
-                                ->integer()
-                                .value_);
+    start_offsets.push_back(offset);
 
     auto start_offset = [&] { return start_offsets.back(); };
 
@@ -53,7 +61,7 @@ void disassemble(Value* fn,
         }
 
         out += offset;
-        out += ": ";
+        out += ":";
 
         using namespace instruction;
 
@@ -66,7 +74,6 @@ void disassemble(Value* fn,
             i += sizeof(Set);
             break;
 
-        case load_var_nonlocal:
         case LoadVarRT::op():
             out += LoadVarRT::name();
             out += "(";
@@ -75,7 +82,14 @@ void disassemble(Value* fn,
             i += sizeof(LoadVarRT);
             break;
 
-        case load_var_small_nonlocal:
+        case SetVarRT::op():
+            out += SetVarRT::name();
+            out += "(";
+            out += ((UnalignedPtr*)(data->data_ + i + 1))->get();
+            out += ")";
+            i += sizeof(SetVarRT);
+            break;
+
         case LoadVarSmall::op(): {
             i += 1;
             out += "LOAD_VAR_SMALL(";
@@ -89,17 +103,16 @@ void disassemble(Value* fn,
             break;
         }
 
-        case LoadLocalCached::op(): {
+        case SetVarSmall::op(): {
             i += 1;
-            out += "LOAD_LOCAL_CACHED(";
-            out += stringify((int)*(data->data_ + i));
-            i += 1;
-            out += ", ";
-            out += stringify((int)*(data->data_ + i));
-            i += 1;
+            out += "SET_VAR_SMALL(";
+            StringBuffer<3> name;
+            for (int j = 0; j < 3; ++j) {
+                name.push_back(*(data->data_ + i + j));
+            }
+            out += name.c_str();
             out += ")";
-            i += *(data->data_ + i); // padding
-            i += 1;
+            i += 3;
             break;
         }
 
@@ -116,10 +129,29 @@ void disassemble(Value* fn,
             break;
         }
 
+        case LoadReg::op(): {
+            out += LoadReg::name();
+            out += "(";
+            out += stringify(((LoadReg*)(data->data_ + i))->reg_);
+            out += ")";
+            i += sizeof(LoadReg);
+            break;
+        }
+
+        case StoreReg::op(): {
+            out += StoreReg::name();
+            out += "(";
+            out += stringify(((StoreReg*)(data->data_ + i))->reg_);
+            out += ")";
+            i += sizeof(StoreReg);
+            break;
+        }
+
         case LexicalDef::op(): {
             out += LexicalDef::name();
             out += "(";
-            auto off = ((LexicalDef*)(data->data_ + i))->symtab_index_.get() * symtab_stride;
+            auto off = ((LexicalDef*)(data->data_ + i))->symtab_index_.get() *
+                       symtab_stride;
             out += load_from_symtab(off);
             out += ")";
             i += sizeof(LexicalDef);
@@ -129,27 +161,52 @@ void disassemble(Value* fn,
         case LoadSymtab::op(): {
             out += LoadSymtab::name();
             out += "(";
-            auto off = ((LoadSymtab*)(data->data_ + i))->symtab_index_.get() * symtab_stride;
+            auto off = ((LoadSymtab*)(data->data_ + i))->symtab_index_.get() *
+                       symtab_stride;
             out += load_from_symtab(off);
             out += ")";
             i += sizeof(LoadSymtab);
             break;
         }
 
+        case SetVar::op(): {
+            out += SetVar::name();
+            out += "(";
+            auto off = ((SetVar*)(data->data_ + i))->symtab_index_.get() *
+                       symtab_stride;
+            out += load_from_symtab(off);
+            out += ")";
+            i += sizeof(SetVar);
+            break;
+        }
+
         case LoadVarS::op(): {
             out += LoadVarS::name();
             out += "(";
-            auto off = ((LoadVarS*)(data->data_ + i))->symtab_index_.get() * symtab_stride;
+            auto off = ((LoadVarS*)(data->data_ + i))->symtab_index_.get() *
+                       symtab_stride;
             out += load_from_symtab(off);
             out += ")";
             i += sizeof(LoadVarS);
             break;
         }
 
+        case LoadCall0::op(): {
+            out += LoadCall0::name();
+            out += "(";
+            auto off = ((LoadCall0*)(data->data_ + i))->symtab_index_.get() *
+                       symtab_stride;
+            out += load_from_symtab(off);
+            out += ")";
+            i += sizeof(LoadCall0);
+            break;
+        }
+
         case LoadCall1::op(): {
             out += LoadCall1::name();
             out += "(";
-            auto off = ((LoadCall1*)(data->data_ + i))->symtab_index_.get() * symtab_stride;
+            auto off = ((LoadCall1*)(data->data_ + i))->symtab_index_.get() *
+                       symtab_stride;
             out += load_from_symtab(off);
             out += ")";
             i += sizeof(LoadCall1);
@@ -159,7 +216,8 @@ void disassemble(Value* fn,
         case LoadCall2::op(): {
             out += LoadCall2::name();
             out += "(";
-            auto off = ((LoadCall2*)(data->data_ + i))->symtab_index_.get() * symtab_stride;
+            auto off = ((LoadCall2*)(data->data_ + i))->symtab_index_.get() *
+                       symtab_stride;
             out += load_from_symtab(off);
             out += ")";
             i += sizeof(LoadCall2);
@@ -169,7 +227,8 @@ void disassemble(Value* fn,
         case LoadCall3::op(): {
             out += LoadCall3::name();
             out += "(";
-            auto off = ((LoadCall3*)(data->data_ + i))->symtab_index_.get() * symtab_stride;
+            auto off = ((LoadCall3*)(data->data_ + i))->symtab_index_.get() *
+                       symtab_stride;
             out += load_from_symtab(off);
             out += ")";
             i += sizeof(LoadCall3);
@@ -269,14 +328,14 @@ void disassemble(Value* fn,
 
         case SmallJumpIfFalse::op():
             out += "SMALL_JUMP_IF_FALSE(";
-            out += to_string<32>((u8)*(data->data_ + i + 1));
+            out += to_string<32>((u8) * (data->data_ + i + 1));
             out += ")";
             i += 2;
             break;
 
         case SmallJump::op():
             out += "SMALL_JUMP(";
-            out += to_string<32>((u8)*(data->data_ + i + 1));
+            out += to_string<32>((u8) * (data->data_ + i + 1));
             out += ")";
             i += 2;
             break;
@@ -412,48 +471,6 @@ void disassemble(Value* fn,
             i += sizeof(LexicalDefRT);
             break;
 
-        case LexicalDefSmallFromArg0::op(): {
-            out += LexicalDefSmallFromArg0::name();
-            out += "(";
-            i += 1;
-            StringBuffer<3> name;
-            for (int j = 0; j < 3; ++j) {
-                name.push_back(*(data->data_ + i + j));
-            }
-            out += name.c_str();
-            out += ")";
-            i += 3;
-            break;
-        }
-
-        case LexicalDefSmallFromArg1::op(): {
-            out += LexicalDefSmallFromArg1::name();
-            out += "(";
-            i += 1;
-            StringBuffer<3> name;
-            for (int j = 0; j < 3; ++j) {
-                name.push_back(*(data->data_ + i + j));
-            }
-            out += name.c_str();
-            out += ")";
-            i += 3;
-            break;
-        }
-
-        case LexicalDefSmallFromArg2::op(): {
-            out += LexicalDefSmallFromArg2::name();
-            out += "(";
-            i += 1;
-            StringBuffer<3> name;
-            for (int j = 0; j < 3; ++j) {
-                name.push_back(*(data->data_ + i + j));
-            }
-            out += name.c_str();
-            out += ")";
-            i += 3;
-            break;
-        }
-
         case LexicalDefSmall::op(): {
             out += LexicalDefSmall::name();
             out += "(";
@@ -476,11 +493,6 @@ void disassemble(Value* fn,
         case LexicalFramePop::op():
             out += LexicalFramePop::name();
             i += sizeof(LexicalFramePop);
-            break;
-
-        case LexicalVarLoad::op():
-            out += LexicalVarLoad::name();
-            i += sizeof(LexicalVarLoad);
             break;
 
         case Await::op(): {
@@ -523,4 +535,4 @@ void disassemble(Value* fn,
 }
 
 
-}
+} // namespace lisp::instruction
