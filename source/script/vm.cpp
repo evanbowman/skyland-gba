@@ -92,7 +92,7 @@ TOP:
             }
             auto inst = read<LoadReg>(code, pc);
             auto v = get_list(registers->result(), inst->reg_);
-            info(::format("load % from reg %", v, inst->reg_));
+            // info(::format("load % from reg %", v, inst->reg_));
             push_op(v);
             break;
         }
@@ -111,7 +111,7 @@ TOP:
                 --reg;
                 iter = iter->cons().cdr();
             }
-            info(::format("store % into reg %", get_op0(), inst->reg_));
+            // info(::format("store % into reg %", get_op0(), inst->reg_));
             iter->cons().set_car(get_op0());
             pop_op();
             break;
@@ -633,6 +633,7 @@ TOP:
 
         case EarlyRet::op():
         case Ret::op():
+            unwind_lexical_scope();
             return nullopt();
 
         case PushLambda::op(): {

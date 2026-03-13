@@ -1182,6 +1182,16 @@ public:
                 ++index;
                 break;
 
+            case LexicalFramePop::op(): {
+                auto next = instructions[index + 1];
+                if (next->op_ == Ret::op()) {
+                    remove(instructions, code_buffer, (LexicalFramePop*)inst, code_size);
+                    goto TOP;
+                }
+                ++index;
+                break;
+            }
+
             case Pop::op(): {
                 // NOTE: push followed by pop is a no-op.
                 auto prev = instructions[index - 1];
