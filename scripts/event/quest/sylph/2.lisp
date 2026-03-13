@@ -61,12 +61,12 @@
             (push 'quests (cons "lemons.lisp" m))
 
             (let ((reward 0))
-              (map
+              (foreach
                (lambda (xy)
-                 ((room-new
-                   (player)
-                   (list 'lemon-tree (first xy) (second xy)))
-                  (+= reward 1400)))
+                 (room-new (player) (list 'lemon-tree (first xy) (second xy)))
+                 (sound "gravel")
+                 (sleep 175)
+                 (+= reward 1400))
                (construction-sites (player) '(1 . 2)))
 
               (push 'qvar (cons 2 reward)))

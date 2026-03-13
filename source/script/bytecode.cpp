@@ -53,6 +53,10 @@ void disassemble(ScratchBuffer* data,
 
         StringBuffer<64> out;
 
+        for (int i = 0; i < depth; ++i) {
+            out += "| ";
+        }
+
         const auto offset = to_string<10>(i - start_offset());
         if (offset.length() < 3) {
             for (u32 i = 0; i < 3 - offset.length(); ++i) {

@@ -472,7 +472,6 @@ ScenePtr PlayerIslandDestroyedScene::update(Time delta)
             // disappear.
             if (opponent_defeated) {
 
-                invoke_hook("on-victory");
                 if (APP.exit_condition() not_eq App::ExitCondition::none) {
                     if (APP.exit_condition() == App::ExitCondition::defeat) {
                         forced_defeat_ = true;
@@ -558,6 +557,9 @@ ScenePtr PlayerIslandDestroyedScene::update(Time delta)
     }
 
     case AnimState::begin_fade: {
+        if (opponent_defeated) {
+            invoke_hook("on-victory");
+        }
         anim_state_ = AnimState::begin_fade2;
         break;
     }

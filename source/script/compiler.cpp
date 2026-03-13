@@ -146,7 +146,9 @@ int compile_impl(CompilerContext& ctx,
 
 
 template <typename Instruction>
-static Instruction* append(ScratchBuffer& buffer, int& write_pos)
+static Instruction* append(CompilerContext& ctx,
+                           ScratchBuffer& buffer,
+                           int& write_pos)
 {
     if (write_pos + sizeof(Instruction) >= SCRATCH_BUFFER_SIZE) {
         // FIXME: propagate error! We should return nullptr, but the caller does
@@ -174,7 +176,7 @@ int compile_fn(CompilerContext& ctx,
     auto lat = code;
 
     if (length(lat) == 0) {
-        append<instruction::PushNil>(buffer, write_pos);
+        append<instruction::PushNil>(ctx, buffer, write_pos);
     }
 
     while (lat not_eq get_nil()) {
@@ -184,7 +186,7 @@ int compile_fn(CompilerContext& ctx,
         }
 
         if (not first) {
-            append<instruction::Pop>(buffer, write_pos);
+            append<instruction::Pop>(ctx, buffer, write_pos);
         } else {
             first = false;
         }
@@ -197,7 +199,7 @@ int compile_fn(CompilerContext& ctx,
         lat = lat->cons().cdr();
     }
 
-    append<instruction::Ret>(buffer, write_pos);
+    append<instruction::Ret>(ctx, buffer, write_pos);
 
     return write_pos;
 }
@@ -224,15 +226,15 @@ int compile_quoted(CompilerContext& ctx,
         write_pos = compile_impl(ctx, buffer, write_pos, code, 0, tail_expr);
     } else if (code->type() == Value::Type::symbol) {
         if (code->symbol().hdr_.mode_bits_ == (u8)Symbol::ModeBits::small) {
-            auto inst = append<instruction::PushSmallSymbol>(buffer, write_pos);
+            auto inst = append<instruction::PushSmallSymbol>(ctx, buffer, write_pos);
             auto name = code->symbol().name();
             memcpy(inst->name_, name, Symbol::buffer_size);
         } else {
             if (auto symtab_index = get_symtab_index(code->symbol())) {
-                auto inst = append<instruction::LoadSymtab>(buffer, write_pos);
+                auto inst = append<instruction::LoadSymtab>(ctx, buffer, write_pos);
                 inst->symtab_index_.set(*symtab_index);
             } else {
-                auto inst = append<instruction::PushSymbolRT>(buffer, write_pos);
+                auto inst = append<instruction::PushSymbolRT>(ctx, buffer, write_pos);
                 inst->ptr_.set(code->symbol().name());
             }
         }
@@ -258,10 +260,10 @@ int compile_quoted(CompilerContext& ctx,
             }
         }
 
-        auto inst = append<instruction::PushList>(buffer, write_pos);
+        auto inst = append<instruction::PushList>(ctx, buffer, write_pos);
         inst->element_count_ = list_len;
     } else if (code->type() == Value::Type::nil) {
-        append<instruction::PushNil>(buffer, write_pos);
+        append<instruction::PushNil>(ctx, buffer, write_pos);
     }
 
     return write_pos;
@@ -288,7 +290,7 @@ int compile_progn(CompilerContext& ctx,
         bool tail = tail_expr and code->cons().cdr() == get_nil();
 
         if (not first) {
-            append<instruction::Pop>(buffer, write_pos);
+            append<instruction::Pop>(ctx, buffer, write_pos);
         } else {
             first = false;
         }
@@ -319,7 +321,7 @@ int compile_let(CompilerContext& ctx,
     const auto binding_count = length(code->cons().car());
 
     if (binding_count not_eq 0) {
-        append<instruction::LexicalFramePush>(buffer, write_pos);
+        append<instruction::LexicalFramePush>(ctx, buffer, write_pos);
     }
 
     l_foreach(code->cons().car(), [&](Value* val) {
@@ -337,17 +339,16 @@ int compile_let(CompilerContext& ctx,
                                          false);
 
                 if (sym->hdr_.mode_bits_ == (u8)Symbol::ModeBits::small) {
-                    auto inst = append<instruction::LexicalDefSmall>(
-                                                                     buffer, write_pos);
+                    auto inst = append<instruction::LexicalDefSmall>(ctx, buffer, write_pos);
                     auto name = sym->symbol().name();
                     memcpy(inst->name_, name, Symbol::buffer_size);
                 } else {
                     if (auto symtab_index = get_symtab_index(sym->symbol())) {
-                        auto inst = append<instruction::LexicalDef>(buffer, write_pos);
+                        auto inst = append<instruction::LexicalDef>(ctx, buffer, write_pos);
                         inst->symtab_index_.set(*symtab_index);
                     } else {
                         auto inst =
-                            append<instruction::LexicalDefRT>(buffer, write_pos);
+                            append<instruction::LexicalDefRT>(ctx, buffer, write_pos);
                         inst->ptr_.set(sym->symbol().name());
                     }
                 }
@@ -367,7 +368,7 @@ int compile_let(CompilerContext& ctx,
         bool tail = tail_expr and code->cons().cdr() == get_nil();
 
         if (not first) {
-            append<instruction::Pop>(buffer, write_pos);
+            append<instruction::Pop>(ctx, buffer, write_pos);
         } else {
             first = false;
         }
@@ -379,7 +380,7 @@ int compile_let(CompilerContext& ctx,
     }
 
     if (binding_count not_eq 0) {
-        append<instruction::LexicalFramePop>(buffer, write_pos);
+        append<instruction::LexicalFramePop>(ctx, buffer, write_pos);
     }
 
     return write_pos;
@@ -404,38 +405,38 @@ int compile_impl(CompilerContext& ctx,
 {
 TOP:
     if (code->type() == Value::Type::ratio) {
-        auto r = append<instruction::PushRatio>(buffer, write_pos);
+        auto r = append<instruction::PushRatio>(ctx, buffer, write_pos);
         r->num_.set(dcompr(code->ratio().numerator_)->integer().value_);
         r->div_.set(code->ratio().divisor_);
     } else if (code->type() == Value::Type::nil) {
 
-        append<instruction::PushNil>(buffer, write_pos);
+        append<instruction::PushNil>(ctx, buffer, write_pos);
 
     } else if (code->type() == Value::Type::integer) {
 
         if (code->integer().value_ == 0) {
-            append<instruction::Push0>(buffer, write_pos);
+            append<instruction::Push0>(ctx, buffer, write_pos);
         } else if (code->integer().value_ == 1) {
-            append<instruction::Push1>(buffer, write_pos);
+            append<instruction::Push1>(ctx, buffer, write_pos);
         } else if (code->integer().value_ == 2) {
-            append<instruction::Push2>(buffer, write_pos);
+            append<instruction::Push2>(ctx, buffer, write_pos);
         } else if (code->integer().value_ < 127 and
                    code->integer().value_ > -127) {
 
-            append<instruction::PushSmallInteger>(buffer, write_pos)->value_ =
+            append<instruction::PushSmallInteger>(ctx, buffer, write_pos)->value_ =
                 code->integer().value_;
 
         } else {
-            append<instruction::PushInteger>(buffer, write_pos)
+            append<instruction::PushInteger>(ctx, buffer, write_pos)
                 ->value_.set(code->integer().value_);
         }
     } else if (code->type() == Value::Type::fp) {
         auto f = code->fp().value_;
-        append<instruction::PushFloat>(buffer, write_pos)->f_.set(f);
+        append<instruction::PushFloat>(ctx, buffer, write_pos)->f_.set(f);
     } else if (code->type() == Value::Type::string) {
         const auto str = code->string().value();
         const auto len = strlen(str);
-        append<instruction::PushString>(buffer, write_pos)->length_ = len + 1;
+        append<instruction::PushString>(ctx, buffer, write_pos)->length_ = len + 1;
 
         if (write_pos + len + 1 >= SCRATCH_BUFFER_SIZE) {
             while (true)
@@ -459,21 +460,21 @@ TOP:
 
             switch (argn) {
             case 0:
-                append<instruction::Arg0>(buffer, write_pos);
+                append<instruction::Arg0>(ctx, buffer, write_pos);
                 break;
 
             case 1:
-                append<instruction::Arg1>(buffer, write_pos);
+                append<instruction::Arg1>(ctx, buffer, write_pos);
                 break;
 
             case 2:
-                append<instruction::Arg2>(buffer, write_pos);
+                append<instruction::Arg2>(ctx, buffer, write_pos);
                 break;
 
             default:
-                append<instruction::PushSmallInteger>(buffer, write_pos)
+                append<instruction::PushSmallInteger>(ctx, buffer, write_pos)
                     ->value_ = argn;
-                append<instruction::Arg>(buffer, write_pos);
+                append<instruction::Arg>(ctx, buffer, write_pos);
                 break;
             }
 
@@ -494,15 +495,15 @@ TOP:
 
             if (code->symbol().hdr_.mode_bits_ == (u8)Symbol::ModeBits::small) {
                 auto inst =
-                    append<instruction::LoadVarSmall>(buffer, write_pos);
+                    append<instruction::LoadVarSmall>(ctx, buffer, write_pos);
                 auto name = code->symbol().name();
                 memcpy(inst->name_, name, Symbol::buffer_size);
             } else {
                 if (auto symtab_index = get_symtab_index(code->symbol())) {
-                    auto inst = append<instruction::LoadVarS>(buffer, write_pos);
+                    auto inst = append<instruction::LoadVarS>(ctx, buffer, write_pos);
                     inst->symtab_index_.set(*symtab_index);
                 } else {
-                    append<instruction::LoadVarRT>(buffer, write_pos)
+                    append<instruction::LoadVarRT>(ctx, buffer, write_pos)
                         ->ptr_.set(code->symbol().name());
                 }
 
@@ -540,7 +541,7 @@ TOP:
             }
             write_pos = compile_impl(
                 ctx, buffer, write_pos, lat->cons().car(), jump_offset, false);
-            append<instruction::Await>(buffer, write_pos);
+            append<instruction::Await>(ctx, buffer, write_pos);
         } else if (fn->type() == Value::Type::symbol and
                    str_eq(fn->symbol().name(), "set") and length(lat) == 3 and
                    is_quoted_symbol(lat->cons().cdr()->cons().car())) {
@@ -552,15 +553,15 @@ TOP:
                 ctx, buffer, write_pos, arg->cons().car(), jump_offset, false);
 
             if (sym->symbol().hdr_.mode_bits_ == (u8)Symbol::ModeBits::small) {
-                auto inst = append<instruction::SetVarSmall>(buffer, write_pos);
+                auto inst = append<instruction::SetVarSmall>(ctx, buffer, write_pos);
                 auto name = sym->symbol().name();
                 memcpy(inst->name_, name, Symbol::buffer_size);
             } else {
                 if (auto symtab_index = get_symtab_index(sym->symbol())) {
-                    auto inst = append<instruction::SetVar>(buffer, write_pos);
+                    auto inst = append<instruction::SetVar>(ctx, buffer, write_pos);
                     inst->symtab_index_.set(*symtab_index);
                 } else {
-                    append<instruction::SetVarRT>(buffer, write_pos)
+                    append<instruction::SetVarRT>(ctx, buffer, write_pos)
                         ->ptr_.set(sym->symbol().name());
                 }
             }
@@ -577,7 +578,7 @@ TOP:
             write_pos = compile_impl(
                 ctx, buffer, write_pos, lat->cons().car(), jump_offset, false);
 
-            auto jne = append<instruction::JumpIfFalse>(buffer, write_pos);
+            auto jne = append<instruction::JumpIfFalse>(ctx, buffer, write_pos);
 
             auto true_branch = get_nil();
             auto false_branch = get_nil();
@@ -595,7 +596,7 @@ TOP:
             write_pos = compile_impl(
                 ctx, buffer, write_pos, true_branch, jump_offset, tail_expr);
 
-            auto jmp = append<instruction::Jump>(buffer, write_pos);
+            auto jmp = append<instruction::Jump>(ctx, buffer, write_pos);
 
             jne->offset_.set(write_pos - jump_offset);
 
@@ -623,14 +624,14 @@ TOP:
                     ; // TODO: raise error!
             }
 
-            auto lambda = append<instruction::PushLambda>(buffer, write_pos);
+            auto lambda = append<instruction::PushLambda>(ctx, buffer, write_pos);
 
             auto lambda_start_pos = write_pos;
 
             bool first = true;
 
             if (length(lat) == 0) {
-                append<instruction::PushNil>(buffer, write_pos);
+                append<instruction::PushNil>(ctx, buffer, write_pos);
             }
 
             while (lat not_eq get_nil()) {
@@ -640,7 +641,7 @@ TOP:
                 }
 
                 if (not first) {
-                    append<instruction::Pop>(buffer, write_pos);
+                    append<instruction::Pop>(ctx, buffer, write_pos);
                 } else {
                     first = false;
                 }
@@ -657,7 +658,7 @@ TOP:
                 lat = lat->cons().cdr();
             }
 
-            append<instruction::Ret>(buffer, write_pos);
+            append<instruction::Ret>(ctx, buffer, write_pos);
 
             lambda->lambda_end_.set(write_pos - jump_offset);
 
@@ -671,12 +672,12 @@ TOP:
             const auto loop_top = write_pos;
             write_pos = compile_impl(
                 ctx, buffer, write_pos, lat->cons().car(), jump_offset, false);
-            auto jne = append<instruction::JumpIfFalse>(buffer, write_pos);
+            auto jne = append<instruction::JumpIfFalse>(ctx, buffer, write_pos);
             auto true_branch = lat->cons().cdr();
             bool first = true;
             while (true_branch not_eq get_nil()) {
                 if (not first) {
-                    append<instruction::Pop>(buffer, write_pos);
+                    append<instruction::Pop>(ctx, buffer, write_pos);
                 } else {
                     first = false;
                 }
@@ -688,11 +689,11 @@ TOP:
                                          false);
                 true_branch = true_branch->cons().cdr();
             }
-            append<instruction::Pop>(buffer, write_pos);
-            auto jmp = append<instruction::Jump>(buffer, write_pos);
+            append<instruction::Pop>(ctx, buffer, write_pos);
+            auto jmp = append<instruction::Jump>(ctx, buffer, write_pos);
             jmp->offset_.set(loop_top - jump_offset);
             jne->offset_.set(write_pos - jump_offset);
-            append<instruction::PushNil>(buffer, write_pos);
+            append<instruction::PushNil>(ctx, buffer, write_pos);
         } else if (fn->type() == Value::Type::symbol and
                    str_eq(fn->symbol().name(), "`")) {
             PLATFORM.fatal("TODO: cannot bytecode-compile quasiquote!");
@@ -729,24 +730,24 @@ TOP:
             if (fn->type() == Value::Type::symbol and
                 str_eq(fn->symbol().name(), "cons") and argc == 2) {
 
-                append<instruction::MakePair>(buffer, write_pos);
+                append<instruction::MakePair>(ctx, buffer, write_pos);
 
             } else if (fn->type() == Value::Type::symbol and
                        str_eq(fn->symbol().name(), "+")) {
 
-                append<instruction::Add>(buffer, write_pos)->operands_ = argc;
+                append<instruction::Add>(ctx, buffer, write_pos)->operands_ = argc;
 
             } else if (fn->type() == Value::Type::symbol and
                        str_eq(fn->symbol().name(), "get") and argc == 2) {
 
-                append<instruction::Get>(buffer, write_pos);
+                append<instruction::Get>(ctx, buffer, write_pos);
 
             } else if (fn->type() == Value::Type::symbol and
                        (str_eq(fn->symbol().name(), "car") or
                         str_eq(fn->symbol().name(), "first")) and
                        argc == 1) {
 
-                append<instruction::First>(buffer, write_pos);
+                append<instruction::First>(ctx, buffer, write_pos);
 
             } else if (fn->type() == Value::Type::symbol and
                        (str_eq(fn->symbol().name(), "cdr") or
@@ -754,26 +755,26 @@ TOP:
                         str_eq(fn->symbol().name(), "rest")) and
                        argc == 1) {
 
-                append<instruction::Rest>(buffer, write_pos);
+                append<instruction::Rest>(ctx, buffer, write_pos);
 
             } else if (fn->type() == Value::Type::symbol and
                        str_eq(fn->symbol().name(), "arg") and argc == 1) {
 
-                append<instruction::Arg>(buffer, write_pos);
+                append<instruction::Arg>(ctx, buffer, write_pos);
 
             } else if (fn->type() == Value::Type::symbol and
                        str_eq(fn->symbol().name(), "this") and argc == 0) {
-                append<instruction::PushThis>(buffer, write_pos);
+                append<instruction::PushThis>(ctx, buffer, write_pos);
 
             } else if (fn->type() == Value::Type::symbol and
                        str_eq(fn->symbol().name(), "not") and argc == 1) {
-                append<instruction::Not>(buffer, write_pos);
+                append<instruction::Not>(ctx, buffer, write_pos);
             } else if (fn->type() == Value::Type::symbol and
                        str_eq(fn->symbol().name(), "set") and argc == 2) {
-                append<instruction::Set>(buffer, write_pos);
+                append<instruction::Set>(ctx, buffer, write_pos);
             } else if (fn->type() == Value::Type::symbol and
                        str_eq(fn->symbol().name(), "equal") and argc == 2) {
-                append<instruction::IsEqual>(buffer, write_pos);
+                append<instruction::IsEqual>(ctx, buffer, write_pos);
             } else {
 
                 write_pos = compile_impl(
@@ -782,38 +783,38 @@ TOP:
                 if (tail_expr) {
                     switch (argc) {
                     case 1:
-                        append<instruction::TailCall1>(buffer, write_pos);
+                        append<instruction::TailCall1>(ctx, buffer, write_pos);
                         break;
 
                     case 2:
-                        append<instruction::TailCall2>(buffer, write_pos);
+                        append<instruction::TailCall2>(ctx, buffer, write_pos);
                         break;
 
                     case 3:
-                        append<instruction::TailCall3>(buffer, write_pos);
+                        append<instruction::TailCall3>(ctx, buffer, write_pos);
                         break;
 
                     default:
-                        append<instruction::TailCall>(buffer, write_pos)
+                        append<instruction::TailCall>(ctx, buffer, write_pos)
                             ->argc_ = argc;
                         break;
                     }
                 } else {
                     switch (argc) {
                     case 1:
-                        append<instruction::Funcall1>(buffer, write_pos);
+                        append<instruction::Funcall1>(ctx, buffer, write_pos);
                         break;
 
                     case 2:
-                        append<instruction::Funcall2>(buffer, write_pos);
+                        append<instruction::Funcall2>(ctx, buffer, write_pos);
                         break;
 
                     case 3:
-                        append<instruction::Funcall3>(buffer, write_pos);
+                        append<instruction::Funcall3>(ctx, buffer, write_pos);
                         break;
 
                     default:
-                        append<instruction::Funcall>(buffer, write_pos)->argc_ =
+                        append<instruction::Funcall>(ctx, buffer, write_pos)->argc_ =
                             argc;
                         break;
                     }
@@ -822,7 +823,7 @@ TOP:
         }
 
     } else {
-        append<instruction::PushNil>(buffer, write_pos);
+        append<instruction::PushNil>(ctx, buffer, write_pos);
     }
     return write_pos;
 }
@@ -940,10 +941,7 @@ public:
             case PushLambda::op(): {
                 int lambda_start = inst_offset + sizeof(PushLambda);
                 auto end = ((PushLambda*)inst)->lambda_end_.get();
-                // Adjust lambda_end_ only if the inflection point falls
-                // within this lambda's body
-                if (inflection_point >= lambda_start &&
-                    inflection_point < end) {
+                if (local_inflection >= 0 && end > local_inflection) {
                     ((PushLambda*)inst)->lambda_end_.set(end + size_diff);
                 }
                 function_stack.push_back({lambda_start});
@@ -963,7 +961,7 @@ public:
 
             case Jump::op(): {
                 auto offset = ((Jump*)inst)->offset_.get();
-                if (offset > local_inflection) {
+                if (local_inflection >= 0 && offset > local_inflection) {
                     ((Jump*)inst)->offset_.set(offset + size_diff);
                 }
                 ++index;
@@ -972,7 +970,7 @@ public:
 
             case JumpIfFalse::op(): {
                 auto offset = ((JumpIfFalse*)inst)->offset_.get();
-                if (offset > local_inflection) {
+                if (local_inflection >= 0 && offset > local_inflection) {
                     ((JumpIfFalse*)inst)->offset_.set(offset + size_diff);
                 }
                 ++index;
@@ -981,7 +979,7 @@ public:
 
             case SmallJump::op(): {
                 auto offset = ((SmallJump*)inst)->offset_;
-                if (offset > local_inflection) {
+                if (local_inflection >= 0 && offset > local_inflection) {
                     ((SmallJump*)inst)->offset_ = offset + size_diff;
                 }
                 ++index;
@@ -990,7 +988,7 @@ public:
 
             case SmallJumpIfFalse::op(): {
                 auto offset = ((SmallJumpIfFalse*)inst)->offset_;
-                if (offset > local_inflection) {
+                if (local_inflection >= 0 && offset > local_inflection) {
                     ((SmallJumpIfFalse*)inst)->offset_ = offset + size_diff;
                 }
                 ++index;
@@ -1009,7 +1007,6 @@ public:
 class PeepholeOptimizer : public Optimizer
 {
 public:
-
     u32 run(ScratchBuffer& code_buffer, u32 code_size)
     {
         InstructionList instructions(make_scratch_buffer("instruction-buffer"));
@@ -1018,13 +1015,6 @@ public:
         using namespace instruction;
         for (auto& inst : instructions) {
             switch (inst->op_) {
-            case PushLambda::op():
-                // FIXME! We do not support optimization yet when there are
-                // nested lambda definitions, we need to carefully adjust the
-                // jump instruction coordinates in these cases, as jumps are
-                // relative to the beginning of the lambda.
-                return code_size;
-
             case Ret::op():
                 goto BEGIN;
 
@@ -1036,6 +1026,7 @@ public:
     TOP:
     BEGIN:
         int index = 0;
+        int depth = 0;
 
         while (true) {
             using namespace instruction;
@@ -1043,10 +1034,16 @@ public:
             auto inst = instructions[index];
             switch (inst->op_) {
             case Ret::op():
-                return code_size;
+                ++index;
+                if (depth-- == 0) {
+                    return code_size;
+                }
+                break;
 
             case PushLambda::op():
-                return code_size;
+                ++index;
+                ++depth;
+                break;
 
             case PushSmallInteger::op(): {
                 if (index > 0) {
@@ -1192,19 +1189,19 @@ public:
                 break;
             }
 
-            case Pop::op(): {
-                // NOTE: push followed by pop is a no-op.
-                auto prev = instructions[index - 1];
-                switch (prev->op_) {
-                case PushNil::op():
-                    remove(instructions, code_buffer, (Pop*)inst, code_size);
-                    remove(
-                        instructions, code_buffer, (PushNil*)prev, code_size);
-                    goto TOP;
-                }
-                ++index;
-                break;
-            }
+            // case Pop::op(): {
+            //     // NOTE: push followed by pop is a no-op.
+            //     auto prev = instructions[index - 1];
+            //     switch (prev->op_) {
+            //     case PushNil::op():
+            //         remove(instructions, code_buffer, (Pop*)inst, code_size);
+            //         remove(
+            //             instructions, code_buffer, (PushNil*)prev, code_size);
+            //         goto TOP;
+            //     }
+            //     ++index;
+            //     break;
+            // }
 
             case StoreReg::op(): {
                 auto next = instructions[index + 1];
