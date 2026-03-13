@@ -1069,6 +1069,54 @@ struct LoadCall0 : public LoadVarS
 };
 
 
+struct ConsVar : public SetVar
+{
+
+    static const char* name()
+    {
+        return "CONS_VAR";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 75;
+    }
+};
+
+
+struct Get
+{
+    Header header_;
+
+    static const char* name()
+    {
+        return "GET";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 76;
+    }
+};
+
+
+struct Add
+{
+    Header header_;
+    u8 operands_;
+
+    static const char* name()
+    {
+        return "ADD";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 77;
+    }
+};
+
+
 void disassemble(ScratchBuffer* code_buffer,
                  s32 start_offset,
                  ::Function<2 * sizeof(void*), void(const char*)> callback);

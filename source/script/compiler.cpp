@@ -35,6 +35,7 @@ void parse_instructions(ScratchBuffer& buffer, InstructionList& list)
 {
     using namespace instruction;
     int offset = 0;
+    int depth = 0;
     while (true) {
         auto* inst = (instruction::Header*)(buffer.data_ + offset);
         list.push_back(inst);
@@ -44,9 +45,23 @@ void parse_instructions(ScratchBuffer& buffer, InstructionList& list)
         case PushString::op():
             offset += sizeof(PushString) + ((PushString*)inst)->length_;
             break;
+
         case Ret::op():
+            if (depth == 0) {
+                return;
+            }
+            --depth;
+            offset += sizeof(Ret);
+            break;
+
         case EarlyRet::op():
-            return;
+            offset += sizeof(EarlyRet);
+            break;
+
+        case PushLambda::op():
+            ++depth;
+            offset += sizeof(PushLambda);
+            break;
 
 #define MATCH(NAME)                                                            \
     case NAME::op():                                                           \
@@ -67,7 +82,6 @@ void parse_instructions(ScratchBuffer& buffer, InstructionList& list)
             MATCH(Jump)
             MATCH(SmallJumpIfFalse)
             MATCH(SmallJump)
-            MATCH(PushLambda)
             MATCH(TailCall)
             MATCH(TailCall1)
             MATCH(TailCall2)
@@ -109,6 +123,9 @@ void parse_instructions(ScratchBuffer& buffer, InstructionList& list)
             MATCH(SetVarRT)
             MATCH(LoadReg)
             MATCH(StoreReg)
+            MATCH(ConsVar)
+            MATCH(Get)
+            MATCH(Add)
         }
     }
 }
@@ -715,6 +732,16 @@ TOP:
                 append<instruction::MakePair>(buffer, write_pos);
 
             } else if (fn->type() == Value::Type::symbol and
+                       str_eq(fn->symbol().name(), "+")) {
+
+                append<instruction::Add>(buffer, write_pos)->operands_ = argc;
+
+            } else if (fn->type() == Value::Type::symbol and
+                       str_eq(fn->symbol().name(), "get") and argc == 2) {
+
+                append<instruction::Get>(buffer, write_pos);
+
+            } else if (fn->type() == Value::Type::symbol and
                        (str_eq(fn->symbol().name(), "car") or
                         str_eq(fn->symbol().name(), "first")) and
                        argc == 1) {
@@ -804,7 +831,7 @@ TOP:
 void live_values(::Function<6 * sizeof(void*), void(Value&)> callback);
 
 
-class PeepholeOptimizer
+class Optimizer
 {
 public:
     template <typename U, typename T>
@@ -869,6 +896,119 @@ public:
         fixup_jumps(instructions, code_buffer, start, -(int)sizeof(T));
     }
 
+
+    // We have just inserted/removed an instruction, and now need to scan
+    // through the bytecode, and adjust the offsets of local jumps within the
+    // lambda definition.
+    void fixup_jumps(InstructionList& instr,
+                     ScratchBuffer& code_buffer,
+                     int inflection_point,
+                     int size_diff)
+    {
+        // info(::format("before fixup: inflection %, diff % (instruction count %)",
+        //               inflection_point,
+        //               size_diff,
+        //               instr.size()));
+        // Platform::RemoteConsole::Line out;
+        // instruction::disassemble(&code_buffer, 0, [&out](const char* opcode) {
+        //     out += opcode;
+        //     out += "\r\n";
+        // });
+        // info(out.c_str());
+
+        int index = 0;
+        int depth = 0;
+
+        struct LambdaInfo
+        {
+            int start_ = 0;
+        };
+
+        Buffer<LambdaInfo, 15> function_stack;
+        function_stack.push_back({0});
+
+        while ( // index < instr.size()
+            true) {
+            using namespace instruction;
+
+            auto inst = instr[index];
+            auto inst_offset = (int)((u8*)inst - (u8*)code_buffer.data_);
+            int local_inflection =
+                inflection_point - function_stack[depth].start_;
+
+            switch (inst->op_) {
+            case PushLambda::op(): {
+                int lambda_start = inst_offset + sizeof(PushLambda);
+                auto end = ((PushLambda*)inst)->lambda_end_.get();
+                // Adjust lambda_end_ only if the inflection point falls
+                // within this lambda's body
+                if (inflection_point >= lambda_start &&
+                    inflection_point < end) {
+                    ((PushLambda*)inst)->lambda_end_.set(end + size_diff);
+                }
+                function_stack.push_back({lambda_start});
+                ++depth;
+                ++index;
+                break;
+            }
+
+            case Ret::op():
+                if (depth == 0) {
+                    return;
+                }
+                function_stack.pop_back();
+                --depth;
+                ++index;
+                break;
+
+            case Jump::op(): {
+                auto offset = ((Jump*)inst)->offset_.get();
+                if (offset > local_inflection) {
+                    ((Jump*)inst)->offset_.set(offset + size_diff);
+                }
+                ++index;
+                break;
+            }
+
+            case JumpIfFalse::op(): {
+                auto offset = ((JumpIfFalse*)inst)->offset_.get();
+                if (offset > local_inflection) {
+                    ((JumpIfFalse*)inst)->offset_.set(offset + size_diff);
+                }
+                ++index;
+                break;
+            }
+
+            case SmallJump::op(): {
+                auto offset = ((SmallJump*)inst)->offset_;
+                if (offset > local_inflection) {
+                    ((SmallJump*)inst)->offset_ = offset + size_diff;
+                }
+                ++index;
+                break;
+            }
+
+            case SmallJumpIfFalse::op(): {
+                auto offset = ((SmallJumpIfFalse*)inst)->offset_;
+                if (offset > local_inflection) {
+                    ((SmallJumpIfFalse*)inst)->offset_ = offset + size_diff;
+                }
+                ++index;
+                break;
+            }
+
+            default:
+                ++index;
+                break;
+            }
+        }
+    }
+};
+
+
+class PeepholeOptimizer : public Optimizer
+{
+public:
 
     u32 run(ScratchBuffer& code_buffer, u32 code_size)
     {
@@ -1042,6 +1182,43 @@ public:
                 ++index;
                 break;
 
+            case Pop::op(): {
+                // NOTE: push followed by pop is a no-op.
+                auto prev = instructions[index - 1];
+                switch (prev->op_) {
+                case PushNil::op():
+                    remove(instructions, code_buffer, (Pop*)inst, code_size);
+                    remove(
+                        instructions, code_buffer, (PushNil*)prev, code_size);
+                    goto TOP;
+                }
+                ++index;
+                break;
+            }
+
+            case StoreReg::op(): {
+                auto next = instructions[index + 1];
+                if (next->op_ == LoadReg::op()) {
+                    if (((LoadReg*)next)->reg_ == ((StoreReg*)inst)->reg_) {
+                        // If we're a store reg, and the next instruction is a
+                        // load_reg for the same register, we can instead dup
+                        // and convert the next instruction to a store reg.
+                        static_assert(sizeof(LoadReg) == sizeof(StoreReg));
+                        next->op_ = StoreReg::op();
+                        Dup d;
+                        d.header_.op_ = Dup::op();
+                        replace(instructions,
+                                code_buffer,
+                                *(StoreReg*)inst,
+                                d,
+                                code_size);
+                        goto TOP;
+                    }
+                }
+                ++index;
+                break;
+            }
+
             case LoadVarS::op(): {
                 if (index + 1 < (int)instructions.size()) {
                     auto next = instructions[index + 1];
@@ -1072,6 +1249,29 @@ public:
                             goto TOP;
                         }
                         break;
+
+                    }
+
+                    case MakePair::op(): {
+                        auto n2 = instructions[index + 2];
+                        if (n2->op_ == SetVar::op()) {
+                            if (((LoadVarS*)inst)->symtab_index_.get() ==
+                                ((SetVar*)n2)->symtab_index_.get()) {
+                                auto cv = (ConsVar*)inst;
+                                cv->header_.op_ = ConsVar::op();
+                                static_assert(sizeof(SetVar) == sizeof(ConsVar));
+                                remove(instructions,
+                                       code_buffer,
+                                       (SetVar*)n2,
+                                       code_size);
+                                remove(instructions,
+                                       code_buffer,
+                                       (MakePair*)next,
+                                       code_size);
+                                goto TOP;
+                            }
+                        }
+                        break;
                     }
 
                     default:
@@ -1088,87 +1288,366 @@ public:
             }
         }
     }
+};
 
 
-    // We have just inserted/removed an instruction, and now need to scan
-    // through the bytecode, and adjust the offsets of local jumps within the
-    // lambda definition.
-    void fixup_jumps(InstructionList& instr,
-                     ScratchBuffer& code_buffer,
-                     int inflection_point,
-                     int size_diff)
+class StackOptimizer : public Optimizer
+{
+public:
+
+u32 run(ScratchBuffer& code_buffer, u32 code_size)
+{
+    InstructionList instructions(make_scratch_buffer("instruction-buffer"));
+    parse_instructions(code_buffer, instructions);
+
+    using namespace instruction;
+
+    struct LexicalBinding
     {
-        int index = 0;
+        StringBuffer<32> symbol_name_string_;
+        u8 frame_id_;
+        int depth_;
+    };
+
+    Vector<LexicalBinding, SubBufferMemory> defs(
+        make_sub_buffer("stack-opt-strs", 0));
+
+    bool has_lambdas = false;
+    Vector<StringBuffer<32>, SubBufferMemory> captured_syms(
+        make_sub_buffer("captured-syms", 0));
+
+    auto is_captured = [&](const char* name) -> bool {
+        for (auto& s : captured_syms) {
+            if (s == name) {
+                return true;
+            }
+        }
+        return false;
+    };
+
+    auto mark_captured = [&](const char* name) {
+        if (not is_captured(name)) {
+            captured_syms.push_back(name);
+        }
+    };
+
+    auto check_captured = [&](const char* name, int depth) {
+        for (auto& d : defs) {
+            if (d.symbol_name_string_ == name && d.depth_ < depth) {
+                mark_captured(name);
+                break;
+            }
+        }
+    };
+
+    // Pre-scan: collect all defs with their depth, and detect captures
+    {
         int depth = 0;
+        u8 frame_id = 0;
+        Buffer<u8, 15> frame_id_stack;
 
-        struct LambdaInfo
-        {
-            int start_ = 0;
-        };
-
-        Buffer<LambdaInfo, 15> function_stack;
-        function_stack.push_back({0});
-
-        while (true) {
-            using namespace instruction;
-
-            auto inst = instr[index];
+        for (auto& inst : instructions) {
             switch (inst->op_) {
+            case Await::op():
+                // Stack optimization disabled if the function is halted and
+                // resumed, which currently does not persist the register memory
+                // that we're using for stack optimization.
+                return code_size;
+
             case PushLambda::op():
+                has_lambdas = true;
                 ++depth;
-                if (((PushLambda*)inst)->lambda_end_.get() > inflection_point) {
-                    auto end = ((PushLambda*)inst)->lambda_end_.get();
-                    ((PushLambda*)inst)->lambda_end_.set(end + size_diff);
-                }
-                ++index;
+                frame_id_stack.push_back(frame_id);
+                frame_id = 0;
                 break;
 
             case Ret::op():
-                if (depth == 0) {
-                    return;
+                if (depth > 0) {
+                    --depth;
+                    frame_id = frame_id_stack.back();
+                    frame_id_stack.pop_back();
                 }
-                --depth;
-                ++index;
                 break;
 
-            case Jump::op():
-                if (((Jump*)inst)->offset_.get() > inflection_point) {
-                    auto offset = ((Jump*)inst)->offset_.get();
-                    ((Jump*)inst)->offset_.set(offset + size_diff);
-                }
-                ++index;
+            case LexicalFramePush::op():
+                ++frame_id;
                 break;
 
-            case JumpIfFalse::op():
-                if (((JumpIfFalse*)inst)->offset_.get() > inflection_point) {
-                    auto offset = ((JumpIfFalse*)inst)->offset_.get();
-                    ((JumpIfFalse*)inst)->offset_.set(offset + size_diff);
-                }
-                ++index;
+            case LexicalFramePop::op():
+                --frame_id;
                 break;
 
-            case SmallJump::op():
-                if (((SmallJump*)inst)->offset_ > inflection_point) {
-                    auto offset = ((SmallJump*)inst)->offset_;
-                    ((SmallJump*)inst)->offset_ = offset + size_diff;
-                }
-                ++index;
+            case LexicalDef::op():
+                defs.push_back(
+                    {load_from_symtab(
+                         ((LexicalDef*)inst)->symtab_index_.get() *
+                         symtab_stride),
+                     frame_id,
+                     depth});
                 break;
 
-            case SmallJumpIfFalse::op():
-                if (((SmallJumpIfFalse*)inst)->offset_ > inflection_point) {
-                    auto offset = ((SmallJumpIfFalse*)inst)->offset_;
-                    ((SmallJumpIfFalse*)inst)->offset_ = offset + size_diff;
-                }
-                ++index;
+            case LexicalDefRT::op():
+                defs.push_back(
+                    {((LexicalDefRT*)inst)->ptr_.get(), frame_id, depth});
                 break;
 
-            default:
-                ++index;
+            case LexicalDefSmall::op(): {
+                auto lds = ((LexicalDefSmall*)inst);
+                StringBuffer<3> name;
+                for (int i = 0; i < 3; ++i) {
+                    name.__push_unsafe(lds->name_[i]);
+                }
+                defs.push_back({name.c_str(), frame_id, depth});
+                break;
+            }
+
+            case LoadVarS::op(): {
+                auto name = load_from_symtab(
+                    ((LoadVarS*)inst)->symtab_index_.get() * symtab_stride);
+                check_captured(name, depth);
+                break;
+            }
+
+            case LoadVarSmall::op(): {
+                auto lvs = ((LoadVarSmall*)inst);
+                StringBuffer<3> name;
+                for (int i = 0; i < 3; ++i) {
+                    name.__push_unsafe(lvs->name_[i]);
+                }
+                check_captured(name.c_str(), depth);
+                break;
+            }
+
+            case LoadVarRT::op():
+                check_captured(((LoadVarRT*)inst)->ptr_.get(), depth);
+                break;
+
+            case SetVar::op(): {
+                auto name = load_from_symtab(
+                    ((SetVar*)inst)->symtab_index_.get() * symtab_stride);
+                check_captured(name, depth);
+                break;
+            }
+
+            case SetVarSmall::op(): {
+                auto svs = ((SetVarSmall*)inst);
+                StringBuffer<3> name;
+                for (int i = 0; i < 3; ++i) {
+                    name.__push_unsafe(svs->name_[i]);
+                }
+                check_captured(name.c_str(), depth);
+                break;
+            }
+
+            case SetVarRT::op():
+                check_captured(((SetVarRT*)inst)->ptr_.get(), depth);
                 break;
             }
         }
     }
+
+    u8 frame_id = 0;
+    Buffer<u8, 15> frame_id_stack;
+
+    auto find_slot = [&](const char* name) -> Optional<int> {
+        if (is_captured(name)) {
+            return nullopt();
+        }
+        for (int i = defs.size() - 1; i > -1; --i) {
+            if (defs[i].symbol_name_string_ == name and
+                defs[i].frame_id_ <= frame_id) {
+                return i;
+            }
+        }
+        return nullopt();
+    };
+
+RESTART:
+    frame_id = 0;
+    frame_id_stack.clear();
+    bool dirty = false;
+
+    for (u32 i = 0; i < instructions.size(); ++i) {
+        auto inst = instructions[i];
+
+        switch (inst->op_) {
+        case PushLambda::op():
+            frame_id_stack.push_back(frame_id);
+            frame_id = 0;
+            break;
+
+        case Ret::op():
+            if (frame_id_stack.size() > 0) {
+                frame_id = frame_id_stack.back();
+                frame_id_stack.pop_back();
+            }
+            break;
+
+        case LexicalFramePush::op():
+            ++frame_id;
+            break;
+
+        case LexicalFramePop::op():
+            --frame_id;
+            break;
+
+        case LexicalDef::op(): {
+            auto name = load_from_symtab(
+                ((LexicalDef*)inst)->symtab_index_.get() * symtab_stride);
+            if (auto sl = find_slot(name)) {
+                StoreReg sr;
+                sr.header_.op_ = StoreReg::op();
+                sr.reg_ = *sl;
+                replace(instructions, code_buffer, *(LexicalDef*)inst, sr,
+                        code_size);
+                dirty = true;
+            }
+            break;
+        }
+
+        case LexicalDefRT::op(): {
+            auto name = ((LexicalDefRT*)inst)->ptr_.get();
+            if (auto sl = find_slot(name)) {
+                StoreReg sr;
+                sr.header_.op_ = StoreReg::op();
+                sr.reg_ = *sl;
+                replace(instructions, code_buffer, *(LexicalDefRT*)inst, sr,
+                        code_size);
+                dirty = true;
+            }
+            break;
+        }
+
+        case LexicalDefSmall::op(): {
+            auto lds = ((LexicalDefSmall*)inst);
+            StringBuffer<3> name;
+            for (int i = 0; i < 3; ++i) {
+                name.__push_unsafe(lds->name_[i]);
+            }
+            if (auto sl = find_slot(name.c_str())) {
+                StoreReg sr;
+                sr.header_.op_ = StoreReg::op();
+                sr.reg_ = *sl;
+                replace(instructions, code_buffer, *lds, sr, code_size);
+                dirty = true;
+            }
+            break;
+        }
+
+        case SetVarSmall::op(): {
+            auto svs = ((SetVarSmall*)inst);
+            StringBuffer<3> name;
+            for (int i = 0; i < 3; ++i) {
+                name.__push_unsafe(svs->name_[i]);
+            }
+            if (auto sl = find_slot(name.c_str())) {
+                StoreReg sr;
+                sr.header_.op_ = StoreReg::op();
+                sr.reg_ = *sl;
+                replace(instructions, code_buffer, *svs, sr, code_size);
+                dirty = true;
+            }
+            break;
+        }
+
+        case SetVar::op(): {
+            auto name = load_from_symtab(
+                ((SetVar*)inst)->symtab_index_.get() * symtab_stride);
+            if (auto sl = find_slot(name)) {
+                StoreReg sr;
+                sr.header_.op_ = StoreReg::op();
+                sr.reg_ = *sl;
+                replace(instructions, code_buffer, *(SetVar*)inst, sr,
+                        code_size);
+                dirty = true;
+            }
+            break;
+        }
+
+        case SetVarRT::op(): {
+            auto name = ((SetVarRT*)inst)->ptr_.get();
+            if (auto sl = find_slot(name)) {
+                StoreReg sr;
+                sr.header_.op_ = StoreReg::op();
+                sr.reg_ = *sl;
+                replace(instructions, code_buffer, *(SetVarRT*)inst, sr,
+                        code_size);
+                dirty = true;
+            }
+            break;
+        }
+
+        case LoadVarSmall::op(): {
+            auto lvs = ((LoadVarSmall*)inst);
+            StringBuffer<3> name;
+            for (int i = 0; i < 3; ++i) {
+                name.__push_unsafe(lvs->name_[i]);
+            }
+            if (auto sl = find_slot(name.c_str())) {
+                LoadReg lr;
+                lr.header_.op_ = LoadReg::op();
+                lr.reg_ = *sl;
+                replace(instructions, code_buffer, *lvs, lr, code_size);
+                dirty = true;
+            }
+            break;
+        }
+
+        case LoadVarS::op(): {
+            auto name = load_from_symtab(
+                ((LoadVarS*)inst)->symtab_index_.get() * symtab_stride);
+            if (auto sl = find_slot(name)) {
+                LoadReg lr;
+                lr.header_.op_ = LoadReg::op();
+                lr.reg_ = *sl;
+                replace(instructions, code_buffer, *(LoadVarS*)inst, lr,
+                        code_size);
+                dirty = true;
+            }
+            break;
+        }
+
+        case LoadVarRT::op(): {
+            auto name = ((LoadVarRT*)inst)->ptr_.get();
+            if (auto sl = find_slot(name)) {
+                LoadReg lr;
+                lr.header_.op_ = LoadReg::op();
+                lr.reg_ = *sl;
+                replace(instructions, code_buffer, *(LoadVarRT*)inst, lr,
+                        code_size);
+                dirty = true;
+            }
+            break;
+        }
+        }
+    }
+
+    if (dirty) {
+        goto RESTART;
+    }
+
+    if (not has_lambdas) {
+        u32 index = 0;
+        while (index < instructions.size()) {
+            auto inst = instructions[index];
+            switch (inst->op_) {
+            default:
+                ++index;
+                break;
+            case LexicalFramePush::op():
+                remove(instructions, code_buffer, (LexicalFramePush*)inst,
+                       code_size);
+                break;
+            case LexicalFramePop::op():
+                remove(instructions, code_buffer, (LexicalFramePop*)inst,
+                       code_size);
+                break;
+            }
+        }
+    }
+
+    return code_size;
+}
 };
 
 
@@ -1208,6 +1687,10 @@ void compile(Value* code)
 
     CompilerContext ctx;
     write_pos = compile_fn(ctx, *buffer, write_pos, code, 0);
+
+    write_pos = StackOptimizer().run(
+        *fn->function().bytecode_impl_.databuffer()->databuffer().value(),
+        write_pos);
 
     write_pos = PeepholeOptimizer().run(
         *fn->function().bytecode_impl_.databuffer()->databuffer().value(),
@@ -1263,6 +1746,13 @@ void compile(Value* code)
             get_bytecode_buffer() = fn->function().bytecode_impl_.databuffer();
         }
     }
+
+    // Platform::RemoteConsole::Line out;
+    // instruction::disassemble(get_op0(), [&out](const char* opcode) {
+    //     out += opcode;
+    //     out += "\r\n";
+    // });
+    // info(out.c_str());
 }
 
 

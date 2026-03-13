@@ -69,9 +69,22 @@ void disassemble(ScratchBuffer* data,
         case Fatal::op():
             return;
 
+        case Get::op():
+            out += "GET";
+            i += sizeof(Get);
+            break;
+
         case Set::op():
             out += "SET";
             i += sizeof(Set);
+            break;
+
+        case Add::op():
+            out += Add::name();
+            out += "(";
+            out += stringify(((Add*)(data->data_ + i))->operands_);
+            out += ")";
+            i += sizeof(Add);
             break;
 
         case LoadVarRT::op():
@@ -177,6 +190,17 @@ void disassemble(ScratchBuffer* data,
             out += load_from_symtab(off);
             out += ")";
             i += sizeof(SetVar);
+            break;
+        }
+
+        case ConsVar::op(): {
+            out += ConsVar::name();
+            out += "(";
+            auto off = ((ConsVar*)(data->data_ + i))->symtab_index_.get() *
+                       symtab_stride;
+            out += load_from_symtab(off);
+            out += ")";
+            i += sizeof(ConsVar);
             break;
         }
 

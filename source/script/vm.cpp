@@ -80,10 +80,43 @@ vm_resume(Value* code_buffer, int start_offset, const ExecutionContext& ctx)
 
     using namespace instruction;
 
+    Optional<ListBuilder> registers;
+
 TOP:
     while (true) {
 
         switch ((Opcode)code.data_[pc]) {
+        case LoadReg::op(): {
+            if (not registers) {
+                registers.emplace();
+            }
+            auto inst = read<LoadReg>(code, pc);
+            auto v = get_list(registers->result(), inst->reg_);
+            info(::format("load % from reg %", v, inst->reg_));
+            push_op(v);
+            break;
+        }
+
+        case StoreReg::op(): {
+            if (not registers) {
+                registers.emplace();
+            }
+            auto inst = read<StoreReg>(code, pc);
+            while (registers->length() <= inst->reg_) {
+                registers->push_back(L_NIL);
+            }
+            u8 reg = inst->reg_;
+            auto iter = registers->result();
+            while (reg) {
+                --reg;
+                iter = iter->cons().cdr();
+            }
+            info(::format("store % into reg %", get_op0(), inst->reg_));
+            iter->cons().set_car(get_op0());
+            pop_op();
+            break;
+        }
+
         case JumpIfFalse::op(): {
             auto inst = read<JumpIfFalse>(code, pc);
             if (not is_boolean_true(get_op0())) {
@@ -167,6 +200,19 @@ TOP:
             auto v = get_op0();
             Protected sym(make_symtab_symbol(index));
             auto result = set_var(sym, v, false);
+            pop_op(); // v
+            push_op(result);
+            break;
+        }
+
+        case ConsVar::op(): {
+            auto inst = read<SetVar>(code, pc);
+            auto index = inst->symtab_index_.get();
+            auto v = get_op0();
+            Protected sym(make_symtab_symbol(index));
+            Protected lat = get_var(sym);
+            lat = make_cons(v, lat);
+            auto result = set_var(sym, lat, false);
             pop_op(); // v
             push_op(result);
             break;
@@ -328,6 +374,7 @@ TOP:
                 if (argc == 0) {
                     unwind_lexical_scope();
                     pc = start_offset;
+                    registers.reset();
                     goto TOP;
                 } else {
                     // TODO: perform TCO for N-arg function
@@ -365,6 +412,7 @@ TOP:
 
                 unwind_lexical_scope();
                 pc = start_offset;
+                registers.reset();
                 goto TOP;
 
             } else {
@@ -400,6 +448,7 @@ TOP:
 
                 unwind_lexical_scope();
                 pc = start_offset;
+                registers.reset();
                 goto TOP;
 
             } else {
@@ -437,6 +486,7 @@ TOP:
 
                 unwind_lexical_scope();
                 pc = start_offset;
+                registers.reset();
                 goto TOP;
 
             } else {
@@ -683,6 +733,25 @@ TOP:
             read<LexicalFramePop>(code, pc);
             lexical_frame_pop();
             --nested_scope;
+            break;
+        }
+
+        case Add::op(): {
+            auto add = read<Add>(code, pc);
+            auto result = builtin_add(add->operands_);
+            for (int i = 0; i < add->operands_; ++i) {
+                pop_op();
+            }
+            push_op(result);
+            break;
+        }
+
+        case Get::op(): {
+            read<Get>(code, pc);
+            auto result = builtin_get(2);
+            pop_op();
+            pop_op();
+            push_op(result);
             break;
         }
 

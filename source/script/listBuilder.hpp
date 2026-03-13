@@ -63,6 +63,11 @@ public:
         return head_;
     }
 
+    int length() const
+    {
+        return length_;
+    }
+
 private:
     Protected head_;
     Value* tail_ = nullptr;
