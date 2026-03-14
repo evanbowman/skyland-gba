@@ -652,7 +652,7 @@ TOP:
                                          buffer,
                                          write_pos,
                                          lat->cons().car(),
-                                         jump_offset + lambda_start_pos,
+                                         lambda_start_pos,
                                          tail_expr);
 
                 lat = lat->cons().cdr();
