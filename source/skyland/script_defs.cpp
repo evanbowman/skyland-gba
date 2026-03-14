@@ -1465,7 +1465,6 @@ BINDING_TABLE({
           result.push_back(lisp::get_op0());
 
           lisp::Protected buf(lisp::make_databuffer("file-contents"));
-          memset(buf->databuffer().value()->data_, 0, SCRATCH_BUFFER_SIZE);
 
           if (APP.load_file(lisp::get_op0()->string().value(), contents)) {
 

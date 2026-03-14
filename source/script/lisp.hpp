@@ -703,7 +703,7 @@ Value* make_symbol(const char* name,
                    Symbol::ModeBits mode = Symbol::ModeBits::requires_intern);
 Value* make_symbol(const char* name,
                    Symbol::ModeBits mode = Symbol::ModeBits::requires_intern);
-Value* make_databuffer(const char* sbr_tag = "");
+Value* make_databuffer(const char* sbr_tag = "", bool zero_fill = true);
 Value* make_string(const char* str);
 Value* make_float(Float::ValueType v);
 Value* make_promise();

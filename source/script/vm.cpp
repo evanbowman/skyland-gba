@@ -247,7 +247,9 @@ TOP:
         case LoadVarS::op(): {
             auto inst = read<LoadVarS>(code, pc);
             auto index = inst->symtab_index_.get();
-            push_op(get_var(make_symtab_symbol(index)));
+            auto sym = make_symtab_symbol(index);
+            push_op(get_var(sym));
+            collect_value(sym);
             break;
         }
 
@@ -502,6 +504,7 @@ TOP:
             Protected sym(make_symtab_symbol(index));
             Protected fn(get_var(sym));
             funcall(fn, 0);
+            collect_value(sym);
             break;
         }
 
@@ -511,6 +514,7 @@ TOP:
             Protected sym(make_symtab_symbol(index));
             Protected fn(get_var(sym));
             funcall(fn, 1);
+            collect_value(sym);
             break;
         }
 
@@ -520,6 +524,7 @@ TOP:
             Protected sym(make_symtab_symbol(index));
             Protected fn(get_var(sym));
             funcall(fn, 2);
+            collect_value(sym);
             break;
         }
 
@@ -529,6 +534,7 @@ TOP:
             Protected sym(make_symtab_symbol(index));
             Protected fn(get_var(sym));
             funcall(fn, 3);
+            collect_value(sym);
             break;
         }
 

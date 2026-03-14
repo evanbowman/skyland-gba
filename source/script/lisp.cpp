@@ -334,7 +334,7 @@ static void invoke_finalizer(Value* value);
 void value_pool_free(Value* value);
 
 
-static void collect_value(Value* value)
+void collect_value(Value* value)
 {
     invoke_finalizer(value);
     value_pool_free(value);
@@ -1412,7 +1412,7 @@ static Value* intern_to_symbol(const char* already_interned_str)
 }
 
 
-Value* make_databuffer(const char* sbr_tag)
+Value* make_databuffer(const char* sbr_tag, bool zero_fill)
 {
     if (not scratch_buffers_remaining()) {
         // Collect any data buffers that may be lying around.
@@ -1423,10 +1423,12 @@ Value* make_databuffer(const char* sbr_tag)
         sbr_tag = "lisp-databuffer";
     }
 
+    auto ptr = zero_fill ? make_zeroed_sbr(sbr_tag) :
+        make_scratch_buffer(sbr_tag);
+
     auto val = alloc_value();
     val->hdr_.type_ = Value::Type::databuffer;
-    new ((ScratchBufferPtr*)val->databuffer().sbr_mem_)
-        ScratchBufferPtr(make_zeroed_sbr(sbr_tag));
+    new ((ScratchBufferPtr*)val->databuffer().sbr_mem_) ScratchBufferPtr(ptr);
     return val;
 }
 
@@ -4205,8 +4207,8 @@ void setup_promise(Promise& pr, EvalStack& eval_stack)
     // NOTE: checked in can_suspend instead.
     // static_assert(sizeof(EvalFrame) * 256 < SCRATCH_BUFFER_SIZE);
 
-    pr.operand_stack_ = compr(make_databuffer("op-stack-copy"));
-    pr.eval_stack_ = compr(make_databuffer("ev-stack-copy"));
+    pr.operand_stack_ = compr(make_databuffer("op-stack-copy", false));
+    pr.eval_stack_ = compr(make_databuffer("ev-stack-copy", false));
     pr.operand_stack_elems_ = L_CTX.operand_stack_->size();
     pr.eval_stack_elems_ = eval_stack.size();
 

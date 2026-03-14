@@ -51,4 +51,7 @@ const char* nameof(Function::CPP_Impl impl);
 Value*& get_bytecode_buffer();
 
 
+void collect_value(Value* value);
+
+
 } // namespace lisp
