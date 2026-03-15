@@ -1117,6 +1117,20 @@ struct Add
 };
 
 
+struct StoreRegSV : public StoreReg
+{
+    static const char* name()
+    {
+        return "STORE_REG";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 78;
+    }
+};
+
+
 void disassemble(ScratchBuffer* code_buffer,
                  s32 start_offset,
                  ::Function<2 * sizeof(void*), void(const char*)> callback);

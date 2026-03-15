@@ -193,3 +193,12 @@
 (defn/c --on-autoload (sym)
   (if (int? (find sym --autoload-symbols))
       (set-temp sym (eval-file (string "/scripts/autoload/" sym ".lisp")))))
+
+
+(defn/c configure-vars (vlat)
+  (let ((sv setvar)
+        (l vlat))
+    (while l
+      (let ((kvp (car l)))
+        (sv (cdr kvp) (car kvp)))
+      (setq l (cdr l)))))

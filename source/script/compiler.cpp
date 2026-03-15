@@ -123,6 +123,7 @@ void parse_instructions(ScratchBuffer& buffer, InstructionList& list)
             MATCH(SetVarRT)
             MATCH(LoadReg)
             MATCH(StoreReg)
+            MATCH(StoreRegSV)
             MATCH(ConsVar)
             MATCH(Get)
             MATCH(Add)
@@ -1203,28 +1204,28 @@ public:
             //     break;
             // }
 
-            case StoreReg::op(): {
-                auto next = instructions[index + 1];
-                if (next->op_ == LoadReg::op()) {
-                    if (((LoadReg*)next)->reg_ == ((StoreReg*)inst)->reg_) {
-                        // If we're a store reg, and the next instruction is a
-                        // load_reg for the same register, we can instead dup
-                        // and convert the next instruction to a store reg.
-                        static_assert(sizeof(LoadReg) == sizeof(StoreReg));
-                        next->op_ = StoreReg::op();
-                        Dup d;
-                        d.header_.op_ = Dup::op();
-                        replace(instructions,
-                                code_buffer,
-                                *(StoreReg*)inst,
-                                d,
-                                code_size);
-                        goto TOP;
-                    }
-                }
-                ++index;
-                break;
-            }
+            // case StoreReg::op(): {
+            //     auto next = instructions[index + 1];
+            //     if (next->op_ == LoadReg::op()) {
+            //         if (((LoadReg*)next)->reg_ == ((StoreReg*)inst)->reg_) {
+            //             // If we're a store reg, and the next instruction is a
+            //             // load_reg for the same register, we can instead dup
+            //             // and convert the next instruction to a store reg.
+            //             static_assert(sizeof(LoadReg) == sizeof(StoreReg));
+            //             next->op_ = StoreReg::op();
+            //             Dup d;
+            //             d.header_.op_ = Dup::op();
+            //             replace(instructions,
+            //                     code_buffer,
+            //                     *(StoreReg*)inst,
+            //                     d,
+            //                     code_size);
+            //             goto TOP;
+            //         }
+            //     }
+            //     ++index;
+            //     break;
+            // }
 
             case LoadVarS::op(): {
                 if (index + 1 < (int)instructions.size()) {
@@ -1548,8 +1549,8 @@ RESTART:
                 name.__push_unsafe(svs->name_[i]);
             }
             if (auto sl = find_slot(name.c_str())) {
-                StoreReg sr;
-                sr.header_.op_ = StoreReg::op();
+                StoreRegSV sr;
+                sr.header_.op_ = StoreRegSV::op();
                 sr.reg_ = *sl;
                 replace(instructions, code_buffer, *svs, sr, code_size);
                 dirty = true;
@@ -1561,8 +1562,8 @@ RESTART:
             auto name = load_from_symtab(
                 ((SetVar*)inst)->symtab_index_.get() * symtab_stride);
             if (auto sl = find_slot(name)) {
-                StoreReg sr;
-                sr.header_.op_ = StoreReg::op();
+                StoreRegSV sr;
+                sr.header_.op_ = StoreRegSV::op();
                 sr.reg_ = *sl;
                 replace(instructions, code_buffer, *(SetVar*)inst, sr,
                         code_size);
@@ -1574,8 +1575,8 @@ RESTART:
         case SetVarRT::op(): {
             auto name = ((SetVarRT*)inst)->ptr_.get();
             if (auto sl = find_slot(name)) {
-                StoreReg sr;
-                sr.header_.op_ = StoreReg::op();
+                StoreRegSV sr;
+                sr.header_.op_ = StoreRegSV::op();
                 sr.reg_ = *sl;
                 replace(instructions, code_buffer, *(SetVarRT*)inst, sr,
                         code_size);

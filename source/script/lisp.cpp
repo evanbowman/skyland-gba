@@ -4369,7 +4369,7 @@ eval_iter_start(EvalFrame& frame, EvalStack& eval_stack)
                                       .state_ = EvalFrame::let_install_bindings,
                                       .install_let_ = {binding_count}});
 
-                Buffer<Value*, 32> binding_exprs;
+                Buffer<Value*, 32, false> binding_exprs;
                 auto b = bindings;
                 while (b != get_nil()) {
                     auto binding = b->cons().car();
@@ -4475,7 +4475,7 @@ eval_iter_start(EvalFrame& frame, EvalStack& eval_stack)
         push_op(L_CTX.lexical_bindings_);
         auto funcall_expr = code->cons().car();
         auto arg_list = code->cons().cdr();
-        Buffer<Value*, 32> tmp_buf;
+        Buffer<Value*, 32, false> tmp_buf;
         int argc = 0;
         while (true) {
             if (arg_list == get_nil()) {

@@ -117,6 +117,24 @@ TOP:
             break;
         }
 
+        case StoreRegSV::op(): {
+            if (not registers) {
+                registers.emplace();
+            }
+            auto inst = read<StoreReg>(code, pc);
+            while (registers->length() <= inst->reg_) {
+                registers->push_back(L_NIL);
+            }
+            u8 reg = inst->reg_;
+            auto iter = registers->result();
+            while (reg) {
+                --reg;
+                iter = iter->cons().cdr();
+            }
+            iter->cons().set_car(get_op0());
+            break;
+        }
+
         case JumpIfFalse::op(): {
             auto inst = read<JumpIfFalse>(code, pc);
             if (not is_boolean_true(get_op0())) {

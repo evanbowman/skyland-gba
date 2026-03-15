@@ -3,7 +3,7 @@
 ;;;
 
 
-(foreach (lambda (kvp) (setvar (second kvp) (first kvp)))
+(configure-vars
  '((190 . "decimator_burst_damage")
    (25  . "nemesis_blast_damage")
    (40  . "cannonball_damage")
