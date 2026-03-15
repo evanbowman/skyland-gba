@@ -22,7 +22,8 @@
    (40  . "rocket_bomb_impact_damage")
    (16  . "rocket_bomb_splash_damage")))
 
-(setvar "block_crack_threshold_health" 60)
-(setvar "deflector_shield_strength" 8)
-(setvar "dust_storm_damage" 8)
-(setvar "sylph_cannon_damage_percent" 25)
+(configure-vars
+ '((60 . "block_crack_threshold_health")
+   (8  . "deflector_shield_strength")
+   (8  . "dust_storm_damage")
+   (25 . "sylph_cannon_damage_percent")))

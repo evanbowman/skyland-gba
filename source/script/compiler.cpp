@@ -127,6 +127,7 @@ void parse_instructions(ScratchBuffer& buffer, InstructionList& list)
             MATCH(ConsVar)
             MATCH(Get)
             MATCH(Add)
+            MATCH(Resume)
         }
     }
 }
@@ -543,6 +544,7 @@ TOP:
             write_pos = compile_impl(
                 ctx, buffer, write_pos, lat->cons().car(), jump_offset, false);
             append<instruction::Await>(ctx, buffer, write_pos);
+            append<instruction::Resume>(ctx, buffer, write_pos);
         } else if (fn->type() == Value::Type::symbol and
                    str_eq(fn->symbol().name(), "set") and length(lat) == 3 and
                    is_quoted_symbol(lat->cons().cdr()->cons().car())) {
@@ -1356,12 +1358,6 @@ u32 run(ScratchBuffer& code_buffer, u32 code_size)
 
         for (auto& inst : instructions) {
             switch (inst->op_) {
-            case Await::op():
-                // Stack optimization disabled if the function is halted and
-                // resumed, which currently does not persist the register memory
-                // that we're using for stack optimization.
-                return code_size;
-
             case PushLambda::op():
                 has_lambdas = true;
                 ++depth;

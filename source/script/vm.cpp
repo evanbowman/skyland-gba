@@ -190,6 +190,23 @@ TOP:
         }
 
 
+        case Resume::op(): {
+            read<Resume>(code, pc);
+            Protected result = get_op0();
+            pop_op();
+            Protected regs = get_op0();
+            pop_op();
+            push_op(result);
+            Value* it = regs;
+            registers.emplace();
+            while (it->type() == Value::Type::cons) {
+                registers->push_back(it->cons().car());
+                it = it->cons().cdr();
+            }
+            break;
+        }
+
+
         case Await::op(): {
             read<Await>(code, pc);
             if (get_op0()->type() not_eq lisp::Value::Type::promise) {
@@ -198,6 +215,15 @@ TOP:
             } else {
                 Value* agitant = L_NIL;
                 if (vm_can_suspend(agitant)) {
+                    auto promise = get_op0();
+                    pop_op();
+                    // Save registers...
+                    if (registers) {
+                        push_op(registers->result());
+                    } else {
+                        push_op(L_NIL);
+                    }
+                    push_op(promise);
                     SuspendedExecutionContext suspend{
                         .program_counter_ = pc, .nested_scope_ = nested_scope};
                     return suspend;

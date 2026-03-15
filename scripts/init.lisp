@@ -186,6 +186,16 @@
                 faction-enable-goblin-mask
                 faction-enable-sylph-mask))
 
+
+(defn/c configure-vars ((vlat . pair))
+  (let ((sv setvar)
+        (l vlat))
+    (while l
+      (let ((kvp (car l)))
+        (sv (cdr kvp) (car kvp)))
+      (setq l (cdr l)))))
+
+
 ;; The autoload mechanism provides a way to lazy-load infrequently used
 ;; symbols. As a final step before raising an undefined variable error, the
 ;; interpreter calls on-autoload for a symbol, to attempt to lazy-bind a value
@@ -193,12 +203,3 @@
 (defn/c --on-autoload (sym)
   (if (int? (find sym --autoload-symbols))
       (set-temp sym (eval-file (string "/scripts/autoload/" sym ".lisp")))))
-
-
-(defn/c configure-vars (vlat)
-  (let ((sv setvar)
-        (l vlat))
-    (while l
-      (let ((kvp (car l)))
-        (sv (cdr kvp) (car kvp)))
-      (setq l (cdr l)))))

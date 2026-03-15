@@ -1131,6 +1131,22 @@ struct StoreRegKeep : public StoreReg
 };
 
 
+struct Resume
+{
+    Header header_;
+
+    static const char* name()
+    {
+        return "RESUME";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 79;
+    }
+};
+
+
 void disassemble(ScratchBuffer* code_buffer,
                  s32 start_offset,
                  ::Function<2 * sizeof(void*), void(const char*)> callback);

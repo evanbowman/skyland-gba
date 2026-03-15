@@ -538,6 +538,12 @@ void disassemble(ScratchBuffer* data,
             break;
         }
 
+        case Resume::op(): {
+            out += Resume::name();
+            i += sizeof(Resume);
+            break;
+        }
+
         case IsEqual::op(): {
             out += IsEqual::name();
             i += sizeof(IsEqual);
