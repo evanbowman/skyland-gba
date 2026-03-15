@@ -86,6 +86,15 @@ TOP:
     while (true) {
 
         switch ((Opcode)code.data_[pc]) {
+        case LoadReg0::op(): {
+            if (not registers) {
+                registers.emplace();
+            }
+            read<LoadReg0>(code, pc);
+            push_op(get_list(registers->result(), 0));
+            break;
+        }
+
         case LoadReg::op(): {
             if (not registers) {
                 registers.emplace();

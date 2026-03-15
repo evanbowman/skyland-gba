@@ -128,6 +128,7 @@ void parse_instructions(ScratchBuffer& buffer, InstructionList& list)
             MATCH(Get)
             MATCH(Add)
             MATCH(Resume)
+            MATCH(LoadReg0)
         }
     }
 }
@@ -1186,6 +1187,18 @@ public:
                 auto next = instructions[index + 1];
                 if (next->op_ == Ret::op()) {
                     remove(instructions, code_buffer, (LexicalFramePop*)inst, code_size);
+                    goto TOP;
+                }
+                ++index;
+                break;
+            }
+
+            case LoadReg::op(): {
+                auto instr = (LoadReg*)inst;
+                if (instr->reg_ == 0) {
+                    LoadReg0 lr0;
+                    lr0.header_.op_ = LoadReg0::op();
+                    replace(instructions, code_buffer, *instr, lr0, code_size);
                     goto TOP;
                 }
                 ++index;

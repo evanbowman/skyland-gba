@@ -146,6 +146,12 @@ void disassemble(ScratchBuffer* data,
             break;
         }
 
+        case LoadReg0::op(): {
+            out += LoadReg0::name();
+            i += sizeof(LoadReg0);
+            break;
+        }
+
         case LoadReg::op(): {
             out += LoadReg::name();
             out += "(";

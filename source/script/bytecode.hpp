@@ -1147,6 +1147,23 @@ struct Resume
 };
 
 
+struct LoadReg0
+{
+    Header header_;
+
+    static const char* name()
+    {
+        return "LOAD_REG0";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 80;
+    }
+};
+
+
+
 void disassemble(ScratchBuffer* code_buffer,
                  s32 start_offset,
                  ::Function<2 * sizeof(void*), void(const char*)> callback);
