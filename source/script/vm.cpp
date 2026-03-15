@@ -639,6 +639,14 @@ TOP:
 
         case EarlyRet::op():
         case Ret::op():
+            if (registers) {
+                Value* lat = registers->result();
+                while (lat->type() == Value::Type::cons) {
+                    auto next = lat->cons().cdr();
+                    collect_value(lat);
+                    lat = next;
+                }
+            }
             unwind_lexical_scope();
             return nullopt();
 
