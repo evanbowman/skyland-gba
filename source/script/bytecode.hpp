@@ -1117,11 +1117,11 @@ struct Add
 };
 
 
-struct StoreRegSV : public StoreReg
+struct StoreRegKeep : public StoreReg
 {
     static const char* name()
     {
-        return "STORE_REG";
+        return "STORE_REG_KEEP";
     }
 
     static constexpr Opcode op()

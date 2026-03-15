@@ -123,7 +123,7 @@ void parse_instructions(ScratchBuffer& buffer, InstructionList& list)
             MATCH(SetVarRT)
             MATCH(LoadReg)
             MATCH(StoreReg)
-            MATCH(StoreRegSV)
+            MATCH(StoreRegKeep)
             MATCH(ConsVar)
             MATCH(Get)
             MATCH(Add)
@@ -1549,8 +1549,8 @@ RESTART:
                 name.__push_unsafe(svs->name_[i]);
             }
             if (auto sl = find_slot(name.c_str())) {
-                StoreRegSV sr;
-                sr.header_.op_ = StoreRegSV::op();
+                StoreRegKeep sr;
+                sr.header_.op_ = StoreRegKeep::op();
                 sr.reg_ = *sl;
                 replace(instructions, code_buffer, *svs, sr, code_size);
                 dirty = true;
@@ -1562,8 +1562,8 @@ RESTART:
             auto name = load_from_symtab(
                 ((SetVar*)inst)->symtab_index_.get() * symtab_stride);
             if (auto sl = find_slot(name)) {
-                StoreRegSV sr;
-                sr.header_.op_ = StoreRegSV::op();
+                StoreRegKeep sr;
+                sr.header_.op_ = StoreRegKeep::op();
                 sr.reg_ = *sl;
                 replace(instructions, code_buffer, *(SetVar*)inst, sr,
                         code_size);
@@ -1575,8 +1575,8 @@ RESTART:
         case SetVarRT::op(): {
             auto name = ((SetVarRT*)inst)->ptr_.get();
             if (auto sl = find_slot(name)) {
-                StoreRegSV sr;
-                sr.header_.op_ = StoreRegSV::op();
+                StoreRegKeep sr;
+                sr.header_.op_ = StoreRegKeep::op();
                 sr.reg_ = *sl;
                 replace(instructions, code_buffer, *(SetVarRT*)inst, sr,
                         code_size);
@@ -1755,12 +1755,12 @@ void compile(Value* code)
         }
     }
 
-    // Platform::RemoteConsole::Line out;
-    // instruction::disassemble(get_op0(), [&out](const char* opcode) {
-    //     out += opcode;
-    //     out += "\r\n";
-    // });
-    // info(out.c_str());
+    Platform::RemoteConsole::Line out;
+    instruction::disassemble(get_op0(), [&out](const char* opcode) {
+        out += opcode;
+        out += "\r\n";
+    });
+    info(out.c_str());
 }
 
 

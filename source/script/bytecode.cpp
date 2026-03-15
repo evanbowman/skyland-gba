@@ -155,12 +155,12 @@ void disassemble(ScratchBuffer* data,
             break;
         }
 
-        case StoreRegSV::op(): {
-            out += StoreRegSV::name();
+        case StoreRegKeep::op(): {
+            out += StoreRegKeep::name();
             out += "(";
-            out += stringify(((StoreRegSV*)(data->data_ + i))->reg_);
+            out += stringify(((StoreRegKeep*)(data->data_ + i))->reg_);
             out += ")";
-            i += sizeof(StoreRegSV);
+            i += sizeof(StoreRegKeep);
             break;
         }
 

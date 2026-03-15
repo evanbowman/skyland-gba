@@ -117,7 +117,7 @@ TOP:
             break;
         }
 
-        case StoreRegSV::op(): {
+        case StoreRegKeep::op(): {
             if (not registers) {
                 registers.emplace();
             }
