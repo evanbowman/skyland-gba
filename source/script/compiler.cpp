@@ -1764,12 +1764,12 @@ void compile(Value* code)
         }
     }
 
-    Platform::RemoteConsole::Line out;
-    instruction::disassemble(get_op0(), [&out](const char* opcode) {
-        out += opcode;
-        out += "\r\n";
-    });
-    info(out.c_str());
+    // Platform::RemoteConsole::Line out;
+    // instruction::disassemble(get_op0(), [&out](const char* opcode) {
+    //     out += opcode;
+    //     out += "\r\n";
+    // });
+    // info(out.c_str());
 }
 
 
