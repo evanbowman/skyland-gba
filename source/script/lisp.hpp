@@ -972,7 +972,12 @@ void eval(Value* code);
 
 
 // Parameter should be a function. Result on operand stack.
-void compile(Value* code);
+struct CompileOptions
+{
+    bool peephole_optimizer_enabled_ = true;
+    bool stack_optimizer_enabled_ = true;
+};
+void compile(Value* code, CompileOptions opts);
 
 
 // Load code from a portable bytecode module. Result on operand stack.

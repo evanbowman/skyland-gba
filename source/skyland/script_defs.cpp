@@ -1619,9 +1619,7 @@ BINDING_TABLE({
           u8 y = lisp::to_integer(lisp::get_list(lisp::get_op(0), 2));
 
           if (auto c = load_metaclass(name)) {
-              (*c)->create(island, RoomCoord{x, y}, {
-                      .do_repaint_ = false
-                  });
+              (*c)->create(island, RoomCoord{x, y}, {.do_repaint_ = false});
               island->schedule_repaint();
           } else {
               Platform::fatal(name);

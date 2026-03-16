@@ -1540,7 +1540,8 @@ Value* builtin_compile(int argc)
 
     if (get_op0()->hdr_.mode_bits_ == Function::ModeBits::lisp_function) {
         auto input = get_op0();
-        compile(dcompr(get_op0()->function().lisp_impl_.code_));
+        CompileOptions opts;
+        compile(dcompr(get_op0()->function().lisp_impl_.code_), opts);
         auto ret = get_op0();
         if (ret->type() == Value::Type::function) {
             ret->function().sig_ = input->function().sig_;

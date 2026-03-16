@@ -872,7 +872,8 @@ lisp::debug::Action handle_enter_compiled_function(lisp::Value* expr)
         PLATFORM_EXTENSION(feed_watchdog);
         PLATFORM.delta_clock().reset();
 
-        if (not is_native and (button_down<Button::left>() or button_down<Button::right>())) {
+        if (not is_native and
+            (button_down<Button::left>() or button_down<Button::right>())) {
             tab = not tab;
             redisplay = true;
         }

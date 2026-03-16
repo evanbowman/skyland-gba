@@ -149,9 +149,8 @@ int compile_impl(CompilerContext& ctx,
 
 
 template <typename Instruction>
-static Instruction* append(CompilerContext& ctx,
-                           ScratchBuffer& buffer,
-                           int& write_pos)
+static Instruction*
+append(CompilerContext& ctx, ScratchBuffer& buffer, int& write_pos)
 {
     if (write_pos + sizeof(Instruction) >= SCRATCH_BUFFER_SIZE) {
         // FIXME: propagate error! We should return nullptr, but the caller does
@@ -229,15 +228,18 @@ int compile_quoted(CompilerContext& ctx,
         write_pos = compile_impl(ctx, buffer, write_pos, code, 0, tail_expr);
     } else if (code->type() == Value::Type::symbol) {
         if (code->symbol().hdr_.mode_bits_ == (u8)Symbol::ModeBits::small) {
-            auto inst = append<instruction::PushSmallSymbol>(ctx, buffer, write_pos);
+            auto inst =
+                append<instruction::PushSmallSymbol>(ctx, buffer, write_pos);
             auto name = code->symbol().name();
             memcpy(inst->name_, name, Symbol::buffer_size);
         } else {
             if (auto symtab_index = get_symtab_index(code->symbol())) {
-                auto inst = append<instruction::LoadSymtab>(ctx, buffer, write_pos);
+                auto inst =
+                    append<instruction::LoadSymtab>(ctx, buffer, write_pos);
                 inst->symtab_index_.set(*symtab_index);
             } else {
-                auto inst = append<instruction::PushSymbolRT>(ctx, buffer, write_pos);
+                auto inst =
+                    append<instruction::PushSymbolRT>(ctx, buffer, write_pos);
                 inst->ptr_.set(code->symbol().name());
             }
         }
@@ -342,16 +344,18 @@ int compile_let(CompilerContext& ctx,
                                          false);
 
                 if (sym->hdr_.mode_bits_ == (u8)Symbol::ModeBits::small) {
-                    auto inst = append<instruction::LexicalDefSmall>(ctx, buffer, write_pos);
+                    auto inst = append<instruction::LexicalDefSmall>(
+                        ctx, buffer, write_pos);
                     auto name = sym->symbol().name();
                     memcpy(inst->name_, name, Symbol::buffer_size);
                 } else {
                     if (auto symtab_index = get_symtab_index(sym->symbol())) {
-                        auto inst = append<instruction::LexicalDef>(ctx, buffer, write_pos);
+                        auto inst = append<instruction::LexicalDef>(
+                            ctx, buffer, write_pos);
                         inst->symtab_index_.set(*symtab_index);
                     } else {
-                        auto inst =
-                            append<instruction::LexicalDefRT>(ctx, buffer, write_pos);
+                        auto inst = append<instruction::LexicalDefRT>(
+                            ctx, buffer, write_pos);
                         inst->ptr_.set(sym->symbol().name());
                     }
                 }
@@ -426,8 +430,8 @@ TOP:
         } else if (code->integer().value_ < 127 and
                    code->integer().value_ > -127) {
 
-            append<instruction::PushSmallInteger>(ctx, buffer, write_pos)->value_ =
-                code->integer().value_;
+            append<instruction::PushSmallInteger>(ctx, buffer, write_pos)
+                ->value_ = code->integer().value_;
 
         } else {
             append<instruction::PushInteger>(ctx, buffer, write_pos)
@@ -439,7 +443,8 @@ TOP:
     } else if (code->type() == Value::Type::string) {
         const auto str = code->string().value();
         const auto len = strlen(str);
-        append<instruction::PushString>(ctx, buffer, write_pos)->length_ = len + 1;
+        append<instruction::PushString>(ctx, buffer, write_pos)->length_ =
+            len + 1;
 
         if (write_pos + len + 1 >= SCRATCH_BUFFER_SIZE) {
             while (true)
@@ -503,13 +508,13 @@ TOP:
                 memcpy(inst->name_, name, Symbol::buffer_size);
             } else {
                 if (auto symtab_index = get_symtab_index(code->symbol())) {
-                    auto inst = append<instruction::LoadVarS>(ctx, buffer, write_pos);
+                    auto inst =
+                        append<instruction::LoadVarS>(ctx, buffer, write_pos);
                     inst->symtab_index_.set(*symtab_index);
                 } else {
                     append<instruction::LoadVarRT>(ctx, buffer, write_pos)
                         ->ptr_.set(code->symbol().name());
                 }
-
             }
         }
 
@@ -531,7 +536,9 @@ TOP:
 
         } else if (fn->type() == Value::Type::symbol and
                    str_eq(fn->symbol().name(), "progn")) {
-            write_pos = compile_progn(ctx, buffer, write_pos,
+            write_pos = compile_progn(ctx,
+                                      buffer,
+                                      write_pos,
                                       lat->cons().cdr(),
                                       jump_offset,
                                       tail_expr);
@@ -557,12 +564,14 @@ TOP:
                 ctx, buffer, write_pos, arg->cons().car(), jump_offset, false);
 
             if (sym->symbol().hdr_.mode_bits_ == (u8)Symbol::ModeBits::small) {
-                auto inst = append<instruction::SetVarSmall>(ctx, buffer, write_pos);
+                auto inst =
+                    append<instruction::SetVarSmall>(ctx, buffer, write_pos);
                 auto name = sym->symbol().name();
                 memcpy(inst->name_, name, Symbol::buffer_size);
             } else {
                 if (auto symtab_index = get_symtab_index(sym->symbol())) {
-                    auto inst = append<instruction::SetVar>(ctx, buffer, write_pos);
+                    auto inst =
+                        append<instruction::SetVar>(ctx, buffer, write_pos);
                     inst->symtab_index_.set(*symtab_index);
                 } else {
                     append<instruction::SetVarRT>(ctx, buffer, write_pos)
@@ -628,7 +637,8 @@ TOP:
                     ; // TODO: raise error!
             }
 
-            auto lambda = append<instruction::PushLambda>(ctx, buffer, write_pos);
+            auto lambda =
+                append<instruction::PushLambda>(ctx, buffer, write_pos);
 
             auto lambda_start_pos = write_pos;
 
@@ -739,7 +749,8 @@ TOP:
             } else if (fn->type() == Value::Type::symbol and
                        str_eq(fn->symbol().name(), "+")) {
 
-                append<instruction::Add>(ctx, buffer, write_pos)->operands_ = argc;
+                append<instruction::Add>(ctx, buffer, write_pos)->operands_ =
+                    argc;
 
             } else if (fn->type() == Value::Type::symbol and
                        str_eq(fn->symbol().name(), "get") and argc == 2) {
@@ -818,8 +829,8 @@ TOP:
                         break;
 
                     default:
-                        append<instruction::Funcall>(ctx, buffer, write_pos)->argc_ =
-                            argc;
+                        append<instruction::Funcall>(ctx, buffer, write_pos)
+                            ->argc_ = argc;
                         break;
                     }
                 }
@@ -1186,7 +1197,10 @@ public:
             case LexicalFramePop::op(): {
                 auto next = instructions[index + 1];
                 if (next->op_ == Ret::op()) {
-                    remove(instructions, code_buffer, (LexicalFramePop*)inst, code_size);
+                    remove(instructions,
+                           code_buffer,
+                           (LexicalFramePop*)inst,
+                           code_size);
                     goto TOP;
                 }
                 ++index;
@@ -1205,42 +1219,42 @@ public:
                 break;
             }
 
-            // case Pop::op(): {
-            //     // NOTE: push followed by pop is a no-op.
-            //     auto prev = instructions[index - 1];
-            //     switch (prev->op_) {
-            //     case PushNil::op():
-            //         remove(instructions, code_buffer, (Pop*)inst, code_size);
-            //         remove(
-            //             instructions, code_buffer, (PushNil*)prev, code_size);
-            //         goto TOP;
-            //     }
-            //     ++index;
-            //     break;
-            // }
+                // case Pop::op(): {
+                //     // NOTE: push followed by pop is a no-op.
+                //     auto prev = instructions[index - 1];
+                //     switch (prev->op_) {
+                //     case PushNil::op():
+                //         remove(instructions, code_buffer, (Pop*)inst, code_size);
+                //         remove(
+                //             instructions, code_buffer, (PushNil*)prev, code_size);
+                //         goto TOP;
+                //     }
+                //     ++index;
+                //     break;
+                // }
 
-            // case StoreReg::op(): {
-            //     auto next = instructions[index + 1];
-            //     if (next->op_ == LoadReg::op()) {
-            //         if (((LoadReg*)next)->reg_ == ((StoreReg*)inst)->reg_) {
-            //             // If we're a store reg, and the next instruction is a
-            //             // load_reg for the same register, we can instead dup
-            //             // and convert the next instruction to a store reg.
-            //             static_assert(sizeof(LoadReg) == sizeof(StoreReg));
-            //             next->op_ = StoreReg::op();
-            //             Dup d;
-            //             d.header_.op_ = Dup::op();
-            //             replace(instructions,
-            //                     code_buffer,
-            //                     *(StoreReg*)inst,
-            //                     d,
-            //                     code_size);
-            //             goto TOP;
-            //         }
-            //     }
-            //     ++index;
-            //     break;
-            // }
+                // case StoreReg::op(): {
+                //     auto next = instructions[index + 1];
+                //     if (next->op_ == LoadReg::op()) {
+                //         if (((LoadReg*)next)->reg_ == ((StoreReg*)inst)->reg_) {
+                //             // If we're a store reg, and the next instruction is a
+                //             // load_reg for the same register, we can instead dup
+                //             // and convert the next instruction to a store reg.
+                //             static_assert(sizeof(LoadReg) == sizeof(StoreReg));
+                //             next->op_ = StoreReg::op();
+                //             Dup d;
+                //             d.header_.op_ = Dup::op();
+                //             replace(instructions,
+                //                     code_buffer,
+                //                     *(StoreReg*)inst,
+                //                     d,
+                //                     code_size);
+                //             goto TOP;
+                //         }
+                //     }
+                //     ++index;
+                //     break;
+                // }
 
             case LoadVarS::op(): {
                 if (index + 1 < (int)instructions.size()) {
@@ -1248,17 +1262,26 @@ public:
                     switch (next->op_) {
                     case Funcall1::op():
                         ((LoadVarS*)inst)->header_.op_ = LoadCall1::op();
-                        remove(instructions, code_buffer, (Funcall1*)next, code_size);
+                        remove(instructions,
+                               code_buffer,
+                               (Funcall1*)next,
+                               code_size);
                         goto TOP;
 
                     case Funcall2::op():
                         ((LoadVarS*)inst)->header_.op_ = LoadCall2::op();
-                        remove(instructions, code_buffer, (Funcall2*)next, code_size);
+                        remove(instructions,
+                               code_buffer,
+                               (Funcall2*)next,
+                               code_size);
                         goto TOP;
 
                     case Funcall3::op():
                         ((LoadVarS*)inst)->header_.op_ = LoadCall3::op();
-                        remove(instructions, code_buffer, (Funcall3*)next, code_size);
+                        remove(instructions,
+                               code_buffer,
+                               (Funcall3*)next,
+                               code_size);
                         goto TOP;
 
                     case Funcall::op(): {
@@ -1272,7 +1295,6 @@ public:
                             goto TOP;
                         }
                         break;
-
                     }
 
                     case MakePair::op(): {
@@ -1282,7 +1304,8 @@ public:
                                 ((SetVar*)n2)->symtab_index_.get()) {
                                 auto cv = (ConsVar*)inst;
                                 cv->header_.op_ = ConsVar::op();
-                                static_assert(sizeof(SetVar) == sizeof(ConsVar));
+                                static_assert(sizeof(SetVar) ==
+                                              sizeof(ConsVar));
                                 remove(instructions,
                                        code_buffer,
                                        (SetVar*)n2,
@@ -1317,74 +1340,187 @@ public:
 class StackOptimizer : public Optimizer
 {
 public:
-
-u32 run(ScratchBuffer& code_buffer, u32 code_size)
-{
-    InstructionList instructions(make_scratch_buffer("instruction-buffer"));
-    parse_instructions(code_buffer, instructions);
-
-    using namespace instruction;
-
-    struct LexicalBinding
+    u32 run(ScratchBuffer& code_buffer, u32 code_size)
     {
-        StringBuffer<32> symbol_name_string_;
-        u8 frame_id_;
-        int depth_;
-    };
+        InstructionList instructions(make_scratch_buffer("instruction-buffer"));
+        parse_instructions(code_buffer, instructions);
 
-    Vector<LexicalBinding, SubBufferMemory> defs(
-        make_sub_buffer("stack-opt-strs", 0));
+        using namespace instruction;
 
-    bool has_lambdas = false;
-    Vector<StringBuffer<32>, SubBufferMemory> captured_syms(
-        make_sub_buffer("captured-syms", 0));
+        struct LexicalBinding
+        {
+            StringBuffer<32> symbol_name_string_;
+            u8 frame_id_;
+            int depth_;
+        };
 
-    auto is_captured = [&](const char* name) -> bool {
-        for (auto& s : captured_syms) {
-            if (s == name) {
-                return true;
+        Vector<LexicalBinding, SubBufferMemory> defs(
+            make_sub_buffer("stack-opt-strs", 0));
+
+        bool has_lambdas = false;
+        Vector<StringBuffer<32>, SubBufferMemory> captured_syms(
+            make_sub_buffer("captured-syms", 0));
+
+        auto is_captured = [&](const char* name) -> bool {
+            for (auto& s : captured_syms) {
+                if (s == name) {
+                    return true;
+                }
+            }
+            return false;
+        };
+
+        auto mark_captured = [&](const char* name) {
+            if (not is_captured(name)) {
+                captured_syms.push_back(name);
+            }
+        };
+
+        auto check_captured = [&](const char* name, int depth) {
+            for (auto& d : defs) {
+                if (d.symbol_name_string_ == name && d.depth_ < depth) {
+                    mark_captured(name);
+                    break;
+                }
+            }
+        };
+
+        // Pre-scan: collect all defs with their depth, and detect captures
+        {
+            int depth = 0;
+            u8 frame_id = 0;
+            Buffer<u8, 15> frame_id_stack;
+
+            for (auto& inst : instructions) {
+                switch (inst->op_) {
+                case Await::op():
+                    // FIXME: stack optimization breaks await for some reason.
+                    return code_size;
+
+                case PushLambda::op():
+                    has_lambdas = true;
+                    ++depth;
+                    frame_id_stack.push_back(frame_id);
+                    frame_id = 0;
+                    break;
+
+                case Ret::op():
+                    if (depth > 0) {
+                        --depth;
+                        frame_id = frame_id_stack.back();
+                        frame_id_stack.pop_back();
+                    }
+                    break;
+
+                case LexicalFramePush::op():
+                    ++frame_id;
+                    break;
+
+                case LexicalFramePop::op():
+                    --frame_id;
+                    break;
+
+                case LexicalDef::op():
+                    defs.push_back(
+                        {load_from_symtab(
+                             ((LexicalDef*)inst)->symtab_index_.get() *
+                             symtab_stride),
+                         frame_id,
+                         depth});
+                    break;
+
+                case LexicalDefRT::op():
+                    defs.push_back(
+                        {((LexicalDefRT*)inst)->ptr_.get(), frame_id, depth});
+                    break;
+
+                case LexicalDefSmall::op(): {
+                    auto lds = ((LexicalDefSmall*)inst);
+                    StringBuffer<3> name;
+                    for (int i = 0; i < 3; ++i) {
+                        name.__push_unsafe(lds->name_[i]);
+                    }
+                    defs.push_back({name.c_str(), frame_id, depth});
+                    break;
+                }
+
+                case LoadVarS::op(): {
+                    auto name = load_from_symtab(
+                        ((LoadVarS*)inst)->symtab_index_.get() * symtab_stride);
+                    check_captured(name, depth);
+                    break;
+                }
+
+                case LoadVarSmall::op(): {
+                    auto lvs = ((LoadVarSmall*)inst);
+                    StringBuffer<3> name;
+                    for (int i = 0; i < 3; ++i) {
+                        name.__push_unsafe(lvs->name_[i]);
+                    }
+                    check_captured(name.c_str(), depth);
+                    break;
+                }
+
+                case LoadVarRT::op():
+                    check_captured(((LoadVarRT*)inst)->ptr_.get(), depth);
+                    break;
+
+                case SetVar::op(): {
+                    auto name = load_from_symtab(
+                        ((SetVar*)inst)->symtab_index_.get() * symtab_stride);
+                    check_captured(name, depth);
+                    break;
+                }
+
+                case SetVarSmall::op(): {
+                    auto svs = ((SetVarSmall*)inst);
+                    StringBuffer<3> name;
+                    for (int i = 0; i < 3; ++i) {
+                        name.__push_unsafe(svs->name_[i]);
+                    }
+                    check_captured(name.c_str(), depth);
+                    break;
+                }
+
+                case SetVarRT::op():
+                    check_captured(((SetVarRT*)inst)->ptr_.get(), depth);
+                    break;
+                }
             }
         }
-        return false;
-    };
 
-    auto mark_captured = [&](const char* name) {
-        if (not is_captured(name)) {
-            captured_syms.push_back(name);
-        }
-    };
-
-    auto check_captured = [&](const char* name, int depth) {
-        for (auto& d : defs) {
-            if (d.symbol_name_string_ == name && d.depth_ < depth) {
-                mark_captured(name);
-                break;
-            }
-        }
-    };
-
-    // Pre-scan: collect all defs with their depth, and detect captures
-    {
-        int depth = 0;
         u8 frame_id = 0;
         Buffer<u8, 15> frame_id_stack;
 
-        for (auto& inst : instructions) {
-            switch (inst->op_) {
-            case Await::op():
-                // FIXME: stack optimization breaks await for some reason.
-                return code_size;
+        auto find_slot = [&](const char* name) -> Optional<int> {
+            if (is_captured(name)) {
+                return nullopt();
+            }
+            for (int i = defs.size() - 1; i > -1; --i) {
+                if (defs[i].symbol_name_string_ == name and
+                    defs[i].frame_id_ <= frame_id) {
+                    return i;
+                }
+            }
+            return nullopt();
+        };
 
+    RESTART:
+        frame_id = 0;
+        frame_id_stack.clear();
+        bool dirty = false;
+
+        for (u32 i = 0; i < instructions.size(); ++i) {
+            auto inst = instructions[i];
+
+            switch (inst->op_) {
             case PushLambda::op():
-                has_lambdas = true;
-                ++depth;
                 frame_id_stack.push_back(frame_id);
                 frame_id = 0;
                 break;
 
             case Ret::op():
-                if (depth > 0) {
-                    --depth;
+                if (frame_id_stack.size() > 0) {
                     frame_id = frame_id_stack.back();
                     frame_id_stack.pop_back();
                 }
@@ -1398,19 +1534,38 @@ u32 run(ScratchBuffer& code_buffer, u32 code_size)
                 --frame_id;
                 break;
 
-            case LexicalDef::op():
-                defs.push_back(
-                    {load_from_symtab(
-                         ((LexicalDef*)inst)->symtab_index_.get() *
-                         symtab_stride),
-                     frame_id,
-                     depth});
+            case LexicalDef::op(): {
+                auto name = load_from_symtab(
+                    ((LexicalDef*)inst)->symtab_index_.get() * symtab_stride);
+                if (auto sl = find_slot(name)) {
+                    StoreReg sr;
+                    sr.header_.op_ = StoreReg::op();
+                    sr.reg_ = *sl;
+                    replace(instructions,
+                            code_buffer,
+                            *(LexicalDef*)inst,
+                            sr,
+                            code_size);
+                    dirty = true;
+                }
                 break;
+            }
 
-            case LexicalDefRT::op():
-                defs.push_back(
-                    {((LexicalDefRT*)inst)->ptr_.get(), frame_id, depth});
+            case LexicalDefRT::op(): {
+                auto name = ((LexicalDefRT*)inst)->ptr_.get();
+                if (auto sl = find_slot(name)) {
+                    StoreReg sr;
+                    sr.header_.op_ = StoreReg::op();
+                    sr.reg_ = *sl;
+                    replace(instructions,
+                            code_buffer,
+                            *(LexicalDefRT*)inst,
+                            sr,
+                            code_size);
+                    dirty = true;
+                }
                 break;
+            }
 
             case LexicalDefSmall::op(): {
                 auto lds = ((LexicalDefSmall*)inst);
@@ -1418,35 +1573,13 @@ u32 run(ScratchBuffer& code_buffer, u32 code_size)
                 for (int i = 0; i < 3; ++i) {
                     name.__push_unsafe(lds->name_[i]);
                 }
-                defs.push_back({name.c_str(), frame_id, depth});
-                break;
-            }
-
-            case LoadVarS::op(): {
-                auto name = load_from_symtab(
-                    ((LoadVarS*)inst)->symtab_index_.get() * symtab_stride);
-                check_captured(name, depth);
-                break;
-            }
-
-            case LoadVarSmall::op(): {
-                auto lvs = ((LoadVarSmall*)inst);
-                StringBuffer<3> name;
-                for (int i = 0; i < 3; ++i) {
-                    name.__push_unsafe(lvs->name_[i]);
+                if (auto sl = find_slot(name.c_str())) {
+                    StoreReg sr;
+                    sr.header_.op_ = StoreReg::op();
+                    sr.reg_ = *sl;
+                    replace(instructions, code_buffer, *lds, sr, code_size);
+                    dirty = true;
                 }
-                check_captured(name.c_str(), depth);
-                break;
-            }
-
-            case LoadVarRT::op():
-                check_captured(((LoadVarRT*)inst)->ptr_.get(), depth);
-                break;
-
-            case SetVar::op(): {
-                auto name = load_from_symtab(
-                    ((SetVar*)inst)->symtab_index_.get() * symtab_stride);
-                check_captured(name, depth);
                 break;
             }
 
@@ -1456,223 +1589,134 @@ u32 run(ScratchBuffer& code_buffer, u32 code_size)
                 for (int i = 0; i < 3; ++i) {
                     name.__push_unsafe(svs->name_[i]);
                 }
-                check_captured(name.c_str(), depth);
+                if (auto sl = find_slot(name.c_str())) {
+                    StoreRegKeep sr;
+                    sr.header_.op_ = StoreRegKeep::op();
+                    sr.reg_ = *sl;
+                    replace(instructions, code_buffer, *svs, sr, code_size);
+                    dirty = true;
+                }
                 break;
             }
 
-            case SetVarRT::op():
-                check_captured(((SetVarRT*)inst)->ptr_.get(), depth);
+            case SetVar::op(): {
+                auto name = load_from_symtab(
+                    ((SetVar*)inst)->symtab_index_.get() * symtab_stride);
+                if (auto sl = find_slot(name)) {
+                    StoreRegKeep sr;
+                    sr.header_.op_ = StoreRegKeep::op();
+                    sr.reg_ = *sl;
+                    replace(instructions,
+                            code_buffer,
+                            *(SetVar*)inst,
+                            sr,
+                            code_size);
+                    dirty = true;
+                }
                 break;
             }
+
+            case SetVarRT::op(): {
+                auto name = ((SetVarRT*)inst)->ptr_.get();
+                if (auto sl = find_slot(name)) {
+                    StoreRegKeep sr;
+                    sr.header_.op_ = StoreRegKeep::op();
+                    sr.reg_ = *sl;
+                    replace(instructions,
+                            code_buffer,
+                            *(SetVarRT*)inst,
+                            sr,
+                            code_size);
+                    dirty = true;
+                }
+                break;
+            }
+
+            case LoadVarSmall::op(): {
+                auto lvs = ((LoadVarSmall*)inst);
+                StringBuffer<3> name;
+                for (int i = 0; i < 3; ++i) {
+                    name.__push_unsafe(lvs->name_[i]);
+                }
+                if (auto sl = find_slot(name.c_str())) {
+                    LoadReg lr;
+                    lr.header_.op_ = LoadReg::op();
+                    lr.reg_ = *sl;
+                    replace(instructions, code_buffer, *lvs, lr, code_size);
+                    dirty = true;
+                }
+                break;
+            }
+
+            case LoadVarS::op(): {
+                auto name = load_from_symtab(
+                    ((LoadVarS*)inst)->symtab_index_.get() * symtab_stride);
+                if (auto sl = find_slot(name)) {
+                    LoadReg lr;
+                    lr.header_.op_ = LoadReg::op();
+                    lr.reg_ = *sl;
+                    replace(instructions,
+                            code_buffer,
+                            *(LoadVarS*)inst,
+                            lr,
+                            code_size);
+                    dirty = true;
+                }
+                break;
+            }
+
+            case LoadVarRT::op(): {
+                auto name = ((LoadVarRT*)inst)->ptr_.get();
+                if (auto sl = find_slot(name)) {
+                    LoadReg lr;
+                    lr.header_.op_ = LoadReg::op();
+                    lr.reg_ = *sl;
+                    replace(instructions,
+                            code_buffer,
+                            *(LoadVarRT*)inst,
+                            lr,
+                            code_size);
+                    dirty = true;
+                }
+                break;
+            }
+            }
         }
+
+        if (dirty) {
+            goto RESTART;
+        }
+
+        if (not has_lambdas) {
+            u32 index = 0;
+            while (index < instructions.size()) {
+                auto inst = instructions[index];
+                switch (inst->op_) {
+                default:
+                    ++index;
+                    break;
+                case LexicalFramePush::op():
+                    remove(instructions,
+                           code_buffer,
+                           (LexicalFramePush*)inst,
+                           code_size);
+                    break;
+                case LexicalFramePop::op():
+                    remove(instructions,
+                           code_buffer,
+                           (LexicalFramePop*)inst,
+                           code_size);
+                    break;
+                }
+            }
+        }
+
+        return code_size;
     }
-
-    u8 frame_id = 0;
-    Buffer<u8, 15> frame_id_stack;
-
-    auto find_slot = [&](const char* name) -> Optional<int> {
-        if (is_captured(name)) {
-            return nullopt();
-        }
-        for (int i = defs.size() - 1; i > -1; --i) {
-            if (defs[i].symbol_name_string_ == name and
-                defs[i].frame_id_ <= frame_id) {
-                return i;
-            }
-        }
-        return nullopt();
-    };
-
-RESTART:
-    frame_id = 0;
-    frame_id_stack.clear();
-    bool dirty = false;
-
-    for (u32 i = 0; i < instructions.size(); ++i) {
-        auto inst = instructions[i];
-
-        switch (inst->op_) {
-        case PushLambda::op():
-            frame_id_stack.push_back(frame_id);
-            frame_id = 0;
-            break;
-
-        case Ret::op():
-            if (frame_id_stack.size() > 0) {
-                frame_id = frame_id_stack.back();
-                frame_id_stack.pop_back();
-            }
-            break;
-
-        case LexicalFramePush::op():
-            ++frame_id;
-            break;
-
-        case LexicalFramePop::op():
-            --frame_id;
-            break;
-
-        case LexicalDef::op(): {
-            auto name = load_from_symtab(
-                ((LexicalDef*)inst)->symtab_index_.get() * symtab_stride);
-            if (auto sl = find_slot(name)) {
-                StoreReg sr;
-                sr.header_.op_ = StoreReg::op();
-                sr.reg_ = *sl;
-                replace(instructions, code_buffer, *(LexicalDef*)inst, sr,
-                        code_size);
-                dirty = true;
-            }
-            break;
-        }
-
-        case LexicalDefRT::op(): {
-            auto name = ((LexicalDefRT*)inst)->ptr_.get();
-            if (auto sl = find_slot(name)) {
-                StoreReg sr;
-                sr.header_.op_ = StoreReg::op();
-                sr.reg_ = *sl;
-                replace(instructions, code_buffer, *(LexicalDefRT*)inst, sr,
-                        code_size);
-                dirty = true;
-            }
-            break;
-        }
-
-        case LexicalDefSmall::op(): {
-            auto lds = ((LexicalDefSmall*)inst);
-            StringBuffer<3> name;
-            for (int i = 0; i < 3; ++i) {
-                name.__push_unsafe(lds->name_[i]);
-            }
-            if (auto sl = find_slot(name.c_str())) {
-                StoreReg sr;
-                sr.header_.op_ = StoreReg::op();
-                sr.reg_ = *sl;
-                replace(instructions, code_buffer, *lds, sr, code_size);
-                dirty = true;
-            }
-            break;
-        }
-
-        case SetVarSmall::op(): {
-            auto svs = ((SetVarSmall*)inst);
-            StringBuffer<3> name;
-            for (int i = 0; i < 3; ++i) {
-                name.__push_unsafe(svs->name_[i]);
-            }
-            if (auto sl = find_slot(name.c_str())) {
-                StoreRegKeep sr;
-                sr.header_.op_ = StoreRegKeep::op();
-                sr.reg_ = *sl;
-                replace(instructions, code_buffer, *svs, sr, code_size);
-                dirty = true;
-            }
-            break;
-        }
-
-        case SetVar::op(): {
-            auto name = load_from_symtab(
-                ((SetVar*)inst)->symtab_index_.get() * symtab_stride);
-            if (auto sl = find_slot(name)) {
-                StoreRegKeep sr;
-                sr.header_.op_ = StoreRegKeep::op();
-                sr.reg_ = *sl;
-                replace(instructions, code_buffer, *(SetVar*)inst, sr,
-                        code_size);
-                dirty = true;
-            }
-            break;
-        }
-
-        case SetVarRT::op(): {
-            auto name = ((SetVarRT*)inst)->ptr_.get();
-            if (auto sl = find_slot(name)) {
-                StoreRegKeep sr;
-                sr.header_.op_ = StoreRegKeep::op();
-                sr.reg_ = *sl;
-                replace(instructions, code_buffer, *(SetVarRT*)inst, sr,
-                        code_size);
-                dirty = true;
-            }
-            break;
-        }
-
-        case LoadVarSmall::op(): {
-            auto lvs = ((LoadVarSmall*)inst);
-            StringBuffer<3> name;
-            for (int i = 0; i < 3; ++i) {
-                name.__push_unsafe(lvs->name_[i]);
-            }
-            if (auto sl = find_slot(name.c_str())) {
-                LoadReg lr;
-                lr.header_.op_ = LoadReg::op();
-                lr.reg_ = *sl;
-                replace(instructions, code_buffer, *lvs, lr, code_size);
-                dirty = true;
-            }
-            break;
-        }
-
-        case LoadVarS::op(): {
-            auto name = load_from_symtab(
-                ((LoadVarS*)inst)->symtab_index_.get() * symtab_stride);
-            if (auto sl = find_slot(name)) {
-                LoadReg lr;
-                lr.header_.op_ = LoadReg::op();
-                lr.reg_ = *sl;
-                replace(instructions, code_buffer, *(LoadVarS*)inst, lr,
-                        code_size);
-                dirty = true;
-            }
-            break;
-        }
-
-        case LoadVarRT::op(): {
-            auto name = ((LoadVarRT*)inst)->ptr_.get();
-            if (auto sl = find_slot(name)) {
-                LoadReg lr;
-                lr.header_.op_ = LoadReg::op();
-                lr.reg_ = *sl;
-                replace(instructions, code_buffer, *(LoadVarRT*)inst, lr,
-                        code_size);
-                dirty = true;
-            }
-            break;
-        }
-        }
-    }
-
-    if (dirty) {
-        goto RESTART;
-    }
-
-    if (not has_lambdas) {
-        u32 index = 0;
-        while (index < instructions.size()) {
-            auto inst = instructions[index];
-            switch (inst->op_) {
-            default:
-                ++index;
-                break;
-            case LexicalFramePush::op():
-                remove(instructions, code_buffer, (LexicalFramePush*)inst,
-                       code_size);
-                break;
-            case LexicalFramePop::op():
-                remove(instructions, code_buffer, (LexicalFramePop*)inst,
-                       code_size);
-                break;
-            }
-        }
-    }
-
-    return code_size;
-}
 };
 
 
-void compile(Value* code)
+void compile(Value* code, CompileOptions opts)
 {
     // We will be rendering all of our compiled code into this buffer.
     push_op(make_databuffer("lisp-bytecode"));
@@ -1709,13 +1753,17 @@ void compile(Value* code)
     CompilerContext ctx;
     write_pos = compile_fn(ctx, *buffer, write_pos, code, 0);
 
-    write_pos = StackOptimizer().run(
-        *fn->function().bytecode_impl_.databuffer()->databuffer().value(),
-        write_pos);
+    if (opts.stack_optimizer_enabled_) {
+        write_pos = StackOptimizer().run(
+            *fn->function().bytecode_impl_.databuffer()->databuffer().value(),
+            write_pos);
+    }
 
-    write_pos = PeepholeOptimizer().run(
-        *fn->function().bytecode_impl_.databuffer()->databuffer().value(),
-        write_pos);
+    if (opts.peephole_optimizer_enabled_) {
+        write_pos = PeepholeOptimizer().run(
+            *fn->function().bytecode_impl_.databuffer()->databuffer().value(),
+            write_pos);
+    }
 
     // std::cout << "compilation finished, bytes used: " << write_pos <<
     // std::endl;

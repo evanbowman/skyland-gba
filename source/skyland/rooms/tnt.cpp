@@ -148,9 +148,7 @@ public:
 
         if (APP.player().button_down(Button::action_1)) {
             if (auto r = APP.player_island().get_room(coord_)) {
-                r->apply_damage(1, {
-                        .ignore_deflector_shield_ = true
-                    });
+                r->apply_damage(1, {.ignore_deflector_shield_ = true});
 
                 network::packet::DynamiteActivated packet;
                 packet.x_ = r->position().x;

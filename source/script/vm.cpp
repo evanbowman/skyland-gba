@@ -10,12 +10,12 @@
 
 
 #include "vm.hpp"
+#include "builtins.hpp"
 #include "bytecode.hpp"
 #include "lisp.hpp"
 #include "lisp_internal.hpp"
 #include "listBuilder.hpp"
 #include "number/endian.hpp"
-#include "builtins.hpp"
 
 
 namespace lisp
@@ -182,8 +182,8 @@ TOP:
             pop_op();
             pop_op();
             if (sym->type() not_eq Value::Type::symbol) {
-                push_op(make_error(::format<48>("non-symbol % passed to set!",
-                                                sym).c_str()));
+                push_op(make_error(
+                    ::format<48>("non-symbol % passed to set!", sym).c_str()));
             } else {
                 push_op(set_var(sym, v, false));
             }
@@ -199,21 +199,21 @@ TOP:
         }
 
 
-        // case Resume::op(): {
-        //     read<Resume>(code, pc);
-        //     Protected result = get_op0();
-        //     pop_op();
-        //     Protected regs = get_op0();
-        //     pop_op();
-        //     push_op(result);
-        //     Value* it = regs;
-        //     registers.emplace();
-        //     while (it->type() == Value::Type::cons) {
-        //         registers->push_back(it->cons().car());
-        //         it = it->cons().cdr();
-        //     }
-        //     break;
-        // }
+            // case Resume::op(): {
+            //     read<Resume>(code, pc);
+            //     Protected result = get_op0();
+            //     pop_op();
+            //     Protected regs = get_op0();
+            //     pop_op();
+            //     push_op(result);
+            //     Value* it = regs;
+            //     registers.emplace();
+            //     while (it->type() == Value::Type::cons) {
+            //         registers->push_back(it->cons().car());
+            //         it = it->cons().cdr();
+            //     }
+            //     break;
+            // }
 
 
         case Await::op(): {

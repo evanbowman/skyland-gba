@@ -1423,8 +1423,8 @@ Value* make_databuffer(const char* sbr_tag, bool zero_fill)
         sbr_tag = "lisp-databuffer";
     }
 
-    auto ptr = zero_fill ? make_zeroed_sbr(sbr_tag) :
-        make_scratch_buffer(sbr_tag);
+    auto ptr =
+        zero_fill ? make_zeroed_sbr(sbr_tag) : make_scratch_buffer(sbr_tag);
 
     auto val = alloc_value();
     val->hdr_.type_ = Value::Type::databuffer;
@@ -4416,7 +4416,8 @@ eval_iter_start(EvalFrame& frame, EvalStack& eval_stack)
                 push_op(make_lisp_function(code->cons().cdr()));
                 return;
             } else if (id == L_CTX.progn_symbol_id_) {
-                eval_stack.push_back({code->cons().cdr(), EvalFrame::progn_body});
+                eval_stack.push_back(
+                    {code->cons().cdr(), EvalFrame::progn_body});
                 return;
             } else if (id == L_CTX.quote_symbol_id_) {
                 push_op(code->cons().cdr());
@@ -5862,32 +5863,35 @@ BUILTIN_TABLE(
      {"lisp-mem-bytecode-size",
       {SIG0(integer),
        [](int argc) {
-       int count = 0;
-       Vector<ScratchBufferPtr> buffers;
-       live_values([&buffers](Value& val) {
-           if (val.type() == Value::Type::function and
-               val.hdr_.mode_bits_ == Function::ModeBits::lisp_bytecode_function) {
+           int count = 0;
+           Vector<ScratchBufferPtr> buffers;
+           live_values([&buffers](Value& val) {
+               if (val.type() == Value::Type::function and
+                   val.hdr_.mode_bits_ ==
+                       Function::ModeBits::lisp_bytecode_function) {
 
-               auto buf = val.function().bytecode_impl_.databuffer()->databuffer().value();
-               for (auto& b : buffers) {
-                   if (b.get() == buf.get()) {
-                       return;
+                   auto buf = val.function()
+                                  .bytecode_impl_.databuffer()
+                                  ->databuffer()
+                                  .value();
+                   for (auto& b : buffers) {
+                       if (b.get() == buf.get()) {
+                           return;
+                       }
+                   }
+                   buffers.push_back(buf);
+               }
+           });
+           for (auto& b : buffers) {
+               int used = SCRATCH_BUFFER_SIZE - 1;
+               for (; used > 0; --used) {
+                   if ((Opcode)b->data_[used] not_eq instruction::Fatal::op()) {
+                       break;
                    }
                }
-               buffers.push_back(buf);
+               count += used;
            }
-       });
-       for (auto& b : buffers) {
-           int used = SCRATCH_BUFFER_SIZE - 1;
-           for (; used > 0; --used) {
-               if ((Opcode)b->data_[used] not_eq
-                   instruction::Fatal::op()) {
-                   break;
-               }
-           }
-           count += used;
-       }
-       return L_INT(count);
+           return L_INT(count);
        }}},
      {"lisp-mem-stack-used",
       {SIG0(integer),
