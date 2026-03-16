@@ -58,6 +58,16 @@ Optional<SuspendedExecutionContext> vm_execute(Value* code_buffer,
 }
 
 
+// NOTE: when suspending execution, we need a place to save our register set if
+// we've run the stack optimizer on the bytecode. We could push registers to the
+// stack, but doing so is a bit tricky to get right. Save them to a temporary
+// local binding instead, using the small symbol REG, which does not require an
+// allocation due to the interpreter's small symbol optimization. Because we
+// open a dedicated lexical scope for this symbol, we don't need to worry about
+// it colliding with user let bindings.
+const char* const reg_save_sym = "REG";
+
+
 Optional<SuspendedExecutionContext>
 vm_resume(Value* code_buffer, int start_offset, const ExecutionContext& ctx)
 {
@@ -199,21 +209,20 @@ TOP:
         }
 
 
-            // case Resume::op(): {
-            //     read<Resume>(code, pc);
-            //     Protected result = get_op0();
-            //     pop_op();
-            //     Protected regs = get_op0();
-            //     pop_op();
-            //     push_op(result);
-            //     Value* it = regs;
-            //     registers.emplace();
-            //     while (it->type() == Value::Type::cons) {
-            //         registers->push_back(it->cons().car());
-            //         it = it->cons().cdr();
-            //     }
-            //     break;
-            // }
+        case Resume::op(): {
+            read<Resume>(code, pc);
+            if (auto reg_loc = __find_local(reg_save_sym)) {
+                if (auto it = __get_local(*reg_loc)) {
+                    registers.emplace();
+                    while (it->type() == Value::Type::cons) {
+                        registers->push_back(it->cons().car());
+                        it = it->cons().cdr();
+                    }
+                }
+            }
+            lexical_frame_pop();
+            break;
+        }
 
 
         case Await::op(): {
@@ -224,15 +233,11 @@ TOP:
             } else {
                 Value* agitant = L_NIL;
                 if (vm_can_suspend(agitant)) {
-                    // auto promise = get_op0();
-                    // pop_op();
-                    // // Save registers...
-                    // if (registers) {
-                    //     push_op(registers->result());
-                    // } else {
-                    //     push_op(L_NIL);
-                    // }
-                    // push_op(promise);
+                    lexical_frame_push();
+                    if (registers) {
+                        lexical_frame_store(L_CONS(make_symbol(reg_save_sym),
+                                                   registers->result()));
+                    }
                     SuspendedExecutionContext suspend{
                         .program_counter_ = pc, .nested_scope_ = nested_scope};
                     return suspend;
@@ -689,6 +694,22 @@ TOP:
             read<Pop>(code, pc);
             pop_op();
             break;
+
+
+        case RetNilIfFalse::op(): {
+            read<RetNilIfFalse>(code, pc);
+            auto cond = get_op0();
+            pop_op();
+            if (is_boolean_true(cond)) {
+                break;
+            }
+            // INTENTIONAL FALLTHROUGH TO RetNil::op()!!!
+        }
+
+        case EarlyRetNil::op():
+        case RetNil::op():
+            push_op(L_NIL);
+        // INTENTIONAL FALLTHROUGH TO Ret::op()!!!
 
         case EarlyRet::op():
         case Ret::op():

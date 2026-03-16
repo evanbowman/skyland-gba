@@ -133,9 +133,6 @@
 (defn/c max (lat) (car (sort lat >)))
 
 (defn/c replace (lat pred newv)
-  ;; Note: The interpreter doesn't support capturing an enclosing function's
-  ;; arguments, hence the let binding. Obviously, this is inconvenient in some
-  ;; cases, but it's not that bad.
   (map (lambda (v)
          (if (pred v)
              newv

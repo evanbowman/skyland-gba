@@ -361,6 +361,11 @@ void disassemble(ScratchBuffer* data,
             i += 3;
             break;
 
+        case RetNilIfFalse::op():
+            out += RetNilIfFalse::name();
+            i += sizeof(RetNilIfFalse);
+            break;
+
         case Jump::op():
             out += "JUMP(";
             out += to_string<32>(
@@ -506,6 +511,11 @@ void disassemble(ScratchBuffer* data,
             i += sizeof(EarlyRet);
             break;
 
+        case EarlyRetNil::op():
+            out += EarlyRetNil::name();
+            i += sizeof(EarlyRetNil);
+            break;
+
         case LexicalDefRT::op():
             out += LexicalDefRT::name();
             out += "(";
@@ -556,20 +566,23 @@ void disassemble(ScratchBuffer* data,
             break;
         }
 
+        case RetNil::op():
         case Ret::op(): {
             if (depth == 0) {
-                out += "RET";
-                // auto pfrm = &PLATFORM;
-                // if (pfrm->remote_console().printline(out.c_str(), "")) {
-                //     ((Platform*)pfrm)->sleep(80);
-                // } else {
-                //     info(out.c_str());
-                // }
+                if ((Opcode)(*data).data_[i] == Ret::op()) {
+                    out += Ret::name();
+                } else {
+                    out += RetNil::name();
+                }
                 callback(out.c_str());
                 return;
             } else {
                 --depth;
-                out += "RET";
+                if ((Opcode)(*data).data_[i] == Ret::op()) {
+                    out += Ret::name();
+                } else {
+                    out += RetNil::name();
+                }
                 i += 1;
             }
             start_offsets.pop_back();

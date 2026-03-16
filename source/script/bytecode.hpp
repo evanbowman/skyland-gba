@@ -710,7 +710,20 @@ struct LexicalFramePop
 };
 
 
-// bytecode op 41 removed, free to use for something else
+struct RetNil
+{
+    Header header_;
+
+    static const char* name()
+    {
+        return "RET_NIL";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 41;
+    }
+};
 
 
 struct PushString
@@ -731,8 +744,39 @@ struct PushString
 };
 
 
-// NOTE: opcodes 43, 44, and 45 have been removed, and are free to use for
-// something else.
+struct EarlyRetNil
+{
+    Header header_;
+
+    static const char* name()
+    {
+        return "RET_NIL";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 43;
+    }
+};
+
+
+struct RetNilIfFalse
+{
+    Header header_;
+
+    static const char* name()
+    {
+        return "RET_NIL_IF_FALSE";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 44;
+    }
+};
+
+
+// NOTE: opcode 45 has been removed, and is free to use for something else.
 
 
 struct PushSmallSymbol
@@ -1171,6 +1215,7 @@ void disassemble(ScratchBuffer* code_buffer,
 
 void disassemble(Value* fn,
                  ::Function<2 * sizeof(void*), void(const char*)> callback);
+
 
 
 } // namespace instruction

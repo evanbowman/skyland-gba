@@ -46,11 +46,13 @@ void parse_instructions(ScratchBuffer& buffer, InstructionList& list)
             offset += sizeof(PushString) + ((PushString*)inst)->length_;
             break;
 
+        case RetNil::op():
         case Ret::op():
             if (depth == 0) {
                 return;
             }
             --depth;
+            static_assert(sizeof(Ret) == sizeof(RetNil));
             offset += sizeof(Ret);
             break;
 
@@ -129,6 +131,8 @@ void parse_instructions(ScratchBuffer& buffer, InstructionList& list)
             MATCH(Add)
             MATCH(Resume)
             MATCH(LoadReg0)
+            MATCH(EarlyRetNil)
+            MATCH(RetNilIfFalse)
         }
     }
 }
@@ -488,18 +492,8 @@ TOP:
 
         } else {
 
-            // It's not worth optimizing variable loading at compile time very
-            // much. Why not optimize in the compiler? Because the compiler then
-            // needs to be more complicated; it'd need to understand stuff like
-            // variable scope. The runtime already has info about local/global
-            // variable scope and can perform the optimization without me
-            // needing to duplicate the variable referencing logic in the
-            // compiler. So we just emit an instruction LOAD_VAR with the
-            // address of the string name of the variable (which is safe,
-            // because the symbol string is internalized), and the bytecode vm
-            // substitutes a different instruction with stack information, or
-            // the address of a builtin function, depending on where the runtime
-            // finds the variable.
+            // NOTE: the stack optimizer replaces local variable loads with
+            // register loads if possible later on.
 
             if (code->symbol().hdr_.mode_bits_ == (u8)Symbol::ModeBits::small) {
                 auto inst =
@@ -552,7 +546,7 @@ TOP:
             write_pos = compile_impl(
                 ctx, buffer, write_pos, lat->cons().car(), jump_offset, false);
             append<instruction::Await>(ctx, buffer, write_pos);
-            // append<instruction::Resume>(ctx, buffer, write_pos);
+            append<instruction::Resume>(ctx, buffer, write_pos);
         } else if (fn->type() == Value::Type::symbol and
                    str_eq(fn->symbol().name(), "set") and length(lat) == 3 and
                    is_quoted_symbol(lat->cons().cdr()->cons().car())) {
@@ -965,6 +959,7 @@ public:
                 break;
             }
 
+            case RetNil::op():
             case Ret::op():
                 if (depth == 0) {
                     return;
@@ -1045,6 +1040,7 @@ public:
                 ++index;
                 break;
             }
+            case RetNil::op():
             case Ret::op():
                 if (depth == 0) return;
                 function_stack.pop_back();
@@ -1100,6 +1096,7 @@ public:
         using namespace instruction;
         for (auto& inst : instructions) {
             switch (inst->op_) {
+            case RetNil::op():
             case Ret::op():
                 goto BEGIN;
 
@@ -1115,22 +1112,55 @@ public:
         JumpTargets targets;
         collect_jump_targets(instructions, code_buffer, targets);
 
+        struct LambdaInfo { int start_ = 0; };
+        Buffer<LambdaInfo, 15, true> scope_stack;
+        scope_stack.push_back({0});
+
         while (true) {
             using namespace instruction;
 
             auto inst = instructions[index];
             switch (inst->op_) {
+            case RetNil::op(): {
+                auto prev = instructions[index - 1];
+                if (prev->op_ == EarlyRet::op()) {
+                    // NOTE: after a few passes of optmizations, EarlyRet
+                    // followed by RetNil is a common scenario, and often,
+                    // RetNil has no branches to it, because branches to RetNil
+                    // have been replaced by RetNilIfFalse.
+                    if (not is_jump_target(inst, code_buffer, targets)) {
+                        prev->op_ = Ret::op();
+                        remove(instructions,
+                               code_buffer,
+                               (RetNil*)inst,
+                               code_size);
+                        goto TOP;
+                    }
+                }
+                scope_stack.pop_back();
+                ++index;
+                if (depth-- == 0) {
+                    return code_size;
+                }
+                break;
+            }
+
             case Ret::op():
+                scope_stack.pop_back();
                 ++index;
                 if (depth-- == 0) {
                     return code_size;
                 }
                 break;
 
-            case PushLambda::op():
+            case PushLambda::op(): {
+                auto inst_offset = (int)((u8*)inst - (u8*)code_buffer.data_);
+                int lambda_start = inst_offset + sizeof(PushLambda);
+                scope_stack.push_back({lambda_start});
                 ++index;
                 ++depth;
                 break;
+            }
 
             case PushSmallInteger::op(): {
                 if (index > 0) {
@@ -1178,15 +1208,34 @@ public:
                 break;
             }
 
+            case SmallJumpIfFalse::op(): {
+                SmallJumpIfFalse* jif = (SmallJumpIfFalse*)inst;
+                int abs_target = scope_stack[depth].start_ + jif->offset_;
+                if (code_buffer.data_[abs_target] == RetNil::op()) {
+                    RetNilIfFalse rnf;
+                    rnf.header_.op_ = RetNilIfFalse::op();
+                    replace(instructions, code_buffer, *jif, rnf, code_size);
+                    goto TOP;
+                }
+                ++index;
+                break;
+            }
+
             case SmallJump::op(): {
                 SmallJump* sj = (SmallJump*)inst;
-                if (code_buffer.data_[sj->offset_] == Ret::op() or
-                    code_buffer.data_[sj->offset_] == EarlyRet::op()) {
+                int abs_target = scope_stack[depth].start_ + sj->offset_;
+                if (code_buffer.data_[abs_target] == Ret::op() or
+                    code_buffer.data_[abs_target] == EarlyRet::op()) {
                     // A jump to a return instruction can be replaced with a return
                     // instruction.
                     EarlyRet r;
                     r.header_.op_ = EarlyRet::op();
                     replace(instructions, code_buffer, *sj, r, code_size);
+                    goto TOP;
+                } else if (code_buffer.data_[abs_target] == RetNil::op()) {
+                    RetNil rn;
+                    rn.header_.op_ = RetNil::op();
+                    replace(instructions, code_buffer, *sj, rn, code_size);
                     goto TOP;
                 } else {
                     ++index;
@@ -1266,9 +1315,25 @@ public:
                 ++index;
                 break;
 
+            case PushNil::op(): {
+                auto next = instructions[index + 1];
+                if (next->op_ == Ret::op() and
+                    not is_jump_target(next, code_buffer, targets)) {
+
+                    ((PushNil*)inst)->header_.op_ = RetNil::op();
+                    remove(instructions,
+                           code_buffer,
+                           (Ret*)next,
+                           code_size);
+                    goto TOP;
+                }
+                ++index;
+                break;
+            }
+
             case LexicalFramePop::op(): {
                 auto next = instructions[index + 1];
-                if (next->op_ == Ret::op()) {
+                if (next->op_ == Ret::op() or next->op_ == RetNil::op()) {
                     remove(instructions,
                            code_buffer,
                            (LexicalFramePop*)inst,
@@ -1314,6 +1379,20 @@ public:
                     not is_jump_target(next, code_buffer, targets)) {
                     remove(instructions, code_buffer, (Not*)next, code_size);
                     remove(instructions, code_buffer, (Not*)inst, code_size);
+                    goto TOP;
+                }
+                ++index;
+                break;
+            }
+
+            case Dup::op(): {
+                auto next = instructions[index + 1];
+                if (next->op_ == StoreReg::op() &&
+                    !is_jump_target(next, code_buffer, targets)) {
+                    // DUP → STORE_REG(n) → STORE_REG_KEEP(n)
+                    next->op_ = StoreRegKeep::op();
+                    static_assert(sizeof(StoreRegKeep) == sizeof(StoreReg));
+                    remove(instructions, code_buffer, (Dup*)inst, code_size);
                     goto TOP;
                 }
                 ++index;
@@ -1481,10 +1560,6 @@ public:
 
             for (auto& inst : instructions) {
                 switch (inst->op_) {
-                case Await::op():
-                    // FIXME: stack optimization breaks await for some reason.
-                    return code_size;
-
                 case PushLambda::op():
                     has_lambdas = true;
                     ++depth;
@@ -1492,6 +1567,7 @@ public:
                     frame_id = 0;
                     break;
 
+                case RetNil::op():
                 case Ret::op():
                     if (depth > 0) {
                         --depth;
@@ -1607,6 +1683,7 @@ public:
                 frame_id = 0;
                 break;
 
+            case RetNil::op():
             case Ret::op():
                 if (frame_id_stack.size() > 0) {
                     frame_id = frame_id_stack.back();
