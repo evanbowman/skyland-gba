@@ -1016,7 +1016,77 @@ public:
             }
         }
     }
+
+
+    using JumpTargets = Buffer<int, 128>;
+    void collect_jump_targets(InstructionList& instructions,
+                              ScratchBuffer& code_buffer,
+                              JumpTargets& targets)
+    {
+        targets.clear();
+        int index = 0;
+        int depth = 0;
+
+        struct LambdaInfo { int start_ = 0; };
+        Buffer<LambdaInfo, 15> function_stack;
+        function_stack.push_back({0});
+
+        while (true) {
+            using namespace instruction;
+            auto inst = instructions[index];
+            auto inst_offset = (int)((u8*)inst - (u8*)code_buffer.data_);
+            int scope_start = function_stack[depth].start_;
+
+            switch (inst->op_) {
+            case PushLambda::op(): {
+                int lambda_start = inst_offset + sizeof(PushLambda);
+                function_stack.push_back({lambda_start});
+                ++depth;
+                ++index;
+                break;
+            }
+            case Ret::op():
+                if (depth == 0) return;
+                function_stack.pop_back();
+                --depth;
+                ++index;
+                break;
+            case Jump::op():
+                targets.push_back(scope_start + ((Jump*)inst)->offset_.get());
+                ++index;
+                break;
+            case JumpIfFalse::op():
+                targets.push_back(scope_start + ((JumpIfFalse*)inst)->offset_.get());
+                ++index;
+                break;
+            case SmallJump::op():
+                targets.push_back(scope_start + ((SmallJump*)inst)->offset_);
+                ++index;
+                break;
+            case SmallJumpIfFalse::op():
+                targets.push_back(scope_start + ((SmallJumpIfFalse*)inst)->offset_);
+                ++index;
+                break;
+            default:
+                ++index;
+                break;
+            }
+        }
+    }
+
+
+    bool is_jump_target(instruction::Header* inst,
+                        ScratchBuffer& code_buffer,
+                        Buffer<int, 128>& targets)
+    {
+        int abs = (int)((u8*)inst - (u8*)code_buffer.data_);
+        for (auto& t : targets) {
+            if (t == abs) return true;
+        }
+        return false;
+    }
 };
+
 
 
 class PeepholeOptimizer : public Optimizer
@@ -1042,6 +1112,8 @@ public:
     BEGIN:
         int index = 0;
         int depth = 0;
+        JumpTargets targets;
+        collect_jump_targets(instructions, code_buffer, targets);
 
         while (true) {
             using namespace instruction;
@@ -1219,42 +1291,58 @@ public:
                 break;
             }
 
-                // case Pop::op(): {
-                //     // NOTE: push followed by pop is a no-op.
-                //     auto prev = instructions[index - 1];
-                //     switch (prev->op_) {
-                //     case PushNil::op():
-                //         remove(instructions, code_buffer, (Pop*)inst, code_size);
-                //         remove(
-                //             instructions, code_buffer, (PushNil*)prev, code_size);
-                //         goto TOP;
-                //     }
-                //     ++index;
-                //     break;
-                // }
+            case Pop::op(): {
+                auto prev = instructions[index - 1];
+                switch (prev->op_) {
+                case PushNil::op():
+                    if (not is_jump_target(inst, code_buffer, targets) and
+                        not is_jump_target(prev, code_buffer, targets)) {
+                        remove(instructions, code_buffer, (Pop*)inst, code_size);
+                        remove(instructions, code_buffer, (PushNil*)prev, code_size);
+                        goto TOP;
+                    }
+                    break;
+                }
+                ++index;
+                break;
+            }
 
-                // case StoreReg::op(): {
-                //     auto next = instructions[index + 1];
-                //     if (next->op_ == LoadReg::op()) {
-                //         if (((LoadReg*)next)->reg_ == ((StoreReg*)inst)->reg_) {
-                //             // If we're a store reg, and the next instruction is a
-                //             // load_reg for the same register, we can instead dup
-                //             // and convert the next instruction to a store reg.
-                //             static_assert(sizeof(LoadReg) == sizeof(StoreReg));
-                //             next->op_ = StoreReg::op();
-                //             Dup d;
-                //             d.header_.op_ = Dup::op();
-                //             replace(instructions,
-                //                     code_buffer,
-                //                     *(StoreReg*)inst,
-                //                     d,
-                //                     code_size);
-                //             goto TOP;
-                //         }
-                //     }
-                //     ++index;
-                //     break;
-                // }
+            case Not::op(): {
+                auto next = instructions[index + 1];
+                if (next->op_ == Not::op() and
+                    not is_jump_target(inst, code_buffer, targets) and
+                    not is_jump_target(next, code_buffer, targets)) {
+                    remove(instructions, code_buffer, (Not*)next, code_size);
+                    remove(instructions, code_buffer, (Not*)inst, code_size);
+                    goto TOP;
+                }
+                ++index;
+                break;
+            }
+
+            case StoreReg::op(): {
+                auto next = instructions[index + 1];
+                if (next->op_ == LoadReg::op()) {
+                    if (((LoadReg*)next)->reg_ == ((StoreReg*)inst)->reg_ and
+                        not is_jump_target(next, code_buffer, targets)) {
+                        // If we're a store reg, and the next instruction is a
+                        // load_reg for the same register, we can instead dup
+                        // and convert the next instruction to a store reg.
+                        static_assert(sizeof(LoadReg) == sizeof(StoreReg));
+                        next->op_ = StoreReg::op();
+                        Dup d;
+                        d.header_.op_ = Dup::op();
+                        replace(instructions,
+                                code_buffer,
+                                *(StoreReg*)inst,
+                                d,
+                                code_size);
+                        goto TOP;
+                    }
+                }
+                ++index;
+                break;
+            }
 
             case LoadVarS::op(): {
                 if (index + 1 < (int)instructions.size()) {
