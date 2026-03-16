@@ -1,7 +1,9 @@
 ;;;
 ;;; init.lisp
 ;;;
-
+;;; Many of these functions run frequently, and are compiled to optimized
+;;; bytecode at startup for greater compactness and better performance.
+;;;
 
 (when (is-developer-mode)
   (strict-mode true)
@@ -194,6 +196,19 @@
       (let ((kvp (car l)))
         (sv (cdr kvp) (car kvp)))
       (setq l (cdr l)))))
+
+
+;; Some bytecode optimized functions used in quest marker computation:
+(defn/c quest-marker-can-place (node)
+  (let ((type (car node)))
+    (and (not (equal type 0))
+         (not (equal type 4))
+         (not (equal type 5))
+         (not (equal (cdr node) (cdr (wg-pos)))))))
+
+(defn/c sky-chart-xsort-compare (node1 node2)
+  (let ((getx cadr))
+    (> (getx node1) (getx node2))))
 
 
 ;; The autoload mechanism provides a way to lazy-load infrequently used

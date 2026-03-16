@@ -3,13 +3,8 @@
 ;;;
 
 
-(let ((opts (filter (lambda (node)
-                      (and
-                       (not (equal (car node) 0)) ;; null node
-                       (not (equal (car node) 4)) ;; corrupt node
-                       (not (equal (car node) 5)) ;; exit node
-                       (not (equal (cdr node) (cdr (wg-pos))))))
-                    (wg-nodes)))
+
+(let ((opts (filter quest-marker-can-place (wg-nodes)))
       (pos (wg-pos)))
 
   ;; Filter out nodes that will become unreachable.
@@ -21,7 +16,7 @@
                      opts))
 
   ;; Sort options by x coord.
-  (setq opts (sort opts (lambda (o1 o2) (> (cadr o1) (cadr o2)))))
+  (setq opts (sort opts sky-chart-xsort-compare))
 
   (let ((n (if (> (length opts) 3)
                ;; If there are a whole bunch of options, pick a random distant
