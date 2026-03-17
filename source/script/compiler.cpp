@@ -22,121 +22,14 @@ namespace lisp
 {
 
 
+using instruction::InstructionList;
+using instruction::parse_instructions;
+
+
 Value* make_bytecode_function(Value* bytecode);
 
 
 u16 symbol_offset(const char* symbol);
-
-
-using InstructionList = Vector<instruction::Header*>;
-
-
-void parse_instructions(ScratchBuffer& buffer, InstructionList& list)
-{
-    using namespace instruction;
-    int offset = 0;
-    int depth = 0;
-    while (true) {
-        auto* inst = (instruction::Header*)(buffer.data_ + offset);
-        list.push_back(inst);
-        switch (inst->op_) {
-        case Fatal::op():
-            return;
-        case PushString::op():
-            offset += sizeof(PushString) + ((PushString*)inst)->length_;
-            break;
-
-        case RetNil::op():
-        case Ret::op():
-            if (depth == 0) {
-                return;
-            }
-            --depth;
-            static_assert(sizeof(Ret) == sizeof(RetNil));
-            offset += sizeof(Ret);
-            break;
-
-        case EarlyRet::op():
-            offset += sizeof(EarlyRet);
-            break;
-
-        case PushLambda::op():
-            ++depth;
-            offset += sizeof(PushLambda);
-            break;
-
-#define MATCH(NAME)                                                            \
-    case NAME::op():                                                           \
-        offset += sizeof(NAME);                                                \
-        break;
-
-            MATCH(LoadVarRT)
-            MATCH(LoadVarS)
-            MATCH(PushSymbolRT)
-            MATCH(LoadSymtab)
-            MATCH(PushNil)
-            MATCH(Push0)
-            MATCH(Push1)
-            MATCH(Push2)
-            MATCH(PushInteger)
-            MATCH(PushSmallInteger)
-            MATCH(JumpIfFalse)
-            MATCH(Jump)
-            MATCH(SmallJumpIfFalse)
-            MATCH(SmallJump)
-            MATCH(TailCall)
-            MATCH(TailCall1)
-            MATCH(TailCall2)
-            MATCH(TailCall3)
-            MATCH(Funcall)
-            MATCH(Funcall1)
-            MATCH(Funcall2)
-            MATCH(Funcall3)
-            MATCH(PushList)
-            MATCH(Pop)
-            MATCH(Dup)
-            MATCH(MakePair)
-            MATCH(First)
-            MATCH(Rest)
-            MATCH(Arg)
-            MATCH(Arg0)
-            MATCH(Arg1)
-            MATCH(Arg2)
-            MATCH(PushThis)
-            MATCH(Not)
-            MATCH(LexicalDef)
-            MATCH(LexicalDefRT)
-            MATCH(LexicalFramePush)
-            MATCH(LexicalFramePop)
-            MATCH(PushSmallSymbol)
-            MATCH(LexicalDefSmall)
-            MATCH(LoadVarSmall)
-            MATCH(Set)
-            MATCH(PushFloat)
-            MATCH(PushRatio)
-            MATCH(Await)
-            MATCH(IsEqual)
-            MATCH(LoadCall0)
-            MATCH(LoadCall1)
-            MATCH(LoadCall2)
-            MATCH(LoadCall3)
-            MATCH(SetVarSmall)
-            MATCH(SetVar)
-            MATCH(SetVarRT)
-            MATCH(LoadReg)
-            MATCH(StoreReg)
-            MATCH(StoreRegKeep)
-            MATCH(ConsVar)
-            MATCH(Get)
-            MATCH(Add)
-            MATCH(Resume)
-            MATCH(LoadReg0)
-            MATCH(EarlyRetNil)
-            MATCH(RetNilIfFalse)
-        }
-    }
-}
-
 
 
 struct CompilerContext
@@ -208,17 +101,6 @@ int compile_fn(CompilerContext& ctx,
     append<instruction::Ret>(ctx, buffer, write_pos);
 
     return write_pos;
-}
-
-
-Optional<u16> get_symtab_index(Symbol& sym)
-{
-    auto symtab_index = sym.symtab_index_.get();
-    if (symtab_index not_eq Symbol::not_in_symtab) {
-        return symtab_index;
-    } else {
-        return symbol_indexof(sym.name());
-    }
 }
 
 
@@ -856,6 +738,11 @@ public:
 
 
         auto diff = (sizeof dest) - (sizeof source);
+
+        if (diff == 0) {
+            return;
+        }
+
         const int start = ((u8*)&dest - (u8*)code_buffer.data_) + sizeof source;
 
         for (u32 i = start; i < code_size - diff; ++i) {
@@ -934,7 +821,7 @@ public:
             int start_ = 0;
         };
 
-        Buffer<LambdaInfo, 15> function_stack;
+        Buffer<LambdaInfo, 15, false> function_stack;
         function_stack.push_back({0});
 
         while ( // index < instr.size()
@@ -958,6 +845,9 @@ public:
                 ++index;
                 break;
             }
+
+            case Fatal::op():
+                return;
 
             case RetNil::op():
             case Ret::op():
@@ -1033,6 +923,9 @@ public:
             int scope_start = function_stack[depth].start_;
 
             switch (inst->op_) {
+            case Fatal::op():
+                return;
+
             case PushLambda::op(): {
                 int lambda_start = inst_offset + sizeof(PushLambda);
                 function_stack.push_back({lambda_start});
@@ -1093,20 +986,7 @@ public:
         InstructionList instructions(make_scratch_buffer("instruction-buffer"));
         parse_instructions(code_buffer, instructions);
 
-        using namespace instruction;
-        for (auto& inst : instructions) {
-            switch (inst->op_) {
-            case RetNil::op():
-            case Ret::op():
-                goto BEGIN;
-
-            default:
-                break;
-            }
-        }
-
     TOP:
-    BEGIN:
         int index = 0;
         int depth = 0;
         JumpTargets targets;
@@ -1121,6 +1001,9 @@ public:
 
             auto inst = instructions[index];
             switch (inst->op_) {
+            case Fatal::op():
+                return code_size;
+
             case RetNil::op(): {
                 auto prev = instructions[index - 1];
                 if (prev->op_ == EarlyRet::op()) {
@@ -1567,6 +1450,9 @@ public:
                     frame_id = 0;
                     break;
 
+                case Fatal::op():
+                    break;
+
                 case RetNil::op():
                 case Ret::op():
                     if (depth > 0) {
@@ -1654,7 +1540,7 @@ public:
         }
 
         u8 frame_id = 0;
-        Buffer<u8, 15> frame_id_stack;
+        Buffer<u8, 15, false> frame_id_stack;
 
         auto find_slot = [&](const char* name) -> Optional<int> {
             if (is_captured(name)) {
@@ -1678,6 +1564,9 @@ public:
             auto inst = instructions[i];
 
             switch (inst->op_) {
+            case Fatal::op():
+                break;
+
             case PushLambda::op():
                 frame_id_stack.push_back(frame_id);
                 frame_id = 0;

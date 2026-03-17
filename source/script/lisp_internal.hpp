@@ -54,4 +54,7 @@ Value*& get_bytecode_buffer();
 void collect_value(Value* value);
 
 
+Optional<u16> get_symtab_index(Symbol& sym);
+
+
 } // namespace lisp

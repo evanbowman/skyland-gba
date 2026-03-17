@@ -307,6 +307,12 @@ static Optional<Context> bound_context;
 #define L_CTX (*bound_context)
 
 
+u16 external_symtab_count()
+{
+    return L_CTX.external_symtab_size_ / symtab_stride;
+}
+
+
 bool is_debug_mode()
 {
     return L_CTX.debug_mode_;
@@ -920,6 +926,17 @@ Value* clone(Value* value)
 {
     // TODO!!!!!
     return value;
+}
+
+
+Optional<u16> get_symtab_index(Symbol& sym)
+{
+    auto symtab_index = sym.symtab_index_.get();
+    if (symtab_index not_eq Symbol::not_in_symtab) {
+        return symtab_index;
+    } else {
+        return symbol_indexof(sym.name());
+    }
 }
 
 

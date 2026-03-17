@@ -371,6 +371,7 @@ set(LISP_SOURCES
   ${SOURCE_DIR}/script/builtins.cpp
   ${SOURCE_DIR}/script/bytecode.cpp
   ${SOURCE_DIR}/script/compiler.cpp
+  ${SOURCE_DIR}/script/objectFile.cpp
   ${SOURCE_DIR}/script/vm.cpp)
 
 

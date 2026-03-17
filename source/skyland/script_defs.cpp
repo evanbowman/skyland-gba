@@ -43,6 +43,7 @@
 #include "script/lisp.hpp"
 #include "script/listBuilder.hpp"
 #include "script_debugger.hpp"
+#include "script/objectFile.hpp"
 #include "serial.hpp"
 #include "sharedVariable.hpp"
 #include "skyland.hpp"
@@ -69,7 +70,8 @@
 
 namespace lisp
 {
-Platform* interp_get_pfrm();
+Optional<u16> get_symtab_index(Symbol& sym);
+u16 external_symtab_count();
 }
 
 
@@ -131,7 +133,7 @@ void shift_rooms_right(Island& island);
 
 std::pair<App*, Platform*> interp_get_context()
 {
-    return {&APP, lisp::interp_get_pfrm()};
+    return {&APP, &PLATFORM};
 }
 
 
@@ -234,6 +236,77 @@ int file_line_count(const char* fname)
 }
 
 
+lisp::ObjectFile::Fingerprint create_fingerprint()
+{
+    lisp::ObjectFile::Fingerprint result;
+
+    struct ApplicationFingerprint
+    {
+        host_u16 major_version_;
+        u8 minor_version_;
+        u8 subminor_version_;
+        host_u16 symtab_count_;
+        host_u32 filesystem_hash_;
+    } fingerprint;
+    static_assert(sizeof fingerprint <= sizeof result);
+
+    fingerprint.major_version_.set(PROGRAM_MAJOR_VERSION);
+    fingerprint.minor_version_ = PROGRAM_MINOR_VERSION;
+    fingerprint.subminor_version_ = PROGRAM_SUBMINOR_VERSION;
+    fingerprint.symtab_count_.set(lisp::external_symtab_count());
+
+    auto fs_hash_file = PLATFORM.load_file("", "fs_hash.dat");
+    if (fs_hash_file.second >= 4) {
+        auto hash = ((host_u32*)fs_hash_file.first)->get();
+        fingerprint.filesystem_hash_.set(hash);
+    }
+
+    memcpy(&result, &fingerprint, sizeof fingerprint);
+
+    return result;
+}
+
+
+lisp::Value* save_obj_file(int argc)
+{
+    L_EXPECT_OP(argc - 1, string);
+
+    lisp::ObjectFile library(create_fingerprint());
+    for (int i = 0; i < argc - 1; ++i) {
+        L_EXPECT_OP(i, symbol);
+        auto v = get_var(lisp::get_op(i));
+        if (is_error(v)) {
+            return v;
+        } else if (v->type() not_eq lisp::Value::Type::function) {
+            return lisp::make_error("cannot save non function in library");
+        }
+        auto symbol_index = lisp::get_symtab_index(lisp::get_op(i)->symbol());
+        if (symbol_index) {
+            library.append(*symbol_index, v->function());
+        } else {
+            PLATFORM.fatal(::format<64>("cannot save bytecode for symbol % "
+                                        "not in symbol index file!",
+                                        lisp::get_op(i)));
+        }
+    }
+
+    library.save(L_LOAD_STRING(argc - 1));
+
+    return L_NIL;
+}
+
+
+lisp::Value* load_obj_file(int argc)
+{
+    L_EXPECT_OP(0, string);
+
+    auto f = create_fingerprint();
+    lisp::ObjectFile library(f);
+    bool success = library.load(f, L_LOAD_STRING(0));
+
+    return lisp::make_boolean(success);
+}
+
 
 Island* unwrap_isle(lisp::Value* v)
 {
@@ -252,9 +325,7 @@ BINDING_TABLE({
      {SIG0(wrapped),
       [](int argc) {
           if (not APP.opponent_island()) {
-              if (auto pfrm = lisp::interp_get_pfrm()) {
-                  pfrm->fatal("opponent unassigned");
-              }
+              PLATFORM.fatal("opponent unassigned");
           }
           return wrap_island(APP.opponent_island());
       }}},
@@ -486,7 +557,7 @@ BINDING_TABLE({
      {SIG1(nil, string),
       [](int argc) {
           L_EXPECT_OP(0, string);
-          lisp::interp_get_pfrm()->speaker().play_sound(L_LOAD_STRING(0), 6);
+          PLATFORM.speaker().play_sound(L_LOAD_STRING(0), 6);
           return L_NIL;
       }}},
     {"difficulty",
@@ -2802,6 +2873,8 @@ BINDING_TABLE({
 
           return L_NIL;
       }}},
+    {"save-library", {SIG1(nil, string), save_obj_file}},
+    {"load-library", {SIG1(nil, string), load_obj_file}},
 });
 
 

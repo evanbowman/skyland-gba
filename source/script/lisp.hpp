@@ -130,8 +130,10 @@ struct Symbol
     ValueHeader hdr_;
     static constexpr const u32 buffer_size = 3;
 
-    static constexpr const u16 not_in_symtab = std::numeric_limits<u16>::max();
-    host_u16 symtab_index_;
+    using SymtabIndex = u16;
+
+    static constexpr const SymtabIndex not_in_symtab = std::numeric_limits<SymtabIndex>::max();
+    HostInteger<SymtabIndex> symtab_index_;
     char reserved_[1];
 
     // Small String Optimization Layout:

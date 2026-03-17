@@ -77,103 +77,36 @@
          (global sym)
          (set sym fn))))
 
-
 (global 'temp-vals)
-
-(defn/c set-temp ((sym . symbol) val)
-  (global sym)
-  (push-set 'temp-vals sym)
-  (set sym val))
-
-(defn/c destroy-temps ()
-  (map unbind (filter bound? temp-vals))
-  (setq temp-vals nil))
-
-(defn/c acons (key val alst)
-  (cons (cons key val) alst))
-
-(defn/c remove-if (lat pred)
-  (let ((p pred))
-    (filter (lambda (e)
-              (not (p e)))
-            lat)))
-
-(defn/c remove (lat elem)
-  (remove-if lat (equalto? elem)))
-
-(defn/c assoc (k alst)
-  (get (filter (lambda (v)
-                 (equal (car v) k))
-               alst)
-       0))
-
-(defn/c lookup (key alst)
-  (let ((kvp (assoc key alst)))
-    (if kvp (cdr kvp))))
-
-(defn/c insert (elem lat pos)
-  (append (slice lat 0 pos) (cons elem (slice lat pos))))
 
 (defn append (lat1 lat2)
   ;; Not the most efficient way to implement append, but this implementation
   ;; with unquote-splicing is quite compact.
   `(,@lat1 ,@lat2))
 
-(defn/c push ((sym . symbol) val)
-  (set sym (cons val (eval sym))))
+(global 'floor)
+(setq floor int) ; cast to int rounds down
 
-
-(defn/c push-set (sym val)
-  (let ((tmp (cons val (eval sym))))
-    (set sym (union tmp tmp))))
-
+;; Used by the runtime to put something on the callstack when inlining foreach.
+(defn --inline-foreach ())
 
 ;; While suboptimal, these functions have the benefit of being small.
 (defn/c min (lat) (car (sort lat <)))
 (defn/c max (lat) (car (sort lat >)))
 
-(defn/c replace (lat pred newv)
-  (map (lambda (v)
-         (if (pred v)
-             newv
-             v))
-       lat))
 
-(defn/c curry ((fn . lambda))
-  (let ((func fn)
-        (args (cdr $V)))
-    (lambda ()
-      (apply func (append args $V)))))
-
-;; Return a predicate that returns true if its argument equals the supplied value.
-;; e.g.: ((equalto? 2) 2) -> true
-(defn/c equalto? (pred)
-  (curry equal pred))
-
-;; As useful as an equalto? predicate is, often you want to know if an element
-;; of a sublist is equalto a value.
-(defn/c pos-equalto? (pos pred)
-  (let ((p pred)
-        (n pos))
-    (lambda (lat)
-      (equal p (get lat n)))))
-
-(defn/c car-equalto? (v)
-  (let ((val v))
-    (pos-equalto? 0 v)))
-
-(defn/c notequal? (val)
-  (let ((v val))
-    (lambda (o)
-      (not (equal o v)))))
+(defn load-library-cached (path library-path)
+  (when (not (load-library library-path))
+    (log (format "building %..." library-path))
+    (let ((store-fns nil))
+      (let ((setfn (lambda (sym fn)
+                     (global sym)
+                     (set sym fn)
+                     (setq store-fns (cons sym store-fns)))))
+        (eval-file path)
+        (apply (curry save-library library-path)
+               store-fns)
+        (setq setfn nil)))))
 
 
-(defn/c file-read (file offset len)
-  (buffer-read (get (unwrap file) 2) offset len))
-
-(defn/c file-size (file)
-  (get (unwrap file) 1))
-
-
-;; Used by the runtime to put something on the callstack when inlining foreach.
-(defn --inline-foreach ())
+(load-library-cached "/scripts/stdlib-cached.lisp" "/bytecode/stdlib.slb")

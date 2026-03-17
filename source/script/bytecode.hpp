@@ -16,6 +16,7 @@
 #include "platform/libc.hpp"
 #include "platform/scratch_buffer.hpp"
 #include "value.hpp"
+#include "containers/vector.hpp"
 
 
 // NOTE: Bytecode is not portable, nor is it intended to be.
@@ -1207,7 +1208,6 @@ struct LoadReg0
 };
 
 
-
 void disassemble(ScratchBuffer* code_buffer,
                  s32 start_offset,
                  ::Function<2 * sizeof(void*), void(const char*)> callback);
@@ -1216,6 +1216,9 @@ void disassemble(ScratchBuffer* code_buffer,
 void disassemble(Value* fn,
                  ::Function<2 * sizeof(void*), void(const char*)> callback);
 
+
+using InstructionList = Vector<instruction::Header*>;
+void parse_instructions(ScratchBuffer& buffer, InstructionList& list, int offset = 0);
 
 
 } // namespace instruction

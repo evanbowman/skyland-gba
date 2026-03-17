@@ -15,6 +15,7 @@
 #include "script/lisp.hpp"
 #include "skyland/scene/sramFileWritebackScene.hpp"
 #include "skyland/skyland.hpp"
+#include "script/objectFile.hpp"
 
 
 
@@ -666,7 +667,13 @@ TextEditorModule::TextEditorModule(UserContext&& user_context,
     if (file_mode == FileMode::update) {
         if (filesystem_ == FileSystem::sram) {
             Vector<char> tmp_buffer;
-            flash_filesystem::read_file_data_text(file_path, tmp_buffer);
+            if (str_eq(get_extension(file_path).c_str(), ".slb")) {
+                lisp::ObjectFile::disassemble(file_path, tmp_buffer);
+                user_context_.readonly_ = true;
+                file_mode_ = FileMode::readonly;
+            } else {
+                flash_filesystem::read_file_data_text(file_path, tmp_buffer);
+            }
             for (char c : tmp_buffer) {
                 text_buffer_.push_back(load_glyph(c));
             }

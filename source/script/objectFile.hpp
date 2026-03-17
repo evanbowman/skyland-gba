@@ -1,0 +1,62 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 2026 Evan Bowman
+//
+// This Source Code Form is subject to the terms of the Mozilla Public License,
+// v. 2.0. If a copy of the MPL was not distributed with this file, You can
+// obtain one at http://mozilla.org/MPL/2.0/. */
+//
+////////////////////////////////////////////////////////////////////////////////
+
+#pragma once
+
+#include "number/endian.hpp"
+#include "containers/vector.hpp"
+#include "lisp.hpp"
+
+
+namespace lisp
+{
+
+
+class ObjectFile
+{
+public:
+
+    struct Fingerprint
+    {
+        u8 mem_[10];
+    };
+
+
+    ObjectFile(const Fingerprint& f);
+
+
+    void append(Symbol::SymtabIndex sym, Function& fn);
+
+
+    void save(const char* path);
+
+
+    bool load(const Fingerprint& f, const char* path);
+
+
+    static bool disassemble(const char* path, Vector<char>& output);
+
+
+    struct Definition
+    {
+        HostInteger<Symbol::SymtabIndex> sym_;
+        host_u16 bytecode_size_;
+    };
+
+
+private:
+    void append(void* data, u32 len);
+
+    Vector<char> bytes_;
+    u16 definition_count_ = 0;
+};
+
+
+}

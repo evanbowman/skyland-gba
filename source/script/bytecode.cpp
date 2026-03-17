@@ -597,4 +597,111 @@ void disassemble(ScratchBuffer* data,
 }
 
 
+void parse_instructions(ScratchBuffer& buffer, InstructionList& list, int offset)
+{
+    using namespace instruction;
+
+    int depth = 0;
+    while (true) {
+        auto* inst = (instruction::Header*)(buffer.data_ + offset);
+        list.push_back(inst);
+        switch (inst->op_) {
+        case Fatal::op():
+            return;
+        case PushString::op():
+            offset += sizeof(PushString) + ((PushString*)inst)->length_;
+            break;
+
+        case RetNil::op():
+        case Ret::op():
+            if (depth == 0) {
+                return;
+            }
+            --depth;
+            static_assert(sizeof(Ret) == sizeof(RetNil));
+            offset += sizeof(Ret);
+            break;
+
+        case EarlyRet::op():
+            offset += sizeof(EarlyRet);
+            break;
+
+        case PushLambda::op():
+            ++depth;
+            offset += sizeof(PushLambda);
+            break;
+
+#define MATCH(NAME)                                                            \
+    case NAME::op():                                                           \
+        offset += sizeof(NAME);                                                \
+        break;
+
+            MATCH(LoadVarRT)
+            MATCH(LoadVarS)
+            MATCH(PushSymbolRT)
+            MATCH(LoadSymtab)
+            MATCH(PushNil)
+            MATCH(Push0)
+            MATCH(Push1)
+            MATCH(Push2)
+            MATCH(PushInteger)
+            MATCH(PushSmallInteger)
+            MATCH(JumpIfFalse)
+            MATCH(Jump)
+            MATCH(SmallJumpIfFalse)
+            MATCH(SmallJump)
+            MATCH(TailCall)
+            MATCH(TailCall1)
+            MATCH(TailCall2)
+            MATCH(TailCall3)
+            MATCH(Funcall)
+            MATCH(Funcall1)
+            MATCH(Funcall2)
+            MATCH(Funcall3)
+            MATCH(PushList)
+            MATCH(Pop)
+            MATCH(Dup)
+            MATCH(MakePair)
+            MATCH(First)
+            MATCH(Rest)
+            MATCH(Arg)
+            MATCH(Arg0)
+            MATCH(Arg1)
+            MATCH(Arg2)
+            MATCH(PushThis)
+            MATCH(Not)
+            MATCH(LexicalDef)
+            MATCH(LexicalDefRT)
+            MATCH(LexicalFramePush)
+            MATCH(LexicalFramePop)
+            MATCH(PushSmallSymbol)
+            MATCH(LexicalDefSmall)
+            MATCH(LoadVarSmall)
+            MATCH(Set)
+            MATCH(PushFloat)
+            MATCH(PushRatio)
+            MATCH(Await)
+            MATCH(IsEqual)
+            MATCH(LoadCall0)
+            MATCH(LoadCall1)
+            MATCH(LoadCall2)
+            MATCH(LoadCall3)
+            MATCH(SetVarSmall)
+            MATCH(SetVar)
+            MATCH(SetVarRT)
+            MATCH(LoadReg)
+            MATCH(StoreReg)
+            MATCH(StoreRegKeep)
+            MATCH(ConsVar)
+            MATCH(Get)
+            MATCH(Add)
+            MATCH(Resume)
+            MATCH(LoadReg0)
+            MATCH(EarlyRetNil)
+            MATCH(RetNilIfFalse)
+        }
+    }
+}
+
+
 } // namespace lisp::instruction

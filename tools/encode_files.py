@@ -1,5 +1,7 @@
 import sys
 import os
+import struct
+import zlib
 
 
 project_root_path = os.path.split(os.path.dirname(os.path.realpath(__file__)))[0]
@@ -210,13 +212,21 @@ def make_index_file(path):
                 b = test_file.read(1)
 
 
+fs_hash = None
+
+
 def preprocess_file(path, real_name, out):
+    global fs_hash
     with open(path, 'rb') as test_file:
         data = test_file.read()
         if extension(path) == 'lisp':
             src_contents = data.decode('utf-8')
             build_lisp_symtab(src_contents)
             build_lisp_constant_tab(src_contents)
+        if not fs_hash:
+            fs_hash = zlib.crc32(data)
+        else:
+            fs_hash = zlib.crc32(data, fs_hash)
 
 
 def encode_file(path, real_name, out, symbol_index_map=None):
@@ -315,7 +325,7 @@ with open('fs.bin', 'wb') as filesystem:
         if extension(info[0]) == "idf":
             make_index_file(info[1])
 
-    fs_count = len(files_list) + 2 # +1 for symtab file, +1 for constant tab
+    fs_count = len(files_list) + 3 # +1 for symtab file, +1 for constant tab, +1 for filesystem hash
     print("encoding %d files..." % fs_count)
 
     filesystem.write(fs_count.to_bytes(4, 'little'))
@@ -332,12 +342,20 @@ with open('fs.bin', 'wb') as filesystem:
     with open(symtab_path, 'wb') as sym_file:
         for sym, v in sorted(lisp_symbol_tab.items(), key=lambda item: item[0]):
             enc_sym = sym.encode('utf-8')
+            fs_hash = zlib.crc32(enc_sym, fs_hash)
             if len(enc_sym) > 30:
                 raise Exception("symbol " + sym + " too long!")
             sym_file.write(sym.encode('utf-8'))
             for i in range(len(enc_sym), 31):
                 sym_file.write('\0'.encode('utf-8'))
             sym_file.write('\n'.encode('utf-8')) # This is just to make the file easier to read in an editor. Yes, it wastes space.
+
+    fs_hash_fname = "fs_hash.dat"
+    fs_hash_path = os.path.join(project_root_path, fs_hash_fname)
+    with open(fs_hash_path, 'wb') as fs_hash_file:
+        fs_hash_file.write(struct.pack('i', fs_hash))
+
+    encode_file(fs_hash_path, "/" + fs_hash_fname, filesystem)
 
     # Pass 2: encode all files with symbol replacement
     for info in files_list:
