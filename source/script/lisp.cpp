@@ -2264,6 +2264,9 @@ void lint_push_arg_error(Value* expr, Value* fn, int arg, u8 exp)
 }
 
 
+void lint(Value* expr, Value* variable_list, lisp::Protected& gvar_list);
+
+
 bool lint_check_let_bindings(Value* expr,
                              Value*& variable_list,
                              lisp::Protected& gvar_list)
@@ -2357,6 +2360,7 @@ void lint(Value* expr, Value* variable_list, lisp::Protected& gvar_list)
     Protected var_list(variable_list);
 
     bool is_special_form = false;
+    bool is_let = false;
 
     switch (expr->type()) {
     case Value::Type::cons:
@@ -2416,6 +2420,7 @@ void lint(Value* expr, Value* variable_list, lisp::Protected& gvar_list)
                         return;
                     }
                     is_special_form = true;
+                    is_let = true;
                 } else if (str_eq(name, "progn")) {
                     // (progn [body])
                     is_special_form = true;
@@ -2558,6 +2563,26 @@ void lint(Value* expr, Value* variable_list, lisp::Protected& gvar_list)
             }
 
             expr = expr->cons().cdr();
+
+            if (is_let) {
+                auto bindings = expr->cons().car();
+                if (is_list(bindings)) {
+                    while (bindings not_eq L_NIL) {
+                        auto binding = bindings->cons().car();
+                        if (is_list(binding)) {
+                            auto v = get_list(binding, 1);
+                            lint(v, variable_list, gvar_list);
+                            if (get_op0()->type() == Value::Type::error) {
+                                return;
+                            }
+                            pop_op();
+                        }
+                        bindings = bindings->cons().cdr();
+                    }
+                }
+                expr = expr->cons().cdr();
+            }
+
             while (expr not_eq L_NIL) {
 
                 auto cv = expr->cons().car();
