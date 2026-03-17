@@ -2363,6 +2363,13 @@ void lint(Value* expr, Value* variable_list, lisp::Protected& gvar_list)
     bool is_let = false;
 
     switch (expr->type()) {
+    case Value::Type::symbol:
+        if (not lint_find_variable(expr, variable_list, gvar_list)) {
+            push_error("invalid variable access: %", expr);
+            return;
+        }
+        break;
+
     case Value::Type::cons:
         if (is_list(expr)) {
             auto fn_sym = get_list(expr, 0);
