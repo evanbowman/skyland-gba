@@ -26,6 +26,9 @@ namespace lisp
 {
 
 
+#define LISP_BYTECODE_VERSION 4
+
+
 using Opcode = u8;
 
 
@@ -777,7 +780,20 @@ struct RetNilIfFalse
 };
 
 
-// NOTE: opcode 45 has been removed, and is free to use for something else.
+struct RetNilIfFalseKeep
+{
+    Header header_;
+
+    static const char* name()
+    {
+        return "RET_NIL_IF_FALSE_KEEP";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 45;
+    }
+};
 
 
 struct PushSmallSymbol
@@ -1204,6 +1220,270 @@ struct LoadReg0
     static constexpr Opcode op()
     {
         return 80;
+    }
+};
+
+
+struct LoadTCall0 : public LoadVarS
+{
+    static const char* name()
+    {
+        return "LOAD/TCALL0";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 81;
+    }
+};
+
+
+struct LoadTCall1 : public LoadVarS
+{
+    static const char* name()
+    {
+        return "LOAD/TCALL1";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 82;
+    }
+};
+
+
+struct LoadTCall2 : public LoadVarS
+{
+    static const char* name()
+    {
+        return "LOAD/TCALL2";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 83;
+    }
+};
+
+
+struct LoadTCall3 : public LoadVarS
+{
+    static const char* name()
+    {
+        return "LOAD/TCALL3";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 84;
+    }
+};
+
+
+struct LoadReg1
+{
+    Header header_;
+
+    static const char* name()
+    {
+        return "LOAD_REG1";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 85;
+    }
+};
+
+
+struct LoadReg2
+{
+    Header header_;
+
+    static const char* name()
+    {
+        return "LOAD_REG2";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 86;
+    }
+};
+
+
+struct StoreReg0
+{
+    Header header_;
+
+    static const char* name()
+    {
+        return "STORE_REG0";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 87;
+    }
+};
+
+
+struct StoreReg1
+{
+    Header header_;
+
+    static const char* name()
+    {
+        return "STORE_REG1";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 88;
+    }
+};
+
+
+struct StoreReg2
+{
+    Header header_;
+
+    static const char* name()
+    {
+        return "STORE_REG2";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 89;
+    }
+};
+
+
+struct StoreReg0Keep
+{
+    Header header_;
+
+    static const char* name()
+    {
+        return "STORE_REG0_KEEP";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 90;
+    }
+};
+
+
+struct StoreReg1Keep
+{
+    Header header_;
+
+    static const char* name()
+    {
+        return "STORE_REG1_KEEP";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 91;
+    }
+};
+
+
+struct StoreReg2Keep
+{
+    Header header_;
+
+    static const char* name()
+    {
+        return "STORE_REG2_KEEP";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 92;
+    }
+};
+
+
+struct CmpLess
+{
+    Header header_;
+
+    static const char* name()
+    {
+        return "CMP_LT";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 93;
+    }
+};
+
+
+struct CmpGreater
+{
+    Header header_;
+
+    static const char* name()
+    {
+        return "CMP_GT";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 94;
+    }
+};
+
+
+struct Subtract
+{
+    Header header_;
+
+    static const char* name()
+    {
+        return "SUB";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 95;
+    }
+};
+
+
+struct Incr
+{
+    Header header_;
+
+    static const char* name()
+    {
+        return "INCR";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 96;
+    }
+};
+
+
+struct Decr
+{
+    Header header_;
+
+    static const char* name()
+    {
+        return "DECR";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 97;
     }
 };
 

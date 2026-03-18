@@ -105,6 +105,24 @@ TOP:
             break;
         }
 
+        case LoadReg1::op(): {
+            if (not registers) {
+                registers.emplace();
+            }
+            read<LoadReg1>(code, pc);
+            push_op(get_list(registers->result(), 1));
+            break;
+        }
+
+        case LoadReg2::op(): {
+            if (not registers) {
+                registers.emplace();
+            }
+            read<LoadReg2>(code, pc);
+            push_op(get_list(registers->result(), 2));
+            break;
+        }
+
         case LoadReg::op(): {
             if (not registers) {
                 registers.emplace();
@@ -113,6 +131,58 @@ TOP:
             auto v = get_list(registers->result(), inst->reg_);
             // info(::format("load % from reg %", v, inst->reg_));
             push_op(v);
+            break;
+        }
+
+        case StoreReg0::op(): {
+            if (not registers) {
+                registers.emplace();
+            }
+            read<StoreReg0>(code, pc);
+            while (registers->length() <= 0) {
+                registers->push_back(L_NIL);
+            }
+            auto iter = registers->result();
+            iter->cons().set_car(get_op0());
+            pop_op();
+            break;
+        }
+
+        case StoreReg1::op(): {
+            if (not registers) {
+                registers.emplace();
+            }
+            read<StoreReg1>(code, pc);
+            while (registers->length() <= 1) {
+                registers->push_back(L_NIL);
+            }
+            u8 reg = 1;
+            auto iter = registers->result();
+            while (reg) {
+                --reg;
+                iter = iter->cons().cdr();
+            }
+            iter->cons().set_car(get_op0());
+            pop_op();
+            break;
+        }
+
+        case StoreReg2::op(): {
+            if (not registers) {
+                registers.emplace();
+            }
+            read<StoreReg2>(code, pc);
+            while (registers->length() <= 2) {
+                registers->push_back(L_NIL);
+            }
+            u8 reg = 2;
+            auto iter = registers->result();
+            while (reg) {
+                --reg;
+                iter = iter->cons().cdr();
+            }
+            iter->cons().set_car(get_op0());
+            pop_op();
             break;
         }
 
@@ -145,6 +215,60 @@ TOP:
                 registers->push_back(L_NIL);
             }
             u8 reg = inst->reg_;
+            auto iter = registers->result();
+            while (reg) {
+                --reg;
+                iter = iter->cons().cdr();
+            }
+            iter->cons().set_car(get_op0());
+            break;
+        }
+
+        case StoreReg0Keep::op(): {
+            if (not registers) {
+                registers.emplace();
+            }
+            read<StoreReg0Keep>(code, pc);
+            while (registers->length() <= 0) {
+                registers->push_back(L_NIL);
+            }
+            u8 reg = 0;
+            auto iter = registers->result();
+            while (reg) {
+                --reg;
+                iter = iter->cons().cdr();
+            }
+            iter->cons().set_car(get_op0());
+            break;
+        }
+
+        case StoreReg1Keep::op(): {
+            if (not registers) {
+                registers.emplace();
+            }
+            read<StoreReg1Keep>(code, pc);
+            while (registers->length() <= 1) {
+                registers->push_back(L_NIL);
+            }
+            u8 reg = 1;
+            auto iter = registers->result();
+            while (reg) {
+                --reg;
+                iter = iter->cons().cdr();
+            }
+            iter->cons().set_car(get_op0());
+            break;
+        }
+
+        case StoreReg2Keep::op(): {
+            if (not registers) {
+                registers.emplace();
+            }
+            read<StoreReg2Keep>(code, pc);
+            while (registers->length() <= 2) {
+                registers->push_back(L_NIL);
+            }
+            u8 reg = 2;
             auto iter = registers->result();
             while (reg) {
                 --reg;
@@ -450,6 +574,112 @@ TOP:
             break;
         }
 
+        case LoadTCall1::op(): {
+            auto inst = read<LoadTCall1>(code, pc);
+            auto index = inst->symtab_index_.get();
+            Protected sym(make_symtab_symbol(index));
+            Protected fn(get_var(sym));
+
+            if (fn == get_this()) {
+                auto arg = get_op0();
+
+                if (get_argc() not_eq 1) {
+                    // TODO: raise error: attempted recursive call with
+                    // different number of args than current function.
+                    while (true)
+                        ;
+                }
+
+                pop_op(); // argument
+                pop_op(); // previous arg
+
+                push_op(arg);
+
+                unwind_lexical_scope();
+                pc = start_offset;
+                registers.reset();
+                goto TOP;
+
+            } else {
+                funcall(fn, 1);
+            }
+            break;
+        }
+
+        case LoadTCall2::op(): {
+            auto inst = read<LoadTCall2>(code, pc);
+            auto index = inst->symtab_index_.get();
+            Protected sym(make_symtab_symbol(index));
+            Protected fn(get_var(sym));
+
+            if (fn == get_this()) {
+                auto arg0 = get_op0();
+                auto arg1 = get_op1();
+
+                if (get_argc() not_eq 2) {
+                    // TODO: raise error: attempted recursive call with
+                    // different number of args than current function.
+                    while (true)
+                        ;
+                }
+
+                pop_op(); // arg
+                pop_op(); // arg
+                pop_op(); // prev arg
+                pop_op(); // prev arg
+
+                push_op(arg1);
+                push_op(arg0);
+
+                unwind_lexical_scope();
+                pc = start_offset;
+                registers.reset();
+                goto TOP;
+
+            } else {
+                funcall(fn, 2);
+            }
+            break;
+        }
+
+        case LoadTCall3::op(): {
+            auto inst = read<LoadTCall3>(code, pc);
+            auto index = inst->symtab_index_.get();
+            Protected sym(make_symtab_symbol(index));
+            Protected fn(get_var(sym));
+
+            if (fn == get_this()) {
+                auto arg0 = get_op0();
+                auto arg1 = get_op1();
+                auto arg2 = get_op(2);
+
+                if (get_argc() not_eq 3) {
+                    while (true)
+                        ;
+                }
+
+                pop_op(); // arg
+                pop_op(); // arg
+                pop_op(); // arg
+                pop_op(); // prev arg
+                pop_op(); // prev arg
+                pop_op(); // prev arg
+
+                push_op(arg2);
+                push_op(arg1);
+                push_op(arg0);
+
+                unwind_lexical_scope();
+                pc = start_offset;
+                registers.reset();
+                goto TOP;
+
+            } else {
+                funcall(fn, 3);
+            }
+            break;
+        }
+
         case TailCall1::op(): {
             read<TailCall1>(code, pc);
             Protected fn(get_op0());
@@ -695,6 +925,15 @@ TOP:
             pop_op();
             break;
 
+        case RetNilIfFalseKeep::op(): {
+            read<RetNilIfFalseKeep>(code, pc);
+            auto cond = get_op0();
+            if (is_boolean_true(cond)) {
+                break;
+            }
+            pop_op();
+            goto RETURN_NIL;
+        }
 
         case RetNilIfFalse::op(): {
             read<RetNilIfFalse>(code, pc);
@@ -708,6 +947,7 @@ TOP:
 
         case EarlyRetNil::op():
         case RetNil::op():
+            RETURN_NIL:
             push_op(L_NIL);
         // INTENTIONAL FALLTHROUGH TO Ret::op()!!!
 
@@ -835,6 +1075,31 @@ TOP:
             break;
         }
 
+        case Subtract::op(): {
+            read<Subtract>(code, pc);
+            auto result = builtin_subtract(2);
+            pop_op();
+            pop_op();
+            push_op(result);
+            break;
+        }
+
+        case Incr::op(): {
+            read<Incr>(code, pc);
+            auto result = builtin_incr(1);
+            pop_op();
+            push_op(result);
+            break;
+        }
+
+        case Decr::op(): {
+            read<Decr>(code, pc);
+            auto result = builtin_decr(1);
+            pop_op();
+            push_op(result);
+            break;
+        }
+
         case Get::op(): {
             read<Get>(code, pc);
             auto result = builtin_get(2);
@@ -847,6 +1112,24 @@ TOP:
         case IsEqual::op(): {
             read<IsEqual>(code, pc);
             auto result = builtin_comp_equal(2);
+            pop_op();
+            pop_op(); // args
+            push_op(result);
+            break;
+        }
+
+        case CmpLess::op(): {
+            read<CmpLess>(code, pc);
+            auto result = builtin_comp_less_than(2);
+            pop_op();
+            pop_op(); // args
+            push_op(result);
+            break;
+        }
+
+        case CmpGreater::op(): {
+            read<CmpGreater>(code, pc);
+            auto result = builtin_comp_greater_than(2);
             pop_op();
             pop_op(); // args
             push_op(result);

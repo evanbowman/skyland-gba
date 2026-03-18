@@ -16,10 +16,9 @@
   (cons (cons key val) alst))
 
 (defn/c remove-if (lat pred)
-  (let ((p pred))
-    (filter (lambda (e)
-              (not (p e)))
-            lat)))
+  (filter (lambda (e)
+            (not (pred e)))
+          lat))
 
 (defn/c remove (lat elem)
   (remove-if lat (equalto? elem)))

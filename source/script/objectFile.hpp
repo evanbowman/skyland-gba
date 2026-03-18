@@ -25,7 +25,7 @@ public:
 
     struct Fingerprint
     {
-        u8 mem_[10];
+        u8 mem_[8];
     };
 
 

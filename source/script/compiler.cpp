@@ -629,29 +629,46 @@ TOP:
                     argc;
 
             } else if (fn->type() == Value::Type::symbol and
+                       str_eq(fn->symbol().name(), "-") and argc == 2) {
+
+                append<instruction::Subtract>(ctx, buffer, write_pos);
+
+            } else if (fn->type() == Value::Type::symbol and
+                       str_eq(fn->symbol().name(), "incr") and argc == 1) {
+
+                append<instruction::Incr>(ctx, buffer, write_pos);
+
+            } else if (fn->type() == Value::Type::symbol and
+                       str_eq(fn->symbol().name(), "decr") and argc == 1) {
+
+                append<instruction::Decr>(ctx, buffer, write_pos);
+
+            } else if (fn->type() == Value::Type::symbol and
                        str_eq(fn->symbol().name(), "get") and argc == 2) {
 
                 append<instruction::Get>(ctx, buffer, write_pos);
 
             } else if (fn->type() == Value::Type::symbol and
-                       (str_eq(fn->symbol().name(), "car") or
-                        str_eq(fn->symbol().name(), "first")) and
+                       (str_eq(fn->symbol().name(), "car")) and
                        argc == 1) {
 
                 append<instruction::First>(ctx, buffer, write_pos);
 
             } else if (fn->type() == Value::Type::symbol and
-                       (str_eq(fn->symbol().name(), "cdr") or
-                        str_eq(fn->symbol().name(), "second") or
-                        str_eq(fn->symbol().name(), "rest")) and
+                       (str_eq(fn->symbol().name(), "cdr")) and
                        argc == 1) {
 
                 append<instruction::Rest>(ctx, buffer, write_pos);
 
             } else if (fn->type() == Value::Type::symbol and
-                       str_eq(fn->symbol().name(), "arg") and argc == 1) {
+                       str_eq(fn->symbol().name(), "<") and argc == 2) {
 
-                append<instruction::Arg>(ctx, buffer, write_pos);
+                append<instruction::CmpLess>(ctx, buffer, write_pos);
+
+            } else if (fn->type() == Value::Type::symbol and
+                       str_eq(fn->symbol().name(), ">") and argc == 2) {
+
+                append<instruction::CmpGreater>(ctx, buffer, write_pos);
 
             } else if (fn->type() == Value::Type::symbol and
                        str_eq(fn->symbol().name(), "this") and argc == 0) {
@@ -996,13 +1013,47 @@ public:
         Buffer<LambdaInfo, 15, true> scope_stack;
         scope_stack.push_back({0});
 
-        while (true) {
-            using namespace instruction;
+        using namespace instruction;
 
+        while (true) {
             auto inst = instructions[index];
             switch (inst->op_) {
             case Fatal::op():
                 return code_size;
+
+            case RetNilIfFalse::op(): {
+                if (index > 1 and index < (int)instructions.size() - 1) {
+                    auto prev = instructions[index - 1];
+                    auto next = instructions[index + 1];
+                    static_assert(sizeof(LoadReg) == sizeof(StoreRegKeep));
+                    if ((prev->op_ == LoadReg::op() or prev->op_ == StoreRegKeep::op()) and
+                        next->op_ == LoadReg::op() and
+                        ((LoadReg*)prev)->reg_ == ((LoadReg*)next)->reg_ and
+                        not is_jump_target(inst, code_buffer, targets) and
+                        not is_jump_target(next, code_buffer, targets)) {
+                        inst->op_ = RetNilIfFalseKeep::op();
+                        remove(instructions,
+                               code_buffer,
+                               (LoadReg*)next,
+                               code_size);
+                        goto TOP;
+                    } else if ((prev->op_ == LoadVarS::op() and
+                                next->op_ == LoadVarS::op()) and
+                               ((LoadVarS*)prev)->symtab_index_.get() ==
+                               ((LoadVarS*)next)->symtab_index_.get() and
+                               not is_jump_target(inst, code_buffer, targets) and
+                               not is_jump_target(next, code_buffer, targets)) {
+                        inst->op_ = RetNilIfFalseKeep::op();
+                        remove(instructions,
+                               code_buffer,
+                               (LoadVarS*)next,
+                               code_size);
+                        goto TOP;
+                    }
+                }
+                ++index;
+                break;
+            }
 
             case RetNil::op(): {
                 auto prev = instructions[index - 1];
@@ -1023,7 +1074,7 @@ public:
                 scope_stack.pop_back();
                 ++index;
                 if (depth-- == 0) {
-                    return code_size;
+                    goto CLEANUP;
                 }
                 break;
             }
@@ -1032,7 +1083,7 @@ public:
                 scope_stack.pop_back();
                 ++index;
                 if (depth-- == 0) {
-                    return code_size;
+                    goto CLEANUP;
                 }
                 break;
 
@@ -1227,13 +1278,33 @@ public:
                 break;
             }
 
-            case LoadReg::op(): {
-                auto instr = (LoadReg*)inst;
-                if (instr->reg_ == 0) {
-                    LoadReg0 lr0;
-                    lr0.header_.op_ = LoadReg0::op();
-                    replace(instructions, code_buffer, *instr, lr0, code_size);
-                    goto TOP;
+            case Add::op(): {
+                if (index > 0) {
+                    auto instr = (Add*)inst;
+                    auto prev = instructions[index - 1];
+                    if (instr->operands_ == 2 and prev->op_ == Push1::op() and
+                        not is_jump_target(inst, code_buffer, targets)) {
+                        static_assert(sizeof(Push1) == sizeof(Incr));
+                        prev->op_ = Incr::op();
+                        remove(instructions, code_buffer, instr, code_size);
+                        goto TOP;
+                    }
+                }
+                ++index;
+                break;
+            }
+
+            case Subtract::op(): {
+                if (index > 0) {
+                    auto instr = (Subtract*)inst;
+                    auto prev = instructions[index - 1];
+                    if (prev->op_ == Push1::op() and
+                        not is_jump_target(inst, code_buffer, targets)) {
+                        static_assert(sizeof(Push1) == sizeof(Decr));
+                        prev->op_ = Decr::op();
+                        remove(instructions, code_buffer, instr, code_size);
+                        goto TOP;
+                    }
                 }
                 ++index;
                 break;
@@ -1243,13 +1314,19 @@ public:
                 auto prev = instructions[index - 1];
                 switch (prev->op_) {
                 case PushNil::op():
-                    if (not is_jump_target(inst, code_buffer, targets) and
-                        not is_jump_target(prev, code_buffer, targets)) {
+                    if (not is_jump_target(inst, code_buffer, targets)) {
                         remove(instructions, code_buffer, (Pop*)inst, code_size);
                         remove(instructions, code_buffer, (PushNil*)prev, code_size);
                         goto TOP;
                     }
                     break;
+
+                case StoreRegKeep::op():
+                    if (not is_jump_target(inst, code_buffer, targets)) {
+                        remove(instructions, code_buffer, (Pop*)inst, code_size);
+                        prev->op_ = StoreReg::op();
+                        goto TOP;
+                    }
                 }
                 ++index;
                 break;
@@ -1310,6 +1387,30 @@ public:
                 if (index + 1 < (int)instructions.size()) {
                     auto next = instructions[index + 1];
                     switch (next->op_) {
+                    case TailCall1::op():
+                        ((LoadVarS*)inst)->header_.op_ = LoadTCall1::op();
+                        remove(instructions,
+                               code_buffer,
+                               (TailCall1*)next,
+                               code_size);
+                        goto TOP;
+
+                    case TailCall2::op():
+                        ((LoadVarS*)inst)->header_.op_ = LoadTCall2::op();
+                        remove(instructions,
+                               code_buffer,
+                               (TailCall2*)next,
+                               code_size);
+                        goto TOP;
+
+                    case TailCall3::op():
+                        ((LoadVarS*)inst)->header_.op_ = LoadTCall3::op();
+                        remove(instructions,
+                               code_buffer,
+                               (TailCall3*)next,
+                               code_size);
+                        goto TOP;
+
                     case Funcall1::op():
                         ((LoadVarS*)inst)->header_.op_ = LoadCall1::op();
                         remove(instructions,
@@ -1383,6 +1484,130 @@ public:
                 break;
             }
         }
+
+    CLEANUP:
+        auto br = make_sub_buffer("reg-table", 0);
+        Vector<bool, SubBufferMemory> loaded_registers(br);
+        for (u32 i = 0; i < instructions.size(); ++i) {
+            auto inst = instructions[i];
+            switch (inst->op_) {
+            case LoadReg::op(): {
+                auto instr = (LoadReg*)inst;
+                while ((int)loaded_registers.size() < instr->reg_ + 1) {
+                    loaded_registers.push_back(false);
+                }
+                loaded_registers[instr->reg_] = true;
+                switch (instr->reg_) {
+                case 0: {
+                    LoadReg0 lr0;
+                    lr0.header_.op_ = LoadReg0::op();
+                    replace(instructions, code_buffer, *instr, lr0, code_size);
+                    break;
+                }
+
+                case 1: {
+                    LoadReg1 lr1;
+                    lr1.header_.op_ = LoadReg1::op();
+                    replace(instructions, code_buffer, *instr, lr1, code_size);
+                    break;
+                }
+
+                case 2: {
+                    LoadReg2 lr2;
+                    lr2.header_.op_ = LoadReg2::op();
+                    replace(instructions, code_buffer, *instr, lr2, code_size);
+                    break;
+                }
+                }
+                ++index;
+                break;
+            }
+            }
+        }
+        targets.clear();
+        collect_jump_targets(instructions, code_buffer, targets);
+        for (u32 i = 0; i < instructions.size(); ++i) {
+            auto inst = instructions[i];
+            switch (inst->op_) {
+            case StoreRegKeep::op(): {
+                if (not loaded_registers[((StoreRegKeep*)inst)->reg_] and
+                    not is_jump_target(inst, code_buffer, targets)) {
+                    remove(instructions,
+                           code_buffer,
+                           (StoreRegKeep*)inst,
+                           code_size);
+                    --i;
+                    targets.clear();
+                    collect_jump_targets(instructions, code_buffer, targets);
+                } else {
+                    auto instr = (StoreRegKeep*)inst;
+                    switch (instr->reg_) {
+                    case 0: {
+                        StoreReg0Keep sr0;
+                        sr0.header_.op_ = StoreReg0Keep::op();
+                        replace(instructions, code_buffer, *instr, sr0, code_size);
+                        targets.clear();
+                        collect_jump_targets(instructions, code_buffer, targets);
+                        break;
+                    }
+
+                    case 1: {
+                        StoreReg1Keep sr1;
+                        sr1.header_.op_ = StoreReg1Keep::op();
+                        replace(instructions, code_buffer, *instr, sr1, code_size);
+                        targets.clear();
+                        collect_jump_targets(instructions, code_buffer, targets);
+                        break;
+                    }
+
+                    case 2: {
+                        StoreReg2Keep sr2;
+                        sr2.header_.op_ = StoreReg2Keep::op();
+                        replace(instructions, code_buffer, *instr, sr2, code_size);
+                        targets.clear();
+                        collect_jump_targets(instructions, code_buffer, targets);
+                        break;
+                    }
+                    }
+                }
+                break;
+            }
+
+            case StoreReg::op(): {
+                auto instr = (StoreReg*)inst;
+                switch (instr->reg_) {
+                case 0: {
+                    StoreReg0 sr0;
+                    sr0.header_.op_ = StoreReg0::op();
+                    replace(instructions, code_buffer, *instr, sr0, code_size);
+                    targets.clear();
+                    collect_jump_targets(instructions, code_buffer, targets);
+                    break;
+                }
+
+                case 1: {
+                    StoreReg1 sr1;
+                    sr1.header_.op_ = StoreReg1::op();
+                    replace(instructions, code_buffer, *instr, sr1, code_size);
+                    targets.clear();
+                    collect_jump_targets(instructions, code_buffer, targets);
+                    break;
+                }
+
+                case 2: {
+                    StoreReg2 sr2;
+                    sr2.header_.op_ = StoreReg2::op();
+                    replace(instructions, code_buffer, *instr, sr2, code_size);
+                    targets.clear();
+                    collect_jump_targets(instructions, code_buffer, targets);
+                    break;
+                }
+                }
+                break;
+            }
+            }
+        }
+        return code_size;
     }
 };
 

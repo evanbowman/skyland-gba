@@ -15,6 +15,7 @@
 #include "dataCart.hpp"
 #include "eternal/eternal.hpp"
 #include "ext_workram_data.hpp"
+#include "fnv.hpp"
 #include "macrocosmEngine.hpp"
 #include "platform/flash_filesystem.hpp"
 #include "player/autopilotPlayer.hpp"
@@ -42,6 +43,7 @@
 #include "script/debug.hpp"
 #include "script/lisp.hpp"
 #include "script/listBuilder.hpp"
+#include "script/bytecode.hpp"
 #include "script_debugger.hpp"
 #include "script/objectFile.hpp"
 #include "serial.hpp"
@@ -245,20 +247,22 @@ lisp::ObjectFile::Fingerprint create_fingerprint()
         host_u16 major_version_;
         u8 minor_version_;
         u8 subminor_version_;
-        host_u16 symtab_count_;
-        host_u32 filesystem_hash_;
+        host_u32 system_hash_;
     } fingerprint;
     static_assert(sizeof fingerprint <= sizeof result);
 
     fingerprint.major_version_.set(PROGRAM_MAJOR_VERSION);
     fingerprint.minor_version_ = PROGRAM_MINOR_VERSION;
     fingerprint.subminor_version_ = PROGRAM_SUBMINOR_VERSION;
-    fingerprint.symtab_count_.set(lisp::external_symtab_count());
 
     auto fs_hash_file = PLATFORM.load_file("", "fs_hash.dat");
     if (fs_hash_file.second >= 4) {
         auto hash = ((host_u32*)fs_hash_file.first)->get();
-        fingerprint.filesystem_hash_.set(hash);
+        u32 bc_ver = LISP_BYTECODE_VERSION;
+        auto sym_count = lisp::external_symtab_count();
+        hash ^= fnv32((const char*)&bc_ver, sizeof bc_ver);
+        hash ^= fnv32((const char*)&sym_count, sizeof sym_count);
+        fingerprint.system_hash_.set(hash);
     }
 
     memcpy(&result, &fingerprint, sizeof fingerprint);

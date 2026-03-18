@@ -91,6 +91,21 @@ void disassemble(ScratchBuffer* data,
             i += sizeof(Add);
             break;
 
+        case Subtract::op():
+            out += Subtract::name();
+            i += sizeof(Subtract);
+            break;
+
+        case Incr::op():
+            out += Incr::name();
+            i += sizeof(Incr);
+            break;
+
+        case Decr::op():
+            out += Decr::name();
+            i += sizeof(Decr);
+            break;
+
         case LoadVarRT::op():
             out += LoadVarRT::name();
             out += "(";
@@ -149,6 +164,66 @@ void disassemble(ScratchBuffer* data,
         case LoadReg0::op(): {
             out += LoadReg0::name();
             i += sizeof(LoadReg0);
+            break;
+        }
+
+        case LoadReg1::op(): {
+            out += LoadReg1::name();
+            i += sizeof(LoadReg1);
+            break;
+        }
+
+        case LoadReg2::op(): {
+            out += LoadReg2::name();
+            i += sizeof(LoadReg2);
+            break;
+        }
+
+        case StoreReg0::op(): {
+            out += StoreReg0::name();
+            i += sizeof(StoreReg0);
+            break;
+        }
+
+        case StoreReg1::op(): {
+            out += StoreReg1::name();
+            i += sizeof(StoreReg1);
+            break;
+        }
+
+        case StoreReg2::op(): {
+            out += StoreReg2::name();
+            i += sizeof(StoreReg2);
+            break;
+        }
+
+        case StoreReg0Keep::op(): {
+            out += StoreReg0Keep::name();
+            i += sizeof(StoreReg0Keep);
+            break;
+        }
+
+        case StoreReg1Keep::op(): {
+            out += StoreReg1Keep::name();
+            i += sizeof(StoreReg1Keep);
+            break;
+        }
+
+        case StoreReg2Keep::op(): {
+            out += StoreReg2Keep::name();
+            i += sizeof(StoreReg2Keep);
+            break;
+        }
+
+        case CmpLess::op(): {
+            out += CmpLess::name();
+            i += sizeof(CmpLess);
+            break;
+        }
+
+        case CmpGreater::op(): {
+            out += CmpGreater::name();
+            i += sizeof(CmpGreater);
             break;
         }
 
@@ -231,6 +306,39 @@ void disassemble(ScratchBuffer* data,
             out += load_from_symtab(off);
             out += ")";
             i += sizeof(LoadVarS);
+            break;
+        }
+
+        case LoadTCall1::op(): {
+            out += LoadTCall1::name();
+            out += "(";
+            auto off = ((LoadTCall1*)(data->data_ + i))->symtab_index_.get() *
+                       symtab_stride;
+            out += load_from_symtab(off);
+            out += ")";
+            i += sizeof(LoadTCall1);
+            break;
+        }
+
+        case LoadTCall2::op(): {
+            out += LoadTCall2::name();
+            out += "(";
+            auto off = ((LoadTCall2*)(data->data_ + i))->symtab_index_.get() *
+                       symtab_stride;
+            out += load_from_symtab(off);
+            out += ")";
+            i += sizeof(LoadTCall2);
+            break;
+        }
+
+        case LoadTCall3::op(): {
+            out += LoadTCall3::name();
+            out += "(";
+            auto off = ((LoadTCall3*)(data->data_ + i))->symtab_index_.get() *
+                       symtab_stride;
+            out += load_from_symtab(off);
+            out += ")";
+            i += sizeof(LoadTCall3);
             break;
         }
 
@@ -364,6 +472,11 @@ void disassemble(ScratchBuffer* data,
         case RetNilIfFalse::op():
             out += RetNilIfFalse::name();
             i += sizeof(RetNilIfFalse);
+            break;
+
+        case RetNilIfFalseKeep::op():
+            out += RetNilIfFalseKeep::name();
+            i += sizeof(RetNilIfFalseKeep);
             break;
 
         case Jump::op():
@@ -682,10 +795,15 @@ void parse_instructions(ScratchBuffer& buffer, InstructionList& list, int offset
             MATCH(PushRatio)
             MATCH(Await)
             MATCH(IsEqual)
+            MATCH(CmpLess)
+            MATCH(CmpGreater)
             MATCH(LoadCall0)
             MATCH(LoadCall1)
             MATCH(LoadCall2)
             MATCH(LoadCall3)
+            MATCH(LoadTCall1)
+            MATCH(LoadTCall2)
+            MATCH(LoadTCall3)
             MATCH(SetVarSmall)
             MATCH(SetVar)
             MATCH(SetVarRT)
@@ -695,10 +813,22 @@ void parse_instructions(ScratchBuffer& buffer, InstructionList& list, int offset
             MATCH(ConsVar)
             MATCH(Get)
             MATCH(Add)
+            MATCH(Subtract)
+            MATCH(Incr)
+            MATCH(Decr)
             MATCH(Resume)
             MATCH(LoadReg0)
+            MATCH(LoadReg1)
+            MATCH(LoadReg2)
+            MATCH(StoreReg0)
+            MATCH(StoreReg1)
+            MATCH(StoreReg2)
+            MATCH(StoreReg0Keep)
+            MATCH(StoreReg1Keep)
+            MATCH(StoreReg2Keep)
             MATCH(EarlyRetNil)
             MATCH(RetNilIfFalse)
+            MATCH(RetNilIfFalseKeep)
         }
     }
 }
