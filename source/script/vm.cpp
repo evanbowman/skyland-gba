@@ -1175,7 +1175,7 @@ TOP:
         }
 
         case Length::op(): {
-            read<Incr>(code, pc);
+            read<Length>(code, pc);
             auto result = builtin_length(1);
             pop_op();
             push_op(result);
