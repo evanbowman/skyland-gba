@@ -912,6 +912,15 @@ public:
                 break;
             }
 
+            case SmallJumpNotEqual::op(): {
+                auto offset = ((SmallJumpNotEqual*)inst)->offset_;
+                if (local_inflection >= 0 && offset > local_inflection) {
+                    ((SmallJumpNotEqual*)inst)->offset_ = offset + size_diff;
+                }
+                ++index;
+                break;
+            }
+
             default:
                 ++index;
                 break;
@@ -971,6 +980,10 @@ public:
                 break;
             case SmallJumpIfFalse::op():
                 targets.push_back(scope_start + ((SmallJumpIfFalse*)inst)->offset_);
+                ++index;
+                break;
+            case SmallJumpNotEqual::op():
+                targets.push_back(scope_start + ((SmallJumpNotEqual*)inst)->offset_);
                 ++index;
                 break;
             default:
@@ -1327,6 +1340,23 @@ public:
                         prev->op_ = StoreReg::op();
                         goto TOP;
                     }
+                }
+                ++index;
+                break;
+            }
+
+            case IsEqual::op(): {
+                auto instr = (IsEqual*)inst;
+                auto next = instructions[index + 1];
+                if (next->op_ == SmallJumpIfFalse::op() and
+                    not is_jump_target(inst, code_buffer, targets)) {
+                    static_assert(sizeof(SmallJumpNotEqual) == sizeof(SmallJumpIfFalse));
+                    next->op_ = SmallJumpNotEqual::op();
+                    remove(instructions,
+                           code_buffer,
+                           instr,
+                           code_size);
+                    goto TOP;
                 }
                 ++index;
                 break;

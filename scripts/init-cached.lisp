@@ -1,6 +1,10 @@
 ;;;
 ;;; init-cached.lisp
 ;;;
+;;; NOTE: these frequently-used functions are passed through an optimizing
+;;; bytecode compiler at startup, and their compiled representations are
+;;; compressed and cached in save memory for subsequent boots.
+;;;
 
 
 (defn/c clamp (v low high)
@@ -164,6 +168,15 @@
          (not (equal type 4))
          (not (equal type 5))
          (not (equal (cdr node) (cdr (wg-pos)))))))
+
+(defn/c quest-marker-is-reachable (pos)
+  (let ((pos-xy (cdr pos)))
+    (lambda (n)
+      (let ((xy (cdr n)))
+        (let ((turns-until-corrupted (wg-turns-remaining xy)))
+          ;; NOTE: +1 because path includes both endpoints.
+          (> (+ turns-until-corrupted 1) (length (wg-path pos-xy xy))))))))
+
 
 (defn/c sky-chart-xsort-compare (node1 node2)
   (let ((getx cadr))

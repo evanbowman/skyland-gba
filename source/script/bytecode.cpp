@@ -469,6 +469,16 @@ void disassemble(ScratchBuffer* data,
             i += 3;
             break;
 
+        case SmallJumpNotEqual::op(): {
+            auto inst = (SmallJumpNotEqual*)(data->data_ + i);
+            out += inst->name();
+            out += "(";
+            out += stringify(inst->offset_);
+            out += ")";
+            i += sizeof *inst;
+            break;
+        }
+
         case RetNilIfFalse::op():
             out += RetNilIfFalse::name();
             i += sizeof(RetNilIfFalse);
@@ -829,6 +839,7 @@ void parse_instructions(ScratchBuffer& buffer, InstructionList& list, int offset
             MATCH(EarlyRetNil)
             MATCH(RetNilIfFalse)
             MATCH(RetNilIfFalseKeep)
+            MATCH(SmallJumpNotEqual)
         }
     }
 }

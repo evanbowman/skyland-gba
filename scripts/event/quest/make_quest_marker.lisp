@@ -8,11 +8,7 @@
       (pos (wg-pos)))
 
   ;; Filter out nodes that will become unreachable.
-  (setq opts (filter (lambda (n)
-                       (let ((xy (cdr n)))
-                         (let ((turns-until-corrupted (wg-turns-remaining xy)))
-                           ;; NOTE: +1 because path includes both endpoints.
-                           (> (+ turns-until-corrupted 1) (length (wg-path (cdr pos) xy))))))
+  (setq opts (filter (quest-marker-is-reachable pos)
                      opts))
 
   ;; Sort options by x coord.

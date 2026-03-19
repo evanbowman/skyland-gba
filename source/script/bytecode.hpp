@@ -26,7 +26,7 @@ namespace lisp
 {
 
 
-#define LISP_BYTECODE_VERSION 4
+#define LISP_BYTECODE_VERSION 5
 
 
 using Opcode = u8;
@@ -325,7 +325,7 @@ struct SmallJump
 
     static const char* name()
     {
-        return "JUMP_SMALL";
+        return "SMALL_JUMP";
     }
 
     static constexpr Opcode op()
@@ -359,7 +359,7 @@ struct SmallJumpIfFalse
 
     static const char* name()
     {
-        return "JUMP_SMALL_IF_FALSE";
+        return "SMALL_JUMP_IF_FALSE";
     }
 
     static constexpr Opcode op()
@@ -1484,6 +1484,23 @@ struct Decr
     static constexpr Opcode op()
     {
         return 97;
+    }
+};
+
+
+struct SmallJumpNotEqual
+{
+    Header header_;
+    u8 offset_;
+
+    static const char* name()
+    {
+        return "SMALL_JUMP_NOT_EQUAL";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 98;
     }
 };
 

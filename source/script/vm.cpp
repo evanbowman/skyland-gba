@@ -302,6 +302,17 @@ TOP:
             break;
         }
 
+        case SmallJumpNotEqual::op(): {
+            auto inst = read<SmallJumpNotEqual>(code, pc);
+            auto result = builtin_comp_equal(2);
+            pop_op();
+            pop_op(); // args
+            if (not is_boolean_true(result)) {
+                pc = start_offset + inst->offset_;
+            }
+            break;
+        }
+
         case SmallJump::op(): {
             auto inst = read<SmallJump>(code, pc);
             pc = start_offset + inst->offset_;
