@@ -1486,17 +1486,17 @@ public:
         }
 
     CLEANUP:
-        auto br = make_sub_buffer("reg-table", 0);
-        Vector<bool, SubBufferMemory> loaded_registers(br);
+        struct RegisterMap
+        {
+            u8 reg_[256];
+        };
+        auto loaded_registers = allocate_small<RegisterMap>({"register-map"});
         for (u32 i = 0; i < instructions.size(); ++i) {
             auto inst = instructions[i];
             switch (inst->op_) {
             case LoadReg::op(): {
                 auto instr = (LoadReg*)inst;
-                while ((int)loaded_registers.size() < instr->reg_ + 1) {
-                    loaded_registers.push_back(false);
-                }
-                loaded_registers[instr->reg_] = true;
+                loaded_registers->reg_[instr->reg_] = true;
                 switch (instr->reg_) {
                 case 0: {
                     LoadReg0 lr0;
@@ -1530,7 +1530,7 @@ public:
             auto inst = instructions[i];
             switch (inst->op_) {
             case StoreRegKeep::op(): {
-                if (not loaded_registers[((StoreRegKeep*)inst)->reg_] and
+                if (not loaded_registers->reg_[((StoreRegKeep*)inst)->reg_] and
                     not is_jump_target(inst, code_buffer, targets)) {
                     remove(instructions,
                            code_buffer,
