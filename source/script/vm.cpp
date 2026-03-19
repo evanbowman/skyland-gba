@@ -837,6 +837,50 @@ TOP:
             break;
         }
 
+        case LoadCall0Discard::op(): {
+            auto inst = read<LoadCall0Discard>(code, pc);
+            auto index = inst->symtab_index_.get();
+            Protected sym(make_symtab_symbol(index));
+            Protected fn(get_var(sym));
+            funcall(fn, 0);
+            collect_value(sym);
+            pop_op();
+            break;
+        }
+
+        case LoadCall1Discard::op(): {
+            auto inst = read<LoadCall1Discard>(code, pc);
+            auto index = inst->symtab_index_.get();
+            Protected sym(make_symtab_symbol(index));
+            Protected fn(get_var(sym));
+            funcall(fn, 1);
+            collect_value(sym);
+            pop_op();
+            break;
+        }
+
+        case LoadCall2Discard::op(): {
+            auto inst = read<LoadCall2Discard>(code, pc);
+            auto index = inst->symtab_index_.get();
+            Protected sym(make_symtab_symbol(index));
+            Protected fn(get_var(sym));
+            funcall(fn, 2);
+            collect_value(sym);
+            pop_op();
+            break;
+        }
+
+        case LoadCall3Discard::op(): {
+            auto inst = read<LoadCall3Discard>(code, pc);
+            auto index = inst->symtab_index_.get();
+            Protected sym(make_symtab_symbol(index));
+            Protected fn(get_var(sym));
+            funcall(fn, 3);
+            collect_value(sym);
+            pop_op();
+            break;
+        }
+
         case Funcall::op(): {
             Protected fn(get_op0());
             auto argc = read<Funcall>(code, pc)->argc_;
@@ -1095,6 +1139,25 @@ TOP:
             break;
         }
 
+        case Divide::op(): {
+            read<Divide>(code, pc);
+            auto result = builtin_divide(2);
+            pop_op();
+            pop_op();
+            push_op(result);
+            break;
+        }
+
+        case Multiply::op(): {
+            auto multiply = read<Multiply>(code, pc);
+            auto result = builtin_multiply(multiply->operands_);
+            for (int i = 0; i < multiply->operands_; ++i) {
+                pop_op();
+            }
+            push_op(result);
+            break;
+        }
+
         case Incr::op(): {
             read<Incr>(code, pc);
             auto result = builtin_incr(1);
@@ -1106,6 +1169,14 @@ TOP:
         case Decr::op(): {
             read<Decr>(code, pc);
             auto result = builtin_decr(1);
+            pop_op();
+            push_op(result);
+            break;
+        }
+
+        case Length::op(): {
+            read<Incr>(code, pc);
+            auto result = builtin_length(1);
             pop_op();
             push_op(result);
             break;

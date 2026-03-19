@@ -629,6 +629,17 @@ TOP:
                     argc;
 
             } else if (fn->type() == Value::Type::symbol and
+                       str_eq(fn->symbol().name(), "*")) {
+
+                append<instruction::Multiply>(ctx, buffer, write_pos)->operands_ =
+                    argc;
+
+            } else if (fn->type() == Value::Type::symbol and
+                       str_eq(fn->symbol().name(), "/") and argc == 2) {
+
+                append<instruction::Divide>(ctx, buffer, write_pos);
+
+            } else if (fn->type() == Value::Type::symbol and
                        str_eq(fn->symbol().name(), "-") and argc == 2) {
 
                 append<instruction::Subtract>(ctx, buffer, write_pos);
@@ -642,6 +653,11 @@ TOP:
                        str_eq(fn->symbol().name(), "decr") and argc == 1) {
 
                 append<instruction::Decr>(ctx, buffer, write_pos);
+
+            } else if (fn->type() == Value::Type::symbol and
+                       str_eq(fn->symbol().name(), "length") and argc == 1) {
+
+                append<instruction::Length>(ctx, buffer, write_pos);
 
             } else if (fn->type() == Value::Type::symbol and
                        str_eq(fn->symbol().name(), "get") and argc == 2) {
@@ -1011,10 +1027,8 @@ public:
 class PeepholeOptimizer : public Optimizer
 {
 public:
-    u32 run(ScratchBuffer& code_buffer, u32 code_size)
+    u32 run(InstructionList& instructions, ScratchBuffer& code_buffer, u32 code_size)
     {
-        InstructionList instructions(make_scratch_buffer("instruction-buffer"));
-        parse_instructions(code_buffer, instructions);
 
     TOP:
         int index = 0;
@@ -1080,6 +1094,15 @@ public:
                         remove(instructions,
                                code_buffer,
                                (RetNil*)inst,
+                               code_size);
+                        goto TOP;
+                    }
+                } else if (prev->op_ == EarlyRetNil::op()) {
+                    if (not is_jump_target(inst, code_buffer, targets)) {
+                        prev->op_ = RetNil::op();
+                        remove(instructions,
+                               code_buffer,
+                               (EarlyRetNil*)inst,
                                code_size);
                         goto TOP;
                     }
@@ -1158,7 +1181,8 @@ public:
             case SmallJumpIfFalse::op(): {
                 SmallJumpIfFalse* jif = (SmallJumpIfFalse*)inst;
                 int abs_target = scope_stack[depth].start_ + jif->offset_;
-                if (code_buffer.data_[abs_target] == RetNil::op()) {
+                if (code_buffer.data_[abs_target] == RetNil::op() or
+                    code_buffer.data_[abs_target] == EarlyRetNil::op()) {
                     RetNilIfFalse rnf;
                     rnf.header_.op_ = RetNilIfFalse::op();
                     replace(instructions, code_buffer, *jif, rnf, code_size);
@@ -1180,8 +1204,8 @@ public:
                     replace(instructions, code_buffer, *sj, r, code_size);
                     goto TOP;
                 } else if (code_buffer.data_[abs_target] == RetNil::op()) {
-                    RetNil rn;
-                    rn.header_.op_ = RetNil::op();
+                    EarlyRetNil rn;
+                    rn.header_.op_ = EarlyRetNil::op();
                     replace(instructions, code_buffer, *sj, rn, code_size);
                     goto TOP;
                 } else {
@@ -1235,7 +1259,7 @@ public:
                 break;
             }
 
-            case Jump::op():
+            case Jump::op(): {
                 if (auto o = ((Jump*)inst)->offset_.get(); o > 0 and o < 256) {
                     SmallJump j;
                     j.header_.op_ = SmallJump::op();
@@ -1244,10 +1268,27 @@ public:
                         instructions, code_buffer, *(Jump*)inst, j, code_size);
                     goto TOP;
                 }
+                Jump* jmp = (Jump*)inst;
+                int abs_target = scope_stack[depth].start_ + jmp->offset_.get();
+                if (code_buffer.data_[abs_target] == Ret::op() or
+                    code_buffer.data_[abs_target] == EarlyRet::op()) {
+                    // A jump to a return instruction can be replaced with a return
+                    // instruction.
+                    EarlyRet r;
+                    r.header_.op_ = EarlyRet::op();
+                    replace(instructions, code_buffer, *jmp, r, code_size);
+                    goto TOP;
+                } else if (code_buffer.data_[abs_target] == RetNil::op()) {
+                    EarlyRetNil rn;
+                    rn.header_.op_ = EarlyRetNil::op();
+                    replace(instructions, code_buffer, *jmp, rn, code_size);
+                    goto TOP;
+                }
                 ++index;
                 break;
+            }
 
-            case JumpIfFalse::op():
+            case JumpIfFalse::op(): {
                 if (auto o = ((Jump*)inst)->offset_.get(); o > 0 and o < 256) {
                     SmallJumpIfFalse j;
                     j.header_.op_ = SmallJumpIfFalse::op();
@@ -1259,8 +1300,18 @@ public:
                             code_size);
                     goto TOP;
                 }
+                JumpIfFalse* jif = (JumpIfFalse*)inst;
+                int abs_target = scope_stack[depth].start_ + jif->offset_.get();
+                if (code_buffer.data_[abs_target] == RetNil::op() or
+                    code_buffer.data_[abs_target] == EarlyRetNil::op()) {
+                    RetNilIfFalse rnf;
+                    rnf.header_.op_ = RetNilIfFalse::op();
+                    replace(instructions, code_buffer, *jif, rnf, code_size);
+                    goto TOP;
+                }
                 ++index;
                 break;
+            }
 
             case PushNil::op(): {
                 auto next = instructions[index + 1];
@@ -1273,6 +1324,13 @@ public:
                            (Ret*)next,
                            code_size);
                     goto TOP;
+                } else if (next->op_ == EarlyRet::op() and
+                           not is_jump_target(next, code_buffer, targets)) {
+                    ((PushNil*)inst)->header_.op_ = EarlyRetNil::op();
+                    remove(instructions,
+                           code_buffer,
+                           (EarlyRet*)next,
+                           code_size);
                 }
                 ++index;
                 break;
@@ -1340,6 +1398,39 @@ public:
                         prev->op_ = StoreReg::op();
                         goto TOP;
                     }
+                    break;
+
+                case LoadCall0::op():
+                    if (not is_jump_target(inst, code_buffer, targets)) {
+                        remove(instructions, code_buffer, (Pop*)inst, code_size);
+                        prev->op_ = LoadCall0Discard::op();
+                        goto TOP;
+                    }
+                    break;
+
+                case LoadCall1::op():
+                    if (not is_jump_target(inst, code_buffer, targets)) {
+                        remove(instructions, code_buffer, (Pop*)inst, code_size);
+                        prev->op_ = LoadCall1Discard::op();
+                        goto TOP;
+                    }
+                    break;
+
+                case LoadCall2::op():
+                    if (not is_jump_target(inst, code_buffer, targets)) {
+                        remove(instructions, code_buffer, (Pop*)inst, code_size);
+                        prev->op_ = LoadCall2Discard::op();
+                        goto TOP;
+                    }
+                    break;
+
+                case LoadCall3::op():
+                    if (not is_jump_target(inst, code_buffer, targets)) {
+                        remove(instructions, code_buffer, (Pop*)inst, code_size);
+                        prev->op_ = LoadCall3Discard::op();
+                        goto TOP;
+                    }
+                    break;
                 }
                 ++index;
                 break;
@@ -1645,11 +1736,8 @@ public:
 class StackOptimizer : public Optimizer
 {
 public:
-    u32 run(ScratchBuffer& code_buffer, u32 code_size)
+    u32 run(InstructionList& instructions, ScratchBuffer& code_buffer, u32 code_size)
     {
-        InstructionList instructions(make_scratch_buffer("instruction-buffer"));
-        parse_instructions(code_buffer, instructions);
-
         using namespace instruction;
 
         struct LexicalBinding
@@ -1662,7 +1750,6 @@ public:
         Vector<LexicalBinding, SubBufferMemory> defs(
             make_sub_buffer("stack-opt-strs", 0));
 
-        bool has_lambdas = false;
         Vector<StringBuffer<32>, SubBufferMemory> captured_syms(
             make_sub_buffer("captured-syms", 0));
 
@@ -1699,7 +1786,6 @@ public:
             for (auto& inst : instructions) {
                 switch (inst->op_) {
                 case PushLambda::op():
-                    has_lambdas = true;
                     ++depth;
                     frame_id_stack.push_back(frame_id);
                     frame_id = 0;
@@ -1996,25 +2082,54 @@ public:
             goto RESTART;
         }
 
-        if (not has_lambdas) {
+        auto depth_has_captures = [&](int d) -> bool {
+            for (auto& def : defs) {
+                if (def.depth_ == d && is_captured(def.symbol_name_string_.c_str())) {
+                    return true;
+                }
+            }
+            return false;
+        };
+
+        {
+            int depth = 0;
             u32 index = 0;
             while (index < instructions.size()) {
                 auto inst = instructions[index];
                 switch (inst->op_) {
-                default:
+                case PushLambda::op():
+                    ++depth;
                     ++index;
                     break;
-                case LexicalFramePush::op():
-                    remove(instructions,
-                           code_buffer,
-                           (LexicalFramePush*)inst,
-                           code_size);
+
+                case Ret::op():
+                case RetNil::op():
+                    if (depth > 0) {
+                        --depth;
+                    }
+                    ++index;
                     break;
+
+                case LexicalFramePush::op():
+                    if (not depth_has_captures(depth)) {
+                        remove(instructions, code_buffer,
+                               (LexicalFramePush*)inst, code_size);
+                    } else {
+                        ++index;
+                    }
+                    break;
+
                 case LexicalFramePop::op():
-                    remove(instructions,
-                           code_buffer,
-                           (LexicalFramePop*)inst,
-                           code_size);
+                    if (not depth_has_captures(depth)) {
+                        remove(instructions, code_buffer,
+                               (LexicalFramePop*)inst, code_size);
+                    } else {
+                        ++index;
+                    }
+                    break;
+
+                default:
+                    ++index;
                     break;
                 }
             }
@@ -2062,16 +2177,16 @@ void compile(Value* code, CompileOptions opts)
     CompilerContext ctx;
     write_pos = compile_fn(ctx, *buffer, write_pos, code, 0);
 
+    auto& code_buffer = *fn->function().bytecode_impl_.databuffer()->databuffer().value();
+    InstructionList instructions(make_scratch_buffer("instruction-buffer"));
+    parse_instructions(code_buffer, instructions);
+
     if (opts.stack_optimizer_enabled_) {
-        write_pos = StackOptimizer().run(
-            *fn->function().bytecode_impl_.databuffer()->databuffer().value(),
-            write_pos);
+        write_pos = StackOptimizer().run(instructions, code_buffer, write_pos);
     }
 
     if (opts.peephole_optimizer_enabled_) {
-        write_pos = PeepholeOptimizer().run(
-            *fn->function().bytecode_impl_.databuffer()->databuffer().value(),
-            write_pos);
+        write_pos = PeepholeOptimizer().run(instructions, code_buffer, write_pos);
     }
 
     // std::cout << "compilation finished, bytes used: " << write_pos <<

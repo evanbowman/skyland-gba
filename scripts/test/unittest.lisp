@@ -603,7 +603,7 @@
 ;; Test some macros... the reader eagerly expands macros. This is pretty bad,
 ;; but again, macroexpanding stuff during evaluation every time isn't
 ;; sensible...
-(assert-eq (read "(and 1 2 3)") '(if (not 1) 0 (if (not 2) 0 (if (not 3) 0 1))))
+(assert-eq (read "(and 1 2 3)") '(if (not 1) () (if (not 2) () (if (not 3) () 1))))
 (assert-eq (read "(or 1 2)") '(if 1 1 (if 2 1 0)))
 (assert-eq (read "(when true nil)") '(if 1 (progn ())))
 (assert-eq (read "(cond ((a 5) 6 7 8) (true nil))")

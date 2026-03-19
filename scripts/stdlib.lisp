@@ -15,7 +15,7 @@
 
 (macro and (EXPR)
  `(if (not ,(car EXPR))
-      0
+      nil
     ,(if (cdr EXPR)
          (cons 'and (cdr EXPR))
        1)))

@@ -26,7 +26,7 @@ namespace lisp
 {
 
 
-#define LISP_BYTECODE_VERSION 5
+#define LISP_BYTECODE_VERSION 6
 
 
 using Opcode = u8;
@@ -1501,6 +1501,111 @@ struct SmallJumpNotEqual
     static constexpr Opcode op()
     {
         return 98;
+    }
+};
+
+
+struct Multiply
+{
+    Header header_;
+    u8 operands_;
+
+    static const char* name()
+    {
+        return "MUL";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 99;
+    }
+};
+
+
+struct Divide
+{
+    Header header_;
+
+    static const char* name()
+    {
+        return "DIV";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 100;
+    }
+};
+
+
+struct Length
+{
+    Header header_;
+
+    static const char* name()
+    {
+        return "LENGTH";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 101;
+    }
+};
+
+
+struct LoadCall0Discard : public LoadVarS
+{
+    static const char* name()
+    {
+        return "LOAD/CALL0/POP";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 102;
+    }
+};
+
+
+struct LoadCall1Discard : public LoadVarS
+{
+    static const char* name()
+    {
+        return "LOAD/CALL1/POP";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 103;
+    }
+};
+
+
+struct LoadCall2Discard : public LoadVarS
+{
+    static const char* name()
+    {
+        return "LOAD/CALL2/POP";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 104;
+    }
+};
+
+
+struct LoadCall3Discard : public LoadVarS
+{
+    static const char* name()
+    {
+        return "LOAD/CALL3/POP";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 105;
     }
 };
 

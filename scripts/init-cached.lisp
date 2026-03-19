@@ -169,6 +169,7 @@
          (not (equal type 5))
          (not (equal (cdr node) (cdr (wg-pos)))))))
 
+
 (defn/c quest-marker-is-reachable (pos)
   (let ((pos-xy (cdr pos)))
     (lambda (n)

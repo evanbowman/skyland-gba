@@ -91,9 +91,22 @@ void disassemble(ScratchBuffer* data,
             i += sizeof(Add);
             break;
 
+        case Multiply::op():
+            out += Multiply::name();
+            out += "(";
+            out += stringify(((Multiply*)(data->data_ + i))->operands_);
+            out += ")";
+            i += sizeof(Multiply);
+            break;
+
         case Subtract::op():
             out += Subtract::name();
             i += sizeof(Subtract);
+            break;
+
+        case Divide::op():
+            out += Divide::name();
+            i += sizeof(Divide);
             break;
 
         case Incr::op():
@@ -339,6 +352,50 @@ void disassemble(ScratchBuffer* data,
             out += load_from_symtab(off);
             out += ")";
             i += sizeof(LoadTCall3);
+            break;
+        }
+
+        case LoadCall0Discard::op(): {
+            auto inst = (LoadCall0Discard*)(data->data_ + i);
+            auto off = inst->symtab_index_.get() * symtab_stride;
+            out += inst->name();
+            out += "(";
+            out += load_from_symtab(off);
+            out += ")";
+            i += sizeof(*inst);
+            break;
+        }
+
+        case LoadCall1Discard::op(): {
+            auto inst = (LoadCall1Discard*)(data->data_ + i);
+            auto off = inst->symtab_index_.get() * symtab_stride;
+            out += inst->name();
+            out += "(";
+            out += load_from_symtab(off);
+            out += ")";
+            i += sizeof(*inst);
+            break;
+        }
+
+        case LoadCall2Discard::op(): {
+            auto inst = (LoadCall2Discard*)(data->data_ + i);
+            auto off = inst->symtab_index_.get() * symtab_stride;
+            out += inst->name();
+            out += "(";
+            out += load_from_symtab(off);
+            out += ")";
+            i += sizeof(*inst);
+            break;
+        }
+
+        case LoadCall3Discard::op(): {
+            auto inst = (LoadCall3Discard*)(data->data_ + i);
+            auto off = inst->symtab_index_.get() * symtab_stride;
+            out += inst->name();
+            out += "(";
+            out += load_from_symtab(off);
+            out += ")";
+            i += sizeof(*inst);
             break;
         }
 
@@ -624,6 +681,11 @@ void disassemble(ScratchBuffer* data,
             i += sizeof(Rest);
             break;
 
+        case Length::op():
+            out += Length::name();
+            i += sizeof(Length);
+            break;
+
         case Dup::op():
             out += Dup::name();
             i += 1;
@@ -811,6 +873,10 @@ void parse_instructions(ScratchBuffer& buffer, InstructionList& list, int offset
             MATCH(LoadCall1)
             MATCH(LoadCall2)
             MATCH(LoadCall3)
+            MATCH(LoadCall0Discard)
+            MATCH(LoadCall1Discard)
+            MATCH(LoadCall2Discard)
+            MATCH(LoadCall3Discard)
             MATCH(LoadTCall1)
             MATCH(LoadTCall2)
             MATCH(LoadTCall3)
@@ -824,6 +890,8 @@ void parse_instructions(ScratchBuffer& buffer, InstructionList& list, int offset
             MATCH(Get)
             MATCH(Add)
             MATCH(Subtract)
+            MATCH(Multiply)
+            MATCH(Divide)
             MATCH(Incr)
             MATCH(Decr)
             MATCH(Resume)
@@ -840,6 +908,7 @@ void parse_instructions(ScratchBuffer& buffer, InstructionList& list, int offset
             MATCH(RetNilIfFalse)
             MATCH(RetNilIfFalseKeep)
             MATCH(SmallJumpNotEqual)
+            MATCH(Length)
         }
     }
 }
