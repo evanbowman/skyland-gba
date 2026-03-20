@@ -215,9 +215,9 @@ constexpr const std::array<FinalizerTableEntry, Value::Type::count> fin_table =
 
 struct MacroDescription
 {
-    Symbol::UniqueId name_;
     const char* string_name_;
     Value* definition_;
+    Symbol::UniqueId name_;
     // After macro-expansion, we need to run macro-expansion repeatedly in case
     // a macro instantiates other macros. This can be somewhat computationally
     // intensive, and we can avoid some of the overhead in simple cases by
@@ -4138,9 +4138,9 @@ static void refresh_macros()
 static void eval_macro(Value* code)
 {
     if (code->cons().car()->type() == Value::Type::symbol) {
-        L_CTX.macros_.push_back({code->cons().car()->symbol().unique_id(),
-                                 code->cons().car()->symbol().name(),
+        L_CTX.macros_.push_back({code->cons().car()->symbol().name(),
                                  code->cons().cdr(),
+                                 code->cons().car()->symbol().unique_id(),
                                  false},
                                 "lisp-macro-array");
         refresh_macros();
