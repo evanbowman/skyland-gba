@@ -12,6 +12,7 @@
 #include "bytecode.hpp"
 #include "platform/flash_filesystem.hpp"
 #include "lisp_internal.hpp"
+#include "listBuilder.hpp"
 
 
 namespace lisp
@@ -66,6 +67,7 @@ void ObjectFile::append(Symbol::SymtabIndex sym, Function& fn)
 
     Definition def;
     def.sym_.set(sym);
+    def.sig_ = fn.sig_;
     def.bytecode_size_.set(bytecode_size);
 
     append(&def, sizeof(def));
@@ -166,8 +168,10 @@ bool ObjectFile::disassemble(const char* path, Vector<char>& output)
 }
 
 
-bool ObjectFile::load(const Fingerprint& f, const char* path)
+Value* ObjectFile::load(const Fingerprint& f, const char* path)
 {
+    ListBuilder result;
+
     definition_count_ = 0;
     bytes_.clear();
 
@@ -175,20 +179,20 @@ bool ObjectFile::load(const Fingerprint& f, const char* path)
     auto it = bytes_.begin();
 
     if (bytes_.size() < sizeof(DefinitionCountField) + sizeof(Fingerprint)) {
-        return false;
+        return L_NIL;
     }
 
     auto fingerprint = read_mem<Fingerprint>(it, bytes_.end());
     if (not fingerprint) {
-        return false;
+        return L_NIL;
     }
     if (memcmp(&*fingerprint, &f, sizeof f) not_eq 0) {
-        return false;
+        return L_NIL;
     }
 
     auto def_count = read_mem<DefinitionCountField>(it, bytes_.end());
     if (not def_count) {
-        return false;
+        return L_NIL;
     }
     definition_count_ = def_count->get();
 
@@ -213,7 +217,7 @@ bool ObjectFile::load(const Fingerprint& f, const char* path)
     for (int i = 0; i < definition_count_; ++i) {
         auto def_header = read_mem<Definition>(it, bytes_.end());
         if (not def_header) {
-            return false;
+            return L_NIL;
         }
 
         const auto sym_index = def_header->sym_.get();
@@ -224,7 +228,9 @@ bool ObjectFile::load(const Fingerprint& f, const char* path)
         {
             auto check = it;
             for (u32 j = 0; j < bc_size; ++j) {
-                if (check == bytes_.end()) return false;
+                if (check == bytes_.end()) {
+                    return L_NIL;
+                }
                 ++check;
             }
         }
@@ -235,7 +241,7 @@ bool ObjectFile::load(const Fingerprint& f, const char* path)
             push_op(make_databuffer("lisp-bytecode"));
             if (get_op(0)->type() not_eq Value::Type::databuffer) {
                 pop_op();
-                return false;
+                return L_NIL;
             }
             target_buf = get_op(0);
             get_bytecode_buffer() = target_buf;
@@ -256,21 +262,22 @@ bool ObjectFile::load(const Fingerprint& f, const char* path)
         push_op(make_cons(off, target_buf));
         if (get_op(0)->type() not_eq Value::Type::cons) {
             pop_op();
-            return false;
+            return L_NIL;
         }
         auto fn = make_bytecode_function(get_op(0));
         pop_op();
         if (fn->type() not_eq Value::Type::function) {
-            return false;
+            return L_NIL;
         }
+        fn->function().sig_ = def_header->sig_;
 
         // Bind the function to its symbol
         Protected pfn(fn);
         Protected sym(make_symtab_symbol(sym_index));
-        set_var((Value*)sym, fn, true);
+        result.push_back(make_cons(sym, pfn));
     }
 
-    return true;
+    return result.result();
 }
 
 

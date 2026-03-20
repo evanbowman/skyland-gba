@@ -561,6 +561,13 @@ void disassemble(ScratchBuffer* data,
             i += 2;
             break;
 
+        case SmallJumpIfTrue::op():
+            out += "SMALL_JUMP_IF_TRUE(";
+            out += to_string<32>((u8) * (data->data_ + i + 1));
+            out += ")";
+            i += 2;
+            break;
+
         case SmallJump::op():
             out += "SMALL_JUMP(";
             out += to_string<32>((u8) * (data->data_ + i + 1));
@@ -834,6 +841,7 @@ void parse_instructions(ScratchBuffer& buffer, InstructionList& list, int offset
             MATCH(JumpIfFalse)
             MATCH(Jump)
             MATCH(SmallJumpIfFalse)
+            MATCH(SmallJumpIfTrue)
             MATCH(SmallJump)
             MATCH(TailCall)
             MATCH(TailCall1)

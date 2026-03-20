@@ -928,6 +928,15 @@ public:
                 break;
             }
 
+            case SmallJumpIfTrue::op(): {
+                auto offset = ((SmallJumpIfTrue*)inst)->offset_;
+                if (local_inflection >= 0 && offset > local_inflection) {
+                    ((SmallJumpIfTrue*)inst)->offset_ = offset + size_diff;
+                }
+                ++index;
+                break;
+            }
+
             case SmallJumpNotEqual::op(): {
                 auto offset = ((SmallJumpNotEqual*)inst)->offset_;
                 if (local_inflection >= 0 && offset > local_inflection) {
@@ -996,6 +1005,10 @@ public:
                 break;
             case SmallJumpIfFalse::op():
                 targets.push_back(scope_start + ((SmallJumpIfFalse*)inst)->offset_);
+                ++index;
+                break;
+            case SmallJumpIfTrue::op():
+                targets.push_back(scope_start + ((SmallJumpIfTrue*)inst)->offset_);
                 ++index;
                 break;
             case SmallJumpNotEqual::op():
@@ -1459,6 +1472,17 @@ public:
                     not is_jump_target(inst, code_buffer, targets) and
                     not is_jump_target(next, code_buffer, targets)) {
                     remove(instructions, code_buffer, (Not*)next, code_size);
+                    remove(instructions, code_buffer, (Not*)inst, code_size);
+                    goto TOP;
+                } else if (next->op_ == SmallJumpIfFalse::op() and
+                           not is_jump_target(inst, code_buffer, targets) and
+                           not is_jump_target(next, code_buffer, targets)) {
+                    // NOTE: this else/if for jump condition inversion runs
+                    // after the not/not detection, because eliminating double
+                    // not is a bigger priority.
+                    static_assert(sizeof(SmallJumpIfTrue) == sizeof(SmallJumpIfFalse) and
+                                  std::is_base_of<SmallJumpIfFalse, SmallJumpIfTrue>());
+                    next->op_ = SmallJumpIfTrue::op();
                     remove(instructions, code_buffer, (Not*)inst, code_size);
                     goto TOP;
                 }

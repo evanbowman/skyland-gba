@@ -26,7 +26,7 @@ namespace lisp
 {
 
 
-#define LISP_BYTECODE_VERSION 6
+#define LISP_BYTECODE_VERSION 7
 
 
 using Opcode = u8;
@@ -1608,6 +1608,21 @@ struct LoadCall3Discard : public LoadVarS
         return 105;
     }
 };
+
+
+struct SmallJumpIfTrue : public SmallJumpIfFalse
+{
+    static const char* name()
+    {
+        return "SMALL_JUMP_IF_TRUE";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 106;
+    }
+};
+
 
 
 void disassemble(ScratchBuffer* code_buffer,

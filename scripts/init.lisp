@@ -42,4 +42,4 @@
                 faction-enable-sylph-mask))
 
 
-(unbind 'load-library-cached)
+(unbind 'load-library-cached 'open-library-cached)

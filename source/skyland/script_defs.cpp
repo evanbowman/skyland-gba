@@ -306,9 +306,7 @@ lisp::Value* load_obj_file(int argc)
 
     auto f = create_fingerprint();
     lisp::ObjectFile library(f);
-    bool success = library.load(f, L_LOAD_STRING(0));
-
-    return lisp::make_boolean(success);
+    return library.load(f, L_LOAD_STRING(0));
 }
 
 

@@ -38,7 +38,7 @@ public:
     void save(const char* path);
 
 
-    bool load(const Fingerprint& f, const char* path);
+    Value* load(const Fingerprint& f, const char* path);
 
 
     static bool disassemble(const char* path, Vector<char>& output);
@@ -47,6 +47,7 @@ public:
     struct Definition
     {
         HostInteger<Symbol::SymtabIndex> sym_;
+        Function::Signature sig_;
         host_u16 bytecode_size_;
     };
 
