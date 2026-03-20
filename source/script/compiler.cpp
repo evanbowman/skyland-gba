@@ -131,28 +131,35 @@ int compile_quoted(CompilerContext& ctx,
         }
 
     } else if (code->type() == Value::Type::cons) {
+        auto cdr = code->cons().cdr();
+        if (cdr->type() not_eq Value::Type::cons and
+            cdr->type() not_eq Value::Type::nil) {
+            write_pos = compile_quoted(ctx, buffer, write_pos, code->cons().car(), tail_expr);
+            write_pos = compile_quoted(ctx, buffer, write_pos, cdr, tail_expr);
+            append<instruction::MakePair>(ctx, buffer, write_pos);
+        } else {
+            int list_len = 0;
 
-        int list_len = 0;
+            while (code not_eq get_nil()) {
+                if (code->type() not_eq Value::Type::cons) {
+                    // ...
+                    break;
+                }
+                write_pos = compile_quoted(
+                                           ctx, buffer, write_pos, code->cons().car(), tail_expr);
 
-        while (code not_eq get_nil()) {
-            if (code->type() not_eq Value::Type::cons) {
-                // ...
-                break;
+                code = code->cons().cdr();
+
+                list_len++;
+
+                if (list_len == 255) {
+                    PLATFORM.fatal("cannot compile list with more than 255 slots!");
+                }
             }
-            write_pos = compile_quoted(
-                ctx, buffer, write_pos, code->cons().car(), tail_expr);
 
-            code = code->cons().cdr();
-
-            list_len++;
-
-            if (list_len == 255) {
-                PLATFORM.fatal("cannot compile list with more than 255 slots!");
-            }
+            auto inst = append<instruction::PushList>(ctx, buffer, write_pos);
+            inst->element_count_ = list_len;
         }
-
-        auto inst = append<instruction::PushList>(ctx, buffer, write_pos);
-        inst->element_count_ = list_len;
     } else if (code->type() == Value::Type::nil) {
         append<instruction::PushNil>(ctx, buffer, write_pos);
     }
