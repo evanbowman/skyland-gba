@@ -95,19 +95,8 @@
 (defn/c max (lat) (car (sort lat >)))
 
 
-(defn open-library-cached (library-path)
-  (let ((contents (load-library library-path)))
-    (when contents
-      (foreach (lambda (binding)
-                 (let (((name . fn) binding))
-                   (global name)
-                   (set name fn)))
-               contents)
-      contents)))
-
-
 (defn load-library-cached (path library-path)
-  (when (not (open-library-cached library-path))
+  (when (not (load-library library-path))
     (log (format "building %..." library-path))
     (let ((store-fns nil))
       (let ((setfn (lambda (sym fn)

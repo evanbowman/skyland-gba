@@ -300,13 +300,30 @@ lisp::Value* save_obj_file(int argc)
 }
 
 
-lisp::Value* load_obj_file(int argc)
+lisp::Value* open_obj_file(int argc)
 {
     L_EXPECT_OP(0, string);
 
     auto f = create_fingerprint();
     lisp::ObjectFile library(f);
     return library.load(f, L_LOAD_STRING(0));
+}
+
+
+lisp::Value* load_obj_file(int argc)
+{
+    L_EXPECT_OP(0, string);
+
+    auto f = create_fingerprint();
+    lisp::ObjectFile library(f);
+    auto l = library.load(f, L_LOAD_STRING(0));
+    if (l == L_NIL) {
+        return l;
+    }
+    l_foreach(l, [](lisp::Value* v) {
+        lisp::set_var(v->cons().car(), v->cons().cdr(), true);
+    });
+    return lisp::make_boolean(true);
 }
 
 

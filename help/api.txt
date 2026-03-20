@@ -1005,6 +1005,16 @@ o──────────────────────────�
 
  Attempt to load pre-compiled
  lisp bytecode from a path in
+ save memory. Binds the
+ results to global variables.
+
+
+o────────────────────────────o
+
+ (open-library path)
+
+ Attempt to load pre-compiled
+ lisp bytecode from a path in
  save memory. Returns a list
  of (symbol . function)
  pairs.
