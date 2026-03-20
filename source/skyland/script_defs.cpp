@@ -2342,7 +2342,7 @@ BINDING_TABLE({
           auto search = lisp::get_op(1);
           auto fn = lisp::get_op(0);
 
-          PLATFORM.walk_filesystem([fn, search](const char* path) {
+          PLATFORM.walk_filesystem([fn, search](const char* path, u32 size) {
               auto len = strlen(search->string().value());
               for (u32 i = 0; i < len; ++i) {
                   if (path[i] not_eq search->string().value()[i]) {

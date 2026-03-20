@@ -27,7 +27,7 @@ void DlcManagerModule::enter(Scene& prev)
 {
     patches_ = allocate<PatchList>("dlc-patch-list");
 
-    auto on_match = [&](const char* const path) {
+    auto on_match = [&](const char* const path, u32 size) {
         const char* p = path;
         PatchName patch_name;
         while (*p not_eq '\0' and *p not_eq '/') {
@@ -226,7 +226,7 @@ ScenePtr DlcManagerModule::update(Time delta)
         StringBuffer<flash_filesystem::max_path> folder("/dlc/");
         folder += (*patches_)->list_[index_].name_.c_str();
 
-        auto destroy_file = [&](const char* const path) {
+        auto destroy_file = [&](const char* const path, u32 size) {
             StringBuffer<flash_filesystem::max_path> path_str(path);
             // FIXME: bug??!! path pointer seems to be completely wiped out
             // after this line. I've investigated this over and over again, and

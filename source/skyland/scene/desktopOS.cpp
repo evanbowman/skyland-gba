@@ -742,7 +742,7 @@ public:
                 }
                 clickables_.emplace_back(i);
                 StringBuffer<64> nm = "  ";
-                nm += names[i].c_str();
+                nm += names[i].name_.c_str();
                 while (nm.length() < 30) {
                     nm.push_back(' ');
                 }
@@ -899,7 +899,7 @@ public:
         SkyTunesWindow(DockIcon* application) : Window(application)
         {
             u8 i = 0;
-            PLATFORM.walk_filesystem([this, &i](const char* path) {
+            PLATFORM.walk_filesystem([this, &i](const char* path, u32 size) {
                 StringBuffer<96> path_buf(path);
                 if (auto rest = starts_with("/scripts/data/music/", path_buf)) {
                     StringBuffer<48> temp;

@@ -550,7 +550,7 @@ InitStatus initialize(const InitConfig& conf)
 
     stat();
     Vector<StringBuffer<256>> bad_files;
-    walk([&](const char* name) {
+    walk([&](const char* name, u32) {
         if (is_path_bad(name)) {
             bad_files.push_back(name);
             info(format("encountered bad file %, size %. "
@@ -572,7 +572,7 @@ InitStatus initialize(const InitConfig& conf)
 
 
 
-void walk(Function<8 * sizeof(void*), void(const char*)> callback)
+void walk(Function<8 * sizeof(void*), void(const char*, u32)> callback)
 {
     auto offset = start_offset;
 
@@ -596,7 +596,8 @@ void walk(Function<8 * sizeof(void*), void(const char*)> callback)
 
 
         if (r.invalidate_.get() == Record::InvalidateStatus::valid) {
-            callback(file_name);
+            u32 size = (sizeof r) + r.file_info_.name_length_ + r.file_info_.data_length_.get();
+            callback(file_name, size);
         } else {
             // #ifdef __TEST__
             //             callback(("(INVALID)" + std::string(file_name)).c_str());

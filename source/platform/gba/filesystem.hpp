@@ -63,7 +63,7 @@ std::tuple<FileContents, FileSize, const FileHeader*>
 load(FilePath path, Optional<DirectoryCache> dir);
 
 
-void walk(Function<8 * sizeof(void*), void(const char* path)> callback);
+void walk(Function<8 * sizeof(void*), void(const char* path, u32 size)> callback);
 
 
 

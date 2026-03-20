@@ -1668,10 +1668,9 @@ void Platform::blit_t1_tile_to_texture(u16 from_index, u16 to_index, bool hard)
 
 
 
-void Platform::walk_filesystem(
-    Function<8 * sizeof(void*), void(const char* path)> callback)
+void Platform::walk_filesystem(Function<8 * sizeof(void*), void(const char* path, u32 size)> callback)
 {
-    std::vector<std::string> paths;
+    std::vector<std::pair<std::string, u32>> paths;
 
     auto res_path = resource_path();
     using recursive_directory_iterator =
@@ -1693,13 +1692,15 @@ void Platform::walk_filesystem(
                     relative_path = relative_path.substr(1);
                 }
                 relative_path = "/" + relative_path;
-                paths.push_back(relative_path);
+                paths.push_back({relative_path, dirent.file_size()});
             }
         }
     }
-    std::sort(paths.begin(), paths.end());
+    std::sort(paths.begin(), paths.end(), [](auto& lhs, auto& rhs) {
+        return lhs.first < rhs.first;
+    });
     for (auto& path : paths) {
-        callback(path.c_str());
+        callback(path.first.c_str(), path.second);
     }
 }
 

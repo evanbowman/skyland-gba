@@ -531,7 +531,7 @@ void TitleScreenScene::run_init_scripts(bool allow_mods)
         APP.invoke_ram_script("/mods/init.lisp");
 
 
-        auto on_match = [&](const char* const path) {
+        auto on_match = [&](const char* const path, u32 size) {
             StringBuffer<64> path_str(path);
             StringBuffer<16> init_filename("init.lisp");
 

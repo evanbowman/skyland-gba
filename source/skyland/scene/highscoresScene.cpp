@@ -423,7 +423,7 @@ static Vector<char> encode_highscore_data()
 
     u16 fs_checksum = 0;
 
-    PLATFORM.walk_filesystem([&fs_checksum](const char* path) {
+    PLATFORM.walk_filesystem([&fs_checksum](const char* path, u32 size) {
         if (auto f = PLATFORM.load_file_contents("", path)) {
             StringBuffer<86> str_path(path);
             if (ends_with(StringBuffer<4>(".lisp"), str_path)) {

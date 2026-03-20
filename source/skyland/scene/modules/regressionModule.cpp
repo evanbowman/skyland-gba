@@ -51,7 +51,7 @@ ScenePtr RegressionModule::update(Time delta)
         Text::print("running tests...", {1, 3}, text_colors);
         PLATFORM.screen().display();
 
-        PLATFORM.walk_filesystem([](const char* path) {
+        PLATFORM.walk_filesystem([](const char* path, u32 size) {
             if (starts_with("/scripts/data/sounds/", StringBuffer<128>(path))) {
                 while (*path not_eq '\0') {
                     ++path;

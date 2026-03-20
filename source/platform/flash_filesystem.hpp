@@ -204,17 +204,17 @@ inline bool store_file_data(const char* path,
 
 
 
-void walk(Function<8 * sizeof(void*), void(const char*)> callback);
+void walk(Function<8 * sizeof(void*), void(const char*, u32)> callback);
 
 
 
 template <typename F> void walk_directory(const char* directory, F callback)
 {
-    walk([callback, directory](const char* path) {
+    walk([callback, directory](const char* path, u32 size) {
         auto remainder =
             starts_with(directory, StringBuffer<FS_MAX_PATH>(path));
         if (remainder) {
-            callback(remainder);
+            callback(remainder, size);
         }
     });
 }

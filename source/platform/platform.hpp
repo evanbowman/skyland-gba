@@ -384,7 +384,7 @@ public:
 
 
 
-    void walk_filesystem(Function<8 * sizeof(void*), void(const char* path)>);
+    void walk_filesystem(Function<8 * sizeof(void*), void(const char* path, u32 size)>);
 
 
 

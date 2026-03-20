@@ -121,11 +121,31 @@ StringBuffer<200> FileBrowserModule::cwd() const
 }
 
 
+void FileBrowserModule::append_file_size(Text& txt, const char* str, u32 size)
+{
+    if (selected_filesystem_ not_eq SelectedFilesystem::sram) {
+        return;
+    }
+
+    auto size_field = stringify(size);
+    if (size == 0) {
+        size_field = "?";
+    }
+    int space = 30 - utf8::len(str) - 2 - size_field.length();
+    if (space >= (int)size_field.length()) {
+        for (int i = 0; i < space; ++i) {
+            txt.append(" ");
+        }
+        txt.append(size_field.c_str());
+    }
+}
+
+
+
 void FileBrowserModule::repaint()
 {
     if (not gui_mode_) {
         PLATFORM.screen().fade(1.f, custom_color(0x007cbf), {}, true, true);
-        // Cover text with black during transition
         faded_ = true;
     }
 
@@ -140,22 +160,18 @@ void FileBrowserModule::repaint()
         }
     }
 
-    // If we clear all the lines, the engine will deallocate all of the tile
-    // glyphs from vram, and they'll need to be reloaded, which may result in
-    // some graphical artifacts. So we want to refresh existing lines instead,
-    // and near the end of this function, clean up any unused text lines.
     u32 line_count = 0;
-    auto enq_line = [&](const char* text) {
+    auto enq_line = [&](const char* text, u32 size) {
         if (lines_.size() > line_count) {
-            lines_[line_count++].assign(text);
+            lines_[line_count].assign(text);
         } else {
             lines_.emplace_back(
                 text, OverlayCoord{2, (u8)(lines_.size() + y_offset)});
-            ++line_count;
         }
+        append_file_size(lines_[line_count], text, size);
+        line_count++;
     };
 
-    // lines_.clear();
     info_.reset();
 
     (*cwd_names_)->clear();
@@ -165,7 +181,6 @@ void FileBrowserModule::repaint()
             PLATFORM.set_tile(Layer::overlay, 1, y, 0);
         }
     }
-
 
     StringBuffer<200> path;
     for (u32 i = 0; i < (*path_)->size(); ++i) {
@@ -192,11 +207,10 @@ void FileBrowserModule::repaint()
 
     auto folders = allocate<PathBuffer>("fs-folders-buffer");
 
+    Buffer<int, 15, false> subfolder_lines;
 
-
-    int skip = line_offset_;
-
-    auto walk_fs = [&](const char* path) {
+    // walk_fs now only populates cwd_names_ and folders — no enq_line calls.
+    auto walk_fs = [&](const char* path, u32 size) {
         auto path_len = strlen(path);
         if (path_len < cwd.length()) {
             return;
@@ -218,55 +232,33 @@ void FileBrowserModule::repaint()
 
                 for (auto& folder : *folders) {
                     if (folder == subfolder.c_str()) {
-                        // We've already queued this folder.
+                        for (auto& nm : **cwd_names_) {
+                            if (nm.name_.c_str() == subfolder) {
+                                nm.size_ += size;
+                            }
+                        }
                         return;
                     }
                 }
 
                 folders->emplace_back(subfolder);
-
-                (*cwd_names_)->push_back(subfolder.c_str());
-
-                // subfolder.pop_back(); // Do not display the trailing '/'.
-
-                if (skip > 0) {
-                    --skip;
-                } else {
-                    if (not gui_mode_) {
-                        enq_line(subfolder.c_str());
-                    }
-                }
+                (*cwd_names_)->push_back({subfolder.c_str(), size});
                 return;
             }
         }
 
-        (*cwd_names_)->push_back(path + i);
-
-        if (skip > 0) {
-            --skip;
-        } else {
-            if (not gui_mode_) {
-                enq_line(path + i);
-            }
-        }
+        (*cwd_names_)->push_back({path + i, size});
     };
 
 
     switch (selected_filesystem_) {
     case SelectedFilesystem::none:
-        if (not gui_mode_) {
-            enq_line("flash/");
-            enq_line("rom/");
-            enq_line("*syslog*");
-        }
-        (*cwd_names_)->push_back("flash/");
-        (*cwd_names_)->push_back("rom/");
-        (*cwd_names_)->push_back("*syslog*");
+        (*cwd_names_)->push_back({"flash/"});
+        (*cwd_names_)->push_back({"rom/"});
+        (*cwd_names_)->push_back({"*syslog*"});
         break;
 
-
     case SelectedFilesystem::sram: {
-
         flash_filesystem::walk(walk_fs);
 
         auto stats = flash_filesystem::statistics();
@@ -285,12 +277,22 @@ void FileBrowserModule::repaint()
 
     case SelectedFilesystem::rom:
         auto cwd = this->cwd();
-
         auto folders = allocate<PathBuffer>("fs-folders-buffer");
-
         PLATFORM.walk_filesystem(walk_fs);
-
         break;
+    }
+
+    // Now that walk_fs has finished and all sizes are accumulated,
+    // emit the display lines from the fully-populated cwd_names_.
+    if (not gui_mode_) {
+        int skip = line_offset_;
+        for (auto& entry : **cwd_names_) {
+            if (skip > 0) {
+                --skip;
+            } else {
+                enq_line(entry.name_.c_str(), entry.size_);
+            }
+        }
     }
 
     if (gui_mode_) {
@@ -308,12 +310,10 @@ void FileBrowserModule::repaint()
         for (u32 i = 0; *str not_eq '\0'; ++i, ++str) {
             auto mapping_info = locale_texture_map()(*str);
             const u16 t = PLATFORM.map_glyph(*str, *mapping_info);
-
             PLATFORM.set_tile(i + 1, 0, t, highlight_colors);
         }
 
         PLATFORM.set_tile(Layer::overlay, 1, 3 + scroll_index_, 113);
-
         PLATFORM.set_tile(Layer::overlay, 0, 0, 114);
         PLATFORM.set_tile(Layer::overlay, 29, 0, 115);
     }
@@ -323,9 +323,9 @@ void FileBrowserModule::repaint()
     }
 
     if (lines_.size() > (u32)scroll_index_) {
-        lines_[scroll_index_].assign(
-            (**cwd_names_)[scroll_index_ + line_offset_].c_str(),
-            highlight_colors);
+        auto& info = (**cwd_names_)[scroll_index_ + line_offset_];
+        lines_[scroll_index_].assign(info.name_.c_str(), highlight_colors);
+        append_file_size(lines_[scroll_index_], info.name_.c_str(), info.size_);
     }
 }
 
@@ -440,14 +440,15 @@ ScenePtr FileBrowserModule::update(Time delta)
             }
 
             if (lines_.size() > (u32)scroll_index_) {
-                lines_[scroll_index_].assign(
-                    (**cwd_names_)[scroll_index_ + line_offset_].c_str());
+                auto& info = (**cwd_names_)[scroll_index_ + line_offset_];
+                lines_[scroll_index_].assign(info.name_.c_str());
+                append_file_size(lines_[scroll_index_], info.name_.c_str(), info.size_);
             }
             ++scroll_index_;
             if (lines_.size() > (u32)scroll_index_) {
-                lines_[scroll_index_].assign(
-                    (**cwd_names_)[scroll_index_ + line_offset_].c_str(),
-                    highlight_colors);
+                auto& info = (**cwd_names_)[scroll_index_ + line_offset_];
+                lines_[scroll_index_].assign(info.name_.c_str(), highlight_colors);
+                append_file_size(lines_[scroll_index_], info.name_.c_str(), info.size_);
             }
             if (not gui_mode_) {
                 PLATFORM.set_tile(Layer::overlay, 1, 3 + scroll_index_, 113);
@@ -469,14 +470,15 @@ ScenePtr FileBrowserModule::update(Time delta)
                 PLATFORM.set_tile(Layer::overlay, 1, 3 + scroll_index_, 0);
             }
             if (lines_.size() > (u32)scroll_index_) {
-                lines_[scroll_index_].assign(
-                    (**cwd_names_)[scroll_index_ + line_offset_].c_str());
+                auto& info = (**cwd_names_)[scroll_index_ + line_offset_];
+                lines_[scroll_index_].assign(info.name_.c_str());
+                append_file_size(lines_[scroll_index_], info.name_.c_str(), info.size_);
             }
             --scroll_index_;
             if (lines_.size() > (u32)scroll_index_) {
-                lines_[scroll_index_].assign(
-                    (**cwd_names_)[scroll_index_ + line_offset_].c_str(),
-                    highlight_colors);
+                auto& info = (**cwd_names_)[scroll_index_ + line_offset_];
+                lines_[scroll_index_].assign(info.name_.c_str(), highlight_colors);
+                append_file_size(lines_[scroll_index_], info.name_.c_str(), info.size_);
             }
             if (not gui_mode_) {
                 PLATFORM.set_tile(Layer::overlay, 1, 3 + scroll_index_, 113);
@@ -504,11 +506,11 @@ ScenePtr FileBrowserModule::update(Time delta)
             case 1: // delete
                 if ((**cwd_names_).size() not_eq 0) {
                     auto selected = (**cwd_names_)[scroll_index_];
-                    if (selected[selected.length() - 1] == '/') {
+                    if (selected.name_[selected.name_.length() - 1] == '/') {
                         // Do not allow deletion of a directory...
                     } else {
                         auto path = this->cwd();
-                        path += selected;
+                        path += selected.name_;
                         flash_filesystem::unlink_file(path.c_str());
                         on_dir_changed();
                         PLATFORM.speaker().play_sound("button_wooden", 3);
@@ -582,13 +584,13 @@ ScenePtr FileBrowserModule::update(Time delta)
             if ((**cwd_names_).size() not_eq 0) {
                 PLATFORM.speaker().play_sound("button_wooden", 3);
                 auto selected = (**cwd_names_)[scroll_index_];
-                if (selected[selected.length() - 1] == '/') {
+                if (selected.name_[selected.name_.length() - 1] == '/') {
                     on_dir_changed();
-                    (*path_)->emplace_back(selected);
+                    (*path_)->emplace_back(selected.name_);
                     repaint();
                 } else {
                     auto path = this->cwd();
-                    path += selected;
+                    path += selected.name_;
 
                     if (on_select_) {
                         PLATFORM.speaker().play_sound("button_wooden", 3);
@@ -646,13 +648,13 @@ ScenePtr FileBrowserModule::update(Time delta)
             if ((**cwd_names_).size() not_eq 0) {
                 int entry = scroll_index_ + line_offset_;
                 auto selected = (**cwd_names_)[entry];
-                if (selected[selected.length() - 1] == '/') {
+                if (selected.name_[selected.name_.length() - 1] == '/') {
                     on_dir_changed();
-                    (*path_)->emplace_back(selected);
+                    (*path_)->emplace_back(selected.name_);
                     repaint();
                 } else {
                     auto path = this->cwd();
-                    path += selected;
+                    path += selected.name_;
 
                     if (on_select_) {
                         PLATFORM.speaker().play_sound("button_wooden", 3);
@@ -755,15 +757,15 @@ StringBuffer<200> FileBrowserModule::select_entry(int opt, bool visit)
     case SelectedFilesystem::sram:
         if ((**cwd_names_).size() not_eq 0) {
             auto selected = (**cwd_names_)[opt];
-            if (selected[selected.length() - 1] == '/') {
+            if (selected.name_[selected.name_.length() - 1] == '/') {
                 if (visit) {
                     on_dir_changed();
-                    (*path_)->emplace_back(selected);
+                    (*path_)->emplace_back(selected.name_);
                 }
                 return "";
             } else {
                 auto path = this->cwd();
-                path += selected;
+                path += selected.name_;
                 return path;
             }
         }
@@ -773,15 +775,15 @@ StringBuffer<200> FileBrowserModule::select_entry(int opt, bool visit)
         if ((**cwd_names_).size() not_eq 0) {
             int entry = opt + line_offset_;
             auto selected = (**cwd_names_)[entry];
-            if (selected[selected.length() - 1] == '/') {
+            if (selected.name_[selected.name_.length() - 1] == '/') {
                 if (visit) {
                     on_dir_changed();
-                    (*path_)->emplace_back(selected);
+                    (*path_)->emplace_back(selected.name_);
                 }
                 return "";
             } else {
                 auto path = this->cwd();
-                path += selected;
+                path += selected.name_;
                 return path;
             }
         }

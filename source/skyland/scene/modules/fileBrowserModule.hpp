@@ -87,7 +87,12 @@ public:
 
     void repaint();
 
-    using CwdName = StringBuffer<30>;
+    struct CwdName
+    {
+        StringBuffer<30> name_;
+        u32 size_;
+    };
+
     using CwdNames = Vector<CwdName>;
     CwdNames& get_cwd_names()
     {
@@ -138,6 +143,7 @@ private:
     bool exit_to_title_ = false;
 
     void show_opts();
+    void append_file_size(Text& txt, const char* str, u32 size);
 
 
     static const int max_folder_name = 30;

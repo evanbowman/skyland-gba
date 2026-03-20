@@ -87,7 +87,7 @@ bool is_mounted()
 
 
 
-void walk(Function<8 * sizeof(void*), void(const char* path)> callback)
+void walk(Function<8 * sizeof(void*), void(const char* path, u32 size)> callback)
 {
     const char* current = &__rom_end__;
     current += sizeof(Root);
@@ -100,7 +100,7 @@ void walk(Function<8 * sizeof(void*), void(const char* path)> callback)
     while (files_remaining) {
         auto hdr = (FileHeader*)current;
 
-        callback(hdr->path_);
+        callback(hdr->path_, hdr->size_.get() + sizeof(*hdr));
 
         --files_remaining;
         current += sizeof(FileHeader) + hdr->size_.get();

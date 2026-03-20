@@ -174,14 +174,14 @@ public:
             }
         } else if (parsed.size() == 2 and parsed[0] == "ls") {
             flash_filesystem::walk_directory(
-                parsed[1].c_str(), [&](const char* path) {
+                parsed[1].c_str(), [&](const char* path, u32 size) {
                     PLATFORM.remote_console().printline(path, "");
                     if (PLATFORM.has_slow_cpu()) {
                         PLATFORM.sleep(2);
                     }
                 });
 
-            PLATFORM.walk_filesystem([&](const char* path) {
+            PLATFORM.walk_filesystem([&](const char* path, u32 size) {
                 StringBuffer<64> prefix(parsed[1].c_str());
                 if (starts_with(prefix.c_str(), StringBuffer<64>(path))) {
                     PLATFORM.remote_console().printline(path, "");
