@@ -1779,6 +1779,12 @@ Value* builtin_is_boolean(int argc)
 }
 
 
+Value* builtin_is_array(int argc)
+{
+    return make_boolean(get_op0()->type() == Value::Type::array);
+}
+
+
 Value* builtin_type(int argc)
 {
     if (get_op0()->type() == Value::Type::wrapped) {

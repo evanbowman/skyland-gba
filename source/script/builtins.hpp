@@ -119,6 +119,7 @@ Value* builtin_is_ratio(int argc);
 Value* builtin_is_nil(int argc);
 Value* builtin_is_list(int argc);
 Value* builtin_is_boolean(int argc);
+Value* builtin_is_array(int argc);
 Value* builtin_type(int argc);
 
 Value* builtin_profile(int argc);

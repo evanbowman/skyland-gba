@@ -1027,6 +1027,8 @@ ArgBindings make_arg_bindings(Value* arg_lat, ArgBindings* parent)
                 type = Value::Type::function;
             } else if (str_eq(type_symbol.name(), "wrapped")) {
                 type = Value::Type::wrapped;
+            } else if (str_eq(type_symbol.name(), "array")) {
+                type = Value::Type::array;
             } else {
                 unrecoverable("invalid type symbol %", type_symbol.name());
             }
@@ -6387,6 +6389,7 @@ BUILTIN_TABLE(
      {"abs", {SIG1(rational, rational), builtin_abs}},
      {"not", {EMPTY_SIG(1), builtin_logical_not}},
      {"equal", {EMPTY_SIG(2), builtin_comp_equal}},
+     {"array?", {EMPTY_SIG(1), builtin_is_array}},
      {"boolean?", {EMPTY_SIG(1), builtin_is_boolean}},
      {"list?", {EMPTY_SIG(1), builtin_is_list}},
      {"nil?", {EMPTY_SIG(1), builtin_is_nil}},
