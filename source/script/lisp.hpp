@@ -84,7 +84,7 @@ struct ValueHeader
         rational,
 
         promise,
-        __reserved_1,
+        array,
         __reserved_0,
         count,
     };
@@ -253,6 +253,7 @@ Value* dcompr(CompressedPtr ptr);
 struct Wrapped
 {
     ValueHeader hdr_;
+    u8 reserved_;
 
     static ValueHeader::Type type()
     {
@@ -562,6 +563,42 @@ struct Promise
 };
 
 
+struct Array
+{
+    ValueHeader hdr_;
+    u16 size_;
+
+    enum class BackingMem : u8
+    {
+        mini_buffer,
+        sub_buffer,
+        scratch_buffer,
+        undefined,
+    };
+
+    union
+    {
+        alignas(ScratchBufferPtr) u8 sbr_mem_[sizeof(ScratchBufferPtr)];
+        alignas(SubBufferPtr) u8 sub_mem_[sizeof(SubBufferPtr)];
+        alignas(MiniBufferPtr) u8 mbr_mem_[sizeof(MiniBufferPtr)];
+    };
+
+    bool initialize(u16 size);
+
+    Value* get(u16 index);
+    bool set(u16 index, Value* v);
+
+    bool push(Value* v);
+    Optional<Value*> pop();
+
+    bool resize(u16 new_size);
+
+    CompressedPtr* data();
+
+    static void finalizer(Value*);
+};
+
+
 template <ValueHeader::Type T> struct __Reserved
 {
     ValueHeader hdr_;
@@ -672,6 +709,11 @@ struct Value
         return *reinterpret_cast<Promise*>(this);
     }
 
+    Array& array()
+    {
+        return *reinterpret_cast<Array*>(this);
+    }
+
     template <typename T> T& expect()
     {
         if (this->type() == T::type()) {
@@ -709,6 +751,8 @@ Value* make_databuffer(const char* sbr_tag = "", bool zero_fill = true);
 Value* make_string(const char* str);
 Value* make_float(Float::ValueType v);
 Value* make_promise();
+Value* make_array(u16 size);
+
 
 template <u32 size> Value* make_error(const StringBuffer<size>& str)
 {

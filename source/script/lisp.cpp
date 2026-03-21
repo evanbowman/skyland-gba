@@ -63,7 +63,7 @@ union ValueMemory
     Ratio ratio_;
     Promise promise_;
     __Reserved<Value::Type::rational> __reserved_3;
-    __Reserved<Value::Type::__reserved_1> __reserved_1;
+    Array array_;
     __Reserved<Value::Type::__reserved_0> __reserved_0;
 };
 
@@ -208,7 +208,7 @@ constexpr const std::array<FinalizerTableEntry, Value::Type::count> fin_table =
         Ratio::finalizer,
         Promise::finalizer,
         __Reserved<Value::Type::rational>::finalizer,
-        __Reserved<Value::Type::__reserved_1>::finalizer,
+        Array::finalizer,
         __Reserved<Value::Type::__reserved_0>::finalizer,
 };
 
@@ -1450,6 +1450,202 @@ Value* make_databuffer(const char* sbr_tag, bool zero_fill)
 }
 
 
+Value* make_array(u16 size)
+{
+    auto val = alloc_value();
+    val->hdr_.type_ = Value::Type::array;
+    if (val->array().initialize(size)) {
+        for (u16 i = 0; i < size; ++i) {
+            val->array().set(i, L_NIL);
+        }
+        return val;
+    }
+    return L_NIL;
+}
+
+
+CompressedPtr* Array::data()
+{
+    switch ((BackingMem)hdr_.mode_bits_) {
+    case BackingMem::mini_buffer:
+        return (CompressedPtr*)(*(MiniBufferPtr*)(mbr_mem_))->data_;
+
+    case BackingMem::sub_buffer:
+        return (CompressedPtr*)(*(SubBufferPtr*)(sub_mem_))->data_;
+
+    case BackingMem::scratch_buffer:
+        return (CompressedPtr*)(*(ScratchBufferPtr*)(sbr_mem_))->data_;
+
+    default:
+        LOGIC_ERROR();
+        return nullptr;
+    }
+}
+
+
+Value* Array::get(u16 index)
+{
+    if (index >= size_) {
+        return make_error(::format<48>("index % out of bounds!", index));
+    }
+    return dcompr(data()[index]);
+}
+
+
+bool Array::set(u16 index, Value* v)
+{
+    if (index >= size_) {
+        return false;
+    }
+    data()[index] = compr(v);
+    return true;
+}
+
+
+bool Array::push(Value* v)
+{
+    if (resize(size_ + 1)) {
+        data()[size_ - 1] = compr(v);
+        return true;
+    } else {
+        return false;
+    }
+}
+
+
+Optional<Value*> Array::pop()
+{
+    if (size_ == 0) {
+        return nullopt();
+    } else {
+        Protected last = dcompr(data()[size_ - 1]);
+        if (resize(size_ - 1)) {
+            return last;
+        } else {
+            // TODO: return error? What would have caused resize to fail when
+            // shrinking?
+            return nullopt();
+        }
+    }
+}
+
+
+bool Array::resize(u16 new_size)
+{
+    u32 required_mem = new_size * sizeof(CompressedPtr);
+
+    u32 current_capacity;
+    switch ((BackingMem)hdr_.mode_bits_) {
+    case BackingMem::mini_buffer:
+        current_capacity = MINI_BUFFER_SIZE;
+        break;
+    case BackingMem::sub_buffer:
+        current_capacity = SUB_BUFFER_SIZE;
+        break;
+    case BackingMem::scratch_buffer:
+        current_capacity = SCRATCH_BUFFER_SIZE;
+        break;
+    default:
+        return false;
+    }
+
+    if (required_mem <= current_capacity) {
+        if (new_size > size_) {
+            auto d = data();
+            for (u16 i = size_; i < new_size; ++i) {
+                d[i] = compr(L_NIL);
+            }
+        }
+        size_ = new_size;
+        return true;
+    }
+
+    if (required_mem > SCRATCH_BUFFER_SIZE) {
+        return false;
+    }
+
+    u16 copy_count = std::min(size_, new_size);
+
+    auto tmp = make_sub_buffer("copy-buffer", 0);
+    memcpy(tmp->data_, data(), copy_count * sizeof(CompressedPtr));
+
+    switch ((BackingMem)hdr_.mode_bits_) {
+    case BackingMem::mini_buffer:
+        ((MiniBufferPtr*)(mbr_mem_))->~MiniBufferPtr();
+        break;
+    case BackingMem::sub_buffer:
+        ((SubBufferPtr*)(sub_mem_))->~SubBufferPtr();
+        break;
+    default:
+        LOGIC_ERROR();
+        break;
+    }
+
+    if (not initialize(new_size)) {
+        hdr_.mode_bits_ = (u8)BackingMem::undefined;
+        size_ = 0;
+        return false;
+    }
+
+    auto d = data();
+    memcpy(d, tmp->data_, copy_count * sizeof(CompressedPtr));
+    for (u16 i = copy_count; i < new_size; ++i) {
+        d[i] = compr(L_NIL);
+    }
+
+    return true;
+}
+
+
+void Array::finalizer(Value* array)
+{
+    switch ((BackingMem)array->hdr_.mode_bits_) {
+    case BackingMem::mini_buffer:
+        return ((MiniBufferPtr*)(array->array().mbr_mem_))->~MiniBufferPtr();
+
+    case BackingMem::sub_buffer:
+        return ((SubBufferPtr*)(array->array().sub_mem_))->~SubBufferPtr();
+
+    case BackingMem::scratch_buffer:
+        return ((ScratchBufferPtr*)(array->array().sbr_mem_))->~ScratchBufferPtr();
+
+    case BackingMem::undefined:
+        break;
+
+    default:
+        LOGIC_ERROR();
+    }
+}
+
+
+bool Array::initialize(u16 size)
+{
+    static_assert(alignof(CompressedPtr) <= alignof(SubBuffer) and
+                  alignof(CompressedPtr) <= alignof(ScratchBuffer) and
+                  alignof(CompressedPtr) <= alignof(MiniBuffer));
+
+    size_ = size;
+    u32 required_mem = size * sizeof(CompressedPtr);
+
+    if (required_mem <= MINI_BUFFER_SIZE) {
+        hdr_.mode_bits_ = (u8)BackingMem::mini_buffer;
+        auto ptr = make_mini_buffer(0);
+        new ((MiniBufferPtr*)mbr_mem_) MiniBufferPtr(ptr);
+    } else if (required_mem <= SUB_BUFFER_SIZE) {
+        hdr_.mode_bits_ = (u8)BackingMem::sub_buffer;
+        auto ptr = make_sub_buffer("lisp-array", 0);
+        new ((SubBufferPtr*)sub_mem_) SubBufferPtr(ptr);
+    } else if (required_mem <= SCRATCH_BUFFER_SIZE) {
+        hdr_.mode_bits_ = (u8)BackingMem::scratch_buffer;
+        auto ptr = make_scratch_buffer("lisp-array");
+        new ((ScratchBufferPtr*)sbr_mem_) ScratchBufferPtr(ptr);
+    } else {
+        return false;
+    }
+    return true;
+}
+
+
 void live_values(::Function<6 * sizeof(void*), void(Value&)> callback);
 
 
@@ -1661,10 +1857,11 @@ const char* type_to_string(ValueHeader::Type tp)
 {
     switch (tp) {
     case Value::Type::count:
-    case Value::Type::__reserved_1:
     case Value::Type::__reserved_0:
     case Value::Type::nil:
         return "nil";
+    case Value::Type::array:
+        return "array";
     case Value::Type::promise:
         return "promise";
     case Value::Type::rational:
@@ -2806,8 +3003,21 @@ void format_impl(Value* value, Printer& p, int depth, bool skip_quotes = false)
         p.put_str("#promise");
         break;
 
+    case lisp::Value::Type::array: {
+        p.put_str("#(");
+        bool first = true;
+        for (u16 i = 0; i < value->array().size_; ++i) {
+            if (not first) {
+                p.put_str(" ");
+            }
+            first = false;
+            format_impl(value->array().get(i) , p, depth + 1, true);
+        }
+        p.put_str(")");
+        break;
+    }
+
     case lisp::Value::Type::rational:
-    case lisp::Value::Type::__reserved_1:
     case lisp::Value::Type::__reserved_0:
         break;
 
@@ -3082,6 +3292,12 @@ static void gc_mark_value(Value* value)
 
     case Value::Type::ratio:
         gc_mark_value(dcompr(value->ratio().numerator_));
+        break;
+
+    case Value::Type::array:
+        for (u16 i = 0; i < value->array().size_; ++i) {
+            gc_mark_value(value->array().get(i));
+        }
         break;
 
     default:
@@ -3363,6 +3579,56 @@ push_reader_error(CharSequence& code, int byte_offset, Error::Code ec)
     error_append_line_hint(err->error(), current_line);
 
     push_op(err);
+}
+
+
+template <typename T> u32 read_array(T& code, int offset)
+{
+    int i = 0;
+
+    gc_safepoint();
+
+    Protected result = make_array(0);
+
+    while (true) {
+        switch (code[offset + i]) {
+        case '\r':
+        case '\n':
+        case '\t':
+        case '\v':
+        case ' ':
+            ++i;
+            break;
+
+        case ')':
+            ++i;
+            push_op(result);
+            return i;
+
+        case '\0':
+            push_reader_error(code, i, Error::Code::mismatched_parentheses);
+            return i;
+
+        case ';':
+            while (true) {
+                auto current = code[offset + i];
+                if (current == '\0' or current == '\r' or current == '\n') {
+                    break;
+                } else {
+                    ++i;
+                }
+            }
+            break;
+
+        default: {
+            i += read(code, offset + i);
+            Protected v = get_op0();
+            pop_op();
+            result->array().push(v);
+            break;
+        }
+        }
+    }
 }
 
 
@@ -3958,6 +4224,14 @@ template <typename T> u32 read_impl(T& code, int offset)
             i += read_string(code, offset + i + 1);
             return i + 1;
 
+        case '#':
+            if (code[offset + i + 1] == '(') {
+                pop_op(); // nil
+                i += read_array(code, offset + i + 2);
+                return i + 2;
+            } else {
+                goto READ_SYMBOL;
+            }
 
         READ_SYMBOL:
         default:
@@ -5608,9 +5882,22 @@ bool is_equal(Value* lhs, Value* rhs)
     case Value::Type::promise:
         return lhs == rhs;
 
+    case Value::Type::array: {
+        auto& a1 = lhs->array();
+        auto& a2 = rhs->array();
+        if (a1.size_ not_eq a2.size_) {
+            return false;
+        }
+        for (u16 i = 0; i < a1.size_; ++i) {
+            if (not is_equal(a1.get(i), a2.get(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     case Value::Type::count:
     case Value::Type::rational:
-    case Value::Type::__reserved_1:
     case Value::Type::__reserved_0:
     case Value::Type::nil:
     case Value::Type::heap_node:
@@ -6057,6 +6344,12 @@ BUILTIN_TABLE(
            L_CTX.debug_break_ = true;
            return L_NIL;
        }}},
+     {"array", {SIG0(array), builtin_array}},
+     {"make-array", {SIG1(array, rational), builtin_make_array}},
+     {"array-set", {SIG3(array, array, rational, nil), builtin_array_set}},
+     {"array-resize", {SIG2(array, array, rational), builtin_array_resize}},
+     {"array-push", {SIG2(array, array, nil), builtin_array_push}},
+     {"array-pop", {SIG1(nil, array), builtin_array_pop}},
      {"breakpoint-register", {SIG1(nil, symbol), builtin_breakpoint_reg}},
      {"breakpoint-unregister", {SIG1(nil, symbol), builtin_breakpoint_unreg}},
      {"watchpoint-register", {SIG1(nil, symbol), builtin_watchpoint_reg}},

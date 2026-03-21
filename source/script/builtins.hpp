@@ -44,6 +44,13 @@ Value* builtin_format(int argc);
 Value* builtin_string_explode(int argc);
 Value* builtin_string_assemble(int argc);
 
+Value* builtin_make_array(int argc);
+Value* builtin_array(int argc);
+Value* builtin_array_set(int argc);
+Value* builtin_array_resize(int argc);
+Value* builtin_array_push(int argc);
+Value* builtin_array_pop(int argc);
+
 Value* builtin_symbol(int argc);
 
 Value* builtin_add(int argc);

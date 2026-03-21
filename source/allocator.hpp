@@ -16,6 +16,7 @@
 #include "platform/platform.hpp"
 #endif
 #include "memory/sub_buffer.hpp"
+#include "memory/mini_buffer.hpp"
 #include "platform/scratch_buffer.hpp"
 #include <new>
 

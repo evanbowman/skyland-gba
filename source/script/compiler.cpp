@@ -350,6 +350,10 @@ TOP:
 
         *(buffer.data_ + write_pos++) = '\0';
 
+    } else if (code->type() == Value::Type::array) {
+        PLATFORM.fatal("bytecode compilation unsupported for array literals, "
+                       "try using the (array ...) or (make-array n) functions "
+                       "instead");
     } else if (code->type() == Value::Type::symbol) {
 
         if (code->symbol().name()[0] == '$' and

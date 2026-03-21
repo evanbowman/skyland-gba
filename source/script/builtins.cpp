@@ -484,6 +484,76 @@ Value* builtin_string_explode(int argc)
 }
 
 
+Value* builtin_make_array(int argc)
+{
+    L_EXPECT_RATIONAL(0);
+    return make_array(L_LOAD_INT(0));
+}
+
+
+Value* builtin_array(int argc)
+{
+    auto arr = make_array(argc);
+    if (arr->type() == Value::Type::array) {
+        for (int i = 0; i < argc; ++i) {
+            arr->array().set(i, get_op(argc - 1 - i));
+        }
+    }
+    return arr;
+}
+
+
+Value* builtin_array_set(int argc)
+{
+    L_EXPECT_OP(2, array);
+    L_EXPECT_RATIONAL(1);
+
+    auto index = L_LOAD_INT(1);
+    if (get_op(2)->array().set(index, get_op0())) {
+        return get_op(2);
+    } else {
+        return make_error(::format<64>("index % out of bounds for array %",
+                                       index,
+                                       get_op(2)));
+    }
+}
+
+
+Value* builtin_array_resize(int argc)
+{
+    L_EXPECT_OP(1, array);
+    L_EXPECT_RATIONAL(0);
+
+    if (get_op1()->array().resize(L_LOAD_INT(0))) {
+        return get_op1();
+    } else {
+        return make_error("array resize failed!");
+    }
+}
+
+
+Value* builtin_array_push(int argc)
+{
+    L_EXPECT_OP(1, array);
+    if (get_op1()->array().push(get_op0())) {
+        return get_op1();
+    } else {
+        return make_error("failed to resize array!");
+    }
+}
+
+
+Value* builtin_array_pop(int argc)
+{
+    L_EXPECT_OP(0, array);
+    if (auto v = get_op0()->array().pop()) {
+        return *v;
+    } else {
+        return L_NIL;
+    }
+}
+
+
 Value* builtin_symbol(int argc)
 {
     L_EXPECT_OP(0, string);
@@ -1394,6 +1464,8 @@ Value* builtin_length(int argc)
         return make_integer(0);
     } else if (get_op0()->type() == Value::Type::string) {
         return make_integer(utf8::len(get_op0()->string().value()));
+    } else if (get_op0()->type() == Value::Type::array) {
+        return make_integer(get_op0()->array().size_);
     }
 
     L_EXPECT_OP(0, cons);
@@ -1424,6 +1496,10 @@ Value* builtin_get(int argc)
     L_EXPECT_RATIONAL(0);
 
     const auto index = L_LOAD_INT(0);
+
+    if (get_op1()->type() == lisp::Value::Type::array) {
+        return get_op1()->array().get(index);
+    }
 
     // if (get_op0()->type() == lisp::Value::Type::string) {
     //     auto str_data = L_LOAD_STRING(0);

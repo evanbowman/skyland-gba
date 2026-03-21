@@ -878,6 +878,25 @@
 (end-test)
 
 
+(begin-test "arrays")
+
+(setq temp (array 1 2 3))
+(assert-eq (length temp) 3)
+(assert-eq (array-push temp 0) #(1 2 3 0))
+(assert-eq (get temp 0) 1)
+(assert-eq (array-set temp 3 4) #(1 2 3 4))
+(assert-eq (array-pop temp) 4)
+(assert-eq (array-pop temp) 3)
+(assert-eq (array-pop temp) 2)
+(assert-eq (array-pop temp) 1)
+(assert-eq (array-pop temp) nil)
+(assert-eq (length temp) 0)
+(assert-eq (array-push temp 2) #(2))
+(assert-v (not (equal temp #(3))))
+
+(end-test)
+
+
 (begin-test "special-variables")
 
 (assert-v "bats" ((lambda () (get $V 1)) "birds" "bats" "iguana"))

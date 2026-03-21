@@ -85,6 +85,7 @@ set(SOURCES
   ${SOURCE_DIR}/localization_extended.cpp
   ${SOURCE_DIR}/memory/malloc.cpp
   ${SOURCE_DIR}/memory/sub_buffer.cpp
+  ${SOURCE_DIR}/memory/mini_buffer.cpp
   ${SOURCE_DIR}/memory/extension.cpp
   ${SOURCE_DIR}/compression.cpp
   ${SOURCE_DIR}/memory/pool.cpp

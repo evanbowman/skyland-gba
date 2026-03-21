@@ -10,7 +10,6 @@
 
 #pragma once
 
-#include "bitvector.hpp"
 #include "platform/scratch_buffer.hpp"
 
 
