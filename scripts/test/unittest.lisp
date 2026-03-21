@@ -673,6 +673,10 @@
   (assert-eq 1 counter))  ;; Should be 1, not 2 or more
 
 
+(assert-error-status (apply list (range 256))
+                     "apply does not support more than 255 arguments (got 256)")
+
+
 (end-test)
 
 

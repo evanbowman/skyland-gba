@@ -5641,8 +5641,21 @@ void eval_loop(EvalStack& eval_stack)
             auto fn = get_op0();
             pop_op();
 
-            if (not is_list(args_list)) {
+            if (args_list->type() not_eq Value::Type::nil and
+                args_list->type() not_eq Value::Type::cons) {
                 push_op(make_error("parameter passed to apply is not list"));
+                break;
+            }
+            auto len = length(args_list);
+            if (len == 0 and args_list not_eq L_NIL) {
+                push_op(make_error("improper list passed to apply!"));
+                break;
+            }
+            if (len > 255) {
+                auto str = ::format<64>("apply does not support more than 255 "
+                                        "arguments (got %)",
+                                        len);
+                push_op(make_error(str));
                 break;
             }
 
