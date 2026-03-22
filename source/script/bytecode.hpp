@@ -26,7 +26,7 @@ namespace lisp
 {
 
 
-#define LISP_BYTECODE_VERSION 8
+#define LISP_BYTECODE_VERSION 9
 
 
 using Opcode = u8;
@@ -1620,6 +1620,22 @@ struct SmallJumpIfTrue : public SmallJumpIfFalse
     static constexpr Opcode op()
     {
         return 106;
+    }
+};
+
+
+struct RetNilIfTrue
+{
+    Header header_;
+
+    static const char* name()
+    {
+        return "RET_NIL_IF_TRUE";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 107;
     }
 };
 

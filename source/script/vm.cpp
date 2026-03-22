@@ -999,6 +999,16 @@ TOP:
             goto RETURN_NIL;
         }
 
+        case RetNilIfTrue::op(): {
+            read<RetNilIfTrue>(code, pc);
+            auto cond = get_op0();
+            pop_op();
+            if (not is_boolean_true(cond)) {
+                break;
+            }
+            goto RETURN_NIL;
+        }
+
         case RetNilIfFalse::op(): {
             read<RetNilIfFalse>(code, pc);
             auto cond = get_op0();
@@ -1006,17 +1016,18 @@ TOP:
             if (is_boolean_true(cond)) {
                 break;
             }
-            // INTENTIONAL FALLTHROUGH TO RetNil::op()!!!
+            goto RETURN_NIL;
         }
 
         case EarlyRetNil::op():
         case RetNil::op():
             RETURN_NIL:
             push_op(L_NIL);
-        // INTENTIONAL FALLTHROUGH TO Ret::op()!!!
+            goto RETURN;
 
         case EarlyRet::op():
         case Ret::op():
+            RETURN:
             if (registers) {
                 Value* lat = registers->result();
                 while (lat->type() == Value::Type::cons) {

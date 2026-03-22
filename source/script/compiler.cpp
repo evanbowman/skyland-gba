@@ -1216,6 +1216,20 @@ public:
                 break;
             }
 
+            case SmallJumpIfTrue::op(): {
+                SmallJumpIfTrue* jit = (SmallJumpIfTrue*)inst;
+                int abs_target = scope_stack[depth].start_ + jit->offset_;
+                if (code_buffer.data_[abs_target] == RetNil::op() or
+                    code_buffer.data_[abs_target] == EarlyRetNil::op()) {
+                    RetNilIfTrue rnt;
+                    rnt.header_.op_ = RetNilIfTrue::op();
+                    replace(instructions, code_buffer, *jit, rnt, code_size);
+                    goto TOP;
+                }
+                ++index;
+                break;
+            }
+
             case SmallJump::op(): {
                 SmallJump* sj = (SmallJump*)inst;
                 int abs_target = scope_stack[depth].start_ + sj->offset_;

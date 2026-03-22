@@ -536,6 +536,11 @@ void disassemble(ScratchBuffer* data,
             break;
         }
 
+        case RetNilIfTrue::op():
+            out += RetNilIfTrue::name();
+            i += sizeof(RetNilIfTrue);
+            break;
+
         case RetNilIfFalse::op():
             out += RetNilIfFalse::name();
             i += sizeof(RetNilIfFalse);
@@ -924,6 +929,7 @@ u32 instruction_size(Header header)
             MATCH(StoreReg1Keep)
             MATCH(StoreReg2Keep)
             MATCH(EarlyRetNil)
+            MATCH(RetNilIfTrue)
             MATCH(RetNilIfFalse)
             MATCH(RetNilIfFalseKeep)
             MATCH(SmallJumpNotEqual)
