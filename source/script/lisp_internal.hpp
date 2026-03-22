@@ -48,6 +48,9 @@ NativeInterface::LookupResult __load_builtin(const char* name);
 const char* nameof(Function::CPP_Impl impl);
 
 
+const char* repr_arg_type(u8 sig_type);
+
+
 Value*& get_bytecode_buffer();
 
 

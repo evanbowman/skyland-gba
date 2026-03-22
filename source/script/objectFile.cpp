@@ -202,9 +202,33 @@ bool ObjectFile::disassemble(const char* path, Vector<char>& output)
         for (int i = 0; i < 30; ++i) {
             output.push_back('_');
         }
-        print("\n\n");
+        print("\n\n(");
         print(name);
-        print(":\n\n");
+        auto sig = def_header->sig_;
+        if (sig.required_args_) {
+            u8 args = sig.required_args_;
+            if (args > 0) {
+                print(" ");
+                print(repr_arg_type(sig.arg0_type_));
+            }
+            if (args > 1) {
+                print(" ");
+                print(repr_arg_type(sig.arg1_type_));
+            }
+            if (args > 2) {
+                print(" ");
+                print(repr_arg_type(sig.arg2_type_));
+            }
+            if (args > 3) {
+                print(" ");
+                print(repr_arg_type(sig.arg3_type_));
+            }
+            if (args > 4) {
+                print("...");
+            }
+        }
+        print("):");
+        print("\n\n");
 
         auto buf = make_zeroed_sbr("obj-disassembly-buffer");
         for (u32 j = 0; j < bc_size; ++j) {

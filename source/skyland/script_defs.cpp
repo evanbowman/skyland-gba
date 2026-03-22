@@ -354,7 +354,7 @@ BINDING_TABLE({
           L_EXPECT_OP(0, wrapped);
           auto island = unwrap_isle(lisp::get_op(0));
           auto name = is_player_island(island) ? "player" : "opponent";
-          return lisp::make_string(format("#(isle:%)", name).c_str());
+          return lisp::make_string(format("{isle:%}", name).c_str());
       }}},
     {"-equal-isle",
      {EMPTY_SIG(2),
@@ -1451,7 +1451,7 @@ BINDING_TABLE({
           auto p =
               lisp::get_list(dcompr(lisp::get_op0()->wrapped().lisp_data_), 0);
           auto str = p->string().value();
-          return lisp::make_string(::format("#(file:%)", str).c_str());
+          return lisp::make_string(::format("{file:%}", str).c_str());
       }}},
     {"file-write!",
      {EMPTY_SIG(3),

@@ -66,11 +66,9 @@
 
 ;; As useful as an equalto? predicate is, often you want to know if an element
 ;; of a sublist is equalto a value.
-(defn/c pos-equalto? (pos pred)
-  (let ((p pred)
-        (n pos))
-    (lambda (lat)
-      (equal p (get lat n)))))
+(defn/c pos-equalto? (position pred)
+  (lambda (lat)
+    (equal pred (get lat position))))
 
 (defn/c car-equalto? (v)
   (let ((val v))
@@ -87,3 +85,11 @@
 
 (defn/c file-size (file)
   (get (unwrap file) 1))
+
+
+(defn/c array-foreach ((cb . lambda) (ary . array))
+  (let ((l (length ary))
+        (i 0))
+    (while (< i l)
+      (cb (get ary i))
+      (+= i 1))))

@@ -113,8 +113,8 @@
 (assert-v (error? (unwrap (player)))) ; cannot unwrap custom userdata
 (assert-v (error? (unwrap (opponent))))
 
-(assert-eq "#(isle:player)" (string (player)))
-(assert-eq "#(isle:opponent)" (string (opponent)))
+(assert-eq "{isle:player}" (string (player)))
+(assert-eq "{isle:opponent}" (string (opponent)))
 
 (terrain-set (player) 4)
 
@@ -273,7 +273,7 @@
 (let ((file (file-load "/test.dat"))
       (str "some text!"))
 
-  (ensure (assert-eq "#(file:/test.dat)" (string file)))
+  (ensure (assert-eq "{file:/test.dat}" (string file)))
 
   (file-write! file 0 (string-to-bytes str))
   (file-store file)

@@ -1029,6 +1029,8 @@ ArgBindings make_arg_bindings(Value* arg_lat, ArgBindings* parent)
                 type = Value::Type::wrapped;
             } else if (str_eq(type_symbol.name(), "array")) {
                 type = Value::Type::array;
+            } else if (str_eq(type_symbol.name(), "rational")) {
+                type = Value::Type::rational;
             } else {
                 unrecoverable("invalid type symbol %", type_symbol.name());
             }

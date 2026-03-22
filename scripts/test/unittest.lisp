@@ -722,12 +722,12 @@
 ;; function allows us to define custom types.
 
 (defn -decorate-widget (w)
-  (format "#(widget:%)" (unwrap w)))
+  (format "{widget:%}" (unwrap w)))
 
 (setq temp (wrap 30 'widget))
 (assert-eq 'widget (type temp))
 (assert-eq 30 (unwrap temp))
-(assert-eq "#(widget:30)" (string temp))
+(assert-eq "{widget:30}" (string temp))
 
 (defn -equal-widget (w1 w2)
   (equal (unwrap w1) (unwrap w2)))

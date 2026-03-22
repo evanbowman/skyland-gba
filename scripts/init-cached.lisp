@@ -119,7 +119,7 @@
   (equal 0 (choice n)))
 
 
-(defn/c sleep (time-ms)
+(defn/c sleep ((time-ms . rational))
   (await (wait* time-ms)))
 
 
