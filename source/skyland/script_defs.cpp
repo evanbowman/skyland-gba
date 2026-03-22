@@ -2972,11 +2972,6 @@ void App::init_scripts(Function<4 * sizeof(void*), void(const char*)> msg)
     lisp::register_native_interface(ni);
     lisp::debug::register_debug_handler(onscreen_script_debug_handler);
 
-    // NOTE: we need to disable custom scripts during startup, otherwise,
-    // someone could irreversibly mess up a game.
-    const bool was_developer_mode = is_developer_mode();
-    set_developer_mode(false);
-
     auto log_cnt = [&] {
         msg(format("loading LISP fns... (%)", lisp::toplevel_count()).c_str());
     };
@@ -2990,8 +2985,6 @@ void App::init_scripts(Function<4 * sizeof(void*), void(const char*)> msg)
     invoke_script("/scripts/init.lisp", {.rom_fs_only_ = true});
 
     log_cnt();
-
-    set_developer_mode(was_developer_mode);
 }
 
 
