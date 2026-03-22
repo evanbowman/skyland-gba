@@ -177,6 +177,17 @@ bool ObjectFile::disassemble(const char* path, Vector<char>& output)
     }
     definition_count = def_count->get();
 
+    auto print = [&output](const char* str) {
+        while (*str not_eq '\0') {
+            output.push_back(*(str++));
+        }
+    };
+
+    print("\nSkyland LISP OBJ File\n\n");
+    print(::format<32>("% functions, % bytes\n\n",
+                       definition_count,
+                       bytes.size()).c_str());
+
     for (int i = 0; i < definition_count; ++i) {
         auto def_header = read_mem<Definition>(it, bytes.end());
         if (not def_header) {
@@ -191,15 +202,9 @@ bool ObjectFile::disassemble(const char* path, Vector<char>& output)
         for (int i = 0; i < 30; ++i) {
             output.push_back('_');
         }
-        output.push_back('\n');
-        output.push_back('\n');
-        while (*name not_eq '\0') {
-            output.push_back(*name);
-            ++name;
-        }
-        output.push_back(':');
-        output.push_back('\n');
-        output.push_back('\n');
+        print("\n\n");
+        print(name);
+        print(":\n\n");
 
         auto buf = make_zeroed_sbr("obj-disassembly-buffer");
         for (u32 j = 0; j < bc_size; ++j) {
@@ -208,13 +213,9 @@ bool ObjectFile::disassemble(const char* path, Vector<char>& output)
 
         instruction::disassemble(&*buf,
                                  0,
-                                 [&output](const char* str) {
-                                     while (*str not_eq '\0') {
-                                         output.push_back(*str);
-                                         ++str;
-                                     }
-                                     output.push_back('\n');
-                                     output.push_back('\n');
+                                 [&print](const char* str) {
+                                     print(str);
+                                     print("\n\n");
                                  });
     }
 
