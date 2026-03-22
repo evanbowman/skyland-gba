@@ -26,7 +26,7 @@ namespace lisp
 {
 
 
-#define LISP_BYTECODE_VERSION 7
+#define LISP_BYTECODE_VERSION 8
 
 
 using Opcode = u8;
@@ -1636,6 +1636,9 @@ void disassemble(Value* fn,
 
 using InstructionList = Vector<instruction::Header*>;
 void parse_instructions(ScratchBuffer& buffer, InstructionList& list, int offset = 0);
+
+
+u32 instruction_size(Header hdr);
 
 
 } // namespace instruction

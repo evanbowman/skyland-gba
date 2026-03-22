@@ -48,7 +48,6 @@ public:
     {
         HostInteger<Symbol::SymtabIndex> sym_;
         Function::Signature sig_;
-        host_u16 bytecode_size_;
     };
 
 

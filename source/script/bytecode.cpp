@@ -814,20 +814,31 @@ void parse_instructions(ScratchBuffer& buffer, InstructionList& list, int offset
             offset += sizeof(Ret);
             break;
 
-        case EarlyRet::op():
-            offset += sizeof(EarlyRet);
-            break;
-
         case PushLambda::op():
             ++depth;
             offset += sizeof(PushLambda);
             break;
 
+        default:
+            offset += instruction_size(*inst);
+            break;
+        }
+    }
+}
+
+
+u32 instruction_size(Header header)
+{
+    switch (header.op_) {
 #define MATCH(NAME)                                                            \
     case NAME::op():                                                           \
-        offset += sizeof(NAME);                                                \
+        return sizeof(NAME);                                                   \
         break;
-
+            MATCH(PushString)
+            MATCH(RetNil)
+            MATCH(Ret)
+            MATCH(EarlyRet)
+            MATCH(PushLambda)
             MATCH(LoadVarRT)
             MATCH(LoadVarS)
             MATCH(PushSymbolRT)
@@ -917,8 +928,8 @@ void parse_instructions(ScratchBuffer& buffer, InstructionList& list, int offset
             MATCH(RetNilIfFalseKeep)
             MATCH(SmallJumpNotEqual)
             MATCH(Length)
-        }
     }
+    return 0;
 }
 
 

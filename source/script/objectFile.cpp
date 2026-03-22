@@ -68,7 +68,6 @@ void ObjectFile::append(Symbol::SymtabIndex sym, Function& fn)
     Definition def;
     def.sym_.set(sym);
     def.sig_ = fn.sig_;
-    def.bytecode_size_.set(bytecode_size);
 
     append(&def, sizeof(def));
     append(begin, bytecode_size);
@@ -108,6 +107,55 @@ Optional<T> read_mem(Vector<char>::Iterator& it, Vector<char>::Iterator end)
 }
 
 
+u32 find_bc_size(Vector<char>::Iterator it)
+{
+    u32 bc_size = 0;
+
+    int depth = 0;
+    auto hdr = it;
+    while (true) {
+        auto op = *hdr;
+        if (op == instruction::PushString::op()) {
+            instruction::PushString ps;
+            for (u32 i = 0; i < sizeof ps; ++i) {
+                ((u8*)&ps)[i] = *(hdr++);
+            }
+            auto appended_len = ps.length_;
+            while (appended_len) {
+                ++hdr;
+                --appended_len;
+            }
+            bc_size += sizeof(instruction::PushString) + ps.length_;
+        } else {
+            instruction::Header h;
+            h.op_ = op;
+            auto sz = instruction::instruction_size(h);
+            bc_size += sz;
+            while (sz) {
+                ++hdr;
+                --sz;
+            }
+        }
+        switch (op) {
+        case instruction::PushLambda::op():
+            ++depth;
+            break;
+
+        case instruction::RetNil::op():
+        case instruction::Ret::op():
+            if (depth == 0) {
+                goto DONE;
+            } else {
+                --depth;
+            }
+        break;
+        }
+    }
+ DONE:;
+    return bc_size;
+}
+
+
 bool ObjectFile::disassemble(const char* path, Vector<char>& output)
 {
     output.clear();
@@ -136,9 +184,15 @@ bool ObjectFile::disassemble(const char* path, Vector<char>& output)
         }
 
         const auto sym_index = def_header->sym_.get();
-        const auto bc_size = def_header->bytecode_size_.get();
+
+        auto bc_size = find_bc_size(it);
 
         auto name = load_from_symtab(sym_index * symtab_stride);
+        for (int i = 0; i < 30; ++i) {
+            output.push_back('_');
+        }
+        output.push_back('\n');
+        output.push_back('\n');
         while (*name not_eq '\0') {
             output.push_back(*name);
             ++name;
@@ -221,7 +275,8 @@ Value* ObjectFile::load(const Fingerprint& f, const char* path)
         }
 
         const auto sym_index = def_header->sym_.get();
-        const auto bc_size = def_header->bytecode_size_.get();
+
+        auto bc_size = find_bc_size(it);
 
         // Check we have enough bytes remaining in the file
         // (avoid walking past end in the copy loop)
