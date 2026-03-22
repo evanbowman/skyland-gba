@@ -101,7 +101,7 @@
       ((or (> pstr 2)
            (and (> pstr 1)
                 (chance 2)))
-       (if (dialog-await-binary-q "<c:Anvil Annie:44>Your fortifications... That's not goblin salvage work. Human military refit. Maybe even pre-migration hardware. <B:0> 400@. Black ops rates. <B:0> And you sail straight through - no loitering, no surveys, no 'equipment malfunctions' near my perimeter!"
+       (if (dialog-await-binary-q "<c:Anvil Annie:44>Your fortifications... That's not goblin salvage work. Human military refit. Maybe even pre-migration hardware. <B:0> 400@. Covert rates. <B:0> And you sail straight through - no loitering, no surveys, no 'equipment malfunctions' near my perimeter!"
                                   "Pay 400@."
                                   "Refuse bribe.")
            (pay-toll 400)
