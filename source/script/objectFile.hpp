@@ -10,9 +10,9 @@
 
 #pragma once
 
-#include "number/endian.hpp"
 #include "containers/vector.hpp"
 #include "lisp.hpp"
+#include "number/endian.hpp"
 
 
 namespace lisp
@@ -22,7 +22,6 @@ namespace lisp
 class ObjectFile
 {
 public:
-
     struct Fingerprint
     {
         u8 mem_[8];
@@ -59,4 +58,4 @@ private:
 };
 
 
-}
+} // namespace lisp

@@ -87,7 +87,8 @@ bool is_mounted()
 
 
 
-void walk(Function<8 * sizeof(void*), void(const char* path, u32 size)> callback)
+void walk(
+    Function<8 * sizeof(void*), void(const char* path, u32 size)> callback)
 {
     const char* current = &__rom_end__;
     current += sizeof(Root);

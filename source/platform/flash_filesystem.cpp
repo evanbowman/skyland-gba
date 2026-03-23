@@ -596,7 +596,8 @@ void walk(Function<8 * sizeof(void*), void(const char*, u32)> callback)
 
 
         if (r.invalidate_.get() == Record::InvalidateStatus::valid) {
-            u32 size = (sizeof r) + r.file_info_.name_length_ + r.file_info_.data_length_.get();
+            u32 size = (sizeof r) + r.file_info_.name_length_ +
+                       r.file_info_.data_length_.get();
             callback(file_name, size);
         } else {
             // #ifdef __TEST__

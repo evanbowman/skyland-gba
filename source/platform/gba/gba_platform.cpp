@@ -4481,7 +4481,8 @@ std::pair<const char*, u32> Platform::load_file(const char* folder,
 
 
 
-void Platform::walk_filesystem(Function<8 * sizeof(void*), void(const char* path, u32 size)> callback)
+void Platform::walk_filesystem(
+    Function<8 * sizeof(void*), void(const char* path, u32 size)> callback)
 {
     filesystem::walk(callback);
 }

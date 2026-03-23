@@ -1668,7 +1668,8 @@ void Platform::blit_t1_tile_to_texture(u16 from_index, u16 to_index, bool hard)
 
 
 
-void Platform::walk_filesystem(Function<8 * sizeof(void*), void(const char* path, u32 size)> callback)
+void Platform::walk_filesystem(
+    Function<8 * sizeof(void*), void(const char* path, u32 size)> callback)
 {
     std::vector<std::pair<std::string, u32>> paths;
 

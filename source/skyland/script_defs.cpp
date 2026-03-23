@@ -40,12 +40,12 @@
 #include "scene/startAdventureScene.hpp"
 #include "scene/textEntryScene.hpp"
 #include "scene/titleScreenScene.hpp"
+#include "script/bytecode.hpp"
 #include "script/debug.hpp"
 #include "script/lisp.hpp"
 #include "script/listBuilder.hpp"
-#include "script/bytecode.hpp"
-#include "script_debugger.hpp"
 #include "script/objectFile.hpp"
+#include "script_debugger.hpp"
 #include "serial.hpp"
 #include "sharedVariable.hpp"
 #include "skyland.hpp"
@@ -74,7 +74,7 @@ namespace lisp
 {
 Optional<u16> get_symtab_index(Symbol& sym);
 u16 external_symtab_count();
-}
+} // namespace lisp
 
 
 

@@ -15,7 +15,8 @@
 
 
 static constexpr const int mini_buffers_per_pool =
-    (SCRATCH_BUFFER_SIZE / (sizeof(MiniBufferControlBlock) + sizeof(void*))) - 1;
+    (SCRATCH_BUFFER_SIZE / (sizeof(MiniBufferControlBlock) + sizeof(void*))) -
+    1;
 
 
 
@@ -66,7 +67,8 @@ MiniBufferPtr make_mini_buffer(u32 zero_fill_size)
                                 (*prev)->next_ = std::move((*current)->next_);
                             } else {
                                 // Unlinking the head of the list
-                                mini_buffer_pools = std::move((*current)->next_);
+                                mini_buffer_pools =
+                                    std::move((*current)->next_);
                             }
                         }
                         return;

@@ -1611,7 +1611,8 @@ void Array::finalizer(Value* array)
         return ((SubBufferPtr*)(array->array().sub_mem_))->~SubBufferPtr();
 
     case BackingMem::scratch_buffer:
-        return ((ScratchBufferPtr*)(array->array().sbr_mem_))->~ScratchBufferPtr();
+        return ((ScratchBufferPtr*)(array->array().sbr_mem_))
+            ->~ScratchBufferPtr();
 
     case BackingMem::undefined:
         break;
@@ -3015,7 +3016,7 @@ void format_impl(Value* value, Printer& p, int depth, bool skip_quotes = false)
                 p.put_str(" ");
             }
             first = false;
-            format_impl(value->array().get(i) , p, depth + 1, true);
+            format_impl(value->array().get(i), p, depth + 1, true);
         }
         p.put_str(")");
         break;

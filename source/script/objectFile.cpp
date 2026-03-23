@@ -10,9 +10,9 @@
 
 #include "objectFile.hpp"
 #include "bytecode.hpp"
-#include "platform/flash_filesystem.hpp"
 #include "lisp_internal.hpp"
 #include "listBuilder.hpp"
+#include "platform/flash_filesystem.hpp"
 
 
 namespace lisp
@@ -87,9 +87,8 @@ void ObjectFile::save(const char* path)
     auto def_count = (DefinitionCountField*)&*it;
     def_count->set(definition_count_);
 
-    flash_filesystem::store_file_data_binary(path, bytes_, {
-            .use_compression_ = true
-        });
+    flash_filesystem::store_file_data_binary(
+        path, bytes_, {.use_compression_ = true});
 }
 
 
@@ -148,10 +147,10 @@ u32 find_bc_size(Vector<char>::Iterator it)
             } else {
                 --depth;
             }
-        break;
+            break;
         }
     }
- DONE:;
+DONE:;
     return bc_size;
 }
 
@@ -184,9 +183,9 @@ bool ObjectFile::disassemble(const char* path, Vector<char>& output)
     };
 
     print("\nSkyland LISP OBJ File\n\n");
-    print(::format<32>("% functions, % bytes\n\n",
-                       definition_count,
-                       bytes.size()).c_str());
+    print(
+        ::format<32>("% functions, % bytes\n\n", definition_count, bytes.size())
+            .c_str());
 
     for (int i = 0; i < definition_count; ++i) {
         auto def_header = read_mem<Definition>(it, bytes.end());
@@ -235,12 +234,10 @@ bool ObjectFile::disassemble(const char* path, Vector<char>& output)
             buf->data_[j] = *(it++);
         }
 
-        instruction::disassemble(&*buf,
-                                 0,
-                                 [&print](const char* str) {
-                                     print(str);
-                                     print("\n\n");
-                                 });
+        instruction::disassemble(&*buf, 0, [&print](const char* str) {
+            print(str);
+            print("\n\n");
+        });
     }
 
     return true;
@@ -361,4 +358,4 @@ Value* ObjectFile::load(const Fingerprint& f, const char* path)
 }
 
 
-}
+} // namespace lisp

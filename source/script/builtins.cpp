@@ -512,9 +512,8 @@ Value* builtin_array_set(int argc)
     if (get_op(2)->array().set(index, get_op0())) {
         return get_op(2);
     } else {
-        return make_error(::format<64>("index % out of bounds for array %",
-                                       index,
-                                       get_op(2)));
+        return make_error(::format<64>(
+            "index % out of bounds for array %", index, get_op(2)));
     }
 }
 

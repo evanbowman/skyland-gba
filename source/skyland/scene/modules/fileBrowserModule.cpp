@@ -442,13 +442,16 @@ ScenePtr FileBrowserModule::update(Time delta)
             if (lines_.size() > (u32)scroll_index_) {
                 auto& info = (**cwd_names_)[scroll_index_ + line_offset_];
                 lines_[scroll_index_].assign(info.name_.c_str());
-                append_file_size(lines_[scroll_index_], info.name_.c_str(), info.size_);
+                append_file_size(
+                    lines_[scroll_index_], info.name_.c_str(), info.size_);
             }
             ++scroll_index_;
             if (lines_.size() > (u32)scroll_index_) {
                 auto& info = (**cwd_names_)[scroll_index_ + line_offset_];
-                lines_[scroll_index_].assign(info.name_.c_str(), highlight_colors);
-                append_file_size(lines_[scroll_index_], info.name_.c_str(), info.size_);
+                lines_[scroll_index_].assign(info.name_.c_str(),
+                                             highlight_colors);
+                append_file_size(
+                    lines_[scroll_index_], info.name_.c_str(), info.size_);
             }
             if (not gui_mode_) {
                 PLATFORM.set_tile(Layer::overlay, 1, 3 + scroll_index_, 113);
@@ -472,13 +475,16 @@ ScenePtr FileBrowserModule::update(Time delta)
             if (lines_.size() > (u32)scroll_index_) {
                 auto& info = (**cwd_names_)[scroll_index_ + line_offset_];
                 lines_[scroll_index_].assign(info.name_.c_str());
-                append_file_size(lines_[scroll_index_], info.name_.c_str(), info.size_);
+                append_file_size(
+                    lines_[scroll_index_], info.name_.c_str(), info.size_);
             }
             --scroll_index_;
             if (lines_.size() > (u32)scroll_index_) {
                 auto& info = (**cwd_names_)[scroll_index_ + line_offset_];
-                lines_[scroll_index_].assign(info.name_.c_str(), highlight_colors);
-                append_file_size(lines_[scroll_index_], info.name_.c_str(), info.size_);
+                lines_[scroll_index_].assign(info.name_.c_str(),
+                                             highlight_colors);
+                append_file_size(
+                    lines_[scroll_index_], info.name_.c_str(), info.size_);
             }
             if (not gui_mode_) {
                 PLATFORM.set_tile(Layer::overlay, 1, 3 + scroll_index_, 113);

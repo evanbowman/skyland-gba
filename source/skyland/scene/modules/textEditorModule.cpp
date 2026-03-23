@@ -13,9 +13,9 @@
 #include "fileBrowserModule.hpp"
 #include "platform/flash_filesystem.hpp"
 #include "script/lisp.hpp"
+#include "script/objectFile.hpp"
 #include "skyland/scene/sramFileWritebackScene.hpp"
 #include "skyland/skyland.hpp"
-#include "script/objectFile.hpp"
 
 
 

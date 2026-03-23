@@ -11,12 +11,12 @@
 
 #pragma once
 
+#include "containers/vector.hpp"
 #include "number/endian.hpp"
 #include "number/int.h"
 #include "platform/libc.hpp"
 #include "platform/scratch_buffer.hpp"
 #include "value.hpp"
-#include "containers/vector.hpp"
 
 
 // NOTE: Bytecode is not portable, nor is it intended to be.
@@ -1651,7 +1651,9 @@ void disassemble(Value* fn,
 
 
 using InstructionList = Vector<instruction::Header*>;
-void parse_instructions(ScratchBuffer& buffer, InstructionList& list, int offset = 0);
+void parse_instructions(ScratchBuffer& buffer,
+                        InstructionList& list,
+                        int offset = 0);
 
 
 u32 instruction_size(Header hdr);

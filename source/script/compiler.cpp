@@ -134,7 +134,8 @@ int compile_quoted(CompilerContext& ctx,
         auto cdr = code->cons().cdr();
         if (cdr->type() not_eq Value::Type::cons and
             cdr->type() not_eq Value::Type::nil) {
-            write_pos = compile_quoted(ctx, buffer, write_pos, code->cons().car(), tail_expr);
+            write_pos = compile_quoted(
+                ctx, buffer, write_pos, code->cons().car(), tail_expr);
             write_pos = compile_quoted(ctx, buffer, write_pos, cdr, tail_expr);
             append<instruction::MakePair>(ctx, buffer, write_pos);
         } else {
@@ -146,14 +147,15 @@ int compile_quoted(CompilerContext& ctx,
                     break;
                 }
                 write_pos = compile_quoted(
-                                           ctx, buffer, write_pos, code->cons().car(), tail_expr);
+                    ctx, buffer, write_pos, code->cons().car(), tail_expr);
 
                 code = code->cons().cdr();
 
                 list_len++;
 
                 if (list_len == 255) {
-                    PLATFORM.fatal("cannot compile list with more than 255 slots!");
+                    PLATFORM.fatal(
+                        "cannot compile list with more than 255 slots!");
                 }
             }
 
@@ -642,8 +644,8 @@ TOP:
             } else if (fn->type() == Value::Type::symbol and
                        str_eq(fn->symbol().name(), "*")) {
 
-                append<instruction::Multiply>(ctx, buffer, write_pos)->operands_ =
-                    argc;
+                append<instruction::Multiply>(ctx, buffer, write_pos)
+                    ->operands_ = argc;
 
             } else if (fn->type() == Value::Type::symbol and
                        str_eq(fn->symbol().name(), "/") and argc == 2) {
@@ -676,14 +678,12 @@ TOP:
                 append<instruction::Get>(ctx, buffer, write_pos);
 
             } else if (fn->type() == Value::Type::symbol and
-                       (str_eq(fn->symbol().name(), "car")) and
-                       argc == 1) {
+                       (str_eq(fn->symbol().name(), "car")) and argc == 1) {
 
                 append<instruction::First>(ctx, buffer, write_pos);
 
             } else if (fn->type() == Value::Type::symbol and
-                       (str_eq(fn->symbol().name(), "cdr")) and
-                       argc == 1) {
+                       (str_eq(fn->symbol().name(), "cdr")) and argc == 1) {
 
                 append<instruction::Rest>(ctx, buffer, write_pos);
 
@@ -974,7 +974,10 @@ public:
         int index = 0;
         int depth = 0;
 
-        struct LambdaInfo { int start_ = 0; };
+        struct LambdaInfo
+        {
+            int start_ = 0;
+        };
         Buffer<LambdaInfo, 15> function_stack;
         function_stack.push_back({0});
 
@@ -997,7 +1000,8 @@ public:
             }
             case RetNil::op():
             case Ret::op():
-                if (depth == 0) return;
+                if (depth == 0)
+                    return;
                 function_stack.pop_back();
                 --depth;
                 ++index;
@@ -1007,7 +1011,8 @@ public:
                 ++index;
                 break;
             case JumpIfFalse::op():
-                targets.push_back(scope_start + ((JumpIfFalse*)inst)->offset_.get());
+                targets.push_back(scope_start +
+                                  ((JumpIfFalse*)inst)->offset_.get());
                 ++index;
                 break;
             case SmallJump::op():
@@ -1015,15 +1020,18 @@ public:
                 ++index;
                 break;
             case SmallJumpIfFalse::op():
-                targets.push_back(scope_start + ((SmallJumpIfFalse*)inst)->offset_);
+                targets.push_back(scope_start +
+                                  ((SmallJumpIfFalse*)inst)->offset_);
                 ++index;
                 break;
             case SmallJumpIfTrue::op():
-                targets.push_back(scope_start + ((SmallJumpIfTrue*)inst)->offset_);
+                targets.push_back(scope_start +
+                                  ((SmallJumpIfTrue*)inst)->offset_);
                 ++index;
                 break;
             case SmallJumpNotEqual::op():
-                targets.push_back(scope_start + ((SmallJumpNotEqual*)inst)->offset_);
+                targets.push_back(scope_start +
+                                  ((SmallJumpNotEqual*)inst)->offset_);
                 ++index;
                 break;
             default:
@@ -1040,7 +1048,8 @@ public:
     {
         int abs = (int)((u8*)inst - (u8*)code_buffer.data_);
         for (auto& t : targets) {
-            if (t == abs) return true;
+            if (t == abs)
+                return true;
         }
         return false;
     }
@@ -1051,7 +1060,9 @@ public:
 class PeepholeOptimizer : public Optimizer
 {
 public:
-    u32 run(InstructionList& instructions, ScratchBuffer& code_buffer, u32 code_size)
+    u32 run(InstructionList& instructions,
+            ScratchBuffer& code_buffer,
+            u32 code_size)
     {
 
     TOP:
@@ -1060,7 +1071,10 @@ public:
         JumpTargets targets;
         collect_jump_targets(instructions, code_buffer, targets);
 
-        struct LambdaInfo { int start_ = 0; };
+        struct LambdaInfo
+        {
+            int start_ = 0;
+        };
         Buffer<LambdaInfo, 15, true> scope_stack;
         scope_stack.push_back({0});
 
@@ -1077,7 +1091,8 @@ public:
                     auto prev = instructions[index - 1];
                     auto next = instructions[index + 1];
                     static_assert(sizeof(LoadReg) == sizeof(StoreRegKeep));
-                    if ((prev->op_ == LoadReg::op() or prev->op_ == StoreRegKeep::op()) and
+                    if ((prev->op_ == LoadReg::op() or
+                         prev->op_ == StoreRegKeep::op()) and
                         next->op_ == LoadReg::op() and
                         ((LoadReg*)prev)->reg_ == ((LoadReg*)next)->reg_ and
                         not is_jump_target(inst, code_buffer, targets) and
@@ -1091,8 +1106,9 @@ public:
                     } else if ((prev->op_ == LoadVarS::op() and
                                 next->op_ == LoadVarS::op()) and
                                ((LoadVarS*)prev)->symtab_index_.get() ==
-                               ((LoadVarS*)next)->symtab_index_.get() and
-                               not is_jump_target(inst, code_buffer, targets) and
+                                   ((LoadVarS*)next)->symtab_index_.get() and
+                               not is_jump_target(
+                                   inst, code_buffer, targets) and
                                not is_jump_target(next, code_buffer, targets)) {
                         inst->op_ = RetNilIfFalseKeep::op();
                         remove(instructions,
@@ -1248,7 +1264,8 @@ public:
                     goto TOP;
                 } else if (code_buffer.data_[abs_target] == SmallJump::op()) {
                     // A jump to a jump is a bit wasteful... let's collapse it.
-                    auto target_jmp = (SmallJump*)(code_buffer.data_ + abs_target);
+                    auto target_jmp =
+                        (SmallJump*)(code_buffer.data_ + abs_target);
                     sj->offset_ = target_jmp->offset_;
                     goto TOP;
                 } else {
@@ -1362,18 +1379,13 @@ public:
                     not is_jump_target(next, code_buffer, targets)) {
 
                     ((PushNil*)inst)->header_.op_ = RetNil::op();
-                    remove(instructions,
-                           code_buffer,
-                           (Ret*)next,
-                           code_size);
+                    remove(instructions, code_buffer, (Ret*)next, code_size);
                     goto TOP;
                 } else if (next->op_ == EarlyRet::op() and
                            not is_jump_target(next, code_buffer, targets)) {
                     ((PushNil*)inst)->header_.op_ = EarlyRetNil::op();
-                    remove(instructions,
-                           code_buffer,
-                           (EarlyRet*)next,
-                           code_size);
+                    remove(
+                        instructions, code_buffer, (EarlyRet*)next, code_size);
                 }
                 ++index;
                 break;
@@ -1436,7 +1448,8 @@ public:
                     // in a later pass.
                     auto sj = (SmallJump*)next;
                     int abs_target = scope_stack[depth].start_ + sj->offset_;
-                    if (sj->offset_ < std::numeric_limits<decltype(sj->offset_)>::max() and
+                    if (sj->offset_ < std::numeric_limits<
+                                          decltype(sj->offset_)>::max() and
                         code_buffer.data_[abs_target] == Pop::op() and
                         not is_jump_target(next, code_buffer, targets)) {
                         inst->op_ = StoreReg::op();
@@ -1453,15 +1466,20 @@ public:
                 switch (prev->op_) {
                 case PushNil::op():
                     if (not is_jump_target(inst, code_buffer, targets)) {
-                        remove(instructions, code_buffer, (Pop*)inst, code_size);
-                        remove(instructions, code_buffer, (PushNil*)prev, code_size);
+                        remove(
+                            instructions, code_buffer, (Pop*)inst, code_size);
+                        remove(instructions,
+                               code_buffer,
+                               (PushNil*)prev,
+                               code_size);
                         goto TOP;
                     }
                     break;
 
                 case StoreRegKeep::op():
                     if (not is_jump_target(inst, code_buffer, targets)) {
-                        remove(instructions, code_buffer, (Pop*)inst, code_size);
+                        remove(
+                            instructions, code_buffer, (Pop*)inst, code_size);
                         prev->op_ = StoreReg::op();
                         goto TOP;
                     }
@@ -1469,7 +1487,8 @@ public:
 
                 case LoadCall0::op():
                     if (not is_jump_target(inst, code_buffer, targets)) {
-                        remove(instructions, code_buffer, (Pop*)inst, code_size);
+                        remove(
+                            instructions, code_buffer, (Pop*)inst, code_size);
                         prev->op_ = LoadCall0Discard::op();
                         goto TOP;
                     }
@@ -1477,7 +1496,8 @@ public:
 
                 case LoadCall1::op():
                     if (not is_jump_target(inst, code_buffer, targets)) {
-                        remove(instructions, code_buffer, (Pop*)inst, code_size);
+                        remove(
+                            instructions, code_buffer, (Pop*)inst, code_size);
                         prev->op_ = LoadCall1Discard::op();
                         goto TOP;
                     }
@@ -1485,7 +1505,8 @@ public:
 
                 case LoadCall2::op():
                     if (not is_jump_target(inst, code_buffer, targets)) {
-                        remove(instructions, code_buffer, (Pop*)inst, code_size);
+                        remove(
+                            instructions, code_buffer, (Pop*)inst, code_size);
                         prev->op_ = LoadCall2Discard::op();
                         goto TOP;
                     }
@@ -1493,7 +1514,8 @@ public:
 
                 case LoadCall3::op():
                     if (not is_jump_target(inst, code_buffer, targets)) {
-                        remove(instructions, code_buffer, (Pop*)inst, code_size);
+                        remove(
+                            instructions, code_buffer, (Pop*)inst, code_size);
                         prev->op_ = LoadCall3Discard::op();
                         goto TOP;
                     }
@@ -1508,12 +1530,10 @@ public:
                 auto next = instructions[index + 1];
                 if (next->op_ == SmallJumpIfFalse::op() and
                     not is_jump_target(inst, code_buffer, targets)) {
-                    static_assert(sizeof(SmallJumpNotEqual) == sizeof(SmallJumpIfFalse));
+                    static_assert(sizeof(SmallJumpNotEqual) ==
+                                  sizeof(SmallJumpIfFalse));
                     next->op_ = SmallJumpNotEqual::op();
-                    remove(instructions,
-                           code_buffer,
-                           instr,
-                           code_size);
+                    remove(instructions, code_buffer, instr, code_size);
                     goto TOP;
                 }
                 ++index;
@@ -1534,8 +1554,9 @@ public:
                     // NOTE: this else/if for jump condition inversion runs
                     // after the not/not detection, because eliminating double
                     // not is a bigger priority.
-                    static_assert(sizeof(SmallJumpIfTrue) == sizeof(SmallJumpIfFalse) and
-                                  std::is_base_of<SmallJumpIfFalse, SmallJumpIfTrue>());
+                    static_assert(
+                        sizeof(SmallJumpIfTrue) == sizeof(SmallJumpIfFalse) and
+                        std::is_base_of<SmallJumpIfFalse, SmallJumpIfTrue>());
                     next->op_ = SmallJumpIfTrue::op();
                     remove(instructions, code_buffer, (Not*)inst, code_size);
                     goto TOP;
@@ -1580,7 +1601,9 @@ public:
                 } else if (next->op_ == SmallJump::op()) {
                     auto sj = (SmallJump*)next;
                     int abs_target = scope_stack[depth].start_ + sj->offset_;
-                    if (sj->offset_ + sizeof(LoadReg) <= std::numeric_limits<decltype(sj->offset_)>::max() and
+                    if (sj->offset_ + sizeof(LoadReg) <=
+                            std::numeric_limits<
+                                decltype(sj->offset_)>::max() and
                         code_buffer.data_[abs_target] == LoadReg::op() and
                         (((LoadReg*)(code_buffer.data_ + abs_target))->reg_ ==
                          ((StoreReg*)inst)->reg_) and
@@ -1761,27 +1784,33 @@ public:
                     case 0: {
                         StoreReg0Keep sr0;
                         sr0.header_.op_ = StoreReg0Keep::op();
-                        replace(instructions, code_buffer, *instr, sr0, code_size);
+                        replace(
+                            instructions, code_buffer, *instr, sr0, code_size);
                         targets.clear();
-                        collect_jump_targets(instructions, code_buffer, targets);
+                        collect_jump_targets(
+                            instructions, code_buffer, targets);
                         break;
                     }
 
                     case 1: {
                         StoreReg1Keep sr1;
                         sr1.header_.op_ = StoreReg1Keep::op();
-                        replace(instructions, code_buffer, *instr, sr1, code_size);
+                        replace(
+                            instructions, code_buffer, *instr, sr1, code_size);
                         targets.clear();
-                        collect_jump_targets(instructions, code_buffer, targets);
+                        collect_jump_targets(
+                            instructions, code_buffer, targets);
                         break;
                     }
 
                     case 2: {
                         StoreReg2Keep sr2;
                         sr2.header_.op_ = StoreReg2Keep::op();
-                        replace(instructions, code_buffer, *instr, sr2, code_size);
+                        replace(
+                            instructions, code_buffer, *instr, sr2, code_size);
                         targets.clear();
-                        collect_jump_targets(instructions, code_buffer, targets);
+                        collect_jump_targets(
+                            instructions, code_buffer, targets);
                         break;
                     }
                     }
@@ -1831,7 +1860,9 @@ public:
 class StackOptimizer : public Optimizer
 {
 public:
-    u32 run(InstructionList& instructions, ScratchBuffer& code_buffer, u32 code_size)
+    u32 run(InstructionList& instructions,
+            ScratchBuffer& code_buffer,
+            u32 code_size)
     {
         using namespace instruction;
 
@@ -2179,7 +2210,8 @@ public:
 
         auto depth_has_captures = [&](int d) -> bool {
             for (auto& def : defs) {
-                if (def.depth_ == d && is_captured(def.symbol_name_string_.c_str())) {
+                if (def.depth_ == d &&
+                    is_captured(def.symbol_name_string_.c_str())) {
                     return true;
                 }
             }
@@ -2207,8 +2239,10 @@ public:
 
                 case LexicalFramePush::op():
                     if (not depth_has_captures(depth)) {
-                        remove(instructions, code_buffer,
-                               (LexicalFramePush*)inst, code_size);
+                        remove(instructions,
+                               code_buffer,
+                               (LexicalFramePush*)inst,
+                               code_size);
                     } else {
                         ++index;
                     }
@@ -2216,8 +2250,10 @@ public:
 
                 case LexicalFramePop::op():
                     if (not depth_has_captures(depth)) {
-                        remove(instructions, code_buffer,
-                               (LexicalFramePop*)inst, code_size);
+                        remove(instructions,
+                               code_buffer,
+                               (LexicalFramePop*)inst,
+                               code_size);
                     } else {
                         ++index;
                     }
@@ -2272,7 +2308,8 @@ void compile(Value* code, CompileOptions opts)
     CompilerContext ctx;
     write_pos = compile_fn(ctx, *buffer, write_pos, code, 0);
 
-    auto& code_buffer = *fn->function().bytecode_impl_.databuffer()->databuffer().value();
+    auto& code_buffer =
+        *fn->function().bytecode_impl_.databuffer()->databuffer().value();
     InstructionList instructions(make_scratch_buffer("instruction-buffer"));
     parse_instructions(code_buffer, instructions);
 
@@ -2281,7 +2318,8 @@ void compile(Value* code, CompileOptions opts)
     }
 
     if (opts.peephole_optimizer_enabled_) {
-        write_pos = PeepholeOptimizer().run(instructions, code_buffer, write_pos);
+        write_pos =
+            PeepholeOptimizer().run(instructions, code_buffer, write_pos);
     }
 
     // std::cout << "compilation finished, bytes used: " << write_pos <<
@@ -2335,12 +2373,12 @@ void compile(Value* code, CompileOptions opts)
         }
     }
 
-    // Platform::RemoteConsole::Line out;
-    // instruction::disassemble(get_op0(), [&out](const char* opcode) {
-    //     out += opcode;
-    //     out += "\r\n";
-    // });
-    // info(out.c_str());
+    Platform::RemoteConsole::Line out;
+    instruction::disassemble(get_op0(), [&out](const char* opcode) {
+        out += opcode;
+        out += "\r\n";
+    });
+    info(out.c_str());
 }
 
 

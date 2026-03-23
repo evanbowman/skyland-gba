@@ -1021,13 +1021,13 @@ TOP:
 
         case EarlyRetNil::op():
         case RetNil::op():
-            RETURN_NIL:
+        RETURN_NIL:
             push_op(L_NIL);
             goto RETURN;
 
         case EarlyRet::op():
         case Ret::op():
-            RETURN:
+        RETURN:
             if (registers) {
                 Value* lat = registers->result();
                 while (lat->type() == Value::Type::cons) {

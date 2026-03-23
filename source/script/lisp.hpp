@@ -132,7 +132,8 @@ struct Symbol
 
     using SymtabIndex = u16;
 
-    static constexpr const SymtabIndex not_in_symtab = std::numeric_limits<SymtabIndex>::max();
+    static constexpr const SymtabIndex not_in_symtab =
+        std::numeric_limits<SymtabIndex>::max();
     HostInteger<SymtabIndex> symtab_index_;
     char reserved_[1];
 
@@ -568,8 +569,7 @@ struct Array
     ValueHeader hdr_;
     u16 size_;
 
-    enum class BackingMem : u8
-    {
+    enum class BackingMem : u8 {
         mini_buffer,
         sub_buffer,
         scratch_buffer,
