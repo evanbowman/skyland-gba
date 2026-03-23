@@ -2372,13 +2372,6 @@ void compile(Value* code, CompileOptions opts)
             get_bytecode_buffer() = fn->function().bytecode_impl_.databuffer();
         }
     }
-
-    Platform::RemoteConsole::Line out;
-    instruction::disassemble(get_op0(), [&out](const char* opcode) {
-        out += opcode;
-        out += "\r\n";
-    });
-    info(out.c_str());
 }
 
 
