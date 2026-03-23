@@ -1246,6 +1246,11 @@ public:
                     rn.header_.op_ = EarlyRetNil::op();
                     replace(instructions, code_buffer, *sj, rn, code_size);
                     goto TOP;
+                } else if (code_buffer.data_[abs_target] == SmallJump::op()) {
+                    // A jump to a jump is a bit wasteful... let's collapse it.
+                    auto target_jmp = (SmallJump*)(code_buffer.data_ + abs_target);
+                    sj->offset_ = target_jmp->offset_;
+                    goto TOP;
                 } else {
                     ++index;
                 }
@@ -1419,6 +1424,30 @@ public:
                 break;
             }
 
+            case StoreRegKeep::op(): {
+                auto next = instructions[index + 1];
+                if (next->op_ == SmallJump::op()) {
+                    // This warrants some explanation. If we're jumping to the
+                    // address of a pop, and we're keeping the value that we're
+                    // writing to a register on the stack, we can instead
+                    // increment the jump address to skip over the pop
+                    // instruction, which, if the pop instruction no longer is a
+                    // jump target, may collapse against a different instruction
+                    // in a later pass.
+                    auto sj = (SmallJump*)next;
+                    int abs_target = scope_stack[depth].start_ + sj->offset_;
+                    if (sj->offset_ < std::numeric_limits<decltype(sj->offset_)>::max() and
+                        code_buffer.data_[abs_target] == Pop::op() and
+                        not is_jump_target(next, code_buffer, targets)) {
+                        inst->op_ = StoreReg::op();
+                        sj->offset_++;
+                        goto TOP;
+                    }
+                }
+                ++index;
+                break;
+            }
+
             case Pop::op(): {
                 auto prev = instructions[index - 1];
                 switch (prev->op_) {
@@ -1546,6 +1575,23 @@ public:
                                 *(StoreReg*)inst,
                                 d,
                                 code_size);
+                        goto TOP;
+                    }
+                } else if (next->op_ == SmallJump::op()) {
+                    auto sj = (SmallJump*)next;
+                    int abs_target = scope_stack[depth].start_ + sj->offset_;
+                    if (sj->offset_ + sizeof(LoadReg) <= std::numeric_limits<decltype(sj->offset_)>::max() and
+                        code_buffer.data_[abs_target] == LoadReg::op() and
+                        (((LoadReg*)(code_buffer.data_ + abs_target))->reg_ ==
+                         ((StoreReg*)inst)->reg_) and
+                        not is_jump_target(next, code_buffer, targets)) {
+                        // NOTE: we're a store reg opcode followed by a jump to
+                        // a loadreg opcode for the same register. If the jump
+                        // itself is not a jump target, then we can update the
+                        // jump address to skip over the loadreg instruction and
+                        // convert the StoreReg opcode to a StoreRegKeep.
+                        sj->offset_ += sizeof(LoadReg);
+                        inst->op_ = StoreRegKeep::op();
                         goto TOP;
                     }
                 }
