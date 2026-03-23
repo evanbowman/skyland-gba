@@ -1116,6 +1116,15 @@ public:
                                (LoadVarS*)next,
                                code_size);
                         goto TOP;
+                    } else if (prev->op_ == Push1::op() and
+                               not is_jump_target(inst, code_buffer, targets)) {
+                        remove(instructions,
+                               code_buffer,
+                               (RetNilIfFalse*)inst,
+                               code_size);
+                        remove(
+                            instructions, code_buffer, (Push1*)prev, code_size);
+                        goto TOP;
                     }
                 }
                 ++index;
@@ -2372,6 +2381,13 @@ void compile(Value* code, CompileOptions opts)
             get_bytecode_buffer() = fn->function().bytecode_impl_.databuffer();
         }
     }
+
+    Platform::RemoteConsole::Line out;
+    instruction::disassemble(get_op0(), [&out](const char* opcode) {
+        out += opcode;
+        out += "\r\n";
+    });
+    info(out.c_str());
 }
 
 

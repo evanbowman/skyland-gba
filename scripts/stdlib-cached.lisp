@@ -23,9 +23,9 @@
 (defn/c remove (lat elem)
   (remove-if lat (equalto? elem)))
 
-(defn/c assoc (k alst)
+(defn/c assoc (filter-key alst)
   (get (filter (lambda (v)
-                 (equal (car v) k))
+                 (equal (car v) filter-key))
                alst)
        0))
 
