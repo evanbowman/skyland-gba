@@ -33,7 +33,7 @@
   (let ((kvp (assoc key alst)))
     (if kvp (cdr kvp))))
 
-(defn/c insert (elem lat pos)
+(defn/c insert (elem lat (pos . int))
   (append (slice lat 0 pos) (cons elem (slice lat pos))))
 
 

@@ -99,11 +99,11 @@
   (dialog* text))
 
 
-(defn/c dialog-await-binary-q ((text . string) y n)
+(defn/c dialog-await-binary-q ((text . string) (y . string) (n . string))
   (equal 0 (await (dialog-choice* text (list y n)))))
 
 ;; shortcut accessors for room metadata
-(defn/c rinfo (key sym)
+(defn/c rinfo ((key . symbol) (sym . symbol))
   (lookup key (room-meta sym)))
 
 
