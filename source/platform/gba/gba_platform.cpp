@@ -4410,7 +4410,7 @@ void Platform::on_unrecoverrable_error(UnrecoverrableErrorCallback callback)
 static EWRAM_DATA Buffer<filesystem::DirectoryCache, 16> dir_cache;
 
 
-filesystem::DirectoryCache dir_cache_load(const StringBuffer<62>& prefix)
+Optional<filesystem::DirectoryCache> dir_cache_load(const StringBuffer<62>& prefix)
 {
     for (auto& ent : dir_cache) {
         bool match = true;
@@ -4433,11 +4433,8 @@ filesystem::DirectoryCache dir_cache_load(const StringBuffer<62>& prefix)
         }
         dir_cache.push_back(*found);
         return dir_cache.back();
-    } else {
-        PLATFORM.fatal(format("directory % missing!", prefix.c_str()));
-        while (1)
-            ;
     }
+    return nullopt();
 }
 
 

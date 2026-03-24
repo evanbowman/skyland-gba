@@ -251,7 +251,7 @@ Value* ObjectFile::load(const Fingerprint& f, const char* path)
     definition_count_ = 0;
     bytes_.clear();
 
-    flash_filesystem::read_file_data(path, bytes_);
+    load_file_contents(path);
     auto it = bytes_.begin();
 
     if (bytes_.size() < sizeof(DefinitionCountField) + sizeof(Fingerprint)) {
@@ -355,6 +355,20 @@ Value* ObjectFile::load(const Fingerprint& f, const char* path)
     }
 
     return result.result();
+}
+
+
+void ObjectFile::load_file_contents(const char* path)
+{
+    flash_filesystem::read_file_data(path, bytes_);
+    if (bytes_.size() == 0) {
+        auto [data, len] = PLATFORM.load_file("", path);
+        if (len) {
+            for (u32 i = 0; i < len; ++i) {
+                bytes_.push_back(data[i]);
+            }
+        }
+    }
 }
 
 
