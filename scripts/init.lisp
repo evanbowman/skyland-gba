@@ -6,7 +6,8 @@
 ;;;
 
 (when (is-developer-mode)
-  (strict-mode true)
+  ;; TODO: fix type checking for bytecode functions and re-enable strict mode.
+  ;; (strict-mode true)
   (lisp-mem-crit-gc-alert true))
 
 
