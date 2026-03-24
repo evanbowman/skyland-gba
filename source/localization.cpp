@@ -211,6 +211,8 @@ standard_charset_map(const utf8::Codepoint& cp)
         case UTF8_GETCHR(u8"]"): return 68;
         case UTF8_GETCHR(u8"("): return 69;
         case UTF8_GETCHR(u8")"): return 70;
+        case UTF8_GETCHR(u8"{"): return 335;
+        case UTF8_GETCHR(u8"}"): return 336;
         case UTF8_GETCHR(u8":"): return 71;
         case UTF8_GETCHR(u8""):
         case UTF8_GETCHR(u8" "): return 72;
