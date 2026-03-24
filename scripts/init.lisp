@@ -8,7 +8,9 @@
 (when (is-developer-mode)
   ;; TODO: fix type checking for bytecode functions and re-enable strict mode.
   ;; (strict-mode true)
-  (lisp-mem-crit-gc-alert true))
+  ;; TODO: this one also needs more testing.
+  ;;(lisp-mem-crit-gc-alert true)
+  )
 
 
 (lisp-mem-set-gc-thresh default-early-gc-thresh)
