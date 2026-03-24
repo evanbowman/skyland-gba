@@ -2049,10 +2049,10 @@ void funcall(Value* obj, u8 argc)
     if (obj->function().sig_.FIELD not_eq Value::Type::nil and                 \
         get_arg(ARG)->type() not_eq obj->function().sig_.FIELD and             \
         not(get_arg(ARG)->type() == Value::Type::nil and                       \
-            obj->function().sig_.FIELD == Value::Type::cons) and               \
-        not(get_arg(ARG)->type() == Value::Type::rational and                  \
-            (obj->function().sig_.FIELD == Value::Type::integer or             \
-             obj->function().sig_.FIELD == Value::Type::ratio))) {             \
+            obj->function().sig_.FIELD == Value::Type::cons) and        \
+        not(obj->function().sig_.FIELD == Value::Type::rational and      \
+            (get_arg(ARG)->type() == Value::Type::integer or            \
+             get_arg(ARG)->type() == Value::Type::ratio))) {            \
         pop_args();                                                            \
         arg_error(obj->function().sig_.FIELD, get_arg(ARG)->type());           \
         break;                                                                 \
@@ -5726,16 +5726,17 @@ void eval_loop(EvalStack& eval_stack)
     if (fn->function().sig_.FIELD not_eq Value::Type::nil and                  \
         get_arg(ARG)->type() not_eq fn->function().sig_.FIELD and              \
         not(get_arg(ARG)->type() == Value::Type::nil and                       \
-            fn->function().sig_.FIELD == Value::Type::cons) and                \
-        not(get_arg(ARG)->type() == Value::Type::rational and                  \
-            (fn->function().sig_.FIELD == Value::Type::integer or              \
-             fn->function().sig_.FIELD == Value::Type::ratio))) {              \
-        pop_args();                                                            \
+            fn->function().sig_.FIELD == Value::Type::cons) and         \
+        not(fn->function().sig_.FIELD == Value::Type::rational and      \
+            (get_arg(ARG)->type() == Value::Type::integer or            \
+             get_arg(ARG)->type() == Value::Type::ratio))) {            \
+        auto arg = get_arg(ARG);                                        \
+        pop_args();                                                     \
         pop_op();                                                              \
         pop_op();                                                              \
+        arg_error(fn->function().sig_.FIELD, arg->type());              \
         L_CTX.arguments_break_loc_ = saved_break_loc;                          \
         L_CTX.current_fn_argc_ = saved_argc;                                   \
-        arg_error(fn->function().sig_.FIELD, get_arg(ARG)->type());            \
         break;                                                                 \
     }
 
