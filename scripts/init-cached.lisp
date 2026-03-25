@@ -184,6 +184,23 @@
     (> (getx node1) (getx node2))))
 
 
+(defn/c adv-var-mask ((name . symbol))
+    (let ((found (find name adv-var-list)))
+      (when (nil? found)
+        (fatal (string "bad adv var " name)))
+      (bit-shift-left 1 found)))
+
+(defn/c adv-var-load ((name . symbol))
+  (bit-and adv-var-set (adv-var-mask name)))
+
+(defn/c adv-var-store ((name . symbol) val)
+  (let ((mask (adv-var-mask name)))
+    ;; clear slot
+    (setq adv-var-set (bit-and adv-var-set (bit-not mask)))
+    (if val
+        (setq adv-var-set (bit-or adv-var-set mask)))))
+
+
 ;; The autoload mechanism provides a way to lazy-load infrequently used
 ;; symbols. As a final step before raising an undefined variable error, the
 ;; interpreter calls on-autoload for a symbol, to attempt to lazy-bind a value

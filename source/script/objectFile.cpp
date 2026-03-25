@@ -161,7 +161,7 @@ bool ObjectFile::disassemble(const char* path, Vector<char>& output)
     u16 definition_count = 0;
 
     Vector<char> bytes;
-    flash_filesystem::read_file_data(path, bytes);
+    load_file_contents(bytes, path);
     auto it = bytes.begin();
 
     if (bytes.size() < sizeof(DefinitionCountField) + sizeof(Fingerprint)) {
@@ -251,7 +251,7 @@ Value* ObjectFile::load(const Fingerprint& f, const char* path)
     definition_count_ = 0;
     bytes_.clear();
 
-    load_file_contents(path);
+    load_file_contents(bytes_, path);
     auto it = bytes_.begin();
 
     if (bytes_.size() < sizeof(DefinitionCountField) + sizeof(Fingerprint)) {
@@ -358,14 +358,14 @@ Value* ObjectFile::load(const Fingerprint& f, const char* path)
 }
 
 
-void ObjectFile::load_file_contents(const char* path)
+void ObjectFile::load_file_contents(Vector<char>& output, const char* path)
 {
-    flash_filesystem::read_file_data(path, bytes_);
-    if (bytes_.size() == 0) {
+    flash_filesystem::read_file_data(path, output);
+    if (output.size() == 0) {
         auto [data, len] = PLATFORM.load_file("", path);
         if (len) {
             for (u32 i = 0; i < len; ++i) {
-                bytes_.push_back(data[i]);
+                output.push_back(data[i]);
             }
         }
     }

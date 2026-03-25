@@ -201,6 +201,10 @@ int compile_progn(CompilerContext& ctx,
         code = code->cons().cdr();
     }
 
+    if (first) {
+        append<instruction::PushNil>(ctx, buffer, write_pos);
+    }
+
     return write_pos;
 }
 
@@ -279,6 +283,10 @@ int compile_let(CompilerContext& ctx,
             ctx, buffer, write_pos, code->cons().car(), jump_offset, tail);
 
         code = code->cons().cdr();
+    }
+
+    if (first) {
+        append<instruction::PushNil>(ctx, buffer, write_pos);
     }
 
     if (binding_count not_eq 0) {

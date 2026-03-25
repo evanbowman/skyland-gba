@@ -53,7 +53,7 @@ public:
 private:
     void append(void* data, u32 len);
 
-    void load_file_contents(const char* path);
+    static void load_file_contents(Vector<char>& output, const char* path);
 
 
     Vector<char> bytes_;

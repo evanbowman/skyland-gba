@@ -80,12 +80,15 @@
       (not (equal o v)))))
 
 
-(defn/c file-read (file offset len)
+(defn/c file-read ((file . wrapped) (offset . int) (len . int))
   (buffer-read (get (unwrap file) 2) offset len))
 
-(defn/c file-size (file)
+(defn/c file-size ((file . wrapped))
   (get (unwrap file) 1))
 
+(defn/c file-to-ascii ((file . wrapped))
+  (let ((bytes (file-read file 0 (file-size file))))
+    (string-assemble bytes)))
 
 (defn/c array-foreach ((cb . lambda) (ary . array))
   (let ((l (length ary))

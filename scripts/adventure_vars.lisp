@@ -17,23 +17,6 @@
 (setq adv-var-set 0)
 
 
-(when (not (bound? 'adv-var-mask))
-  (defn/c adv-var-mask ((name . symbol))
-    (let ((found (find name adv-var-list)))
-      (when (nil? found)
-        (fatal (string "bad adv var " name)))
-      (bit-shift-left 1 found)))
-
-  (defn/c adv-var-load ((name . symbol))
-    (bit-and adv-var-set (adv-var-mask name)))
-
-  (defn/c adv-var-store ((name . symbol) val)
-    (let ((mask (adv-var-mask name)))
-      ;; clear slot
-      (setq adv-var-set (bit-and adv-var-set (bit-not mask)))
-      (if val
-          (setq adv-var-set (bit-or adv-var-set mask))))))
-
 
 (if (equal (difficulty) difficulty-beginner)
     (setvar "powerdown_allowed" 1)
