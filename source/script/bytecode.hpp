@@ -26,7 +26,7 @@ namespace lisp
 {
 
 
-#define LISP_BYTECODE_VERSION 9
+#define LISP_BYTECODE_VERSION 10
 
 
 using Opcode = u8;
@@ -1639,6 +1639,86 @@ struct RetNilIfTrue
     }
 };
 
+
+struct BitAnd
+{
+    Header header_;
+
+    static const char* name()
+    {
+        return "BIT_AND";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 108;
+    }
+};
+
+
+struct BitOr
+{
+    Header header_;
+
+    static const char* name()
+    {
+        return "BIT_OR";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 109;
+    }
+};
+
+
+struct BitNot
+{
+    Header header_;
+
+    static const char* name()
+    {
+        return "BIT_NOT";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 110;
+    }
+
+};
+
+
+struct BitShiftLeft
+{
+    Header header_;
+
+    static const char* name()
+    {
+        return "BIT_SHIFT_LEFT";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 111;
+    }
+};
+
+
+struct BitShiftRight
+{
+    Header header_;
+
+    static const char* name()
+    {
+        return "BIT_SHIFT_RIGHT";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 112;
+    }
+};
 
 
 void disassemble(ScratchBuffer* code_buffer,

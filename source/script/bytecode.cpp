@@ -119,6 +119,31 @@ void disassemble(ScratchBuffer* data,
             i += sizeof(Decr);
             break;
 
+        case BitAnd::op():
+            out += BitAnd::name();
+            i += sizeof(BitAnd);
+            break;
+
+        case BitOr::op():
+            out += BitOr::name();
+            i += sizeof(BitOr);
+            break;
+
+        case BitNot::op():
+            out += BitNot::name();
+            i += sizeof(BitNot);
+            break;
+
+        case BitShiftLeft::op():
+            out += BitShiftLeft::name();
+            i += sizeof(BitShiftLeft);
+            break;
+
+        case BitShiftRight::op():
+            out += BitShiftRight::name();
+            i += sizeof(BitShiftRight);
+            break;
+
         case LoadVarRT::op():
             out += LoadVarRT::name();
             out += "(";
@@ -936,6 +961,11 @@ u32 instruction_size(Header header)
         MATCH(RetNilIfFalseKeep)
         MATCH(SmallJumpNotEqual)
         MATCH(Length)
+        MATCH(BitAnd)
+        MATCH(BitOr)
+        MATCH(BitNot)
+        MATCH(BitShiftLeft)
+        MATCH(BitShiftRight)
     }
     return 0;
 }

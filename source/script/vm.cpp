@@ -1140,6 +1140,50 @@ TOP:
             break;
         }
 
+        case BitAnd::op(): {
+            read<BitAnd>(code, pc);
+            auto result = builtin_bit_and(2);
+            pop_op();
+            pop_op();
+            push_op(result);
+            break;
+        }
+
+        case BitOr::op(): {
+            read<BitOr>(code, pc);
+            auto result = builtin_bit_or(2);
+            pop_op();
+            pop_op();
+            push_op(result);
+            break;
+        }
+
+        case BitNot::op(): {
+            read<BitNot>(code, pc);
+            auto result = builtin_bit_not(1);
+            pop_op();
+            push_op(result);
+            break;
+        }
+
+        case BitShiftLeft::op(): {
+            read<BitShiftLeft>(code, pc);
+            auto result = builtin_bit_shift_left(2);
+            pop_op();
+            pop_op();
+            push_op(result);
+            break;
+        }
+
+        case BitShiftRight::op(): {
+            read<BitShiftRight>(code, pc);
+            auto result = builtin_bit_shift_right(2);
+            pop_op();
+            pop_op();
+            push_op(result);
+            break;
+        }
+
         case Add::op(): {
             auto add = read<Add>(code, pc);
             auto result = builtin_add(add->operands_);

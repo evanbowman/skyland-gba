@@ -666,6 +666,31 @@ TOP:
                 append<instruction::Subtract>(ctx, buffer, write_pos);
 
             } else if (fn->type() == Value::Type::symbol and
+                       str_eq(fn->symbol().name(), "bit-and") and argc == 2) {
+
+                append<instruction::BitAnd>(ctx, buffer, write_pos);
+
+            } else if (fn->type() == Value::Type::symbol and
+                       str_eq(fn->symbol().name(), "bit-or") and argc == 2) {
+
+                append<instruction::BitOr>(ctx, buffer, write_pos);
+
+            } else if (fn->type() == Value::Type::symbol and
+                       str_eq(fn->symbol().name(), "bit-not") and argc == 1) {
+
+                append<instruction::BitNot>(ctx, buffer, write_pos);
+
+            } else if (fn->type() == Value::Type::symbol and
+                       str_eq(fn->symbol().name(), "bit-shift-left") and argc == 2) {
+
+                append<instruction::BitShiftLeft>(ctx, buffer, write_pos);
+
+            } else if (fn->type() == Value::Type::symbol and
+                       str_eq(fn->symbol().name(), "bit-shift-right") and argc == 2) {
+
+                append<instruction::BitShiftRight>(ctx, buffer, write_pos);
+
+            } else if (fn->type() == Value::Type::symbol and
                        str_eq(fn->symbol().name(), "incr") and argc == 1) {
 
                 append<instruction::Incr>(ctx, buffer, write_pos);
@@ -2389,13 +2414,6 @@ void compile(Value* code, CompileOptions opts)
             get_bytecode_buffer() = fn->function().bytecode_impl_.databuffer();
         }
     }
-
-    // Platform::RemoteConsole::Line out;
-    // instruction::disassemble(get_op0(), [&out](const char* opcode) {
-    //     out += opcode;
-    //     out += "\r\n";
-    // });
-    // info(out.c_str());
 }
 
 
