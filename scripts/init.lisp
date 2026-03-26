@@ -46,5 +46,7 @@
 (unbind 'load-library-cached)
 
 (if (is-developer-mode)
-    (setq build-library (compile build-library))
+    (progn
+      (setq build-library (compile build-library))
+      (eval-file "/scripts/test/boot-diagnostics.lisp"))
     (unbind 'build-library))
