@@ -5,8 +5,8 @@
 ;;; bytecode at startup for greater compactness and better performance.
 ;;;
 
-(load-library "/scripts/packages/core.slb")
-(load-library "/scripts/packages/util.slb")
+(load-library-cached "/scripts/core.lisp" "/bytecode/core.slb")
+(load-library-cached "/scripts/util.lisp" "/bytecode/util.slb")
 
 
 (when (is-developer-mode)
