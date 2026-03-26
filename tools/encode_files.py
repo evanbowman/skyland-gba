@@ -195,6 +195,51 @@ def replace_symbols(contents, index_map):
     return ''.join(result).encode('utf-8')
 
 
+def extract_slb_symbols(path):
+    """Read a .slb (Skyland Lisp Bytecode) object file and return the list of
+    symbol strings from its relocation table.  Returns an empty list for
+    non-relocatable files or on any parse error."""
+    try:
+        with open(path, 'rb') as f:
+            data = f.read()
+    except OSError:
+        return []
+
+    # Header: flags(2) + fingerprint(8) + definition_count(2) = 12 bytes
+    if len(data) < 12:
+        return []
+
+    flags = struct.unpack_from('<H', data, 0)[0]
+    relocatable = bool(flags & 1)
+    if not relocatable:
+        return []
+
+    # RelocationTableInfo immediately follows the header: offset(4)
+    if len(data) < 16:
+        return []
+
+    rtab_offset = struct.unpack_from('<I', data, 12)[0]
+    if rtab_offset >= len(data):
+        return []
+
+    # The relocation table is a sequence of null-terminated strings
+    symbols = []
+    rtab = data[rtab_offset:]
+    current = bytearray()
+    for b in rtab:
+        if b == 0:
+            if current:
+                symbols.append(current.decode('utf-8', errors='replace'))
+            current = bytearray()
+        else:
+            current.append(b)
+    # A trailing non-null-terminated entry (shouldn't happen, but be safe)
+    if current:
+        symbols.append(current.decode('utf-8', errors='replace'))
+
+    return symbols
+
+
 def extension(path):
     return path.split('.')[-1]
 
@@ -223,6 +268,12 @@ def preprocess_file(path, real_name, out):
             src_contents = data.decode('utf-8')
             build_lisp_symtab(src_contents)
             build_lisp_constant_tab(src_contents)
+        elif extension(path) == 'slb':
+            for sym in extract_slb_symbols(path):
+                if sym in lisp_symbol_tab:
+                    lisp_symbol_tab[sym] = lisp_symbol_tab[sym] + 1
+                else:
+                    lisp_symbol_tab[sym] = 1
         if not fs_hash:
             fs_hash = zlib.crc32(data)
         else:

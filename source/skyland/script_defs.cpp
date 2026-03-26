@@ -274,9 +274,23 @@ lisp::ObjectFile::Fingerprint create_fingerprint()
 lisp::Value* save_obj_file(int argc)
 {
     L_EXPECT_OP(argc - 1, string);
+    L_EXPECT_OP(argc - 2, symbol);
 
-    lisp::ObjectFile library(create_fingerprint());
-    for (int i = 0; i < argc - 1; ++i) {
+    auto linkage_mode = lisp::get_op(argc - 2)->symbol().name();
+    bool relocatable;
+    if (str_eq(linkage_mode, "relocatable")) {
+        relocatable = true;
+    } else if (str_eq(linkage_mode, "absolute")) {
+        relocatable = false;
+    } else {
+        return lisp::make_error(::format("unsupported linkage symbol %, "
+                                         "expected 'relocatable or "
+                                         "'absolute",
+                                         linkage_mode));
+    }
+
+    lisp::ObjectFile library(create_fingerprint(), relocatable);
+    for (int i = 0; i < argc - 2; ++i) {
         L_EXPECT_OP(i, symbol);
         auto v = get_var(lisp::get_op(i));
         if (is_error(v)) {
@@ -2892,7 +2906,7 @@ BINDING_TABLE({
 
           return L_NIL;
       }}},
-    {"save-library", {SIG1(nil, string), save_obj_file}},
+    {"save-library", {SIG2(nil, string, symbol), save_obj_file}},
     {"load-library", {SIG1(nil, string), load_obj_file}},
 });
 
@@ -2972,19 +2986,10 @@ void App::init_scripts(Function<4 * sizeof(void*), void(const char*)> msg)
     lisp::register_native_interface(ni);
     lisp::debug::register_debug_handler(onscreen_script_debug_handler);
 
-    auto log_cnt = [&] {
-        msg(format("loading LISP fns... (%)", lisp::toplevel_count()).c_str());
-    };
-
-    log_cnt();
+    msg("compiling scripts...");
 
     invoke_script("/scripts/stdlib.lisp", {.rom_fs_only_ = true});
-
-    log_cnt();
-
     invoke_script("/scripts/init.lisp", {.rom_fs_only_ = true});
-
-    log_cnt();
 }
 
 

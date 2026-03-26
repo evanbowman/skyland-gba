@@ -22,12 +22,22 @@ namespace lisp
 using DefinitionCountField = host_u16;
 
 
-ObjectFile::ObjectFile(const Fingerprint& f)
+ObjectFile::ObjectFile(const Fingerprint& f, bool relocatable) :
+    relocatable_(relocatable)
 {
-    append((void*)&f, sizeof f);
+    Header header;
+    header.fingerprint_ = f;
+    header.flags_.set(0);
+    if (relocatable) {
+        header.set_flag(Header::Flag::relocatable);
+    }
+    append((void*)&header, sizeof header);
 
-    for (u32 i = 0; i < sizeof(DefinitionCountField); ++i) {
-        append((void*)"\0", 1);
+    if (relocatable) {
+        // Placeholder — patched in save()
+        RelocationTableInfo info;
+        info.offset_.set(0);
+        append((void*)&info, sizeof info);
     }
 }
 
@@ -36,6 +46,52 @@ void ObjectFile::append(void* data, u32 len)
 {
     for (u32 i = 0; i < len; ++i) {
         bytes_.push_back(((u8*)data)[i]);
+    }
+}
+
+
+Symbol::SymtabIndex ObjectFile::store_symbol(Symbol::SymtabIndex input)
+{
+    if (not relocatable_) {
+        return input;
+    }
+
+    auto name = load_from_symtab(input * symtab_stride);
+
+    Symbol::SymtabIndex i = 0;
+    for (auto& str : relocation_table_) {
+        if (str == name) {
+            return i;
+        }
+        ++i;
+    }
+    relocation_table_.push_back(name);
+    return i;
+}
+
+
+Symbol::SymtabIndex ObjectFile::link_symbol(Symbol::SymtabIndex input,
+                                            RelocationTable& relocation_table,
+                                            bool relocatable)
+{
+    if (not relocatable) {
+        return input;
+    }
+
+    if (input >= relocation_table.size()) {
+        PLATFORM.fatal(::format("failed to link symbol index % "
+                                "in relocatable object file",
+                                input));
+    }
+
+    auto name = relocation_table[input].c_str();
+    if (auto idx = get_symtab_index(name)) {
+        return *idx;
+    } else {
+        PLATFORM.fatal(::format("symbol % referenced in object file missing "
+                                "from symtab!",
+                                name));
+        while (1);
     }
 }
 
@@ -55,6 +111,22 @@ void ObjectFile::append(Symbol::SymtabIndex sym, Function& fn)
     instruction::InstructionList instr;
     parse_instructions(*data, instr, start_offset);
 
+    auto visit_symbol_opcodes = [&](auto cb) {
+        for (auto inst : instr) {
+            using namespace instruction;
+            if (is_symtab_opcode(inst)) {
+                auto st = ((LoadSymtab*)inst);
+                cb(st);
+            }
+        }
+    };
+
+    visit_symbol_opcodes([this](auto st) {
+        // NOTE: overwrite opcodes in instructions with symbol indices referring
+        // to the relocation table entries.
+        st->symtab_index_.set(store_symbol(st->symtab_index_.get()));
+    });
+
     auto begin = data->data_ + start_offset;
     auto end = instr.back();
 
@@ -66,11 +138,22 @@ void ObjectFile::append(Symbol::SymtabIndex sym, Function& fn)
     auto bytecode_size = ((char*)end - begin) + sizeof(Ret);
 
     Definition def;
-    def.sym_.set(sym);
+    def.sym_.set(store_symbol(sym));
     def.sig_ = fn.sig_;
 
     append(&def, sizeof(def));
     append(begin, bytecode_size);
+
+    visit_symbol_opcodes([this](auto st) {
+        // NOTE: we previously transformed the bytecode in-place, so we need to
+        // update the symbol table indices to point to the applications symbol
+        // table by re-linking everything. This also gives us confirmation that
+        // link_symbol will succeed in the future when we perform a cold boot
+        // and load bytecode from an object file library.
+        st->symtab_index_.set(link_symbol(st->symtab_index_.get(),
+                                          relocation_table_,
+                                          relocatable_));
+    });
 
     ++definition_count_;
 }
@@ -78,14 +161,26 @@ void ObjectFile::append(Symbol::SymtabIndex sym, Function& fn)
 
 void ObjectFile::save(const char* path)
 {
-    auto it = bytes_.begin();
-    for (u32 i = 0; i < sizeof(Fingerprint); ++i) {
-        // Skip over fingerprint to definition count field
-        ++it;
+    if (bytes_.size() < sizeof(Header)) {
+        LOGIC_ERROR();
     }
 
-    auto def_count = (DefinitionCountField*)&*it;
-    def_count->set(definition_count_);
+    auto header = (Header*)&*bytes_.begin();
+    header->definition_count_.set(definition_count_);
+
+    if (relocatable_) {
+        // Patch the relocation table offset to point at current end
+        auto info = (RelocationTableInfo*)(&*bytes_.begin() + sizeof(Header));
+        info->offset_.set(bytes_.size());
+
+        // Append relocation strings inline
+        for (auto& str : relocation_table_) {
+            for (char c : str) {
+                bytes_.push_back(c);
+            }
+            bytes_.push_back('\0');
+        }
+    }
 
     flash_filesystem::store_file_data_binary(
         path, bytes_, {.use_compression_ = true});
@@ -106,7 +201,9 @@ Optional<T> read_mem(Vector<char>::Iterator& it, Vector<char>::Iterator end)
 }
 
 
-u32 find_bc_size(Vector<char>::Iterator it)
+u32 parse_and_link_bytecode(Vector<char>::Iterator it,
+                            ObjectFile::RelocationTable& relocation_table,
+                            bool relocatable)
 {
     u32 bc_size = 0;
 
@@ -130,6 +227,28 @@ u32 find_bc_size(Vector<char>::Iterator it)
             h.op_ = op;
             auto sz = instruction::instruction_size(h);
             bc_size += sz;
+
+            if (relocatable) {
+                using namespace instruction;
+                if (is_symtab_opcode(&h)) {
+                    auto field = hdr;
+                    ++field; // skip opcode
+                    HostInteger<Symbol::SymtabIndex> idx;
+                    auto r = field;
+                    for (u32 b = 0; b < sizeof(idx); ++b) {
+                        ((u8*)&idx)[b] = *r;
+                        ++r;
+                    }
+                    idx.set(ObjectFile::link_symbol(idx.get(),
+                                                    relocation_table,
+                                                    relocatable));
+                    for (u32 b = 0; b < sizeof(idx); ++b) {
+                        *field = ((char*)&idx)[b];
+                        ++field;
+                    }
+                }
+            }
+
             while (sz) {
                 ++hdr;
                 --sz;
@@ -155,26 +274,78 @@ DONE:;
 }
 
 
+static bool load_relocation_table(Vector<char>& bytes,
+                                  Vector<char>::Iterator& it,
+                                  ObjectFile::RelocationTable& output)
+{
+    auto info = read_mem<ObjectFile::RelocationTableInfo>(it, bytes.end());
+    if (not info) {
+        return false;
+    }
+
+    auto rtab_it = bytes.begin();
+    for (u32 i = 0; i < info->offset_.get(); ++i) {
+        if (rtab_it == bytes.end()) {
+            return false;
+        }
+        ++rtab_it;
+    }
+
+    StringBuffer<32> current;
+    while (rtab_it not_eq bytes.end()) {
+        char c = *(rtab_it++);
+        if (c == '\0') {
+            output.push_back(current);
+            current.clear();
+        } else {
+            current.push_back(c);
+        }
+    }
+
+    return true;
+}
+
+
 bool ObjectFile::disassemble(const char* path, Vector<char>& output)
 {
     output.clear();
-    u16 definition_count = 0;
 
     Vector<char> bytes;
     load_file_contents(bytes, path);
     auto it = bytes.begin();
 
-    if (bytes.size() < sizeof(DefinitionCountField) + sizeof(Fingerprint)) {
+    if (bytes.size() < sizeof(Header)) {
         return false;
     }
 
-    read_mem<Fingerprint>(it, bytes.end());
-
-    auto def_count = read_mem<DefinitionCountField>(it, bytes.end());
-    if (not def_count) {
+    auto hdr = read_mem<Header>(it, bytes.end());
+    if (not hdr) {
         return false;
     }
-    definition_count = def_count->get();
+
+    const bool relocatable = hdr->has_flag(Header::Flag::relocatable);
+    const u16 definition_count = hdr->definition_count_.get();
+
+    // For relocatable files, read the relocation table so we can
+    // resolve symbol names.
+    Vector<StringBuffer<32>> reloc_table;
+
+    if (relocatable) {
+        if (not load_relocation_table(bytes, it, reloc_table)) {
+            return false;
+        }
+    }
+
+    auto resolve_name = [&](u16 sym_index) -> const char* {
+        if (relocatable) {
+            if (sym_index < reloc_table.size()) {
+                return reloc_table[sym_index].c_str();
+            }
+            return "???";
+        } else {
+            return load_from_symtab(sym_index * symtab_stride);
+        }
+    };
 
     auto print = [&output](const char* str) {
         while (*str not_eq '\0') {
@@ -183,9 +354,15 @@ bool ObjectFile::disassemble(const char* path, Vector<char>& output)
     };
 
     print("\nSkyland LISP OBJ File\n\n");
-    print(
-        ::format<32>("% functions, % bytes\n\n", definition_count, bytes.size())
-            .c_str());
+    print(::format<64>("% functions, % bytes",
+                       definition_count,
+                       bytes.size())
+              .c_str());
+    print("\n\n");
+
+    if (relocatable) {
+        print("(relocatable)\n\n");
+    }
 
     for (int i = 0; i < definition_count; ++i) {
         auto def_header = read_mem<Definition>(it, bytes.end());
@@ -193,12 +370,12 @@ bool ObjectFile::disassemble(const char* path, Vector<char>& output)
             return false;
         }
 
-        const auto sym_index = def_header->sym_.get();
+        auto bc_size = parse_and_link_bytecode(it,
+                                               reloc_table,
+                                               relocatable);
 
-        auto bc_size = find_bc_size(it);
-
-        auto name = load_from_symtab(sym_index * symtab_stride);
-        for (int i = 0; i < 30; ++i) {
+        auto name = resolve_name(def_header->sym_.get());
+        for (int j = 0; j < 30; ++j) {
             output.push_back('_');
         }
         print("\n\n(");
@@ -254,23 +431,31 @@ Value* ObjectFile::load(const Fingerprint& f, const char* path)
     load_file_contents(bytes_, path);
     auto it = bytes_.begin();
 
-    if (bytes_.size() < sizeof(DefinitionCountField) + sizeof(Fingerprint)) {
+    if (bytes_.size() < sizeof(Header)) {
         return L_NIL;
     }
 
-    auto fingerprint = read_mem<Fingerprint>(it, bytes_.end());
-    if (not fingerprint) {
-        return L_NIL;
-    }
-    if (memcmp(&*fingerprint, &f, sizeof f) not_eq 0) {
+    auto header = read_mem<Header>(it, bytes_.end());
+    if (not header) {
         return L_NIL;
     }
 
-    auto def_count = read_mem<DefinitionCountField>(it, bytes_.end());
-    if (not def_count) {
+    relocatable_ = header->has_flag(Header::Flag::relocatable);
+
+    if (not relocatable_ and
+        memcmp(&header->fingerprint_, &f, sizeof f) not_eq 0) {
         return L_NIL;
     }
-    definition_count_ = def_count->get();
+
+    definition_count_ = header->definition_count_.get();
+
+    if (relocatable_) {
+        if (not load_relocation_table(bytes_, it, relocation_table_)) {
+            return make_error(::format("failed to load relocation table from "
+                                       "relocatable object file (%)",
+                                       path));
+        }
+    }
 
     // Find the existing bytecode buffer and its free tail, once.
     auto existing_buffer = get_bytecode_buffer();
@@ -296,9 +481,13 @@ Value* ObjectFile::load(const Fingerprint& f, const char* path)
             return L_NIL;
         }
 
-        const auto sym_index = def_header->sym_.get();
+        const auto sym_index = link_symbol(def_header->sym_.get(),
+                                           relocation_table_,
+                                           relocatable_);
 
-        auto bc_size = find_bc_size(it);
+        auto bc_size = parse_and_link_bytecode(it,
+                                               relocation_table_,
+                                               relocatable_);
 
         // Check we have enough bytes remaining in the file
         // (avoid walking past end in the copy loop)

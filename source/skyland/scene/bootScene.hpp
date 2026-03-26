@@ -470,6 +470,9 @@ public:
                 setup_pools();
                 TitleScreenScene::run_init_scripts(false);
                 return make_scene<RegressionModule>();
+            } else if (match("--compile-packages")) {
+                APP.invoke_script("/scripts/packages/build.lisp");
+                PLATFORM_EXTENSION(quit);
             }
         }
 

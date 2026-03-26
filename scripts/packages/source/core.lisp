@@ -1,5 +1,5 @@
 ;;;
-;;; stdlib-cached.lisp
+;;; core.lisp
 ;;;
 
 

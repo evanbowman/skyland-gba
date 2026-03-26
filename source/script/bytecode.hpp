@@ -1739,6 +1739,9 @@ void parse_instructions(ScratchBuffer& buffer,
 u32 instruction_size(Header hdr);
 
 
+bool is_symtab_opcode(Header* inst);
+
+
 } // namespace instruction
 
 } // namespace lisp

@@ -724,6 +724,7 @@ int main(int argc, char** argv)
                          "scripts, and then exit\n"
                       << " --no-window-system  Run a windowless instance of "
                          "the game\n"
+                      << " --compile-packages  Compile lisp bytecode in scripts/bytecode/source\n"
                       << std::endl;
             return EXIT_SUCCESS;
         }

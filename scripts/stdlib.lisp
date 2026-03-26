@@ -95,18 +95,24 @@
 (defn/c max (lat) (car (sort lat >)))
 
 
+(defn build-library (path library-path linkage)
+  (let ((store-fns nil))
+    (let ((setfn (lambda (sym fn)
+                   (global sym)
+                   (set sym fn)
+                   (setq store-fns (cons sym store-fns)))))
+      (eval-file path)
+      (apply (curry save-library library-path linkage)
+             store-fns)
+      (setq setfn nil))))
+
+
 (defn load-library-cached (path library-path)
   (when (not (load-library library-path))
     (log (format "building %..." library-path))
-    (let ((store-fns nil))
-      (let ((setfn (lambda (sym fn)
-                     (global sym)
-                     (set sym fn)
-                     (setq store-fns (cons sym store-fns)))))
-        (eval-file path)
-        (apply (curry save-library library-path)
-               store-fns)
-        (setq setfn nil)))))
+    (build-library path library-path 'absolute)))
 
 
-(load-library-cached "/scripts/stdlib-cached.lisp" "/bytecode/stdlib.slb")
+;; NOTE: most functions in stdlib.lisp were moved to the precompiled core
+;; package, which is now loaded by init.lisp. See /scripts/packages/source/ for
+;; the function implementations.

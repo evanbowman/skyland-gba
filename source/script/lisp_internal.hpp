@@ -36,8 +36,6 @@ Value* make_symtab_symbol(int index);
 const char* load_from_symtab(int offset);
 static constexpr const u32 symtab_stride = 32;
 
-Optional<u16> symbol_indexof(const char* string);
-
 
 void lexical_frame_push();
 void lexical_frame_pop();
@@ -58,6 +56,7 @@ void collect_value(Value* value);
 
 
 Optional<u16> get_symtab_index(Symbol& sym);
+Optional<u16> get_symtab_index(const char* string);
 
 
 } // namespace lisp

@@ -971,4 +971,31 @@ u32 instruction_size(Header header)
 }
 
 
+bool is_symtab_opcode(Header* inst)
+{
+    switch (inst->op_) {
+    case LoadSymtab::op():
+    case LoadVarS::op():
+    case LexicalDef::op():
+    case SetVar::op():
+    case LoadCall0::op():
+    case LoadCall1::op():
+    case LoadCall2::op():
+    case LoadCall3::op():
+    case LoadCall0Discard::op():
+    case LoadCall1Discard::op():
+    case LoadCall2Discard::op():
+    case LoadCall3Discard::op():
+    case LoadTCall0::op():
+    case LoadTCall1::op():
+    case LoadTCall2::op():
+    case LoadTCall3::op():
+        return true;
+
+    default:
+        return false;
+    }
+}
+
+
 } // namespace lisp::instruction

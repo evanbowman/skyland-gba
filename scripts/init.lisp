@@ -5,6 +5,10 @@
 ;;; bytecode at startup for greater compactness and better performance.
 ;;;
 
+(load-library "/scripts/packages/core.slb")
+(load-library "/scripts/packages/util.slb")
+
+
 (when (is-developer-mode)
   (strict-mode true)
   (lisp-mem-crit-gc-alert true))
@@ -17,9 +21,6 @@
 ;; Define some common global
 ;; variables.
 (eval-file "/scripts/globals.lisp")
-
-
-(load-library-cached "/scripts/init-cached.lisp" "/bytecode/init.slb")
 
 
 ;; NOTE: These two functions defined as non-bytecode-complied to allow nested
@@ -42,4 +43,8 @@
                 faction-enable-sylph-mask))
 
 
-(unbind 'load-library-cached 'open-library-cached)
+(unbind 'load-library-cached)
+
+(if (is-developer-mode)
+    (setq build-library (compile build-library))
+    (unbind 'build-library))

@@ -32,7 +32,8 @@
  'pending-events
  'debrief-strs
  'adv-var-set
- 'adv-var-list)
+ 'adv-var-list
+ 'tr-bindings)
 
 
 (defconstant difficulty-beginner 0)

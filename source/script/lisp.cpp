@@ -935,7 +935,15 @@ Optional<u16> get_symtab_index(Symbol& sym)
     if (symtab_index not_eq Symbol::not_in_symtab) {
         return symtab_index;
     } else {
-        return symbol_indexof(sym.name());
+        auto string = sym.name();
+        if (L_CTX.external_symtab_contents_) {
+            auto start = L_CTX.external_symtab_contents_;
+            auto end = start + L_CTX.external_symtab_size_;
+            if (string >= start and string < end) {
+                return (string - L_CTX.external_symtab_contents_) / symtab_stride;
+            }
+        }
+        return nullopt();
     }
 }
 
@@ -6506,13 +6514,23 @@ void get_env(SymbolCallback callback)
 }
 
 
-Optional<u16> symbol_indexof(const char* string)
+Optional<u16> get_symtab_index(const char* string)
 {
-    if (L_CTX.external_symtab_contents_) {
-        auto start = L_CTX.external_symtab_contents_;
-        auto end = start + L_CTX.external_symtab_size_;
-        if (string >= start and string < end) {
-            return (string - L_CTX.external_symtab_contents_) / symtab_stride;
+    const char* search = L_CTX.external_symtab_contents_;
+    u32 left = 0;
+    u32 right = L_CTX.external_symtab_size_ / symtab_stride;
+
+    while (left < right) {
+        u32 mid = left + (right - left) / 2;
+        const char* candidate = search + (mid * symtab_stride);
+
+        int cmp = str_cmp(candidate, string);
+        if (cmp == 0) {
+            return (candidate - L_CTX.external_symtab_contents_) / symtab_stride;
+        } else if (cmp < 0) {
+            left = mid + 1;
+        } else {
+            right = mid;
         }
     }
     return nullopt();
