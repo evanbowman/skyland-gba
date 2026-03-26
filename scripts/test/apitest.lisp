@@ -342,7 +342,8 @@
 (regr-print "Linting all scripts!" 1 3)
 
 (global 'test-delay
-        'load-library-cached) ; for the linter
+        'load-library-cached
+        'build-library) ; for the linter
 
 (defn ends-with (str sufx)
   (let ((m1 (string-explode str))
