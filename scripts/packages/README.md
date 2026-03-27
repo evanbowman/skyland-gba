@@ -5,9 +5,6 @@ pre-compiled to bytecode packages. To compile a bytecode ackage, you can use the
 build-library function provided in stdlib.lisp. For portability, you need to
 build libraries with relocatable linkage.
 
-NOTE: Moving compiled .slb object files to the rom filesystem is still partly
-aspirational. It seems to work, but needs more testing.
-
 
 # Compiling lisp scripts
 
@@ -19,3 +16,15 @@ for other operating systems.
 
 Then, you'll want to rebuild whichever edition of the game you're looking to
 recompile.
+
+If you are modding the game and struggling to rebuild packages manually, you
+could instead load the packages sources directly.
+For example, by replacing this line in your init.lisp file:
+(load-library "/scripts/packages/core.slb")
+with:
+(eval-script "/scripts/packages/source/core.lisp")
+You can just make edits to the library source and load it directly.
+Or, if you want to improve startup times a bit by caching the results in save
+memory:
+(load-library-cached "/scripts/packages/source/core.lisp"
+                     "/bytecode/core.slb")
