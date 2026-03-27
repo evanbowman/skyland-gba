@@ -978,6 +978,7 @@ bool is_symtab_opcode(Header* inst)
     case LoadVarS::op():
     case LexicalDef::op():
     case SetVar::op():
+    case ConsVar::op():
     case LoadCall0::op():
     case LoadCall1::op():
     case LoadCall2::op():

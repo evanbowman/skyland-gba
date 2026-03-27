@@ -641,6 +641,12 @@
                      (progn 9)
                      (progn 55)))))
 
+(assert-eq (read "(let* ((a 5) (b 6) (d 7)) (+ a b c) (+ b c a))")
+           '(let ((a 5))
+             (let ((b 6))
+               (let ((d 7))
+                 (+ a b c) (+ b c a)))))
+
 (assert-eq
   3
   (let ((x 0))

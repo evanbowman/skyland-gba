@@ -300,6 +300,7 @@ struct Context
     bool critical_gc_alert_ : 1 = false;
     bool debug_break_ = false;
     bool debug_mode_ = false;
+    bool disable_macroexpand_ = false;
 };
 
 
@@ -3635,7 +3636,7 @@ template <typename T> u32 read_array(T& code, int offset)
             break;
 
         default: {
-            i += read(code, offset + i);
+            i += read_impl(code, offset + i);
             Protected v = get_op0();
             pop_op();
             result->array().push(v);
@@ -3678,7 +3679,7 @@ template <typename T> u32 read_list(T& code, int offset)
                     return i;
                 } else {
                     dotted_pair = true;
-                    i += read(code, offset + i);
+                    i += read_impl(code, offset + i);
                     result->cons().set_cdr(get_op0());
                     pop_op();
                 }
@@ -3713,10 +3714,18 @@ template <typename T> u32 read_list(T& code, int offset)
                 push_reader_error(code, i, Error::Code::mismatched_parentheses);
                 return i;
             }
-            i += read(code, offset + i);
+            i += read_impl(code, offset + i);
 
             if (result == get_nil()) {
                 result = make_cons(get_op0(), get_nil());
+                if (get_op0()->type() == Value::Type::symbol and
+                    get_op0()->symbol().unique_id() == L_CTX.macro_symbol_id_) {
+                    // FIXME: for performance reasons, the reader eagerly
+                    // expands macros. This would make writing macros really
+                    // inconvenient, so we disable macroexpansion when we're in
+                    // the middle of reading a macro.
+                    L_CTX.disable_macroexpand_ = true;
+                }
                 pop_op(); // the result from read()
                 pop_op(); // nil
                 push_op(result);
@@ -4163,8 +4172,10 @@ template <typename T> u32 read_impl(T& code, int offset)
             ++i;
             pop_op(); // nil
             i += read_list(code, offset + i);
-            macroexpand();
             // list now at stack top.
+            if (not L_CTX.disable_macroexpand_) {
+                macroexpand();
+            }
             return i;
         }
 
@@ -4263,7 +4274,7 @@ template <typename T> u32 read_impl(T& code, int offset)
 
                 auto pair = make_cons(get_op0(), get_nil());
                 push_op(pair);
-                i += read(code, offset + i);
+                i += read_impl(code, offset + i);
                 pair->cons().set_cdr(get_op0());
                 pop_op(); // result of read()
                 pop_op(); // pair
@@ -4301,6 +4312,7 @@ u32 read(CharSequence& code, int offset)
     ReadCharSequenceVisitor v;
     v.offset = offset;
     code.accept(v);
+    L_CTX.disable_macroexpand_ = false;
     return v.i;
 }
 

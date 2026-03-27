@@ -23,12 +23,12 @@
   (foreach
    (lambda (path)
      (when (ends-with path ".lisp")
-       (let ((dirs (split path "/")))
-         (let ((file (get dirs (decr (length dirs)))))
-           (let ((fname (car (split file "."))))
-             (compile-package compile-fn
-                              eval-fn
-                              path
-                              (string output-path "/" fname ".slb")
-                              'relocatable))))))
+       (let* ((dirs (split path "/"))
+              (file (get dirs (decr (length dirs))))
+              (fname (car (split file "."))))
+         (compile-package compile-fn
+                          eval-fn
+                          path
+                          (string output-path "/" fname ".slb")
+                          'relocatable))))
    input-paths))

@@ -484,7 +484,7 @@ public:
                 auto input_path = match("--compile-packages");
                 auto output_path = match("--output");
                 lisp::Protected callback(L_NIL);
-                callback = APP.invoke_script("/scripts/packages/build.lisp");
+                callback = APP.invoke_script("/packages/build.lisp");
                 lisp::push_op(lisp::make_function(save_obj_file_disk));
                 lisp::push_op(lisp::make_function([](int argc) {
                     L_EXPECT_OP(0, string);

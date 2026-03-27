@@ -42,6 +42,13 @@
           ,(cons '-case-r (cdr EXPR))))
 
 
+(macro let* (BINDINGS BODY)
+  (if (nil? (cdr BINDINGS))
+    `(let (,(car BINDINGS)) ,@BODY)
+    `(let (,(car BINDINGS))
+       (let* ,(cdr BINDINGS) ,@BODY))))
+
+
 (macro dotimes (N BODY)
  `(map (lambda () ,@BODY) (range 0 ,N)))
 
