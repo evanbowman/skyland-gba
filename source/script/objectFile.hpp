@@ -73,6 +73,7 @@ public:
 
 
     static bool disassemble(const char* path, Vector<char>& output);
+    static bool disassemble(Vector<char>& input, Vector<char>& output);
 
 
     struct Definition

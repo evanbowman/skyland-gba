@@ -475,7 +475,12 @@ public:
                 setup_pools();
                 TitleScreenScene::run_init_scripts(false);
                 return make_scene<RegressionModule>();
-            } else if (match("--compile-packages") and match("--output")) {
+            } else if (match("--compile-packages")) {
+                if (not match("--output")) {
+                    error("error: --compile-packages=<dir> is specified, "
+                          "but not --output=<dir>");
+                    PLATFORM_EXTENSION(quit);
+                }
                 auto input_path = match("--compile-packages");
                 auto output_path = match("--output");
                 lisp::Protected callback(L_NIL);

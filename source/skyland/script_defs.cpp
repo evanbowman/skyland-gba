@@ -327,7 +327,23 @@ lisp::Value* save_obj_file_disk(int argc)
 {
     return save_obj_file(argc, [](const char* path, lisp::ObjectFile& library) {
         if (auto write = PLATFORM.get_extensions().write_external_file) {
-            write(path, library.export_data());
+            auto& lib_data = library.export_data();
+            write(path, lib_data);
+            if (auto match = PLATFORM.get_extensions().has_startup_opt) {
+                if (match("--compile-verbose")) {
+                    Vector<char> output;
+                    lisp::ObjectFile::disassemble(lib_data, output);
+                    StringBuffer<96> line;
+                    for (char c : output) {
+                        if (c == '\n') {
+                            info(line);
+                            line.clear();
+                        } else {
+                            line.push_back(c);
+                        }
+                    }
+                }
+            }
         }
     });
 }

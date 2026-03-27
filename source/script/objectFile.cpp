@@ -186,6 +186,7 @@ Vector<char>& ObjectFile::export_data()
         }
     }
 
+    exported_ = true;
     return bytes_;
 }
 
@@ -283,23 +284,26 @@ DONE:;
 }
 
 
-static bool load_relocation_table(Vector<char>& bytes,
-                                  Vector<char>::Iterator& it,
-                                  ObjectFile::RelocationTable& output)
+using RelocationTableSize = u32;
+static RelocationTableSize
+load_relocation_table(Vector<char>& bytes,
+                      Vector<char>::Iterator& it,
+                      ObjectFile::RelocationTable& output)
 {
     auto info = read_mem<ObjectFile::RelocationTableInfo>(it, bytes.end());
     if (not info) {
-        return false;
+        return 0;
     }
 
     auto rtab_it = bytes.begin();
     for (u32 i = 0; i < info->offset_.get(); ++i) {
         if (rtab_it == bytes.end()) {
-            return false;
+            return 0;
         }
         ++rtab_it;
     }
 
+    RelocationTableSize size = 0;
     StringBuffer<32> current;
     while (rtab_it not_eq bytes.end()) {
         char c = *(rtab_it++);
@@ -309,18 +313,25 @@ static bool load_relocation_table(Vector<char>& bytes,
         } else {
             current.push_back(c);
         }
+        ++size;
     }
 
-    return true;
+    return size;
 }
 
 
 bool ObjectFile::disassemble(const char* path, Vector<char>& output)
 {
-    output.clear();
-
     Vector<char> bytes;
     load_file_contents(bytes, path);
+    return disassemble(bytes, output);
+}
+
+
+bool ObjectFile::disassemble(Vector<char>& bytes, Vector<char>& output)
+{
+    output.clear();
+
     auto it = bytes.begin();
 
     if (bytes.size() < sizeof(Header)) {
@@ -339,8 +350,10 @@ bool ObjectFile::disassemble(const char* path, Vector<char>& output)
     // resolve symbol names.
     Vector<StringBuffer<32>> reloc_table;
 
+    RelocationTableSize reloc_table_sz = 0;
     if (relocatable) {
-        if (not load_relocation_table(bytes, it, reloc_table)) {
+        reloc_table_sz = load_relocation_table(bytes, it, reloc_table);
+        if (reloc_table_sz == 0) {
             return false;
         }
     }
@@ -365,12 +378,13 @@ bool ObjectFile::disassemble(const char* path, Vector<char>& output)
     print("\nSkyland LISP OBJ File\n\n");
     print(::format<64>("% functions, % bytes",
                        definition_count,
-                       bytes.size())
+                       bytes.size() - reloc_table_sz)
               .c_str());
     print("\n\n");
 
     if (relocatable) {
-        print("(relocatable)\n\n");
+        print(::format<64>("(relocatable, table size %)\n\n",
+                           reloc_table_sz).c_str());
     }
 
     for (int i = 0; i < definition_count; ++i) {

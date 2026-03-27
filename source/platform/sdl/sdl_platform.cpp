@@ -45,6 +45,7 @@
 #elif defined(_WIN32)
 #include <windows.h> // for GetModuleFileNameA, CreateProcessA
 #endif
+#include <filesystem>
 
 
 
@@ -772,24 +773,29 @@ int main(int argc, char** argv)
                          "the game\n"
                       << " --compile-packages=<dir> Compile packages in directory\n"
                       << " --output=<dir>           Output to a directory\n"
+                      << " --compile-verbose        Dump bytecode to standard out\n"
                       << std::endl;
             return EXIT_SUCCESS;
         }
     }
 
-    if (SDL_Init(SDL_INIT_VIDEO) != 0) {
-        fprintf(stderr, "SDL failed to initialise: %s\n", SDL_GetError());
-        return 1;
-    }
+    bool has_window_system = not extensions.has_startup_opt("--no-window-system");
 
-    SDL_SetHint(SDL_HINT_VIDEO_HIGHDPI_DISABLED, "0");
-    SDL_ShowCursor(0);
+    if (has_window_system) {
+        if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+            fprintf(stderr, "SDL failed to initialise: %s\n", SDL_GetError());
+            return 1;
+        }
+        SDL_SetHint(SDL_HINT_VIDEO_HIGHDPI_DISABLED, "0");
+        SDL_ShowCursor(0);
+    } else {
+        SDL_Init(0);
+    }
 
     int initial_width = logical_width * window_scale;
     int initial_height = logical_height * window_scale;
 
-    if (not extensions.has_startup_opt("--regression") and
-        not extensions.has_startup_opt("--no-window-system")) {
+    if (not extensions.has_startup_opt("--regression") and has_window_system) {
         window = SDL_CreateWindow("Skyland",
                                   SDL_WINDOWPOS_UNDEFINED,
                                   SDL_WINDOWPOS_UNDEFINED,
@@ -1033,6 +1039,10 @@ void Platform::Input::rumble(bool enabled)
 
 Optional<Vec2<int>> Platform::Input::check_mouse()
 {
+    if (not window) {
+        return nullopt();
+    }
+
     if (not(SDL_GetWindowFlags(window) & SDL_WINDOW_MOUSE_FOCUS)) {
         return std::nullopt;
     }
@@ -1709,10 +1719,6 @@ void Platform::blit_t0_tile_to_texture(u16 from_index, u16 to_index, bool hard)
 void Platform::blit_t1_tile_to_texture(u16 from_index, u16 to_index, bool hard)
 {
 }
-
-
-
-#include <filesystem>
 
 
 
