@@ -454,13 +454,23 @@ static const Platform::Extensions extensions{
             }
         },
     .sprite_overlapping_supported = [](bool& result) { result = true; },
-    .has_startup_opt = [](const char* opt) -> bool {
+    .has_startup_opt = [](const char* opt) -> const char* {
         for (int i = 0; i < process_argc; ++i) {
-            if (str_eq(process_argv[i], opt)) {
-                return true;
+            auto arg = process_argv[i];
+            auto match = opt;
+            while (*match not_eq '\0' and *arg not_eq '\0' and *arg not_eq '=') {
+                if (*(match++) not_eq *(arg++)) {
+                    goto NEXT;
+                }
             }
+            if (*arg == '=') {
+                return ++arg;
+            } else {
+                return "<present>";
+            }
+        NEXT:;
         }
-        return false;
+        return nullptr;
     },
     .draw_point_light =
         [](Fixnum x, Fixnum y, int radius, ColorConstant tint, u8 intensity) {
@@ -498,7 +508,43 @@ static const Platform::Extensions extensions{
             }
             buttonmap[scancode] = k;
         },
-    .get_username = [](StringBuffer<28>& output) { output = get_username(); }};
+    .get_username = [](StringBuffer<28>& output) { output = get_username(); },
+    .write_external_file = [](const char* path, Vector<char>& output) {
+        std::ofstream out(path, std::ios::binary);
+        for (char c : output) {
+            out << c;
+        }
+    },
+    .read_external_file = [](const char* path, Vector<char>& input) {
+        std::ifstream in(path, std::ios::binary);
+        char byte;
+        while (in.get(byte)) {
+            input.push_back(byte);
+        }
+        in.close();
+    },
+    .walk_external_fs = [](const char* path, Platform::WalkFsCallback cb) {
+        std::vector<std::pair<std::string, u32>> paths;
+
+        using recursive_directory_iterator =
+            std::filesystem::recursive_directory_iterator;
+        for (const auto& dirent : recursive_directory_iterator(path)) {
+            if (dirent.is_regular_file()) {
+                auto full_path = dirent.path().string();
+                if (full_path.size() and full_path[full_path.size() - 1] == '~') {
+                    // Gah! It's an emacs temporary file...
+                    continue;
+                }
+                paths.push_back({full_path, dirent.file_size()});
+            }
+        }
+        std::sort(paths.begin(), paths.end(), [](auto& lhs, auto& rhs) {
+            return lhs.first < rhs.first;
+        });
+        for (auto& path : paths) {
+            cb(path.first.c_str(), path.second);
+        }
+    }};
 
 
 
@@ -718,13 +764,14 @@ int main(int argc, char** argv)
     for (int i = 0; i < argc; ++i) {
         if (str_eq(argv[i], "--help")) {
             std::cout << "usage: skyland [optional-flags] \n"
-                      << " --regression        Run test cases, regression "
+                      << " --regression             Run test cases, regression "
                          "tests, and then exit \n"
-                      << " --validate-scripts  Just run syntax checks on "
+                      << " --validate-scripts       Just run syntax checks on "
                          "scripts, and then exit\n"
-                      << " --no-window-system  Run a windowless instance of "
+                      << " --no-window-system       Run a windowless instance of "
                          "the game\n"
-                      << " --compile-packages  Compile lisp bytecode in scripts/bytecode/source\n"
+                      << " --compile-packages=<dir> Compile packages in directory\n"
+                      << " --output=<dir>           Output to a directory\n"
                       << std::endl;
             return EXIT_SUCCESS;
         }
@@ -1669,8 +1716,7 @@ void Platform::blit_t1_tile_to_texture(u16 from_index, u16 to_index, bool hard)
 
 
 
-void Platform::walk_filesystem(
-    Function<8 * sizeof(void*), void(const char* path, u32 size)> callback)
+void Platform::walk_filesystem(WalkFsCallback callback)
 {
     std::vector<std::pair<std::string, u32>> paths;
 

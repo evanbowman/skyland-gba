@@ -345,11 +345,6 @@
         'load-library-cached
         'build-library) ; for the linter
 
-(defn ends-with (str sufx)
-  (let ((m1 (string-explode str))
-        (m2 (string-explode sufx)))
-    (equal (slice m1 (- (length m1) (length m2))) m2)))
-
 (setq temp 0)
 
 ;; This includes variable declarations that are not processed at startup. The
@@ -394,6 +389,5 @@
 
 (assert-eq 9 (lisp-mem-stack-used))
 
-(unbind 'ends-with
-        'assert-v
+(unbind 'assert-v
         'assert-eq)

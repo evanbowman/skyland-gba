@@ -271,7 +271,8 @@ lisp::ObjectFile::Fingerprint create_fingerprint()
 }
 
 
-lisp::Value* save_obj_file(int argc)
+template <typename F>
+lisp::Value* save_obj_file(int argc, F&& save_callback)
 {
     L_EXPECT_OP(argc - 1, string);
     L_EXPECT_OP(argc - 2, symbol);
@@ -308,9 +309,27 @@ lisp::Value* save_obj_file(int argc)
         }
     }
 
-    library.save(L_LOAD_STRING(argc - 1));
+    save_callback(L_LOAD_STRING(argc - 1), library);
 
     return L_NIL;
+}
+
+
+lisp::Value* save_obj_file_sandboxed(int argc)
+{
+    return save_obj_file(argc, [](const char* path, lisp::ObjectFile& library) {
+        library.save(path);
+    });
+}
+
+
+lisp::Value* save_obj_file_disk(int argc)
+{
+    return save_obj_file(argc, [](const char* path, lisp::ObjectFile& library) {
+        if (auto write = PLATFORM.get_extensions().write_external_file) {
+            write(path, library.export_data());
+        }
+    });
 }
 
 
@@ -2906,7 +2925,7 @@ BINDING_TABLE({
 
           return L_NIL;
       }}},
-    {"save-library", {SIG2(nil, string, symbol), save_obj_file}},
+    {"save-library", {SIG2(nil, string, symbol), save_obj_file_sandboxed}},
     {"load-library", {SIG1(nil, string), load_obj_file}},
 });
 

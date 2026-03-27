@@ -79,6 +79,10 @@
     (lambda (o)
       (not (equal o v)))))
 
+(defn/c ends-with ((str . string) (suffix . string))
+  (let ((m1 (string-explode str))
+        (m2 (string-explode suffix)))
+    (equal (slice m1 (- (length m1) (length m2))) m2)))
 
 (defn/c file-read ((file . wrapped) (offset . int) (len . int))
   (buffer-read (get (unwrap file) 2) offset len))

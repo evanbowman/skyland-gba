@@ -159,8 +159,12 @@ void ObjectFile::append(Symbol::SymtabIndex sym, Function& fn)
 }
 
 
-void ObjectFile::save(const char* path)
+Vector<char>& ObjectFile::export_data()
 {
+    if (exported_) {
+        return bytes_;
+    }
+
     if (bytes_.size() < sizeof(Header)) {
         LOGIC_ERROR();
     }
@@ -182,8 +186,13 @@ void ObjectFile::save(const char* path)
         }
     }
 
-    flash_filesystem::store_file_data_binary(
-        path, bytes_, {.use_compression_ = true});
+    return bytes_;
+}
+
+
+void ObjectFile::save(const char* path)
+{
+    flash_filesystem::store_file_data_binary(path, export_data(), {.use_compression_ = true});
 }
 
 

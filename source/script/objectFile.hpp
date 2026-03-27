@@ -63,6 +63,9 @@ public:
     void append(Symbol::SymtabIndex sym, Function& fn);
 
 
+    Vector<char>& export_data();
+
+
     void save(const char* path);
 
 
@@ -98,6 +101,7 @@ private:
     RelocationTable relocation_table_;
     u16 definition_count_ = 0;
     bool relocatable_;
+    bool exported_ = false;
 };
 
 

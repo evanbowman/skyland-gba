@@ -5,35 +5,30 @@
 ;;;
 
 
-(defn build-library (path library-path linkage)
+(defn/temp compile-package (compile-fn eval-fn path library-path linkage)
   (log (string "Building: " path ", output: " library-path ", linkage: " linkage))
   (let ((store-fns nil))
     (let ((setfn (lambda (sym fn)
                    (global sym)
                    (set sym fn)
                    (setq store-fns (cons sym store-fns)))))
-      (eval-file path)
-      (apply (curry save-library library-path linkage)
+      (eval-fn path)
+      (apply (curry compile-fn library-path linkage)
              store-fns)
       (setq setfn nil))))
 
-
-(defn ends-with (str sufx)
-  (let ((m1 (string-explode str))
-        (m2 (string-explode sufx)))
-    (equal (slice m1 (- (length m1) (length m2))) m2)))
-
-
-(filesystem-walk
- "/scripts/packages/source/"
- (lambda (path)
-   (when (ends-with path ".lisp")
-     (let ((parsed (split (get (split path ".") 0) "/")))
-       (let ((fname (get parsed (decr (length parsed))))
-             (prefix-path (apply string
-                                 (flatten
-                                  (map (curry list "/")
-                                       (cdr (slice parsed 0 (- (length parsed) 2))))))))
-         (build-library path
-                        (string prefix-path "/" fname ".slb")
-                        'relocatable))))))
+;; NOTE: the game invokes build.lisp and then calls the lambda returned by the
+;; script.
+(lambda (compile-fn eval-fn input-paths output-path)
+  (foreach
+   (lambda (path)
+     (when (ends-with path ".lisp")
+       (let ((dirs (split path "/")))
+         (let ((file (get dirs (decr (length dirs)))))
+           (let ((fname (car (split file "."))))
+             (compile-package compile-fn
+                              eval-fn
+                              path
+                              (string output-path "/" fname ".slb")
+                              'relocatable))))))
+   input-paths))

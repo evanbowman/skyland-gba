@@ -16,6 +16,7 @@
 #include "modules/macrocosmFreebuildModule.hpp"
 #include "platform/flash_filesystem.hpp"
 #include "script/lisp.hpp"
+#include "script/listBuilder.hpp"
 #include "skyland/latency.hpp"
 #include "skyland/player/coOpTeam.hpp"
 #include "skyland/scene/desktopOS.hpp"
@@ -170,6 +171,10 @@ private:
 
 
 void setup_pools();
+
+
+
+lisp::Value* save_obj_file_disk(int argc);
 
 
 
@@ -470,8 +475,32 @@ public:
                 setup_pools();
                 TitleScreenScene::run_init_scripts(false);
                 return make_scene<RegressionModule>();
-            } else if (match("--compile-packages")) {
-                APP.invoke_script("/scripts/packages/build.lisp");
+            } else if (match("--compile-packages") and match("--output")) {
+                auto input_path = match("--compile-packages");
+                auto output_path = match("--output");
+                lisp::Protected callback(L_NIL);
+                callback = APP.invoke_script("/scripts/packages/build.lisp");
+                lisp::push_op(lisp::make_function(save_obj_file_disk));
+                lisp::push_op(lisp::make_function([](int argc) {
+                    L_EXPECT_OP(0, string);
+                    auto path = L_LOAD_STRING(0);
+                    Vector<char> contents;
+                    PLATFORM_EXTENSION(read_external_file, path, contents);
+                    lisp::VectorCharSequence seq(contents);
+                    return lisp::dostring(seq, [](lisp::Value& error) {
+                        info(format("error: %", &error));
+                    });
+                }));
+                lisp::ListBuilder input_paths;
+                PLATFORM_EXTENSION(walk_external_fs, input_path,
+                                   [&](const char* path, u32 size) {
+                                       lisp::Protected str(lisp::make_string(path));
+                                       input_paths.push_back(str);
+                                   });
+                lisp::push_op(input_paths.result());
+                lisp::push_op(lisp::make_string(output_path));
+                lisp::safecall(callback, 4);
+                lisp::pop_op(); // result
                 PLATFORM_EXTENSION(quit);
             }
         }

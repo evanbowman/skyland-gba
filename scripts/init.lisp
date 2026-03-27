@@ -7,6 +7,11 @@
 
 (load-library "/scripts/packages/core.slb")
 (load-library "/scripts/packages/util.slb")
+(load-library "/scripts/packages/locale.slb")
+
+;; Erase old unused bytecode caches saved by previous versions.
+(file-unlink "/bytecode/init-cached.slb")
+(file-unlink "/bytecode/stdlib-cached.slb")
 
 
 (when (is-developer-mode)

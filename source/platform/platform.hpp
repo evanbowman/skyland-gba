@@ -383,10 +383,9 @@ public:
     }
 
 
-
-    void walk_filesystem(
-        Function<8 * sizeof(void*), void(const char* path, u32 size)>);
-
+    using WalkFsCallback =
+        Function<8 * sizeof(void*), void(const char* path, u32 size)>;
+    void walk_filesystem(WalkFsCallback cb);
 
 
     ////////////////////////////////////////////////////////////////////////////
@@ -974,7 +973,7 @@ public:
         bool (*__test_compare_sound)(const char* sound_name);
 
         void (*sprite_overlapping_supported)(bool& result);
-        bool (*has_startup_opt)(const char* opt);
+        const char* (*has_startup_opt)(const char* opt);
         void (*draw_point_light)(Fixnum x,
                                  Fixnum y,
                                  int radius,
@@ -1001,6 +1000,9 @@ public:
         void (*quickfade)(u8 amount, ColorConstant k, QuickfadeConfig conf);
 
         void (*get_username)(StringBuffer<28>& output);
+        void (*write_external_file)(const char* path, Vector<char>& input);
+        void (*read_external_file)(const char* path, Vector<char>& output);
+        void (*walk_external_fs)(const char* path, WalkFsCallback cb);
     };
 
 
