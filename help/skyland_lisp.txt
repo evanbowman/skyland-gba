@@ -123,23 +123,32 @@
  as other variables.
 
  error: Signals that an error
- occurred. Errors propagate
- through most operations
- automatically. If an error
- occurs in an argument to a
- function, the function will
- typically return that error
- without executing:
+ occurred. Errors are normal
+ values with mostly ordinary
+ semantics. You can bind
+ them to variables, pass
+ them to functions, and
+ inspect them:
+ (let ((e (error "oops")))
+   (error-info e))
+ ; => "oops"
+ Errors propagate through
+ if and while conditions
+ without entering either
+ branch:
+ (if (error "x") 1 2)
+ ; => error
+ (while (error "x") 1)
+ ; => error
+ Many built-in functions
+ also intentionally propagate
+ errors passed as arguments,
+ to prevent errors from being
+ silently buried in data
+ structures:
  (list 1 2 (error "!") 3)
  ; => error
  (string 1 (error "!") 2)
- ; => error
- (cons 1 (error "!"))
- ; => error
- An error in an if condition
- propagates without entering
- either branch:
- (if (error "x") 1 2)
  ; => error
  Use (error-info e) to
  extract the message string
@@ -904,8 +913,15 @@
  (error msg)
  Creates an error value with
  the given message. Errors
- propagate automatically
- through most expressions.
+ are ordinary values that can
+ be stored and passed around.
+ They propagate through
+ if/while conditions, and
+ many builtins intentionally
+ propagate them to prevent
+ silent data corruption. See
+ the error type description
+ above for details.
 
  (error? v)
  Returns true if v is an
@@ -924,13 +940,18 @@
 
  (eval expr)
  Evaluates a LISP expression.
- NOTE: eval is destructive
- in some cases. It performs
- argument substitution that
- modifies the input list. For
- typical usage this does not
- matter, but be aware if you
- plan to reuse the expression.
+ NOTE: when eval processes a
+ lambda, argument substitution
+ (rewriting named args to
+ positional $0, $1, etc.)
+ mutates the lambda's body
+ in place. If you hold a
+ reference to the original
+ quoted lambda expression,
+ it will be modified.
+ This does not affect
+ evaluation of other
+ expression types.
 
  (compile fn)
  Compiles a function to
