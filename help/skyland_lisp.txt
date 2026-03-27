@@ -1,6 +1,4 @@
-
- '(SKYLAND LISP)
-
+'(SKYLAND LISP)
  You may be wondering, why
  LISP? I never intended to
  write a LISP interpreter.
@@ -23,17 +21,14 @@
  scoped scheme-inspired LISP
  with an optimizing bytecode
  compiler...
-
  Generally, you should refer
  to the existing game scripts
  for examples of how to use
  the engine's scripting
  language.
-
  SKYLAND LISP is a bit of a
  mix of scheme and common
  lisp.
-
  Some notable features:
  * Asynchronous execution
    (async/await).
@@ -46,12 +41,10 @@
  * A Customizable type system.
  * Tail call optimization.
  * Macros.
-
  While I've greatly improved
  it over the years, I should
  mention a few of its
  remaining shortcomings:
-
  1) You may find some
  weirdness with the (read)
  function. Do not ever make
@@ -63,22 +56,17 @@
  on a Game Boy means that
  sometimes one needs to cut
  corners a bit.
-
  2) Following the above
  point about the problematic
  reader: macros. The reader
- eagerly expands macros,
- which normally isn't a
- problem, but it makes macro
- definition a bit of a puzzle
- in cases where macros
- contain other macros. Nested
- macros are supported, but
- there is definitely an
- ordering problem where one
- needs to be declared after
- the macro that references
- it.
+ eagerly expands macros, it
+ does so for performance
+ reasons. Eager macro
+ expansion is disabled within
+ macro definition, to make
+ defining macros that depend
+ on other macros less
+ confusing.
 
 
  DATA TYPES:
@@ -89,12 +77,43 @@
  Evaluates to false.
 
  int: A signed 32 bit
- integer.
+ integer. Literal integers
+ may be expressed in decimal
+ or hexadecimal:
+ 42
+ -7
+ 0xff00ff00
 
  ratio: A ratio consisting
  of a numerator and a divisor.
+ Ratios are produced by
+ integer division:
+ (/ 7 2)  ; => 7/2
+ (/ 1 3)  ; => 1/3
+ Ratios are automatically
+ reduced. When a ratio
+ reduces to a whole number,
+ the result becomes an int:
+ (+ 1/2 1/2) ; => 1
+ (int? (* 2/3 3)) ; => true
+ Ratios participate fully
+ in arithmetic with integers
+ and other ratios:
+ (+ 1/2 1/3) ; => 5/6
+ (* 1/2 1/3) ; => 1/6
+ (- 1/2 1/3) ; => 1/6
+ (/ 1/2 1/3) ; => 3/2
+ (incr 2/3)  ; => 5/3
+ (decr 2/3)  ; => -1/3
+ Ratios may be used in range:
+ (range 0 5 1/2)
+ ; (0 1/2 1 3/2 2 5/2 ...)
+ Use (rationalize f) to
+ convert a float to a ratio.
 
  cons: A pair of two values.
+ The fundamental building
+ block for lists.
 
  function: A value containing
  re-usable code. Functions
@@ -104,7 +123,27 @@
  as other variables.
 
  error: Signals that an error
- occurred.
+ occurred. Errors propagate
+ through most operations
+ automatically. If an error
+ occurs in an argument to a
+ function, the function will
+ typically return that error
+ without executing:
+ (list 1 2 (error "!") 3)
+ ; => error
+ (string 1 (error "!") 2)
+ ; => error
+ (cons 1 (error "!"))
+ ; => error
+ An error in an if condition
+ propagates without entering
+ either branch:
+ (if (error "x") 1 2)
+ ; => error
+ Use (error-info e) to
+ extract the message string
+ from an error value.
 
  symbol: A globally unique
  value containing text. All
@@ -113,6 +152,10 @@
  one another. Symbol
  comparison is optimized and
  occurs in constant time.
+ Symbols are case-sensitive:
+ (equal 'test 'TEST) ; nil
+ Create symbols dynamically:
+ (symbol "cake") ; => 'cake
 
  user_data: A place to store
  custom data when embedding
@@ -125,13 +168,45 @@
  very low level datatype for
  when you want to interact
  with binary data. This is
- the only mutable datatype.
+ the only mutable datatype
+ aside from arrays.
+ (setq buf (databuffer))
+ (buffer-write! buf 0
+   '(1 2 3 4 255))
+ (buffer-read buf 0 5)
+ ; => (1 2 3 4 255)
+ String data can be stored:
+ (buffer-write! buf 6
+   (string-to-bytes "Hi!"))
+ (bytes-to-string
+   (buffer-read buf 6 3))
+ ; => "Hi!"
+ Databuffers are garbage
+ collected when unreferenced.
 
  string: It's a string.
  Encoded in UTF-8.
+ Strings of 3 bytes or fewer
+ are stored inline with no
+ extra allocation. Due to
+ the aforementioned small
+ string optimization, the
+ interpreter does not offer
+ a character datatype.
+ For strings, the (length)
+ function returns character
+ count, not byte count:
+ (length "ありがとう")
+ ; => 5
 
  float: IEEE-754 floating
- point number.
+ point number. Floats are
+ contagious: any arithmetic
+ involving a float produces
+ a float result:
+ (+ 2 3.0)   ; => 5.0
+ (* 1/2 2.0) ; => 1.0
+ (/ 7 2.0)   ; => 3.5
 
  promise: A value that allows
  execution to be suspended
@@ -142,28 +217,1006 @@
  and you may wait on the
  result with the await
  keyword.
- 
+
  wrapped: A means of
  defining custom types.
  A wrapped object is packaged
  in a wrapper that limits the
  programmer's ability to see
  inside the wrapped data.
-
  For example:
-
  ;; The interpreter will look
  ;; in the environment for a
  ;; function called
  ;; -decorate-<type> when
  ;; printing a wrapped value.
  (defn -decorate-handle (h)
-   (string (format "<handle:%>"
-                   (unwrap h))))
-
+   (string
+    (format "<handle:%>"
+            (unwrap h))))
  (setq temp (wrap 5 'handle))
  ; <handle:5>
-
  (type temp)
  ; 'handle
+ See the CUSTOM TYPES section
+ below for the full protocol.
 
+
+ SPECIAL FORMS:
+
+ (lambda (args...) body...)
+ Creates an anonymous
+ function. A maximum of 5
+ named parameters is allowed.
+ (lambda (a b) (+ a b))
+ Internally, lambdas are
+ converted to a lower level
+ form called fn, where named
+ arguments are replaced by
+ positional $0, $1, etc.
+
+ (defn name (args...) body)
+ Defines a named function:
+ (defn square (x) (* x x))
+
+ (let ((bindings...)) body)
+ Binds local variables:
+ (let ((x 1) (y 2))
+   (+ x y)) ; => 3
+ Bindings do not see each
+ other. Variables are lexical
+ and shadow outer bindings:
+ (setq temp 99)
+ (let ((temp 5)) temp) ; => 5
+ temp ; => 99
+
+ (let* ((bindings...)) body)
+ Sequential let. Each binding
+ can see the previous ones:
+ (let* ((a 5) (b (* a 2)))
+   b)  ; => 10
+
+ Destructuring let:
+ Let supports destructuring
+ of cons pairs and lists:
+ (let (((a . b) (cons 1 2)))
+   (+ a b)) ; => 3
+ (let (((a b c) '(1 2 3)))
+   (+ a b c)) ; => 6
+ Use improper list notation
+ to capture remaining items:
+ (let (((a b . rest)
+        (range 5)))
+   rest) ; => (2 3 4)
+ Length mismatches produce
+ an error unless you use
+ the improper list form.
+
+ (if cond then else)
+ Conditional. nil and 0
+ are false, all other values
+ are true:
+ (if 1 "yes" "no") ; "yes"
+ (if nil "yes" "no") ; "no"
+
+ (when cond body...)
+ Evaluates body if cond is
+ true. Returns nil otherwise.
+
+ (unless cond body...)
+ Evaluates body if cond is
+ false.
+
+ (cond (clauses...))
+ Multi-branch conditional:
+ (cond ((< x 0) "neg")
+       ((> x 0) "pos")
+       (true    "zero"))
+
+ (case expr (clauses...))
+ Pattern matching on values.
+ The expression is evaluated
+ once, then compared against
+ each clause. Use else for
+ the default case:
+ (case (+ 5 1)
+   (5 0)
+   (6 9)
+   (else 55))
+ ; => 9
+ Returns nil if no clause
+ matches and there is no
+ else. Each clause may
+ contain multiple body
+ expressions:
+ (case x
+   (5 (do-a) (do-b) result)
+   (else 0))
+
+ (progn body...)
+ Evaluates multiple
+ expressions, returns the
+ last one.
+
+ (while cond body...)
+ Loop while condition is
+ true. An error in the
+ condition terminates the
+ loop. Supports await in
+ the loop body.
+
+ (and exprs...)
+ Short-circuit logical AND.
+ Returns nil at the first
+ false value without
+ evaluating the rest.
+
+ (or exprs...)
+ Short-circuit logical OR.
+ Returns true at the first
+ true value without
+ evaluating the rest.
+
+ (setq symbol value)
+ Assigns a value to an
+ existing variable. Raises
+ an error in strict mode if
+ the variable is not bound.
+
+ (+= symbol value)
+ Increment-assign shorthand:
+ (+= x 5) is equivalent to
+ (setq x (+ x 5))
+
+ (global symbols...)
+ Declares one or more global
+ variables, initialized to
+ nil. Raises an error if
+ the symbol is already bound
+ in the current scope:
+ (global 'x 'y 'z)
+
+ (unbind symbols...)
+ Removes variable bindings.
+ Built-in functions cannot be
+ permanently unbound. If you
+ override a built-in and then
+ unbind it, the original is
+ restored:
+ (defn cons (a b)
+   (list a b))
+ (cons 5 6)  ; => (5 6)
+ (unbind 'cons)
+ (cons 5 6)  ; => (5 . 6)
+
+
+ FUNCTIONS:
+
+ Functions support variadic
+ arguments via the special
+ $V symbol, which contains
+ a list of all arguments
+ beyond the named ones:
+ ((lambda (a b)
+    (apply + (append
+      (list a b) $V)))
+  1 2 3 4 5) ; => 15
+ ((lambda () (length $V))
+  1 2 3 4)   ; => 4
+
+ Type signatures:
+ Function parameters can be
+ annotated with types for
+ runtime checking:
+ (defn foo ((arg . int))
+   (* arg 2))
+ (foo 2)     ; => 4
+ (foo 'abc)  ; => error
+ Multiple typed parameters:
+ (defn bar
+   ((s . string) (n . int))
+   (format s n n))
+ Type checking is preserved
+ through bytecode compilation.
+ Use (signature fn) to
+ inspect the type signature.
+
+ (this)
+ Returns a reference to the
+ currently executing function.
+ Useful for anonymous
+ recursion and is the
+ mechanism for tail call
+ optimization:
+ ((lambda (n acc)
+    (if (equal n 0)
+        acc
+        ((this) (decr n)
+                (+ acc n))))
+  10000 0) ; => 50005000
+
+ (apply fn args)
+ Applies a function to a list
+ of arguments. Limited to
+ 255 arguments maximum.
+ (apply + '(1 2 3)) ; => 6
+ Called with no args, built-in
+ arithmetic has identity
+ values:
+ (+) ; => 0
+ (*) ; => 1
+
+ (compile fn)
+ Compiles an interpreted
+ function to bytecode. The
+ compiled function behaves
+ identically but runs faster.
+ Note: compiled functions
+ cannot call other functions
+ that use await.
+
+
+ MACROS:
+
+ (macro name (params) body)
+ Defines a reader macro.
+ Macros are expanded eagerly
+ by the reader at parse time,
+ not at evaluation time. This
+ means macro expansion is
+ effectively free at runtime.
+ Inside a macro definition,
+ eager expansion is disabled,
+ allowing macros to use other
+ macros.
+ Quasiquote (`) and unquote
+ (,) are supported:
+ (macro my-mac (EXPR)
+   `(list (if a
+     ,(car EXPR)
+     ,(cdr EXPR))))
+
+ Built-in macros include:
+ and, or, when, unless, cond,
+ case, and let*.
+ For example, (and 1 2 3)
+ expands to nested if/not
+ expressions, and (case ...)
+ expands to nested if/equal.
+
+
+ LIST OPERATIONS:
+
+ (cons a b)
+ Creates a pair:
+ (cons 1 2) ; => (1 . 2)
+
+ (car pair) / (first pair)
+ Returns the first element.
+
+ (cdr pair) / (second pair)
+ Returns the second element.
+
+ (caar lst)
+ Shorthand: (car (car lst))
+
+ (cadr lst)
+ Shorthand: (car (cdr lst))
+
+ (list items...)
+ Creates a proper list:
+ (list 1 2 3) ; => (1 2 3)
+
+ (length lst)
+ Returns the number of
+ elements. Works on strings
+ too.
+
+ (reverse lst)
+ Returns a reversed copy.
+
+ (append a b)
+ Concatenates two lists.
+
+ (range start end [step])
+ (range count)
+ Generates a list of numbers:
+ (range 5)     ; (0 1 2 3 4)
+ (range 0 5)   ; (0 1 2 3 4)
+ (range 0 20)  ; 0 to 19
+
+ (fill n val)
+ Creates a list of n copies
+ of val:
+ (fill 3 "x") ; ("x" "x" "x")
+
+ (map fn lst)
+ (map fn lst1 lst2)
+ Transforms each element:
+ (map (lambda (x) (* x 2))
+      '(1 2 3))
+ ; => (2 4 6)
+ With two lists, the function
+ receives pairs of elements:
+ (map cons '(1 2) '(3 4))
+ ; => ((1 . 3) (2 . 4))
+
+ (filter pred lst)
+ Returns elements for which
+ pred is true:
+ (filter odd? '(1 2 3 4 5))
+ ; => (1 3 5)
+
+ (foreach fn lst)
+ Like map but for side
+ effects. Returns nil.
+
+ (flatten lst)
+ Flattens nested lists:
+ (flatten '((1 2) (3 (4))))
+ ; => (1 2 3 4)
+
+ (sort lst comparator)
+ Sorts a list:
+ (sort '(3 1 2) <)
+ ; => (1 2 3)
+ (sort '(3 1 2) >)
+ ; => (3 2 1)
+ Custom comparators work:
+ (sort pairs
+   (lambda (a b)
+     (< (cdr a) (cdr b))))
+
+ (insert val lst index)
+ Inserts at a position:
+ (insert 99 '(1 2 3) 1)
+ ; => (1 99 2 3)
+
+ (find val lst)
+ Returns the index of val,
+ or nil if not found:
+ (find 3 '(1 2 3)) ; => 2
+
+ (get lst index)
+ Returns the element at
+ index:
+ (get '(1 2 3) 2) ; => 3
+
+ (slice lst start [end])
+ Returns a sub-list:
+ (slice '(1 2 3 4 5) 1 3)
+ ; => (2 3)
+ Without end, returns from
+ start to the end:
+ (slice '(1 2 3 4) 1)
+ ; => (2 3 4)
+
+ (remove lst val)
+ Removes all occurrences of
+ val from the list.
+
+ (replace lst pred new-val)
+ Replaces elements matching
+ predicate:
+ (replace '(1 2 3 4 5)
+          odd? 0)
+ ; => (0 2 0 4 0)
+
+ (difference a b)
+ Symmetric-like difference.
+ Returns elements in b not
+ in a:
+ (difference (range 0 10)
+             (range 5 15))
+ ; => (10 11 12 13 14
+ ;     0 1 2 3 4)
+
+ (union a b)
+ Returns elements of b that
+ are in a:
+ (union (range 10)
+        '(-1 2 2 3 12))
+ ; => (2 3)
+
+
+ ASSOCIATION LISTS:
+
+ (assoc key alist)
+ Finds a pair by its key:
+ (assoc 'b '((a . 1)
+             (b . 2)))
+ ; => (b . 2)
+ Returns nil if not found.
+
+ (acons key val alist)
+ Prepends a new pair:
+ (acons 'd 4 '((a . 1)))
+ ; => ((d . 4) (a . 1))
+ Note: does not replace
+ existing keys; the new
+ pair shadows the old one.
+
+ (lookup key alist)
+ Returns only the value
+ associated with key (not
+ the full pair).
+
+
+ ARRAY OPERATIONS:
+
+ Arrays are the mutable
+ ordered collection type.
+ Literal syntax uses #():
+ #(1 2 3)
+
+ (array items...)
+ Creates an array:
+ (array 1 2 3)
+
+ (get arr index)
+ Returns element at index.
+
+ (array-set arr index val)
+ Sets an element, returns
+ the modified array.
+
+ (array-push arr val)
+ Appends an element.
+
+ (array-pop arr)
+ Removes and returns the
+ last element. Returns nil
+ when empty.
+
+ (length arr)
+ Returns the array size.
+
+
+ STRING OPERATIONS:
+
+ (string items...)
+ Converts arguments to
+ strings and concatenates:
+ (string 5 "px") ; => "5px"
+ Works with all types.
+
+ (format template args...)
+ String formatting. Each %
+ in the template is replaced
+ by the next argument:
+ (format "% + % = %"
+         1 2 3)
+ ; => "1 + 2 = 3"
+
+ (length str)
+ Returns character count,
+ not byte count. Handles
+ UTF-8 correctly.
+
+ (slice str start end)
+ Returns a substring:
+ (slice "hello" 1 4)
+ ; => "ell"
+ Works with Unicode:
+ (slice "ありがとう" 2 4)
+ ; => "がと"
+
+ (split str delimiter)
+ Splits a string:
+ (split "a,b,c" ",")
+ ; => ("a" "b" "c")
+
+ (string-explode str)
+ Splits into codepoints.
+
+ (string-assemble lst)
+ Joins codepoints back to
+ a string. Round-trips
+ with string-explode.
+
+ (string-to-bytes str)
+ Converts string to a list
+ of UTF-8 byte values.
+
+ (bytes-to-string lst)
+ Converts byte list to a
+ string.
+
+ (ends-with str suffix)
+ Tests if str ends with
+ the given suffix.
+
+ (hex n)
+ Converts an integer to its
+ hexadecimal string form:
+ (hex 0xaff) ; => "0xaff"
+ (read (hex 0xaff)) ; 0xaff
+
+
+ TYPE PREDICATES:
+
+ (nil? v)
+ True if v is nil.
+
+ (int? v)
+ True if v is an integer.
+
+ (float? v)
+ True if v is a float.
+
+ (ratio? v)
+ True if v is a ratio.
+ Note: a ratio that reduces
+ to a whole number becomes
+ an int, so (ratio? 2/1)
+ is false.
+
+ (boolean? v)
+ True if v is nil, true,
+ or false.
+
+ (symbol? v)
+ True if v is a symbol.
+
+ (string? v)
+ True if v is a string.
+
+ (error? v)
+ True if v is an error.
+
+ (lambda? v)
+ True if v is a function.
+
+ (wrapped? v)
+ True if v is a wrapped
+ custom type.
+
+ (odd? n) / (even? n)
+ Numeric parity tests.
+
+ (bound? sym)
+ True if the symbol is
+ bound to a value in the
+ current environment.
+
+
+ TYPE CONVERSION:
+
+ (type v)
+ Returns the type of v as
+ a symbol.
+
+ (int v)
+ Converts to an integer.
+ Works on strings:
+ (int "42") ; => 42
+
+ (float v)
+ Converts to a float.
+
+ (string v)
+ Converts to a string.
+
+ (symbol str)
+ Creates a symbol from a
+ string.
+
+ (read str)
+ Parses a string as a LISP
+ expression. Macros are
+ expanded eagerly during
+ reading. See caveats in
+ the introduction above.
+
+
+ COMPARISON AND LOGIC:
+
+ (equal a b)
+ Deep structural equality.
+ Works on all types:
+ (equal '(1 2) '(1 2)) ; 1
+ (equal '(1 2) '(1 3)) ; nil
+
+ (not v)
+ Logical negation. nil and 0
+ are false, everything else
+ is true:
+ (not 0)   ; => true
+ (not nil) ; => true
+ (not 1)   ; => nil
+
+ (< a b) / (> a b)
+ Numeric comparison. Works
+ across integer, ratio, and
+ float types:
+ (< 1/2 2/3)  ; true
+ (< 1/2 1)    ; true
+ (> 5/2 2)    ; true
+
+ Predicate constructors:
+ (equalto? val) returns a
+ predicate function:
+ ((equalto? 9) 9) ; true
+
+ (notequal? val) returns
+ the opposite predicate.
+
+ (car-equalto? val) tests
+ the first element.
+
+ (pos-equalto? idx val)
+ tests an element at an
+ index within a list.
+
+
+ ARITHMETIC:
+
+ (+ args...) Addition.
+ (- args...) Subtraction.
+ (* args...) Multiplication.
+ (/ args...) Division.
+
+ All four operations work
+ with integers, ratios, and
+ floats. Mixing float with
+ any other type produces a
+ float. Integer division
+ produces a ratio when the
+ result is not whole:
+ (/ 7 2)  ; => 7/2
+ (/ 6 3)  ; => 2
+
+ (mod a b)
+ Modulo. Works with ratios:
+ (mod 10 3) ; => 1
+ (mod 7/2 1) ; => 1/2
+
+ (incr n) / (decr n)
+ Increment/decrement by 1.
+ Works on ints and ratios.
+
+ (abs n)
+ Absolute value. Works on
+ ints, ratios, and floats:
+ (abs -5)   ; => 5
+ (abs -5/2) ; => 5/2
+
+ (bit-or a b)
+ (bit-and a b)
+ (bit-xor a b)
+ (bit-not a)
+ Bitwise operations on
+ integers:
+ (bit-or 0xff00 0x00ff)
+ ; => 0xffff
+
+ (min lst) / (max lst)
+ Returns minimum/maximum
+ value from a list.
+
+ Division by zero produces
+ an error for all numeric
+ types.
+
+
+ ERROR HANDLING:
+
+ (error msg)
+ Creates an error value with
+ the given message. Errors
+ propagate automatically
+ through most expressions.
+
+ (error? v)
+ Returns true if v is an
+ error.
+
+ (error-info err)
+ Extracts the message string
+ from an error value.
+
+ (fatal msg)
+ Raises an unrecoverable
+ error that halts execution.
+
+
+ EVALUATION AND COMPILATION:
+
+ (eval expr)
+ Evaluates a LISP expression.
+ NOTE: eval is destructive
+ in some cases. It performs
+ argument substitution that
+ modifies the input list. For
+ typical usage this does not
+ matter, but be aware if you
+ plan to reuse the expression.
+
+ (compile fn)
+ Compiles a function to
+ bytecode. The result is
+ functionally equivalent
+ but faster to execute.
+ Type signatures are
+ preserved through
+ compilation.
+
+ (eval-file path)
+ Loads and evaluates a LISP
+ source file. Returns the
+ result of the last
+ expression:
+ (eval-file
+   "/scripts/foo.lisp")
+
+ (lint expr)
+ Validates syntax of a LISP
+ expression. Returns an error
+ value describing the problem
+ if the syntax is invalid.
+
+ (lint-file path)
+ Lints an entire file.
+
+ (disassemble fn)
+ Returns the internal
+ representation of a
+ function after argument
+ substitution. Useful for
+ debugging:
+ (disassemble
+   (lambda (a b) (+ a b)))
+ ; => (fn (+ $0 $1))
+
+
+ CLOSURES AND SCOPE:
+
+ SKYLAND LISP has lexical
+ scope. Functions close over
+ their defining environment:
+ (setq temp 1)
+ (let ((temp 4))
+   (defn foo ()
+     (setq temp (+ temp 1))
+     temp))
+ (foo) ; => 5
+ (foo) ; => 6
+ (foo) ; => 7
+ temp  ; => 1
+ The global temp is
+ unaffected. foo captures
+ the let-bound temp.
+
+ Closures nest naturally:
+ (((lambda (a b c)
+     (lambda (d e)
+       (+ a d e)))
+   1 2 3)
+  4 5) ; => 10
+
+ Internally, when a lambda
+ returns a nested lambda that
+ references outer arguments,
+ a synthetic let binding is
+ generated to preserve those
+ values beyond the parent
+ stack frame.
+
+
+ TAIL CALL OPTIMIZATION:
+
+ Tail calls are optimized
+ to avoid stack growth. Use
+ (this) for self-recursion:
+ ((lambda (n acc)
+    (if (equal n 0)
+        acc
+        ((this) (decr n)
+                (+ acc n))))
+  10000 0)
+ ; => 50005000
+ This works even deeply,
+ without blowing the stack.
+ Tail calls also work
+ through let bindings:
+ ((lambda (n acc)
+    (let ((n2 n))
+      (if (equal n 0)
+          acc
+          ((this) (decr n2)
+           (+ acc n n2)))))
+  5000 0) ; => 25005000
+
+
+ CONSTANTS:
+
+ (defconstant name value)
+ Defines a named constant:
+ (defconstant WIDTH 5)
+ Note: if the value is a
+ runtime expression, it is
+ re-evaluated each time the
+ constant is accessed. This
+ allows defining constants
+ in terms of other constants:
+ (defconstant DOUBLE_W
+   (* WIDTH 2))
+
+
+ CUSTOM TYPES (WRAPPED):
+
+ The wrapped type system
+ allows defining custom types
+ with controlled interfaces.
+
+ (wrap value type-symbol)
+ Creates a wrapped value:
+ (wrap 30 'widget)
+
+ (unwrap wrapped)
+ Extracts the inner value.
+ Returns an error for custom
+ userdata types that disallow
+ unwrapping.
+
+ (type wrapped)
+ Returns the type symbol:
+ (type (wrap 30 'widget))
+ ; => 'widget
+
+ Protocol functions:
+ Define these specially-named
+ functions to customize type
+ behavior. Replace <type>
+ with your type's symbol:
+
+ -decorate-<type> (w)
+ Controls string display:
+ (defn -decorate-widget (w)
+   (format "{widget:%}"
+           (unwrap w)))
+
+ -equal-<type> (w1 w2)
+ Defines equality:
+ (defn -equal-widget (a b)
+   (equal (unwrap a)
+          (unwrap b)))
+
+ -invoke-<type> (w args...)
+ Makes the type callable:
+ (defn -invoke-widget
+   (w a b c)
+   (+ (unwrap w) a b c))
+ (setq w (wrap 30 'widget))
+ (w 1 2 3)  ; => 36
+
+
+ ASYNCHRONOUS EXECUTION:
+
+ (await promise)
+ Suspends the current
+ function until the promise
+ resolves, then returns the
+ result. May be used in loops
+ and nested function calls:
+ (let ((x 0))
+   (await (some-async-op))
+   (+= x 1)
+   (await (another-op))
+   x)
+
+ Await works in while loops:
+ (while (< n 20)
+   (await (tick))
+   (+= n 1))
+
+ Restrictions:
+ * Await may be used in any
+   interpreted function.
+ * Bytecode-compiled functions
+   can themselves use await.
+ * However, compiled functions
+   cannot call other functions
+   that use await.
+ * Built-in functions like
+   map may not call functions
+   that use await:
+   ;; This is an error:
+   (map (lambda (_)
+          (await (op)))
+        '(1 2 3))
+
+
+ MEMORY AND DEBUGGING:
+
+ (gc)
+ Forces garbage collection.
+ Unreferenced databuffers
+ and other values will be
+ reclaimed.
+
+ (lisp-mem-stack-used)
+ Returns the current operand
+ stack depth.
+
+ (lisp-mem-string-storage)
+ Returns the current amount
+ of string memory in use.
+
+ (lisp-mem-sbr-used)
+ Returns the count of
+ allocated scratch buffers
+ (databuffers).
+
+ (lisp-mem-set-gc-thresh n)
+ Sets the GC threshold. A
+ high value forces very
+ frequent collection, useful
+ for stress testing.
+
+ (strict-mode flag)
+ Enables or disables strict
+ mode. When enabled, the
+ interpreter checks for
+ excess values on the
+ operand stack and raises
+ errors for writes to
+ unbound variables.
+
+ (hash value)
+ Returns an integer hash
+ of the value.
+
+ (identity v)
+ Returns its argument
+ unchanged.
+
+ (curry fn args...)
+ Partial application:
+ (curry + 5 6)
+ Returns a function that
+ adds 5 and 6 to its args:
+ ((curry + 5 6) 7 8 9)
+ ; => 35
+
+ (require-args fn n)
+ Wraps fn to require exactly
+ n arguments, returning an
+ error otherwise.
+
+
+ FILESYSTEM:
+
+ (file-exists? path)
+ Returns true if the file
+ exists.
+
+ (file-load path)
+ Loads a file handle. Returns
+ an error if the file is too
+ large to load (e.g. on GBA).
+
+ (file-size handle)
+ Returns the file size.
+
+ (file-read handle off len)
+ Reads bytes from a file.
+
+ (file-write! handle off data)
+ Writes bytes to a file.
+ Use offset -1 to append.
+
+ (file-store handle)
+ Flushes writes to storage.
+
+ (file-unlink path)
+ Deletes a file.
+
+ (filesystem-walk root fn)
+ Walks the filesystem tree,
+ calling fn with each path.
+
+ (read-ini path section key)
+ Reads a value from an INI
+ file. Returns nil for
+ non-existent keys.
