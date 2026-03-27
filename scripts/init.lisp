@@ -1,13 +1,11 @@
 ;;;
 ;;; init.lisp
 ;;;
-;;; Many of these functions run frequently, and are compiled to optimized
-;;; bytecode at startup for greater compactness and better performance.
-;;;
 
-(load-library "/scripts/packages/core.slb")
-(load-library "/scripts/packages/util.slb")
-(load-library "/scripts/packages/locale.slb")
+(load-library "/packages/lib/core.slb")
+(load-library "/packages/lib/util.slb")
+(load-library "/packages/lib/locale.slb")
+
 
 ;; Erase old unused bytecode caches saved by previous versions.
 (file-unlink "/bytecode/init-cached.slb")

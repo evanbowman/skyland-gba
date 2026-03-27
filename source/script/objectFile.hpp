@@ -29,8 +29,7 @@ public:
 
     struct Header
     {
-        enum class Flag
-        {
+        enum class Flag {
             relocatable = (1 << 0),
         };
 
@@ -72,8 +71,25 @@ public:
     Value* load(const Fingerprint& f, const char* path);
 
 
-    static bool disassemble(const char* path, Vector<char>& output);
-    static bool disassemble(Vector<char>& input, Vector<char>& output);
+    using PrintCallback = ::Function<4 * sizeof(void*), void(const char*)>;
+    using ReprFingerprintCallback =
+        ::Function<4 * sizeof(void*), void(const Fingerprint&, PrintCallback)>;
+
+    struct DisassemblyOptions
+    {
+        bool double_space_bytecode_ = true;
+    };
+
+
+    static bool disassemble(const char* path,
+                            Vector<char>& output,
+                            ReprFingerprintCallback disp_fingerprint,
+                            DisassemblyOptions opts);
+
+    static bool disassemble(Vector<char>& input,
+                            Vector<char>& output,
+                            ReprFingerprintCallback disp_fingerprint,
+                            DisassemblyOptions opts);
 
 
     struct Definition

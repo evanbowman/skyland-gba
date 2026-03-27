@@ -22,7 +22,7 @@ fi
 
 if [ -n "$SKYLAND_BIN" ]; then
     echo "Compiling packages with $SKYLAND_BIN..."
-    "$SKYLAND_BIN" --compile-packages=../scripts/packages/source --output=../scripts/packages --no-window-system
+    "$SKYLAND_BIN" --compile-packages=../packages/source --output=../packages/lib --no-window-system #--compile-verbose
 else
     echo "WARNING: No desktop build found in the current directory."
     echo "Bytecode packages in /script/packages/ will not be recompiled."

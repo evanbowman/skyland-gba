@@ -648,6 +648,11 @@ TextEditorModule::TextEditorModule(UserContext&& context)
 
 
 
+void repr_fingerprint(const lisp::ObjectFile::Fingerprint& f,
+                      lisp::ObjectFile::PrintCallback print);
+
+
+
 TextEditorModule::TextEditorModule(UserContext&& user_context,
                                    const char* file_path,
                                    SyntaxMode syntax_mode,
@@ -668,7 +673,8 @@ TextEditorModule::TextEditorModule(UserContext&& user_context,
         if (str_eq(get_extension(file_path).c_str(), ".slb")) {
             Vector<char> contents;
             if (APP.load_file(file_path, contents)) {
-                lisp::ObjectFile::disassemble(file_path, contents);
+                lisp::ObjectFile::disassemble(
+                    file_path, contents, repr_fingerprint, {});
                 user_context_.readonly_ = true;
                 file_mode_ = FileMode::readonly;
                 for (char c : contents) {

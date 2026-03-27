@@ -238,17 +238,45 @@ int file_line_count(const char* fname)
 }
 
 
+struct ApplicationFingerprint
+{
+    host_u16 major_version_;
+    u8 minor_version_;
+    u8 subminor_version_;
+    host_u32 system_hash_;
+};
+
+
+void repr_fingerprint(const lisp::ObjectFile::Fingerprint& f,
+                      lisp::ObjectFile::PrintCallback print)
+{
+    auto app_f = (ApplicationFingerprint*)&f;
+
+    auto hash = app_f->system_hash_.get();
+    Buffer<char, 16> stack;
+    const char* hex = "0123456789abcdef";
+    while (hash) {
+        stack.push_back(hex[hash & 0xf]);
+        hash >>= 4;
+    }
+    StringBuffer<16> hex_hash;
+    for (char c : reversed(stack)) {
+        hex_hash.push_back(c);
+    }
+    print(format("[%.%.%:#%]\n\n",
+                 app_f->major_version_.get(),
+                 app_f->minor_version_,
+                 app_f->subminor_version_,
+                 hex_hash)
+              .c_str());
+}
+
+
 lisp::ObjectFile::Fingerprint create_fingerprint()
 {
     lisp::ObjectFile::Fingerprint result;
 
-    struct ApplicationFingerprint
-    {
-        host_u16 major_version_;
-        u8 minor_version_;
-        u8 subminor_version_;
-        host_u32 system_hash_;
-    } fingerprint;
+    ApplicationFingerprint fingerprint;
     static_assert(sizeof fingerprint <= sizeof result);
 
     fingerprint.major_version_.set(PROGRAM_MAJOR_VERSION);
@@ -271,8 +299,7 @@ lisp::ObjectFile::Fingerprint create_fingerprint()
 }
 
 
-template <typename F>
-lisp::Value* save_obj_file(int argc, F&& save_callback)
+template <typename F> lisp::Value* save_obj_file(int argc, F&& save_callback)
 {
     L_EXPECT_OP(argc - 1, string);
     L_EXPECT_OP(argc - 2, symbol);
@@ -332,7 +359,10 @@ lisp::Value* save_obj_file_disk(int argc)
             if (auto match = PLATFORM.get_extensions().has_startup_opt) {
                 if (match("--compile-verbose")) {
                     Vector<char> output;
-                    lisp::ObjectFile::disassemble(lib_data, output);
+                    lisp::ObjectFile::DisassemblyOptions opts;
+                    opts.double_space_bytecode_ = false;
+                    lisp::ObjectFile::disassemble(
+                        lib_data, output, repr_fingerprint, opts);
                     StringBuffer<96> line;
                     for (char c : output) {
                         if (c == '\n') {

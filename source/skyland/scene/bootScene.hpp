@@ -497,9 +497,11 @@ public:
                     });
                 }));
                 lisp::ListBuilder input_paths;
-                PLATFORM_EXTENSION(walk_external_fs, input_path,
+                PLATFORM_EXTENSION(walk_external_fs,
+                                   input_path,
                                    [&](const char* path, u32 size) {
-                                       lisp::Protected str(lisp::make_string(path));
+                                       lisp::Protected str(
+                                           lisp::make_string(path));
                                        input_paths.push_back(str);
                                    });
                 lisp::push_op(input_paths.result());

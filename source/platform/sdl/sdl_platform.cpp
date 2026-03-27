@@ -459,7 +459,8 @@ static const Platform::Extensions extensions{
         for (int i = 0; i < process_argc; ++i) {
             auto arg = process_argv[i];
             auto match = opt;
-            while (*match not_eq '\0' and *arg not_eq '\0' and *arg not_eq '=') {
+            while (*match not_eq '\0' and *arg not_eq '\0' and
+                   *arg not_eq '=') {
                 if (*(match++) not_eq *(arg++)) {
                     goto NEXT;
                 }
@@ -510,42 +511,46 @@ static const Platform::Extensions extensions{
             buttonmap[scancode] = k;
         },
     .get_username = [](StringBuffer<28>& output) { output = get_username(); },
-    .write_external_file = [](const char* path, Vector<char>& output) {
-        std::ofstream out(path, std::ios::binary);
-        for (char c : output) {
-            out << c;
-        }
-    },
-    .read_external_file = [](const char* path, Vector<char>& input) {
-        std::ifstream in(path, std::ios::binary);
-        char byte;
-        while (in.get(byte)) {
-            input.push_back(byte);
-        }
-        in.close();
-    },
-    .walk_external_fs = [](const char* path, Platform::WalkFsCallback cb) {
-        std::vector<std::pair<std::string, u32>> paths;
-
-        using recursive_directory_iterator =
-            std::filesystem::recursive_directory_iterator;
-        for (const auto& dirent : recursive_directory_iterator(path)) {
-            if (dirent.is_regular_file()) {
-                auto full_path = dirent.path().string();
-                if (full_path.size() and full_path[full_path.size() - 1] == '~') {
-                    // Gah! It's an emacs temporary file...
-                    continue;
-                }
-                paths.push_back({full_path, dirent.file_size()});
+    .write_external_file =
+        [](const char* path, Vector<char>& output) {
+            std::ofstream out(path, std::ios::binary);
+            for (char c : output) {
+                out << c;
             }
-        }
-        std::sort(paths.begin(), paths.end(), [](auto& lhs, auto& rhs) {
-            return lhs.first < rhs.first;
-        });
-        for (auto& path : paths) {
-            cb(path.first.c_str(), path.second);
-        }
-    }};
+        },
+    .read_external_file =
+        [](const char* path, Vector<char>& input) {
+            std::ifstream in(path, std::ios::binary);
+            char byte;
+            while (in.get(byte)) {
+                input.push_back(byte);
+            }
+            in.close();
+        },
+    .walk_external_fs =
+        [](const char* path, Platform::WalkFsCallback cb) {
+            std::vector<std::pair<std::string, u32>> paths;
+
+            using recursive_directory_iterator =
+                std::filesystem::recursive_directory_iterator;
+            for (const auto& dirent : recursive_directory_iterator(path)) {
+                if (dirent.is_regular_file()) {
+                    auto full_path = dirent.path().string();
+                    if (full_path.size() and
+                        full_path[full_path.size() - 1] == '~') {
+                        // Gah! It's an emacs temporary file...
+                        continue;
+                    }
+                    paths.push_back({full_path, dirent.file_size()});
+                }
+            }
+            std::sort(paths.begin(), paths.end(), [](auto& lhs, auto& rhs) {
+                return lhs.first < rhs.first;
+            });
+            for (auto& path : paths) {
+                cb(path.first.c_str(), path.second);
+            }
+        }};
 
 
 
@@ -764,22 +769,24 @@ int main(int argc, char** argv)
 
     for (int i = 0; i < argc; ++i) {
         if (str_eq(argv[i], "--help")) {
-            std::cout << "usage: skyland [optional-flags] \n"
-                      << " --regression             Run test cases, regression "
-                         "tests, and then exit \n"
-                      << " --validate-scripts       Just run syntax checks on "
-                         "scripts, and then exit\n"
-                      << " --no-window-system       Run a windowless instance of "
-                         "the game\n"
-                      << " --compile-packages=<dir> Compile packages in directory\n"
-                      << " --output=<dir>           Output to a directory\n"
-                      << " --compile-verbose        Dump bytecode to standard out\n"
-                      << std::endl;
+            std::cout
+                << "usage: skyland [optional-flags] \n"
+                << " --regression             Run test cases, regression "
+                   "tests, and then exit \n"
+                << " --validate-scripts       Just run syntax checks on "
+                   "scripts, and then exit\n"
+                << " --no-window-system       Run a windowless instance of "
+                   "the game\n"
+                << " --compile-packages=<dir> Compile packages in directory\n"
+                << " --output=<dir>           Output to a directory\n"
+                << " --compile-verbose        Dump bytecode to standard out\n"
+                << std::endl;
             return EXIT_SUCCESS;
         }
     }
 
-    bool has_window_system = not extensions.has_startup_opt("--no-window-system");
+    bool has_window_system =
+        not extensions.has_startup_opt("--no-window-system");
 
     if (has_window_system) {
         if (SDL_Init(SDL_INIT_VIDEO) != 0) {

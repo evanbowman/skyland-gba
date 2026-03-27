@@ -362,8 +362,9 @@ with open('fs.bin', 'wb') as filesystem:
 
     collect_paths(files_list, "strings")
     collect_paths(files_list, "scripts")
-    collect_paths(files_list, "help")
+    collect_paths(files_list, "packages")
     collect_paths(files_list, "misc")
+    collect_paths(files_list, "help")
     collect_paths(files_list, "licenses")
     collect_paths(files_list, "tools")
     collect_paths(files_list, "data")

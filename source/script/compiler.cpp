@@ -681,12 +681,14 @@ TOP:
                 append<instruction::BitNot>(ctx, buffer, write_pos);
 
             } else if (fn->type() == Value::Type::symbol and
-                       str_eq(fn->symbol().name(), "bit-shift-left") and argc == 2) {
+                       str_eq(fn->symbol().name(), "bit-shift-left") and
+                       argc == 2) {
 
                 append<instruction::BitShiftLeft>(ctx, buffer, write_pos);
 
             } else if (fn->type() == Value::Type::symbol and
-                       str_eq(fn->symbol().name(), "bit-shift-right") and argc == 2) {
+                       str_eq(fn->symbol().name(), "bit-shift-right") and
+                       argc == 2) {
 
                 append<instruction::BitShiftRight>(ctx, buffer, write_pos);
 

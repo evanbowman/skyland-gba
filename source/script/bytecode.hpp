@@ -1685,7 +1685,6 @@ struct BitNot
     {
         return 110;
     }
-
 };
 
 

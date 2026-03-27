@@ -1064,6 +1064,7 @@ elseif(APPLE)
     COMMAND cp -r ${ROOT_DIR}/shaders/ ${EXECUTABLE_NAME}.app/Contents/Resources/shaders/
     COMMAND cp -r ${ROOT_DIR}/sounds/ ${EXECUTABLE_NAME}.app/Contents/Resources/sounds/
     COMMAND cp -r ${ROOT_DIR}/scripts/ ${EXECUTABLE_NAME}.app/Contents/Resources/scripts/
+    COMMAND cp -r ${ROOT_DIR}/packages/ ${EXECUTABLE_NAME}.app/Contents/Resources/packages/
     COMMAND cp -r ${ROOT_DIR}/strings/ ${EXECUTABLE_NAME}.app/Contents/Resources/strings/
     # Copy SDL2 framework
     COMMAND cp -r /Library/Frameworks/SDL2.framework ${EXECUTABLE_NAME}.app/Contents/Frameworks
@@ -1223,6 +1224,9 @@ elseif(WIN32)
     COMMAND ${CMAKE_COMMAND} -E copy_directory
     ${ROOT_DIR}/strings
     $<TARGET_FILE_DIR:Skyland>/strings
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${ROOT_DIR}/packages
+    $<TARGET_FILE_DIR:Skyland>/packages
     DEPENDS Skyland
     COMMENT "Copying resources to Release directory")
 

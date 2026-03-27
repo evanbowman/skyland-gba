@@ -4410,7 +4410,8 @@ void Platform::on_unrecoverrable_error(UnrecoverrableErrorCallback callback)
 static EWRAM_DATA Buffer<filesystem::DirectoryCache, 16> dir_cache;
 
 
-Optional<filesystem::DirectoryCache> dir_cache_load(const StringBuffer<62>& prefix)
+Optional<filesystem::DirectoryCache>
+dir_cache_load(const StringBuffer<62>& prefix)
 {
     for (auto& ent : dir_cache) {
         bool match = true;

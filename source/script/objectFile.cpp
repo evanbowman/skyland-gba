@@ -22,8 +22,8 @@ namespace lisp
 using DefinitionCountField = host_u16;
 
 
-ObjectFile::ObjectFile(const Fingerprint& f, bool relocatable) :
-    relocatable_(relocatable)
+ObjectFile::ObjectFile(const Fingerprint& f, bool relocatable)
+    : relocatable_(relocatable)
 {
     Header header;
     header.fingerprint_ = f;
@@ -91,7 +91,8 @@ Symbol::SymtabIndex ObjectFile::link_symbol(Symbol::SymtabIndex input,
         PLATFORM.fatal(::format("symbol % referenced in object file missing "
                                 "from symtab!",
                                 name));
-        while (1);
+        while (1)
+            ;
     }
 }
 
@@ -117,6 +118,20 @@ void ObjectFile::append(Symbol::SymtabIndex sym, Function& fn)
             if (is_symtab_opcode(inst)) {
                 auto st = ((LoadSymtab*)inst);
                 cb(st);
+            } else {
+                switch (inst->op_) {
+                case LoadVarRT::op():
+                case PushSymbolRT::op():
+                case LexicalDefRT::op():
+                case SetVarRT::op(): {
+                    auto instr = ((LoadVarRT*)inst);
+                    PLATFORM.fatal(::format<86>("bytecode depends on runtime "
+                                                "symbol %, and cannot be "
+                                                "persisted to an object file!",
+                                                instr->ptr_.get()));
+                    break;
+                }
+                }
             }
         }
     };
@@ -150,9 +165,8 @@ void ObjectFile::append(Symbol::SymtabIndex sym, Function& fn)
         // table by re-linking everything. This also gives us confirmation that
         // link_symbol will succeed in the future when we perform a cold boot
         // and load bytecode from an object file library.
-        st->symtab_index_.set(link_symbol(st->symtab_index_.get(),
-                                          relocation_table_,
-                                          relocatable_));
+        st->symtab_index_.set(link_symbol(
+            st->symtab_index_.get(), relocation_table_, relocatable_));
     });
 
     ++definition_count_;
@@ -193,7 +207,8 @@ Vector<char>& ObjectFile::export_data()
 
 void ObjectFile::save(const char* path)
 {
-    flash_filesystem::store_file_data_binary(path, export_data(), {.use_compression_ = true});
+    flash_filesystem::store_file_data_binary(
+        path, export_data(), {.use_compression_ = true});
 }
 
 
@@ -249,9 +264,8 @@ u32 parse_and_link_bytecode(Vector<char>::Iterator it,
                         ((u8*)&idx)[b] = *r;
                         ++r;
                     }
-                    idx.set(ObjectFile::link_symbol(idx.get(),
-                                                    relocation_table,
-                                                    relocatable));
+                    idx.set(ObjectFile::link_symbol(
+                        idx.get(), relocation_table, relocatable));
                     for (u32 b = 0; b < sizeof(idx); ++b) {
                         *field = ((char*)&idx)[b];
                         ++field;
@@ -320,15 +334,21 @@ load_relocation_table(Vector<char>& bytes,
 }
 
 
-bool ObjectFile::disassemble(const char* path, Vector<char>& output)
+bool ObjectFile::disassemble(const char* path,
+                             Vector<char>& output,
+                             ReprFingerprintCallback cb,
+                             DisassemblyOptions opts)
 {
     Vector<char> bytes;
     load_file_contents(bytes, path);
-    return disassemble(bytes, output);
+    return disassemble(bytes, output, cb, opts);
 }
 
 
-bool ObjectFile::disassemble(Vector<char>& bytes, Vector<char>& output)
+bool ObjectFile::disassemble(Vector<char>& bytes,
+                             Vector<char>& output,
+                             ReprFingerprintCallback disp_fingerprint,
+                             DisassemblyOptions opts)
 {
     output.clear();
 
@@ -376,6 +396,8 @@ bool ObjectFile::disassemble(Vector<char>& bytes, Vector<char>& output)
     };
 
     print("\nSkyland LISP OBJ File\n\n");
+    disp_fingerprint(hdr->fingerprint_, print);
+    print("\n");
     print(::format<64>("% functions, % bytes",
                        definition_count,
                        bytes.size() - reloc_table_sz)
@@ -383,8 +405,8 @@ bool ObjectFile::disassemble(Vector<char>& bytes, Vector<char>& output)
     print("\n\n");
 
     if (relocatable) {
-        print(::format<64>("(relocatable, table size %)\n\n",
-                           reloc_table_sz).c_str());
+        print(::format<64>("(relocatable, table size %)\n\n", reloc_table_sz)
+                  .c_str());
     }
 
     for (int i = 0; i < definition_count; ++i) {
@@ -393,9 +415,7 @@ bool ObjectFile::disassemble(Vector<char>& bytes, Vector<char>& output)
             return false;
         }
 
-        auto bc_size = parse_and_link_bytecode(it,
-                                               reloc_table,
-                                               relocatable);
+        auto bc_size = parse_and_link_bytecode(it, reloc_table, relocatable);
 
         auto name = resolve_name(def_header->sym_.get());
         for (int j = 0; j < 30; ++j) {
@@ -434,9 +454,12 @@ bool ObjectFile::disassemble(Vector<char>& bytes, Vector<char>& output)
             buf->data_[j] = *(it++);
         }
 
-        instruction::disassemble(&*buf, 0, [&print](const char* str) {
+        instruction::disassemble(&*buf, 0, [&print, &opts](const char* str) {
             print(str);
-            print("\n\n");
+            print("\n");
+            if (opts.double_space_bytecode_) {
+                print("\n");
+            }
         });
     }
 
@@ -504,13 +527,11 @@ Value* ObjectFile::load(const Fingerprint& f, const char* path)
             return L_NIL;
         }
 
-        const auto sym_index = link_symbol(def_header->sym_.get(),
-                                           relocation_table_,
-                                           relocatable_);
+        const auto sym_index = link_symbol(
+            def_header->sym_.get(), relocation_table_, relocatable_);
 
-        auto bc_size = parse_and_link_bytecode(it,
-                                               relocation_table_,
-                                               relocatable_);
+        auto bc_size =
+            parse_and_link_bytecode(it, relocation_table_, relocatable_);
 
         // Check we have enough bytes remaining in the file
         // (avoid walking past end in the copy loop)

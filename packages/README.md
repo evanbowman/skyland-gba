@@ -10,7 +10,7 @@ build libraries with relocatable linkage.
 
 To recompile the bytecode modules in this directory, use the desktop build of
 the game, and run:
-./Skyland --compile-packages=../scripts/packages/source --output=../scripts/packages --no-window-system
+./Skyland --compile-packages=../packages/source --output=../packages/bin --no-window-system
 
 NOTE: in the macOS app, for example, you can find the executable in:
 ./Skyland.app/Contents/MacOS/
@@ -18,6 +18,6 @@ NOTE: in the macOS app, for example, you can find the executable in:
 If you are modding the game and struggling to rebuild packages manually, you
 could instead load the packages sources directly.
 For example, by replacing this line in your init.lisp file:
-(load-library "/scripts/packages/core.slb")
+(load-library "/packages/lib/core.slb")
 with:
-(eval-script "/scripts/packages/source/core.lisp")
+(eval-script "/packages/source/core.lisp")

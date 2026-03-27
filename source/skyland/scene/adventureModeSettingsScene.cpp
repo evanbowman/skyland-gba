@@ -474,7 +474,7 @@ ScenePtr AdventureModeSettingsScene::update(Time delta)
             loading_task = [] {
                 ScriptPreloadGuard preload;
                 load_difficulty_profile();
-                APP.invoke_script("/scripts/newgame.lisp",
+                APP.invoke_script("/scripts/event/newgame.lisp",
                                   {.exclude_delta_ = true});
             };
             PLATFORM.delta_clock().reset();
