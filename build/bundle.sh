@@ -10,6 +10,9 @@ cp SkylandEngine Skyland.elf # (for mesen profiler)
 # Compile lisp bytecode packages using the desktop build, if available.
 SKYLAND_BIN=""
 if [ -x "Skyland.app/Contents/MacOS/Skyland" ]; then
+    python3 ../tools/encode_files.py
+    cp -r ../scripts Skyland.app/Contents/Resources
+    cp ../lisp_symtab.dat Skyland.app/Contents/Resources
     SKYLAND_BIN="Skyland.app/Contents/MacOS/Skyland"
 elif [ -x "Skyland.exe" ]; then
     SKYLAND_BIN="./Skyland.exe"

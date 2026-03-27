@@ -1165,28 +1165,30 @@ public:
             }
 
             case RetNil::op(): {
-                auto prev = instructions[index - 1];
-                if (prev->op_ == EarlyRet::op()) {
-                    // NOTE: after a few passes of optmizations, EarlyRet
-                    // followed by RetNil is a common scenario, and often,
-                    // RetNil has no branches to it, because branches to RetNil
-                    // have been replaced by RetNilIfFalse.
-                    if (not is_jump_target(inst, code_buffer, targets)) {
-                        prev->op_ = Ret::op();
-                        remove(instructions,
-                               code_buffer,
-                               (RetNil*)inst,
-                               code_size);
-                        goto TOP;
-                    }
-                } else if (prev->op_ == EarlyRetNil::op()) {
-                    if (not is_jump_target(inst, code_buffer, targets)) {
-                        prev->op_ = RetNil::op();
-                        remove(instructions,
-                               code_buffer,
-                               (EarlyRetNil*)inst,
-                               code_size);
-                        goto TOP;
+                if (index > 0) {
+                    auto prev = instructions[index - 1];
+                    if (prev->op_ == EarlyRet::op()) {
+                        // NOTE: after a few passes of optmizations, EarlyRet
+                        // followed by RetNil is a common scenario, and often,
+                        // RetNil has no branches to it, because branches to RetNil
+                        // have been replaced by RetNilIfFalse.
+                        if (not is_jump_target(inst, code_buffer, targets)) {
+                            prev->op_ = Ret::op();
+                            remove(instructions,
+                                   code_buffer,
+                                   (RetNil*)inst,
+                                   code_size);
+                            goto TOP;
+                        }
+                    } else if (prev->op_ == EarlyRetNil::op()) {
+                        if (not is_jump_target(inst, code_buffer, targets)) {
+                            prev->op_ = RetNil::op();
+                            remove(instructions,
+                                   code_buffer,
+                                   (EarlyRetNil*)inst,
+                                   code_size);
+                            goto TOP;
+                        }
                     }
                 }
                 scope_stack.pop_back();
