@@ -79,9 +79,9 @@
   (defn on-dialog-accepted ()
     (let ((m (eval-file "/scripts/event/quest/make_quest_marker.lisp")))
       (when m
-        (push 'qids 5)
+        (push qids 5)
         (adventure-log-add 52 '())
-        (push 'quests (cons "traveller.lisp" m)))
+        (push quests (cons "traveller.lisp" m)))
 
       (find-crew-slot-cb
        "<c:Traveller:23>Oh! It looks like you're out of room! Let me fix that..."
@@ -89,7 +89,7 @@
        "Place block (1x2):"
        (lambda (x y _)
          (let ((id (chr-new (player) x y 'neutral '((icon . 23)))))
-           (push 'qvar (cons 5 id)))
+           (push qvar (cons 5 id)))
 
          (dialog (if m
                      "<c:Traveller:23>Great! I'll come aboard and travel to the destination with you! I've marked the location on your sky chart with an *..."

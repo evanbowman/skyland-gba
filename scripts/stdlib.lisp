@@ -49,6 +49,19 @@
        (let* ,(cdr BINDINGS) ,@BODY))))
 
 
+(macro when-let (BINDING BODY)
+  `(let ,BINDING
+     (when ,(caar BINDING)
+       ,@BODY)))
+
+
+(macro if-let (BINDING IF-BR ELSE-BR)
+  `(let ,BINDING
+     (if ,(caar BINDING)
+         ,IF-BR
+         ,@ELSE-BR)))
+
+
 (macro ->> (VAL FORMS)
   (if (nil? (cdr FORMS))
     (append (car FORMS) (list VAL))
@@ -56,8 +69,6 @@
                    (list VAL))
           ,@(cdr FORMS))))
 
-
-;(read "(->> (range 10) (map (curry * 2)) (filter odd?) (apply +))")
 
 ;; Some useful macros for defining functions
 
@@ -76,6 +87,9 @@
 
 (macro += (NAME VAL)
  `(setq ,NAME (+ ,NAME ,@VAL)))
+
+(macro push (NAME EXPR)
+ `(setq ,NAME (cons ,@EXPR ,NAME)))
 
 (macro setq (NAME EXPR) `(set ,(cons $q NAME) ,@EXPR))
 (macro setq/temp (NAME EXPR) `(set-temp ,(cons $q NAME) ,@EXPR))

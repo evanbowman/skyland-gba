@@ -33,8 +33,8 @@
 ;; later, I wanted to be able to support multiple shops per zone. So we have a
 ;; larger list that associates map coordinates with shop items.
 (if (not (lookup (wg-pos) zone-shop-items))
-    (push 'zone-shop-items (cons (wg-pos)
-                                 (eval-file "/scripts/event/shop/shop_items.lisp"))))
+    (push zone-shop-items (cons (wg-pos)
+                                (eval-file "/scripts/event/shop/shop_items.lisp"))))
 
 ;; Bind shop items for the current world map location.
 (setq shop-items (lookup (wg-pos) zone-shop-items))

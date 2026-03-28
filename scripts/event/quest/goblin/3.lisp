@@ -37,8 +37,8 @@
     (setq on-dialog-closed exit)
     (if m
         (progn
-          (push 'qids 3)
-          (push 'quests (cons "goblin_pickup.lisp" m))
+          (push qids 3)
+          (push quests (cons "goblin_pickup.lisp" m))
           (adventure-log-add 19 '())
           (dialog "<c:Goblin Scout:38>Yesss! I've marked their sssignals on your chart with an *!"))
       (progn

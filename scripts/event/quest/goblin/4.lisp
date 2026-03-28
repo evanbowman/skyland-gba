@@ -87,12 +87,12 @@
       (let ((m (eval-file "/scripts/event/quest/make_quest_marker.lisp")))
         (if m
             (progn
-              (push 'quests (cons "artifacts.lisp" m))
+              (push quests (cons "artifacts.lisp" m))
               (find-or-create-cargo-bay
                (lambda (x y)
                  (adventure-log-add 20 (list fee))
-                 (push 'qids qid)
-                 (push 'qvar (cons qid fee))
+                 (push qids qid)
+                 (push qvar (cons qid fee))
                  (coins-set (- (coins) fee))
                  (cargo-set (player) x y "artifacts")
                  (dialog "<c:Scavenger:34>Careful with the ancient tech!")

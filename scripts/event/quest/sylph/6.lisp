@@ -70,9 +70,9 @@
         (if m
             (progn
               (adventure-log-add 54 nil)
-              (push 'qids 6)
-              (push 'quests (cons "goblin_child_return.lisp" m))
-              (push 'qvar (cons 6 id))
+              (push qids 6)
+              (push quests (cons "goblin_child_return.lisp" m))
+              (push qvar (cons 6 id))
               (await (dialog* "<c:Goblin Child:50>#whispers nervously# Don't show fear. Father sssaid they can sssmell fear... <B:0> Wait... where are your cooking pots?"))
               (await (dialog* "The goblin child joined your crew! He's marked his home settlement on your sky chart with an *..."))
               (exit))

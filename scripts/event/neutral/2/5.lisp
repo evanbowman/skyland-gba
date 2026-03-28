@@ -7,7 +7,7 @@
 
 
 
-(push 'zone-shop-items
+(push zone-shop-items
       (cons (wg-pos)
             '((mirror-hull    350 8 (1 . 1))
               (energized-hull 300 4 (1 . 1))

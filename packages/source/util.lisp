@@ -34,7 +34,7 @@
 ;; NOTE: see adventure_log.txt for message text...
 (defn/c adventure-log-add ((id . int) (args . pair))
   ;; args: event-code parameters
-  (setq adventure-log (cons (cons id args) adventure-log)))
+  (push adventure-log (cons id args)))
 
 
 (defn/c dialog-opts-reset ()
@@ -42,7 +42,7 @@
 
 
 (defn/c dialog-opts-push ((name . string) (cb . lambda))
-  (setq dialog-opts (cons (cons name cb) dialog-opts)))
+  (push dialog-opts (cons name cb)))
 
 
 ;; For backwards compatibility. The old dialog api had a function for setting up
@@ -150,7 +150,8 @@
 
 
 (defn/c push-pending-event ((turns . int) (script . string))
-  (setq pending-events (cons (cons turns script) pending-events)))
+  (push pending-events (cons turns script)))
+
 
 (defn/c configure-vars ((vlat . pair))
   (let ((sv setvar)

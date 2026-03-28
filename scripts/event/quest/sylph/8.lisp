@@ -40,8 +40,8 @@
     (if m
         (progn
           (adventure-log-add 63 '())
-          (push 'qids 8)
-          (push 'quests (cons "particle_lance.lisp" m))
+          (push qids 8)
+          (push quests (cons "particle_lance.lisp" m))
           (dialog "<c:Conclave Elder:51>The coordinates have been transmitted to your navigation system. <B:0> I will accompany you personally to ensure proper handling of the device.")
           (defn on-dialog-closed ()
             (setq on-dialog-closed nil)

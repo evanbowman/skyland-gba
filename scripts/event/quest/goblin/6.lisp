@@ -49,18 +49,17 @@
                        '((icon . 26)
                          (race . 4)))))
       (chr-hp id 128)
-      (let ((m (eval-file "/scripts/event/quest/make_quest_marker.lisp")))
-        (if m
-            (progn
-              (adventure-log-add 54 nil)
-              (push 'qids 6)
-              (push 'quests (cons "civ.lisp" m))
-              (push 'qvar (cons 6 id))
-              (dialog "The orphan boy joined your crew! <B:0> Upon discovering your sky chart, he marked a location with an *...")
-              (exit))
-            (progn
-              (dialog "The injured boy joined your crew! Wonder where he came from...")
-              (exit)))))))
+      (if-let ((m (eval-file "/scripts/event/quest/make_quest_marker.lisp")))
+        (progn
+          (adventure-log-add 54 nil)
+          (push qids 6)
+          (push quests (cons "civ.lisp" m))
+          (push qvar (cons 6 id))
+          (dialog "The orphan boy joined your crew! <B:0> Upon discovering your sky chart, he marked a location with an *...")
+          (exit))
+        (progn
+          (dialog "The injured boy joined your crew! Wonder where he came from...")
+          (exit))))))
 
 
 (setq on-dialog-declined exit)

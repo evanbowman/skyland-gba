@@ -37,10 +37,6 @@
   (append (slice lat 0 pos) (cons elem (slice lat pos))))
 
 
-(defn/c push ((sym . symbol) val)
-  (set sym (cons val (eval sym))))
-
-
 (defn/c push-set (sym val)
   (let ((tmp (cons val (eval sym))))
     (set sym (union tmp tmp))))

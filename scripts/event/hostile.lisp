@@ -33,10 +33,10 @@
     (event
      (eval-file event))
     ((and (equal (length enemies-seen) 0) (equal (zone) 0))
-     (push 'enemies-seen 0)
+     (push enemies-seen 0)
      (eval-file "/scripts/event/hostile/0/0.lisp"))
     ((< (choice 100) (get '(60 55 50 45) (zone)))
-     (push 'enemies-seen -1)
+     (push enemies-seen -1)
      (procgen))
     (true
      ((eval-file "/scripts/event/hostile_pick_template.lisp")))))

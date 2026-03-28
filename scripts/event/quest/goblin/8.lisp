@@ -30,8 +30,8 @@
        (if m
            (progn
              (adventure-log-add 63 '())
-             (push 'qids 8)
-             (push 'quests (cons "goblin_atomics.lisp" m))
+             (push qids 8)
+             (push quests (cons "goblin_atomics.lisp" m))
              (dialog "<c:Ashwalker Elder:42> The location hasss been marked on your chart with an *! <B:0> My apprentice will guide you through the old rituals...")
              (defn on-dialog-closed ()
                (dialog "<c:Ashwalker Apprentice:41> Finally, a chance to prove my worth to the Order! <B:0> I know all the ancient wardsss against radiation!")

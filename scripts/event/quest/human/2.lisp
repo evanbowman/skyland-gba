@@ -57,8 +57,8 @@
                       (room-del (opponent) (get room 1) (get room 2))))
                  (rooms (opponent)))
 
-            (push 'qids 2)
-            (push 'quests (cons "lemons.lisp" m))
+            (push qids 2)
+            (push quests (cons "lemons.lisp" m))
 
             (let ((reward 0))
               (foreach
@@ -69,7 +69,7 @@
                  (+= reward 1400))
                (construction-sites (player) '(1 . 2)))
 
-              (push 'qvar (cons 2 reward)))
+              (push qvar (cons 2 reward)))
 
             (adventure-log-add 18 (list (room-count (player) 'lemon-tree)))
 

@@ -53,9 +53,9 @@
         (if m
             (progn
               (adventure-log-add 54 nil)
-              (push 'qids 6)
-              (push 'quests (cons "civ.lisp" m))
-              (push 'qvar (cons 6 id))
+              (push qids 6)
+              (push quests (cons "civ.lisp" m))
+              (push qvar (cons 6 id))
               (dialog "The orphan boy joined your crew! <B:0> Upon discovering your sky chart, he marked a location with an *...")
               (exit))
             (progn

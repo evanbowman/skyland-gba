@@ -28,9 +28,9 @@
   (defn on-dialog-accepted ()
     (let ((m (eval-file "/scripts/event/quest/make_quest_marker.lisp")))
       (when m
-        (push 'qids 5)
+        (push qids 5)
         (adventure-log-add 52 '())
-        (push 'quests (cons "surface_keeper.lisp" m)))
+        (push quests (cons "surface_keeper.lisp" m)))
 
       (find-crew-slot-cb
        "<c:Surface Keeper:43>No ssspace! Let's ssseee..."
@@ -39,7 +39,7 @@
        (lambda (x y _)
          (chr-del (opponent) 1 13)
          (let ((id (chr-new (player) x y 'neutral '((race . 1) (icon . 43)))))
-           (push 'qvar (cons 5 id)))
+           (push qvar (cons 5 id)))
 
          (dialog (if m
                      "<c:Surface Keeper:43>Yesss... time is critical. I've marked the sssource of the disturbance on your chart with an *."

@@ -20,8 +20,8 @@
       (setq on-dialog-closed exit)
       (if m
           (progn
-            (push 'qids 3)
-            (push 'quests (cons "sylph_refugees.lisp" m))
+            (push qids 3)
+            (push quests (cons "sylph_refugees.lisp" m))
             (adventure-log-add 19 '())
             (dialog "The coordinates lock into your navigation system. The platform's location appears on your sky chart, marked with an *. <B:0> The signal continues its automated loop, counting down the remaining power reserves..."))
           (progn

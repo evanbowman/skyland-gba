@@ -29,9 +29,9 @@
                   (if m
                       (find-or-create-cargo-bay
                        (lambda (x y)
-                         (push 'quests (cons "loot.lisp" m))
+                         (push quests (cons "loot.lisp" m))
                          (coins-add 500)
-                         (push 'qids 0)
+                         (push qids 0)
                          (adventure-log-add 16 '())
                          (cargo-set (player) x y "loot")
                          (dialog "<c:raider:39>Excccellent! I'll mark the location with an * on your chart!")

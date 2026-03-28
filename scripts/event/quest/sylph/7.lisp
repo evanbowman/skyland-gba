@@ -89,8 +89,8 @@
       (if m
           (progn
             ;; push adventure log
-            (push 'qids 7)
-            (push 'quests (cons "dynamite-ii.lisp" m))
+            (push qids 7)
+            (push quests (cons "dynamite-ii.lisp" m))
             (dialog "<c:Mining Chief:20>Great! Let's move some of this cargo over to your island...")
             (adventure-log-add 57 nil)
 

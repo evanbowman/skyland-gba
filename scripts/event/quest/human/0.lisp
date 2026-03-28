@@ -84,9 +84,9 @@
     (if m
         (find-or-create-cargo-bay
          (lambda (x y)
-           (push 'quests (cons "delivery.lisp" m))
+           (push quests (cons "delivery.lisp" m))
            (coins-add 500)
-           (push 'qids 0)
+           (push qids 0)
            (adventure-log-add 16 '())
            (cargo-set (player) x y "parcel")
            (dialog "<c:Merchant:7>Wonderful! I'll mark the address "

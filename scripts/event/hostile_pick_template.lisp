@@ -26,7 +26,7 @@
                    (equal (zone) 0))
           (setq lv 0))
 
-        (push 'enemies-seen lv)
+        (push enemies-seen lv)
 
         (lambda ()
           (eval-file (format "/scripts/event/hostile/%/%.lisp" (zone) lv))))

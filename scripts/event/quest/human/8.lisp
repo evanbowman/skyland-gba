@@ -35,8 +35,8 @@
     (if m
         (progn
           (adventure-log-add 63 '())
-          (push 'qids 8)
-          (push 'quests (cons "atomics.lisp" m))
+          (push qids 8)
+          (push quests (cons "atomics.lisp" m))
           (dialog "<c:King of Emsshaw Cay:27> Great! I've marked the location on your sky chart with an *! <B:0> My daughter will go along to oversee things...")
           (defn on-dialog-closed ()
             (dialog "<c:Warrior Princess of E. Cay:28> I'm going too! Better than sitting around here doing nothing... <B:0> Don't worry, I can pull my own weight!")
