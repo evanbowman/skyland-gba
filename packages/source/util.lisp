@@ -127,13 +127,11 @@
   (let ((search key)
         (opts nil))
     (foreach (lambda (chr)
-               (let ((icon (lookup 'icon (cddr chr))))
-                 (when icon
-                   (let ((text (read-ini "/scripts/data/character_inter.ini"
-                                         (format "character_%" icon)
-                                         search)))
-                     (when text
-                       (setq opts (cons text opts)))))))
+               (when-let ((icon (lookup 'icon (cddr chr))))
+                 (when-let ((text (read-ini "/scripts/data/character_inter.ini"
+                                            (format "character_%" icon)
+                                            search)))
+                   (setq opts (cons text opts)))))
              (chrs (player)))
     (if opts
         (sample opts)
@@ -186,10 +184,10 @@
 
 
 (defn/c adv-var-mask ((name . symbol))
-    (let ((found (find name adv-var-list)))
-      (when (nil? found)
-        (fatal (string "bad adv var " name)))
-      (bit-shift-left 1 found)))
+  (let ((found (find name adv-var-list)))
+    (when (nil? found)
+      (fatal (string "bad adv var " name)))
+    (bit-shift-left 1 found)))
 
 (defn/c adv-var-load ((name . symbol))
   (bit-and adv-var-set (adv-var-mask name)))

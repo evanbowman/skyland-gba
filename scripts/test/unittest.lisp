@@ -608,8 +608,8 @@
 (assert-eq (read "(when true nil)") '(if 1 (progn ())))
 (assert-eq (read "(cond ((a 5) 6 7 8) (true nil))")
            '(if (a 5) (progn 6 7 8) (if 1 (progn ()) ())))
-(assert-eq (read "(->> (range 10) (map (curry * 2)) (filter odd?) (apply +))")
-           '(apply + (filter odd? (map (curry * 2) (range 10)))))
+;; (assert-eq (read "(->> (range 10) (map (curry * 2)) (filter odd?) (apply +))")
+;;            '(apply + (filter odd? (map (curry * 2) (range 10)))))
 
 ;; The $V symbol gives you access to a variadic argument list. Let's make sure
 ;; it works...
@@ -648,6 +648,12 @@
              (let ((b 6))
                (let ((d 7))
                  (+ a b c) (+ b c a)))))
+
+(assert-eq (read "(if-let ((a 7)) one two)")
+           '(let ((a 7)) (if a one two)))
+
+(assert-eq (read "(when-let ((b (list 1 2 3))) (reverse b))")
+           '(let ((b (list 1 2 3))) (if b (progn (reverse b)))))
 
 (assert-eq
   3

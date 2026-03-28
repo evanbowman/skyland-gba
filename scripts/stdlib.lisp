@@ -62,12 +62,13 @@
          ,@ELSE-BR)))
 
 
-(macro ->> (VAL FORMS)
-  (if (nil? (cdr FORMS))
-    (append (car FORMS) (list VAL))
-    `(->> ,(append (car FORMS)
-                   (list VAL))
-          ,@(cdr FORMS))))
+;; Currently unused...
+;; (macro ->> (VAL FORMS)
+;;   (if (nil? (cdr FORMS))
+;;     (append (car FORMS) (list VAL))
+;;     `(->> ,(append (car FORMS)
+;;                    (list VAL))
+;;           ,@(cdr FORMS))))
 
 
 ;; Some useful macros for defining functions
