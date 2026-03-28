@@ -49,9 +49,15 @@
        (let* ,(cdr BINDINGS) ,@BODY))))
 
 
-(macro dotimes (N BODY)
- `(map (lambda () ,@BODY) (range 0 ,N)))
+(macro ->> (VAL FORMS)
+  (if (nil? (cdr FORMS))
+    (append (car FORMS) (list VAL))
+    `(->> ,(append (car FORMS)
+                   (list VAL))
+          ,@(cdr FORMS))))
 
+
+;(read "(->> (range 10) (map (curry * 2)) (filter odd?) (apply +))")
 
 ;; Some useful macros for defining functions
 

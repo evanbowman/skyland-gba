@@ -34,21 +34,21 @@
 
 (defn/temp make-chrs (isle mode)
   ;; NOTE: conf[5] holds the character count config.
-  (dotimes (get conf 5)
-    (let ((slot (chr-slots isle)))
-      (if (not slot)
-          (let ((s (construction-sites isle '(2 . 2))))
-            (if (not s)
-                (fatal "Not enough room to place chrs!"))
-            (room-new isle (list 'workshop (caar s) (cdr (car s))))
-            (setq slot (chr-slots isle))))
-      (if slot
-          (chr-new isle
-                   (caar slot)
-                   (cdr (car slot))
-                   mode
-                   nil)))))
-
+  (foreach (lambda (n)
+             (let ((slot (chr-slots isle)))
+               (if (not slot)
+                   (let ((s (construction-sites isle '(2 . 2))))
+                     (if (not s)
+                         (fatal "Not enough room to place chrs!"))
+                     (room-new isle (list 'workshop (caar s) (cdr (car s))))
+                     (setq slot (chr-slots isle))))
+               (if slot
+                   (chr-new isle
+                            (caar slot)
+                            (cdr (car slot))
+                            mode
+                            nil))))
+           (range (get conf 5))))
 
 (island-configure
  (player)

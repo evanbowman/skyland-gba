@@ -72,12 +72,7 @@
     (progn
       (coins-add (* -1 dec-cost))
 
-      ;; We wouldn't want the player to get into a position where there isn't
-      ;; enough terrain to place the weapon! The game would get locked up. Just
-      ;; give the player some terrain for free.
-      (dotimes 2
-        (if (not (construction-sites (player) '(2 . 2)))
-            (terrain-set (player) (+ (terrain (player)) 1))))
+      (alloc-space 'decimator)
 
       (sel-input
        'decimator

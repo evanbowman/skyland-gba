@@ -780,7 +780,7 @@
  True if v is a wrapped
  custom type.
 
- (odd? n) / (even? n)
+ (odd? n)
  Numeric parity tests.
 
  (bound? sym)
