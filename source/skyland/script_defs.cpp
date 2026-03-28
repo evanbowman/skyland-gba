@@ -272,7 +272,7 @@ void repr_fingerprint(const lisp::ObjectFile::Fingerprint& f,
 }
 
 
-lisp::ObjectFile::Fingerprint create_fingerprint()
+lisp::ObjectFile::Fingerprint create_fingerprint(bool relocatable)
 {
     lisp::ObjectFile::Fingerprint result;
 
@@ -283,15 +283,27 @@ lisp::ObjectFile::Fingerprint create_fingerprint()
     fingerprint.minor_version_ = PROGRAM_MINOR_VERSION;
     fingerprint.subminor_version_ = PROGRAM_SUBMINOR_VERSION;
 
-    auto fs_hash_file = PLATFORM.load_file("", "fs_hash.dat");
-    if (fs_hash_file.second >= 4) {
-        auto hash = ((host_u32*)fs_hash_file.first)->get();
-        u32 bc_ver = LISP_BYTECODE_VERSION;
-        auto sym_count = lisp::external_symtab_count();
-        hash ^= fnv32((const char*)&bc_ver, sizeof bc_ver);
-        hash ^= fnv32((const char*)&sym_count, sizeof sym_count);
+    if (relocatable) {
+        // NOTE: the fingerprint is not used in relocatable bytecode, because
+        // this bytecode is intended to be portable, and therefore, there's no
+        // need to detect whether it's compatible with the current build or
+        // not. Instead, populate the hash with a constant so that new builds
+        // don't create diffs for binary package artifacts in the repository
+        // when only the fingerprint hash changed.
+        u32 hash{0x12E10C}; // "RELOC" in hexspeak
         fingerprint.system_hash_.set(hash);
+    } else {
+        auto fs_hash_file = PLATFORM.load_file("", "fs_hash.dat");
+        if (fs_hash_file.second >= 4) {
+            auto hash = ((host_u32*)fs_hash_file.first)->get();
+            u32 bc_ver = LISP_BYTECODE_VERSION;
+            auto sym_count = lisp::external_symtab_count();
+            hash ^= fnv32((const char*)&bc_ver, sizeof bc_ver);
+            hash ^= fnv32((const char*)&sym_count, sizeof sym_count);
+            fingerprint.system_hash_.set(hash);
+        }
     }
+
 
     memcpy(&result, &fingerprint, sizeof fingerprint);
 
@@ -317,7 +329,7 @@ template <typename F> lisp::Value* save_obj_file(int argc, F&& save_callback)
                                          linkage_mode));
     }
 
-    lisp::ObjectFile library(create_fingerprint(), relocatable);
+    lisp::ObjectFile library(create_fingerprint(relocatable), relocatable);
     for (int i = 0; i < argc - 2; ++i) {
         L_EXPECT_OP(i, symbol);
         auto v = get_var(lisp::get_op(i));
@@ -383,7 +395,7 @@ lisp::Value* open_obj_file(int argc)
 {
     L_EXPECT_OP(0, string);
 
-    auto f = create_fingerprint();
+    auto f = create_fingerprint(false);
     lisp::ObjectFile library(f);
     return library.load(f, L_LOAD_STRING(0));
 }
@@ -393,7 +405,7 @@ lisp::Value* load_obj_file(int argc)
 {
     L_EXPECT_OP(0, string);
 
-    auto f = create_fingerprint();
+    auto f = create_fingerprint(false);
     lisp::ObjectFile library(f);
     auto l = library.load(f, L_LOAD_STRING(0));
     if (l == L_NIL) {
