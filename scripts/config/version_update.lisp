@@ -10,27 +10,22 @@
 (file-unlink "/bytecode/init-cached.slb")
 (file-unlink "/bytecode/stdlib-cached.slb")
 
+
 (defn/temp repr-version (vn)
-  (apply string (cdr (flatten (map (curry list ".") vn)))))
+  (string-join vn "."))
 
 
 (defn/temp version-less (a b)
-  (cond
-    ((not a) (and b true))
-    ((not b) false)
-    ((< (car a) (car b)) true)
-    ((> (car a) (car b)) false)
-    (true (version-less (cdr a) (cdr b)))))
+  (< (lexicographical-compare a b) 0))
 
 
-(when-let ((vn (read-version-file)))
-  (let ((current (version)))
+(when-let ((vn (read-version-file "/save/version.dat")))
 
-    ;; TODO: make any changes needed here...
+  ;; NOTE: make any changes needed here...
 
-    (log (string "Updated from " (repr-version vn)
-                 " to " (repr-version (version))
-                 "!"))))
+  (log (string "Updated from " (repr-version vn)
+               " to " (repr-version (version))
+               "!")))
 
 
 (eval-file "/scripts/config/store_version.lisp")

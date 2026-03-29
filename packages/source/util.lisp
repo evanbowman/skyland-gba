@@ -1,17 +1,9 @@
 ;;;
-;;; init-cached.lisp
+;;; util.lisp
 ;;;
-;;; NOTE: these frequently-used functions are passed through an optimizing
-;;; bytecode compiler at startup, and their compiled representations are
-;;; compressed and cached in save memory for subsequent boots.
+;;; Various frequently used utility procedures leveraging the game's API.
 ;;;
 
-
-(defn/c clamp (v low high)
-  (cond
-   ((< v low) low)
-   ((> v high) high)
-   (true v)))
 
 (defn/c procgen ()
   (opponent-generate (case (zone)
@@ -200,11 +192,10 @@
         (setq adv-var-set (bit-or adv-var-set mask)))))
 
 
-(defn/c read-version-file ()
-  (let ((read-word (lambda (f off) (bytes-to-int (file-read f off 4))))
-        (fname "/save/version.dat"))
-    (when (file-exists? fname)
-      (when-let ((vf (file-open fname)))
+(defn/c read-version-file ((path . string))
+  (let ((read-word (lambda (f off) (bytes-to-int (file-read f off 4)))))
+    (when (file-exists? path)
+      (when-let ((vf (file-open path)))
         (map (curry read-word vf) (range 0 16 4))))))
 
 

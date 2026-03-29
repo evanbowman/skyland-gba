@@ -373,11 +373,7 @@
                   (cdr spl))
          (let ((r (lint-file path)))
            (if (error? r)
-               (fatal (string "in file "
-                              (apply string
-                                     (flatten
-                                      (map (curry list "/")
-                                           (cdr spl))))
+               (fatal (string "in file " (string-join (cdr spl) "/")
                               ": " (error-info r))))))))))
 
 

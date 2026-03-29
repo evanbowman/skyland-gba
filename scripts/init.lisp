@@ -7,12 +7,6 @@
 (load-library "/packages/lib/locale.slb")
 
 
-(if-let ((vn (read-version-file)))
-    (when (not (equal vn (version)))
-      (eval-file "/scripts/config/version_update.lisp"))
-  (eval-file "/scripts/config/store_version.lisp"))
-
-
 (when (is-developer-mode)
   (strict-mode true)
   (lisp-mem-crit-gc-alert true))
@@ -25,6 +19,11 @@
 ;; Define some common global
 ;; variables.
 (eval-file "/scripts/globals.lisp")
+
+(if-let ((vn (read-version-file "/save/version.dat")))
+    (when (not (equal vn (version)))
+      (eval-file "/scripts/config/version_update.lisp"))
+  (eval-file "/scripts/config/store_version.lisp"))
 
 
 ;; NOTE: These two functions defined as non-bytecode-complied to allow nested

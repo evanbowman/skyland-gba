@@ -30,8 +30,8 @@
        0))
 
 (defn/c lookup (key alst)
-  (let ((kvp (assoc key alst)))
-    (if kvp (cdr kvp))))
+  (when-let ((kvp (assoc key alst)))
+    (cdr kvp)))
 
 (defn/c insert (elem lat (pos . int))
   (append (slice lat 0 pos) (cons elem (slice lat pos))))
@@ -66,14 +66,21 @@
   (lambda (lat)
     (equal pred (get lat position))))
 
-(defn/c car-equalto? (v)
-  (let ((val v))
-    (pos-equalto? 0 v)))
+(defn/c clamp (v low high)
+  (cond
+   ((< v low) low)
+   ((> v high) high)
+   (true v)))
 
-(defn/c notequal? (val)
-  (let ((v val))
-    (lambda (o)
-      (not (equal o v)))))
+(defn/c car-equalto? (v)
+  (pos-equalto? 0 v))
+
+(defn/c notequal? (value)
+  (lambda (o)
+    (not (equal o value))))
+
+(defn/c string-join (lat delim)
+  (apply string (cdr (flatten (map (curry list delim) lat)))))
 
 (defn/c ends-with ((str . string) (suffix . string))
   (let ((m1 (string-explode str))
@@ -96,3 +103,17 @@
     (while (< i l)
       (cb (get ary i))
       (+= i 1))))
+
+(defn/c lexicographical-compare (a b)
+  (let ((min-len (min (list (length a) (length b)))))
+    ((lambda (a b i)
+       (if (equal i min-len)
+           (cond ((< (length a) (length b)) -1)
+                 ((> (length a) (length b))  1)
+                 (true                       0))
+           (let ((a-i (get a i))
+                 (b-i (get b i)))
+             (cond ((> b-i a-i) -1)
+                   ((< b-i a-i)  1)
+                   (true ((this) a b (incr i)))))))
+     a b 0)))
