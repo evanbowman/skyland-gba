@@ -6135,6 +6135,10 @@ Platform::Speaker::Speaker()
 
 void Platform::Speaker::set_music_speed(MusicSpeed speed)
 {
+    if (not window) {
+        return;
+    }
+
     SDL_LockAudio();
 
     switch (speed) {
@@ -6168,6 +6172,10 @@ void Platform::Speaker::set_music_speed(MusicSpeed speed)
 
 void Platform::Speaker::set_music_volume(u8 volume)
 {
+    if (not window) {
+        return;
+    }
+
     // Volume ranges from 0 to 19 (music_volume_max)
     // Convert to 0.0 to 1.0 range
     float normalized_volume = volume / (float)music_volume_max;
@@ -6181,6 +6189,10 @@ void Platform::Speaker::set_music_volume(u8 volume)
 
 void Platform::Speaker::set_sounds_volume(u8 volume)
 {
+    if (not window) {
+        return;
+    }
+
     // Volume ranges from 0 to 19 (music_volume_max)
     // Convert to 0.0 to 1.0 range
     float normalized_volume = volume / (float)music_volume_max;
@@ -6199,6 +6211,10 @@ void Platform::Speaker::set_sounds_volume(u8 volume)
 
 void Platform::Speaker::stash_sounds()
 {
+    if (not window) {
+        return;
+    }
+
     SDL_LockAudio();
 
     // Copy all sound effect channels to the stash
@@ -6228,6 +6244,10 @@ void Platform::Speaker::stash_sounds()
 
 void Platform::Speaker::restore_sounds()
 {
+    if (not window) {
+        return;
+    }
+
     SDL_LockAudio();
 
     if (!audio_state.has_stashed_sounds) {
@@ -6275,6 +6295,10 @@ Microseconds Platform::Speaker::track_length(const char* name)
 
 bool Platform::Speaker::is_sound_playing(const char* name)
 {
+    if (not window) {
+        return false;
+    }
+
     SDL_LockAudio();
 
     bool playing = false;
@@ -6333,6 +6357,10 @@ Buffer<const char*, 4> Platform::Speaker::completed_sounds()
 
 void Platform::Speaker::stop_sound(const char* name)
 {
+    if (not window) {
+        return;
+    }
+
     SDL_LockAudio();
 
     for (int i = 0; i < AudioState::max_sound_channels; i++) {
@@ -6349,6 +6377,10 @@ void Platform::Speaker::stop_sound(const char* name)
 
 void Platform::Speaker::clear_sounds()
 {
+    if (not window) {
+        return;
+    }
+
     SDL_LockAudio();
 
     for (int i = 0; i < AudioState::max_sound_channels; i++) {
@@ -6454,6 +6486,10 @@ void Platform::Speaker::play_sound(const char* name,
 
 void Platform::Speaker::stop_music()
 {
+    if (not window) {
+        return;
+    }
+
     SDL_LockAudio();
 
     audio_state.music_playing = false;
@@ -6468,6 +6504,10 @@ void Platform::Speaker::stop_music()
 
 void initialize_audio()
 {
+    if (not window) {
+        return;
+    }
+
     SDL_AudioSpec desired;
     desired.freq = 16000;
     desired.format = AUDIO_S8;
