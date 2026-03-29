@@ -1,5 +1,7 @@
 mkdir -p skyland/bin
 cp Skyland skyland/bin
+cp ../fs_hash.dat skyland
+cp -r ../packages skyland
 cp -r ../scripts skyland
 cp -r ../help skyland
 cp -r ../sounds skyland
