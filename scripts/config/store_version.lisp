@@ -3,7 +3,7 @@
 ;;;
 
 
-(defn/temp store-version (path ver)
+(defn store-version (path ver)
   (when-let ((vf (file-open path)))
     (map (lambda (val i)
            (file-write! vf (* i 4) (int-to-bytes val)))
@@ -21,3 +21,6 @@
 
   (file-unlink fname)
   (store-version fname (version)))
+
+
+(unbind 'store-version)
