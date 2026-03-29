@@ -431,6 +431,7 @@ struct DataBuffer
 struct String
 {
     ValueHeader hdr_;
+    u8 unused_;
     u16 len_;
 
     enum ModeBits {

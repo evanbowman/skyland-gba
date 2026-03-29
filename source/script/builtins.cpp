@@ -1496,7 +1496,7 @@ Value* builtin_fill(int argc)
 
 Value* builtin_get(int argc)
 {
-    if (get_op1()->type() == lisp::Value::Type::nil) {
+    if (get_op1()->type() == Value::Type::nil) {
         return L_NIL;
     }
 
@@ -1504,15 +1504,25 @@ Value* builtin_get(int argc)
 
     const auto index = L_LOAD_INT(0);
 
-    if (get_op1()->type() == lisp::Value::Type::array) {
+    if (get_op1()->type() == Value::Type::array) {
         return get_op1()->array().get(index);
+    } else if (get_op1()->type() == Value::Type::string) {
+        auto str_data = L_LOAD_STRING(1);
+        int i = 0;
+        Protected ret(L_NIL);
+        utf8::scan(
+            [&](const utf8::Codepoint&, const char* raw, int) {
+                if (i == index) {
+                    ret = make_string(raw);
+                    return false;
+                }
+                ++i;
+                return true;
+            },
+            str_data,
+            get_op(1)->string().len_);
+        return ret;
     }
-
-    // if (get_op0()->type() == lisp::Value::Type::string) {
-    //     auto str_data = L_LOAD_STRING(0);
-    //     auto str_size = strlen(str_data);
-
-    // }
 
     L_EXPECT_OP(1, cons);
 

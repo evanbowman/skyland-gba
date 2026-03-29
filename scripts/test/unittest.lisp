@@ -315,6 +315,9 @@
 (assert-eq (slice "ありがとうございます" 2 7) "がとうござ")
 (assert-eq (string 5 12 "foo" 3.5 'nice) "512foo3.5nice")
 (assert-eq "你好" (string-assemble (string-explode "你好")))
+(let ((str "ありがとう ございます"))
+  (assert-eq "り" (get str 1))
+  (assert-eq "ざ" (get str 7)))
 
 (setq temp (lisp-mem-string-storage))
 "abc123"
