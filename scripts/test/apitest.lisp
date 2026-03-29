@@ -251,7 +251,7 @@
 ;; This file that we're running must exist...
 (assert-v (file-exists? "/scripts/test/unittest.lisp"))
 
-(setq temp (file-load "/scripts/data/test-data.txt"))
+(setq temp (file-open "/scripts/data/test-data.txt"))
 
 (assert-eq "Here's some text..."
            (bytes-to-string (filter (lambda (c)
@@ -264,13 +264,13 @@
 
 
 (when (equal (device-info 'name) "GameboyAdvance")
-  (let ((f (file-load "/scripts/stdlib.lisp")))
+  (let ((f (file-open "/scripts/stdlib.lisp")))
     (assert-v (and (error? f)
                    (equal (error-info f)
                           "file too large to load!")))))
 
 
-(let ((file (file-load "/test.dat"))
+(let ((file (file-open "/test.dat"))
       (str "some text!"))
 
   (ensure (assert-eq "{file:/test.dat}" (string file)))
@@ -278,7 +278,7 @@
   (file-write! file 0 (string-to-bytes str))
   (file-store file)
 
-  (setq file (file-load "/test.dat"))
+  (setq file (file-open "/test.dat"))
   (ensure (assert-eq str (bytes-to-string (file-read file 0 (length str)))))
 
   ;; Append the string again, to the end of the file. Later, we'll read it back
@@ -286,7 +286,7 @@
   (file-write! file -1 (string-to-bytes str))
   (file-store file)
 
-  (setq file (file-load "/test.dat"))
+  (setq file (file-open "/test.dat"))
   (ensure (assert-eq (string str str) (bytes-to-string (file-read file 0 (* 2 (length str))))))
   (assert-eq (file-size file) (* 2 (length str))))
 

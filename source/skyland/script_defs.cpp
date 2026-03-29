@@ -1636,7 +1636,7 @@ BINDING_TABLE({
           flash_filesystem::unlink_file(lisp::get_op0()->string().value());
           return L_NIL;
       }}},
-    {"file-load",
+    {"file-open",
      {SIG1(wrapped, string),
       [](int argc) {
           L_EXPECT_OP(0, string);

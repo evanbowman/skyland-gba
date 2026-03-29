@@ -200,6 +200,14 @@
         (setq adv-var-set (bit-or adv-var-set mask)))))
 
 
+(defn/c read-version-file ()
+  (let ((read-word (lambda (f off) (bytes-to-int (file-read f off 4))))
+        (fname "/save/version.dat"))
+    (when (file-exists? fname)
+      (when-let ((vf (file-open fname)))
+        (map (curry read-word vf) (range 0 16 4))))))
+
+
 ;; The autoload mechanism provides a way to lazy-load infrequently used
 ;; symbols. As a final step before raising an undefined variable error, the
 ;; interpreter calls on-autoload for a symbol, to attempt to lazy-bind a value

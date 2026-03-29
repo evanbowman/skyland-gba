@@ -922,6 +922,14 @@ Value* builtin_bytes_to_int(int argc)
     host_s32 value;
     int i = 0;
 
+    const auto int_bytes = sizeof(Integer::value_);
+    if ((u32)length(get_op0()) > int_bytes) {
+        return make_error(::format<64>("bytes list % is too long to be "
+                                       "converted to an integer! (max %)",
+                                       get_op0(),
+                                       int_bytes));
+    }
+
     l_foreach(get_op0(),
               [&](Value* v) { ((u8*)&value)[i++] = v->integer().value_; });
 

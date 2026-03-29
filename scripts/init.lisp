@@ -7,9 +7,10 @@
 (load-library "/packages/lib/locale.slb")
 
 
-;; Erase old unused bytecode caches saved by previous versions.
-(file-unlink "/bytecode/init-cached.slb")
-(file-unlink "/bytecode/stdlib-cached.slb")
+(if-let ((vn (read-version-file)))
+    (when (not (equal vn (version)))
+      (eval-file "/scripts/config/version_update.lisp"))
+  (eval-file "/scripts/config/store_version.lisp"))
 
 
 (when (is-developer-mode)
