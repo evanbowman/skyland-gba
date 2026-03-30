@@ -64,7 +64,8 @@ union ValueMemory
     Promise promise_;
     __Reserved<Value::Type::rational> __reserved_3;
     Array array_;
-    TreeNode tree_node_;
+    TreeBranch tree_branch_;
+    TreeKvp tree_kvp_;
 };
 
 
@@ -209,7 +210,7 @@ constexpr const std::array<FinalizerTableEntry, Value::Type::count> fin_table =
         Promise::finalizer,
         __Reserved<Value::Type::rational>::finalizer,
         Array::finalizer,
-        TreeNode::finalizer,
+        TreeBranch::finalizer,
 };
 
 
@@ -306,6 +307,29 @@ struct Context
 
 static Optional<Context> bound_context;
 #define L_CTX (*bound_context)
+
+
+const char* decode_symbol_name(Symbol::UniqueId id)
+{
+    if (L_CTX.external_symtab_contents_) {
+        auto str_id = (const char*)id;
+        if (str_id >= L_CTX.external_symtab_contents_ and
+            str_id < L_CTX.external_symtab_contents_ + L_CTX.external_symtab_size_) {
+            return str_id;
+        }
+    }
+
+    if (L_CTX.string_intern_table_) {
+        auto str_id = (const char*)id;
+        auto& tab = *L_CTX.string_intern_table_;
+        if (str_id >= tab->data_ and
+            str_id < tab->data_ + sizeof(tab->data_)) {
+            return str_id;
+        }
+    }
+
+    return "???";
+}
 
 
 u16 external_symtab_count()
@@ -439,34 +463,33 @@ using GlobalsTreeVisitor = ::Function<6 * sizeof(void*), void(Value&, Value&)>;
 
 static Value* left_subtree(Value* tree)
 {
-    return tree->tree_node().left();
+    return tree->tree_branch().left();
 }
 
 
 static Value* right_subtree(Value* tree)
 {
-    return tree->tree_node().right();
+    return tree->tree_branch().right();
 }
 
 
 static void set_right_subtree(Value* tree, Value* value)
 {
-    tree->tree_node().set_right(value);
+    tree->tree_branch().set_right(value);
 }
 
 
 static void set_left_subtree(Value* tree, Value* value)
 {
-    tree->tree_node().set_left(value);
+    tree->tree_branch().set_left(value);
 }
 
 
-// Abbreviations, for the sake of my own sanity.
 #define RST(T) right_subtree(T)
 #define LST(T) left_subtree(T)
 #define SRST(T, V) set_right_subtree(T, V)
 #define SLST(T, V) set_left_subtree(T, V);
-#define TKEY(T) T->tree_node().pair()->cons().car()->symbol().unique_id()
+#define TKEY(T) T->tree_branch().pair()->tree_kvp().key()
 
 
 Value* globals_tree_splay(Value* t, Value* key)
@@ -534,8 +557,8 @@ static bool globals_tree_insert(Value* key, Value* value, bool define_var)
             return false;
         }
 
-        Protected new_kvp(make_cons(key, value));
-        L_CTX.globals_tree_ = make_tree_node(new_kvp, get_nil(), get_nil());
+        auto kvp = make_tree_kvp(key->symbol().unique_id(), value);
+        L_CTX.globals_tree_ = make_tree_branch(kvp, get_nil(), get_nil());
 
         return true;
 
@@ -543,24 +566,26 @@ static bool globals_tree_insert(Value* key, Value* value, bool define_var)
         auto pt = globals_tree_splay(L_CTX.globals_tree_, key);
         L_CTX.globals_tree_ = pt;
 
-        if (key->symbol().unique_id() < TKEY(pt)) {
-            Protected new_kvp(make_cons(key, value));
-            auto node = make_tree_node(new_kvp, LST(pt), pt);
+        auto inp_key = key->symbol().unique_id();
+
+        if (inp_key < TKEY(pt)) {
+            auto kvp = make_tree_kvp(inp_key, value);
+            auto node = make_tree_branch(kvp, LST(pt), pt);
             SLST(pt, get_nil());
             L_CTX.globals_tree_ = node;
             if (not define_var) {
                 return false;
             }
-        } else if (key->symbol().unique_id() > TKEY(pt)) {
-            Protected new_kvp(make_cons(key, value));
-            auto node = make_tree_node(new_kvp, pt, RST(pt));
+        } else if (inp_key > TKEY(pt)) {
+            auto kvp = make_tree_kvp(inp_key, value);
+            auto node = make_tree_branch(kvp, pt, RST(pt));
             SRST(pt, get_nil());
             L_CTX.globals_tree_ = node;
             if (not define_var) {
                 return false;
             }
         } else {
-            pt->tree_node().pair()->cons().set_cdr(value);
+            pt->tree_branch().pair()->tree_kvp().set_value(value);
         }
         return true;
     }
@@ -581,7 +606,7 @@ static void globals_tree_traverse(Value* root, GlobalsTreeVisitor callback)
     while (current not_eq get_nil()) {
 
         if (left_subtree(current) == get_nil()) {
-            callback(*current->tree_node().pair(), *current);
+            callback(*current->tree_branch().pair(), *current);
             current = right_subtree(current);
         } else {
             prev = left_subtree(current);
@@ -596,7 +621,7 @@ static void globals_tree_traverse(Value* root, GlobalsTreeVisitor callback)
                 current = left_subtree(current);
             } else {
                 set_right_subtree(prev, get_nil());
-                callback(*current->tree_node().pair(), *current);
+                callback(*current->tree_branch().pair(), *current);
                 current = right_subtree(current);
             }
         }
@@ -647,9 +672,8 @@ static Value* globals_tree_find(Value* key)
 
     auto pt = globals_tree_splay(L_CTX.globals_tree_, key);
     L_CTX.globals_tree_ = pt;
-    if (key->symbol().unique_id() ==
-        pt->tree_node().pair()->cons().car()->symbol().unique_id()) {
-        return pt->tree_node().pair()->cons().cdr();
+    if (key->symbol().unique_id() == TKEY(pt)) {
+        return pt->tree_branch().pair()->tree_kvp().value();
     }
 
     return nullptr;
@@ -1467,13 +1491,25 @@ Value* make_array(u16 size)
 }
 
 
-Value* make_tree_node(Value* kvp, Value* left, Value* right)
+Value* make_tree_branch(Value* kvp, Value* left, Value* right)
 {
     auto val = alloc_value();
     val->hdr_.type_ = Value::Type::tree_node;
-    val->tree_node().set_pair(kvp);
-    val->tree_node().set_left(left);
-    val->tree_node().set_right(right);
+    val->hdr_.mode_bits_ = 0;
+    val->tree_branch().set_pair(kvp);
+    val->tree_branch().set_left(left);
+    val->tree_branch().set_right(right);
+    return val;
+}
+
+
+Value* make_tree_kvp(Symbol::UniqueId key, Value* value)
+{
+    auto val = alloc_value();
+    val->hdr_.type_ = Value::Type::tree_node;
+    val->hdr_.mode_bits_ = 1;
+    val->tree_kvp().set_key(key);
+    val->tree_kvp().set_value(value);
     return val;
 }
 
@@ -3320,10 +3356,13 @@ static void gc_mark_value(Value* value)
         break;
 
     case Value::Type::tree_node:
-        // TODO: use tree traversal function instead
-        gc_mark_value(value->tree_node().pair());
-        gc_mark_value(value->tree_node().left());
-        gc_mark_value(value->tree_node().right());
+        if (value->hdr_.mode_bits_ == 0) {
+            gc_mark_value(value->tree_branch().pair());
+            gc_mark_value(value->tree_branch().left());
+            gc_mark_value(value->tree_branch().right());
+        } else {
+            gc_mark_value(value->tree_kvp().value());
+        }
         break;
 
     default:
@@ -3388,9 +3427,10 @@ static void gc_mark()
         gc_mark_value(elem);
     }
 
-    globals_tree_traverse(L_CTX.globals_tree_, [](Value& car, Value& node) {
+    globals_tree_traverse(L_CTX.globals_tree_, [](Value& kvp, Value& node) {
         node.hdr_.mark_bit_ = true;
-        gc_mark_value(&car);
+        kvp.hdr_.mark_bit_ = true;
+        gc_mark_value(kvp.tree_kvp().value());
     });
 
     gc_mark_value(L_CTX.callstack_);
@@ -4869,14 +4909,14 @@ namespace debug
 
 void get_globals(Vector<VariableBinding>& results)
 {
-    globals_tree_traverse(L_CTX.globals_tree_, [&](Value& val, Value& node) {
-        auto name = val.cons().car()->symbol().name();
+    globals_tree_traverse(L_CTX.globals_tree_, [&](Value& kvp, Value& node) {
+        auto name = decode_symbol_name(kvp.tree_kvp().key());
         for (auto& result : results) {
             if (str_eq(name, result.name_)) {
                 return;
             }
         }
-        results.push_back({name, val.cons().cdr()});
+        results.push_back({name, kvp.tree_kvp().value()});
     });
 }
 
@@ -6528,8 +6568,8 @@ void get_env(SymbolCallback callback)
 
     L_CTX.native_interface_.get_symbols_(callback);
 
-    globals_tree_traverse(L_CTX.globals_tree_, [&callback](Value& val, Value&) {
-        callback((const char*)val.cons().car()->symbol().name());
+    globals_tree_traverse(L_CTX.globals_tree_, [&callback](Value& kvp, Value&) {
+        callback(decode_symbol_name(kvp.tree_kvp().key()));
     });
 
     for (auto& mcr : L_CTX.macros_) {
@@ -6878,11 +6918,9 @@ const char* nameof(Function::CPP_Impl impl)
 const char* nameof(Value* value)
 {
     const char* name = nullptr;
-    globals_tree_traverse(L_CTX.globals_tree_, [&](Value& car, Value& node) {
-        auto sym = car.cons().car();
-        auto v = car.cons().cdr();
-        if (value == v) {
-            name = sym->symbol().name();
+    globals_tree_traverse(L_CTX.globals_tree_, [&](Value& kvp, Value& node) {
+        if (value == kvp.tree_kvp().value()) {
+            name = decode_symbol_name(kvp.tree_kvp().key());
         }
     });
 
@@ -6935,7 +6973,7 @@ void init(Optional<std::pair<const char*, u32>> external_symtab,
     L_CTX.bytecode_buffer_ = L_CTX.nil_;
     L_CTX.string_buffer_ = L_CTX.nil_;
 
-    L_CTX.tree_nullnode_ = make_tree_node(get_nil(), get_nil(), get_nil());
+    L_CTX.tree_nullnode_ = make_tree_branch(get_nil(), get_nil(), get_nil());
 
     reset_operand_stack();
 

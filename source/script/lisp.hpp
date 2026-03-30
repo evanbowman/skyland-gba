@@ -349,10 +349,23 @@ private:
 };
 
 
-struct TreeNode
+// TreeBranch and TreeKvp share the same Value::Type::tree_node enum, and are
+// distinguished by mode_bits_ (0 = branch, 1 = kvp). They are defined as
+// separate structs rather than a union to avoid alignment issues: TreeKvp
+// contains a 4-byte Symbol::UniqueId, which would force union-wide 4-byte
+// alignment and insert padding that exceeds the 8-byte Value budget. As
+// separate structs, each fits in 8 bytes independently, and we reinterpret
+// between them based on mode_bits_.
+//
+// A globals tree entry consists of two Values:
+//   TreeBranch(pair=kvp, left, right)  — the tree structure
+//   TreeKvp(key=UniqueId, value)       — the key-value payload
+//
+// This uses 2 Values per global, down from 4 (3 cons + 1 symbol) in the
+// original cons-based tree.
+struct TreeBranch
 {
     ValueHeader hdr_;
-
     u8 unused_;
 
     static ValueHeader::Type type()
@@ -360,44 +373,44 @@ struct TreeNode
         return ValueHeader::Type::tree_node;
     }
 
-    inline Value* pair()
-    {
-        return dcompr(pair_);
-    }
+    inline Value* pair()  { return dcompr(pair_); }
+    inline Value* left()  { return dcompr(left_); }
+    inline Value* right() { return dcompr(right_); }
 
-    inline Value* left()
-    {
-        return dcompr(left_);
-    }
+    void set_pair(Value* p)   { pair_ = compr(p); }
+    void set_left(Value* v)   { left_ = compr(v); }
+    void set_right(Value* v)  { right_ = compr(v); }
 
-    inline Value* right()
-    {
-        return dcompr(right_);
-    }
-
-    void set_left(Value* val)
-    {
-        left_ = compr(val);
-    }
-
-    void set_right(Value* val)
-    {
-        right_ = compr(val);
-    }
-
-    void set_pair(Value* p)
-    {
-        pair_ = compr(p);
-    }
-
-    static constexpr void finalizer(Value*)
-    {
-    }
+    static constexpr void finalizer(Value*) {}
 
 private:
     CompressedPtr pair_;
     CompressedPtr left_;
     CompressedPtr right_;
+};
+
+
+struct TreeKvp
+{
+    ValueHeader hdr_;
+    u8 unused_;
+
+    static ValueHeader::Type type()
+    {
+        return ValueHeader::Type::tree_node;
+    }
+
+    Symbol::UniqueId key()              { return key_; }
+    void set_key(Symbol::UniqueId id)   { key_ = id; }
+
+    Value* value()                      { return dcompr(value_); }
+    void set_value(Value* v)            { value_ = compr(v); }
+
+    static constexpr void finalizer(Value*) {}
+
+private:
+    CompressedPtr value_;
+    Symbol::UniqueId key_;
 };
 
 
@@ -767,9 +780,14 @@ struct Value
         return *reinterpret_cast<Array*>(this);
     }
 
-    TreeNode& tree_node()
+    TreeBranch& tree_branch()
     {
-        return *reinterpret_cast<TreeNode*>(this);
+        return *reinterpret_cast<TreeBranch*>(this);
+    }
+
+    TreeKvp& tree_kvp()
+    {
+        return *reinterpret_cast<TreeKvp*>(this);
     }
 
     template <typename T> T& expect()
@@ -810,7 +828,10 @@ Value* make_string(const char* str);
 Value* make_float(Float::ValueType v);
 Value* make_promise();
 Value* make_array(u16 size);
-Value* make_tree_node(Value* kvp, Value* left, Value* right);
+Value* make_tree_branch(Value* kvp, Value* left, Value* right);
+Value* make_tree_kvp(Symbol::UniqueId key, Value* value);
+
+const char* decode_symbol_name(Symbol::UniqueId id);
 
 
 template <u32 size> Value* make_error(const StringBuffer<size>& str)
