@@ -85,7 +85,7 @@ struct ValueHeader
 
         promise,
         array,
-        __reserved_0,
+        tree_node,
         count,
     };
 
@@ -346,6 +346,58 @@ private:
     // to iterate to a certain point in a list and do not care what the car is.
     CompressedPtr car_;
     Value* cdr_;
+};
+
+
+struct TreeNode
+{
+    ValueHeader hdr_;
+
+    u8 unused_;
+
+    static ValueHeader::Type type()
+    {
+        return ValueHeader::Type::tree_node;
+    }
+
+    inline Value* pair()
+    {
+        return dcompr(pair_);
+    }
+
+    inline Value* left()
+    {
+        return dcompr(left_);
+    }
+
+    inline Value* right()
+    {
+        return dcompr(right_);
+    }
+
+    void set_left(Value* val)
+    {
+        left_ = compr(val);
+    }
+
+    void set_right(Value* val)
+    {
+        right_ = compr(val);
+    }
+
+    void set_pair(Value* p)
+    {
+        pair_ = compr(p);
+    }
+
+    static constexpr void finalizer(Value*)
+    {
+    }
+
+private:
+    CompressedPtr pair_;
+    CompressedPtr left_;
+    CompressedPtr right_;
 };
 
 
@@ -715,6 +767,11 @@ struct Value
         return *reinterpret_cast<Array*>(this);
     }
 
+    TreeNode& tree_node()
+    {
+        return *reinterpret_cast<TreeNode*>(this);
+    }
+
     template <typename T> T& expect()
     {
         if (this->type() == T::type()) {
@@ -753,6 +810,7 @@ Value* make_string(const char* str);
 Value* make_float(Float::ValueType v);
 Value* make_promise();
 Value* make_array(u16 size);
+Value* make_tree_node(Value* kvp, Value* left, Value* right);
 
 
 template <u32 size> Value* make_error(const StringBuffer<size>& str)
