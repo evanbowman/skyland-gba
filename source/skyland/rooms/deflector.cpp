@@ -203,7 +203,7 @@ void Deflector::render_exterior(App* app, TileId buffer[16][16])
         return;
     }
 
-    if (active_timer_ < activate_time) {
+    if (active_timer_ > 0) {
         return;
     }
 
