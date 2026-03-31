@@ -31,6 +31,9 @@ public:
     void rewind(Time delta) override;
 
 
+    void rewind_enter_cold_boot() override;
+
+
     void render_interior(App* app, TileId buffer[16][16]) override;
     void render_exterior(App* app, TileId buffer[16][16]) override;
 

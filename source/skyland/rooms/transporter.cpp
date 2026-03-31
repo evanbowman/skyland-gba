@@ -54,6 +54,10 @@ void Transporter::update(Time delta)
 {
     Room::update(delta);
 
+    if (is_cold_boot()) {
+        Room::ready();
+    }
+
     if (recharge_ > 0) {
 
         Room::ready();
@@ -66,6 +70,10 @@ void Transporter::update(Time delta)
 
         if (recharge_ < 0) {
             recharge_ = 0;
+
+            if (is_cold_boot()) {
+                cold_boot_completed();
+            }
 
             update_description();
 
@@ -100,9 +108,20 @@ void Transporter::rewind(Time delta)
 
     if (recharge_ <= 0) {
         // Fully recharged.
+    } else if (is_cold_boot()) {
+        recharge_ += delta;
     } else if (recharge_ < recharge_time()) {
         recharge_ += delta;
     }
+}
+
+
+
+void Transporter::rewind_enter_cold_boot()
+{
+    enter_cold_boot();
+    recharge_ = 1;
+    Room::ready();
 }
 
 
@@ -418,7 +437,7 @@ ScenePtr Transporter::select_impl(const RoomCoord& cursor)
     const auto& mt_prep_seconds = globals().multiplayer_prep_seconds_;
 
 
-    if (is_powered_down()) {
+    if (is_offline()) {
         return null_scene();
     }
 
@@ -486,7 +505,11 @@ void Transporter::render_exterior(App* app, TileId buffer[16][16])
 
 void Transporter::on_powerchange()
 {
-    begin_recharge();
+    if (is_cold_boot()) {
+        recharge_ = cold_boot_penalty();
+    } else {
+        begin_recharge();
+    }
 }
 
 
@@ -514,7 +537,6 @@ void transport_character_impl(Island* src_island,
                               const RoomCoord& dst)
 {
     auto found = src_island->find_character_by_id(chr_id);
-
 
     if (not found.first) {
         return;

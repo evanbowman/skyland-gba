@@ -810,8 +810,21 @@ public:
     bool habitable() const;
 
 
+    bool is_cold_boot() const;
+    void cold_boot_completed();
+
+
+    bool is_offline() const;
+
+
+    virtual void rewind_enter_cold_boot();
+
+
 protected:
     void set_injured();
+
+
+    void enter_cold_boot();
 
 
     ScenePtr do_select();
@@ -908,6 +921,7 @@ private:
 
     u8 powerdown_ : 1;
     u8 habitable_ : 1;
+    u8 cold_boot_ : 1;
 
     // Gah! clang wants this field labeled unused, g++ in linux doesn't like
     // attributes on bitfields, sigh. Just so you know, there are three unused
@@ -918,6 +932,10 @@ private:
 
 
 template <typename T> using RoomPtr = UniquePtr<T, void (*)(Room*)>;
+
+
+
+Time cold_boot_penalty();
 
 
 

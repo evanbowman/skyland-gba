@@ -492,7 +492,7 @@ ScenePtr PlayerIslandDestroyedScene::update(Time delta)
                 Buffer<Transporter*, 16> ready_transporters;
                 for (auto& room : APP.player_island().rooms()) {
                     if (auto tx = room->cast<Transporter>()) {
-                        if (not tx->is_powered_down() and tx->ready()) {
+                        if (not tx->is_offline() and tx->ready()) {
                             ready_transporters.push_back(tx);
                         }
                     }

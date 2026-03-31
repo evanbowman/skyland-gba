@@ -665,7 +665,7 @@ void EnemyAI::assign_local_character(Character& character,
                 // }
             }
 
-            if (room->is_powered_down() and
+            if (room->is_offline() and
                 room->metaclass() not_eq overdrive_mt) {
                 slot.ai_weight_ /= 2.0_atp;
             }
@@ -692,7 +692,7 @@ void EnemyAI::assign_local_character(Character& character,
             slot.ai_weight_ -= ATP::from_integer(
                 3 * manhattan_length(slot.coord_, current_pos));
 
-            if (not room->is_powered_down() and mt == infirmary_mt) {
+            if (not room->is_offline() and mt == infirmary_mt) {
 
                 auto chr_room = ai_island_->get_room(character.grid_position());
 
@@ -725,7 +725,7 @@ void EnemyAI::assign_local_character(Character& character,
                         }
                     }
                 }
-            } else if (not room->is_powered_down() and mt == transporter_mt) {
+            } else if (not room->is_offline() and mt == transporter_mt) {
 
                 auto transporter = room->cast<Transporter>();
 
@@ -951,7 +951,7 @@ void EnemyAI::assign_boarded_character(Character& character,
             slot.ai_weight_ -= ATP::from_integer(
                 3 * manhattan_length(slot.coord_, current_pos));
 
-            if (room->is_powered_down()) {
+            if (room->is_offline()) {
                 slot.ai_weight_ /= 2.0_atp;
             }
 

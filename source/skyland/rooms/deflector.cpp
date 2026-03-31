@@ -34,14 +34,15 @@ void Deflector::format_description(StringBuffer<512>& buffer)
 
 
 
+static const auto activate_time = milliseconds(750);
+
+
+
 Deflector::Deflector(Island* parent, const RoomCoord& position)
     : Room(parent, name(), position)
 {
+    active_timer_ = activate_time;
 }
-
-
-
-static const auto activate_time = milliseconds(750);
 
 
 
@@ -53,23 +54,27 @@ void Deflector::update(Time delta)
 {
     Room::update(delta);
 
-    if (active_timer_ < activate_time) {
+    if (active_timer_ > 0) {
         Room::ready();
         if (is_powered_down()) {
             return;
         }
-        static const auto ripple_offset = milliseconds(280);
-        if (active_timer_ < activate_time - ripple_offset) {
-            if (active_timer_ + delta >= activate_time - ripple_offset) {
+        static const auto ripple_offset = milliseconds(470);
+        if (active_timer_ > ripple_offset) {
+            if (active_timer_ - delta <= ripple_offset) {
                 phase_ripple(visual_center());
                 if (not PLATFORM.speaker().is_sound_playing("deflector.raw")) {
                     PLATFORM.speaker().play_sound("deflector.raw", 0);
                 }
             }
         }
-        active_timer_ += delta;
-        if (active_timer_ >= activate_time) {
+        active_timer_ -= delta;
+        if (active_timer_ <= 0) {
+            if (is_cold_boot()) {
+                cold_boot_completed();
+            }
             parent()->schedule_repaint();
+            parent()->schedule_recompute_deflector_shields();
         }
     }
 }
@@ -78,7 +83,21 @@ void Deflector::update(Time delta)
 
 void Deflector::rewind(Time delta)
 {
-    active_timer_ = activate_time;
+    Room::rewind(delta);
+
+    if (is_cold_boot()) {
+        if (active_timer_ < cold_boot_penalty()) {
+            active_timer_ += delta;
+        }
+    }
+}
+
+
+void Deflector::rewind_enter_cold_boot()
+{
+    enter_cold_boot();
+    parent()->schedule_recompute_deflector_shields();
+    active_timer_ = 0;
 }
 
 
@@ -92,8 +111,12 @@ bool Deflector::allows_powerdown()
 
 void Deflector::on_powerchange()
 {
-    parent()->schedule_recompute_deflector_shields();
-    active_timer_ = 0;
+    if (is_cold_boot()) {
+        active_timer_ = cold_boot_penalty();
+    } else {
+        active_timer_ = activate_time;
+    }
+
     Room::ready();
 }
 
@@ -139,7 +162,7 @@ void Deflector::display_on_hover(Platform::Screen& screen,
 
 void Deflector::project_deflector_shield()
 {
-    if (is_powered_down()) {
+    if (is_offline()) {
         return;
     }
 
@@ -176,7 +199,7 @@ void Deflector::render_exterior(App* app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = Tile::deflector_source;
 
-    if (is_powered_down()) {
+    if (is_offline()) {
         return;
     }
 

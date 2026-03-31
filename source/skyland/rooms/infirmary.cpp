@@ -45,7 +45,11 @@ Time Infirmary::heal_interval() const
 
 void Infirmary::on_powerchange()
 {
-    heal_timer_ = heal_interval();
+    if (is_cold_boot()) {
+        heal_timer_ = cold_boot_penalty();
+    } else {
+        heal_timer_ = heal_interval();
+    }
 }
 
 
@@ -81,10 +85,16 @@ void Infirmary::update(Time delta)
         }
     }
 
-    if (characters_healing) {
-        heal_timer_ += delta;
-        if (heal_timer_ > heal_interval()) {
-            heal_timer_ -= heal_interval();
+    if (is_cold_boot()) {
+        heal_timer_ -= delta;
+        if (heal_timer_ <= 0) {
+            cold_boot_completed();
+            heal_timer_ += heal_interval();
+        }
+    } else if (characters_healing) {
+        heal_timer_ -= delta;
+        if (heal_timer_ <= 0) {
+            heal_timer_ += heal_interval();
             int distribute_health = 20;
             distribute_health /= characters_healing;
             for (auto& character : characters()) {
@@ -95,6 +105,25 @@ void Infirmary::update(Time delta)
             }
         }
     }
+}
+
+
+
+void Infirmary::rewind(Time delta)
+{
+    Room::rewind(delta);
+
+    if (is_cold_boot()) {
+        heal_timer_ += delta;
+    }
+}
+
+
+
+void Infirmary::rewind_enter_cold_boot()
+{
+    enter_cold_boot();
+    heal_timer_ = 0;
 }
 
 
@@ -144,7 +173,7 @@ void Infirmary::finalize()
 
 void Infirmary::display(Platform::Screen& screen)
 {
-    if (parent()->interior_visible()) {
+    if (parent()->interior_visible() and not is_offline()) {
 
         static const u8 anim_frames = 48;
 

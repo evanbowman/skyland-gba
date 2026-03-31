@@ -1075,6 +1075,8 @@ void Island::update(Time dt)
                     // To trigger the recording of the room's powered-down state
                     // in rewinding logic.
                     room->set_powerdown(false);
+                } else if (room->is_cold_boot()) {
+                    room->cold_boot_completed();
                 }
                 if (group not_eq Room::Group::none) {
                     time_stream::event::PlayerRoomDestroyedWithGroup p;
@@ -1918,6 +1920,20 @@ bool Island::repaint_alloc_tiles(TileId buffer[16][16], bool retry)
 
 
 
+u16 get_power_icon(const Room& r)
+{
+    const u16 indicator_tile_base = (6 * 4 - 1) + 4;
+    if (r.is_powered_down()) {
+        return indicator_tile_base;
+    } else if (r.is_cold_boot()) {
+        return indicator_tile_base + 7;
+    } else {
+        return indicator_tile_base + 5;
+    }
+}
+
+
+
 void Island::repaint_partial()
 {
     struct Memory
@@ -1965,7 +1981,7 @@ void Island::repaint_partial()
     }
 
     for (auto& room : rooms_) {
-        if (room->is_powered_down()) {
+        if (room->is_offline()) {
 
             // Optional<u16> pal = 9;
             auto p = room->position();
@@ -1975,13 +1991,13 @@ void Island::repaint_partial()
                 }
             }
 
-            const auto tile = (6 * 4 - 1) + 4;
+            const auto tile = get_power_icon(*room);
             if (layer_ == Layer::map_0_ext) {
                 auto [x, y] = room->position();
                 PLATFORM.set_raw_tile(Layer::map_0, x * 2, y * 2, tile);
             }
         } else if (show_powerdown_opts_ and room->allows_powerdown()) {
-            const auto tile = (6 * 4 - 1) + 4 + 5;
+            const auto tile = get_power_icon(*room);
             if (layer_ == Layer::map_0_ext) {
                 auto [x, y] = room->position();
                 PLATFORM.set_raw_tile(Layer::map_0, x * 2, y * 2, tile);
@@ -2051,7 +2067,7 @@ void Island::repaint()
     core_count_ = 0;
     offensive_capabilities_ = 0;
     for (auto& room : rooms_) {
-        if (room->is_powered_down()) {
+        if (room->is_offline()) {
             continue;
         }
         if ((*room->metaclass())->properties() & RoomProperties::has_chimney) {
@@ -2291,7 +2307,7 @@ void Island::repaint()
                 }
             }
         }
-        if (room->is_powered_down()) {
+        if (room->is_offline()) {
 
             auto p = room->position();
             for (int x = 0; x < room->size().x; ++x) {
@@ -2300,13 +2316,13 @@ void Island::repaint()
                 }
             }
 
-            const auto tile = (6 * 4 - 1) + 4;
+            const auto tile = get_power_icon(*room);
             if (layer_ == Layer::map_0_ext) {
                 auto [x, y] = room->position();
                 PLATFORM.set_raw_tile(Layer::map_0, x * 2, y * 2, tile);
             }
         } else if (show_powerdown_opts_ and room->allows_powerdown()) {
-            const auto tile = (6 * 4 - 1) + 4 + 5;
+            const auto tile = get_power_icon(*room);
             if (layer_ == Layer::map_0_ext) {
                 auto [x, y] = room->position();
                 PLATFORM.set_raw_tile(Layer::map_0, x * 2, y * 2, tile);

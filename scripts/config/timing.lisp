@@ -20,4 +20,5 @@
    (7000 . "missile_silo_reload_ms")
    (4500 . "flak_gun_reload_ms")
    (3500 . "ion_cannon_reload_ms")
-   (3500 . "arc_gun_reload_ms")))
+   (3500 . "arc_gun_reload_ms")
+   (20000 . "cold_boot_penalty_ms")))

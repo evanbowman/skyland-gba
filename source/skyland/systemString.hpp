@@ -738,6 +738,7 @@ enum class SystemString {
     error_no_more_pauses,
     error_powered_off,
     error_cannot_divert_power,
+    error_cold_boot_active,
 
     easy_mode_auto_rewind_title,
     easy_mode_auto_rewind_text,

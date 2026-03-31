@@ -27,7 +27,7 @@
 
 (autopilot
  '((500 nil)
-   (100 "<c:Milo:5>In one of the earlier tutorials about Power Balance, we explained the importance of building enough power to supply all of the systems on your island. <B:0> The Beginner difficulty setting allows you to disable unused blocks, allowing us to reclaim power without salvaging them. <B:0> By opening the SELECT menu on certain blocks, we can deactivate them, allowing us to use the energy for something else instead.")
+   (100 "<c:Milo:5>In one of the earlier tutorials about Power Balance, we explained the importance of building enough power to supply all of the systems on your island. <B:0> Additionally, we can disable unused blocks, allowing us to reclaim power without salvaging them. <B:0> By opening the SELECT menu on certain blocks, we can deactivate them, allowing us to use the energy for something else instead.")
    (1219 Select)
    (100 Select)
    (1903 Right)
@@ -82,4 +82,6 @@
    (350 A)
    (1536 B)
    (600 nil)
-   (100 "<c:Milo:5>You may have noticed, some the blocks in the 'divert power' menu were labeled with a blue circle icon. These are the blocks that can be deactivated. All blocks in the 'weapons' category of the glossary, and many of the blocks in the 'misc' category, can be deactivated! <B:0> If a block sits unused for a long time, you may want to think about salvaging it instead to use the resources to build something else...")))
+   (100 "<c:Milo:5>You may have noticed, some the blocks in the 'divert power' menu were labeled with a blue circle icon. These are the blocks that can be deactivated. All blocks in the 'weapons' category of the glossary, and many of the blocks in the 'misc' category, can be deactivated! <B:0> If a block sits unused for a long time, you may want to think about salvaging it instead to use the resources to build something else...")
+   (100 nil)
+   (500 "Oh, one last thing — on harder difficulties, reactivating a block isn't instant. It'll some time to cold boot before it's usable again, so plan ahead!")))

@@ -43,6 +43,9 @@ public:
     void rewind(Time delta) override;
 
 
+    void rewind_enter_cold_boot() override;
+
+
     static WeaponOrientation weapon_orientation()
     {
         return WeaponOrientation::horizontal;

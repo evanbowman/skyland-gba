@@ -340,7 +340,7 @@ ScenePtr SwerveMissileSilo::select_impl(const RoomCoord& cursor)
 {
     const auto& mt_prep_seconds = globals().multiplayer_prep_seconds_;
 
-    if (is_powered_down()) {
+    if (is_offline()) {
         return null_scene();
     }
 

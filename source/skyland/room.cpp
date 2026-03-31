@@ -34,6 +34,17 @@ namespace skyland
 
 
 
+SHARED_VARIABLE(cold_boot_penalty_ms);
+
+
+
+Time cold_boot_penalty()
+{
+    return cold_boot_penalty_ms * 1000; // convert to microseconds
+}
+
+
+
 Coins get_room_cost(Island* island, const RoomMeta& meta);
 
 
@@ -42,7 +53,7 @@ Room::Room(Island* parent, const char* name, const RoomCoord& position)
     : parent_(parent), dispatch_list_(nullptr), health_(1),
       x_position_(position.x), y_position_(position.y), ai_aware_(true),
       cloaked_(false), init_awareness_upon_unpause_(false),
-      show_damage_delay_frames_(0), powerdown_(0)
+      show_damage_delay_frames_(0), powerdown_(0), cold_boot_(0)
 {
 
     if (name == nullptr) {
@@ -252,7 +263,7 @@ void Room::display_on_hover(Platform::Screen& screen, const RoomCoord& cursor)
 
 u8 Room::default_palette()
 {
-    if (is_powered_down()) {
+    if (is_offline()) {
         return 9;
     } else if ((*metaclass())->properties() & RoomProperties::plugin) {
         return 12;
@@ -398,7 +409,7 @@ void Room::update(Time delta)
                     }
                 }
 
-                if (is_powered_down()) {
+                if (is_offline()) {
                     schedule_repaint();
                 }
             }
@@ -491,7 +502,7 @@ void Room::rewind(Time delta)
                     }
                 }
 
-                if (is_powered_down()) {
+                if (is_offline()) {
                     schedule_repaint();
                 }
             }
@@ -589,10 +600,71 @@ Room::TargetCount Room::target_count() const
 
 
 
+bool Room::is_cold_boot() const
+{
+    return cold_boot_;
+}
+
+
+static bool cold_boot_enabled()
+{
+    return cold_boot_penalty_ms > 0;
+}
+
+
+void Room::cold_boot_completed()
+{
+    if (not cold_boot_enabled()) {
+        return;
+    }
+
+    cold_boot_ = 0;
+    schedule_repaint();
+
+    time_stream::event::ReenterColdBoot e;
+    e.x_ = position().x;
+    e.y_ = position().y;
+    e.near_ = parent() == &APP.player_island();
+    APP.time_stream().push(APP.level_timer(), e);
+}
+
+
+void Room::rewind_enter_cold_boot()
+{
+    PLATFORM.fatal(format("re-entered cold boot during rewind, "
+                          "missing boot timer logic for %", this->name()));
+}
+
+
+bool Room::is_offline() const
+{
+    return is_powered_down() or is_cold_boot();
+}
+
+
+void Room::enter_cold_boot()
+{
+    if (not cold_boot_enabled()) {
+        return;
+    }
+    cold_boot_ = true;
+    schedule_repaint();
+}
+
+
 void Room::set_powerdown(bool powerdown)
 {
     if (powerdown == powerdown_) {
         return;
+    }
+
+    if (cold_boot_enabled() and APP.game_speed() not_eq GameSpeed::rewind) {
+        if (is_cold_boot()) {
+            cold_boot_completed();
+        }
+        cold_boot_ = not powerdown;
+    } else {
+        cold_boot_ = false;
     }
 
     powerdown_ = powerdown;
@@ -710,14 +782,18 @@ ScenePtr Room::setup()
 
 ScenePtr Room::select(const RoomCoord& cursor)
 {
-    if (is_powered_down()) {
+    if (is_offline()) {
         if (auto scn = do_select()) {
             return scn;
         }
 
         auto future_scene = []() { return make_scene<ReadyScene>(); };
         PLATFORM.speaker().play_sound("beep_error", 2);
-        auto str = SYSTR(error_powered_off);
+        auto err = is_cold_boot() ?
+            SystemString::error_cold_boot_active :
+            SystemString::error_powered_off;
+
+        auto str = loadstr(err);
         return make_scene<NotificationScene>(str->c_str(), future_scene);
     }
 

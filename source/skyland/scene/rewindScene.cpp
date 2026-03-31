@@ -627,6 +627,21 @@ ScenePtr RewindScene::update(Time)
         }
 
 
+        case time_stream::event::Type::reenter_cold_boot: {
+            auto e = (time_stream::event::ReenterColdBoot*)end;
+            auto isle = e->near_ ? &APP.player_island()
+                                 : APP.opponent_island();
+            if (isle) {
+                if (auto room = isle->get_room({e->x_, e->y_})) {
+                    room->rewind_enter_cold_boot();
+                }
+            }
+            APP.time_stream().pop(sizeof *e);
+            break;
+
+        }
+
+
         case time_stream::event::Type::player_fire_created: {
             auto e = (time_stream::event::PlayerFireCreated*)end;
             APP.player_island().fire_extinguish({e->x_, e->y_});

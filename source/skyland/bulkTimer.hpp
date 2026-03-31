@@ -55,6 +55,12 @@ public:
     }
 
 
+    void __override_interval(Time interval)
+    {
+        interval_ = interval;
+    }
+
+
     Time interval() const
     {
         return interval_;

@@ -4,13 +4,13 @@
 
 
 (eval-file "/scripts/reset_hooks.lisp")
-(setvar "powerdown_allowed" 1)
-(setvar "rewind_disabled" 0)
 
+(configure-vars
+ '((1 . "powerdown_allowed")
+   (0 . "rewind_disabled")
+   (0 . "cold_boot_penalty_ms")))
 
 ;; NOTE: The list should not exceed 64 tutorials.
-
-
 (append '(("Introduction" "tutorials/overview.lisp" 0)
           ("Game Speed" "tutorials/game_speed.lisp" 1)
           ("Weapon Groups" "tutorials/weapon_groups.lisp" 2)

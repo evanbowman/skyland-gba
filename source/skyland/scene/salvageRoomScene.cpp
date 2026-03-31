@@ -245,6 +245,9 @@ ScenePtr SalvageRoomScene::update(Time delta)
                         island()->destroy_room(cursor_loc);
 
                         if (is_player_island(island())) {
+                            if (room->is_cold_boot()) {
+                                room->cold_boot_completed();
+                            }
                             if (room->group() not_eq Room::Group::none) {
                                 time_stream::event::WeaponSetGroup e;
                                 e.room_x_ = cursor_loc.x;

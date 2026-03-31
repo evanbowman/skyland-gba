@@ -401,7 +401,7 @@ void PlayerP1::autoassign_drone_target(Drone& drone)
 
 void PlayerP1::autoassign_weapon_target(Room& room)
 {
-    if (room.is_powered_down()) {
+    if (room.is_offline()) {
         return;
     }
 

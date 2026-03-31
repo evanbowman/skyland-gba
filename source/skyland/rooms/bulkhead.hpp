@@ -29,6 +29,10 @@ public:
 
 
     void update(Time delta) override;
+    void rewind(Time delta) override;
+
+
+    void rewind_enter_cold_boot() override;
 
 
     static Category category()
@@ -110,6 +114,7 @@ public:
 
 
 private:
+    Time boot_timer_ = 0;
     bool open_ = true;
     bool interior_visible_ = false;
 };

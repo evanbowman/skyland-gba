@@ -195,7 +195,11 @@ void Decimator::update(Time delta)
 
     const auto& mt_prep_seconds = globals().multiplayer_prep_seconds_;
 
-    if (is_powered_down()) {
+    if (is_offline()) {
+        if (is_cold_boot()) {
+            // Decimator has a long boot time and doesn't have cold reboot.
+            cold_boot_completed();
+        }
         return;
     }
 
@@ -319,7 +323,10 @@ void Decimator::rewind(Time delta)
         return;
     }
 
-    if (is_powered_down()) {
+    if (is_offline()) {
+        if (is_cold_boot()) {
+            cold_boot_completed();
+        }
         return;
     }
 
@@ -332,6 +339,13 @@ void Decimator::rewind(Time delta)
             reload_ += delta;
         }
     }
+}
+
+
+
+void Decimator::rewind_enter_cold_boot()
+{
+    // ignore
 }
 
 

@@ -39,7 +39,11 @@ Weapon::Weapon(Island* parent,
 
 void Weapon::on_powerchange()
 {
-    override_reload_timer(reload());
+    auto recharge_time = reload();
+    if (is_cold_boot()) {
+        recharge_time = cold_boot_penalty();
+    }
+    override_reload_timer(recharge_time);
 
     if (is_powered_down()) {
         parent()->bulk_timer().deschedule(this);
@@ -90,6 +94,10 @@ void Weapon::finalize_weapon()
 
 void Weapon::timer_expired()
 {
+    if (is_cold_boot()) {
+        cold_boot_completed();
+    }
+
     if (Timer::interval() == reload()) {
         // We need to store the point at which we finished reloading. A
         // weapon does not fire if it does not have a target, or if the
@@ -205,6 +213,13 @@ void Weapon::rewind(Time delta)
 }
 
 
+void Weapon::rewind_enter_cold_boot()
+{
+    enter_cold_boot();
+    Timer::__override_clock(1);
+    Timer::__override_interval(cold_boot_penalty());
+}
+
 
 void Weapon::___rewind___finished_reload()
 {
@@ -305,7 +320,7 @@ bool Weapon::target_pinned() const
 
 void Weapon::set_target(const RoomCoord& target, bool pinned)
 {
-    if (is_powered_down()) {
+    if (is_offline()) {
         return;
     }
 
@@ -332,7 +347,7 @@ Room::TargetCount Weapon::target_count() const
 
 void Weapon::set_target(const TargetQueue& tq, bool pinned)
 {
-    if (is_powered_down()) {
+    if (is_offline()) {
         return;
     }
 
@@ -429,7 +444,7 @@ ScenePtr Weapon::select_impl(const RoomCoord& cursor)
 {
     const auto& mt_prep_seconds = globals().multiplayer_prep_seconds_;
 
-    if (is_powered_down()) {
+    if (is_offline()) {
         return null_scene();
     }
 

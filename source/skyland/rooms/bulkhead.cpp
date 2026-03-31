@@ -26,7 +26,7 @@ namespace skyland
 void Bulkhead::plot_walkable_zones(bool matrix[16][16],
                                    Character* for_character)
 {
-    if (is_powered_down()) {
+    if (is_offline()) {
         return;
     }
 
@@ -57,8 +57,13 @@ Bulkhead::Bulkhead(Island* parent, const RoomCoord& position)
 
 void Bulkhead::on_powerchange()
 {
-    if (is_powered_down()) {
+    if (is_offline()) {
         set_open(false);
+    }
+    if (is_cold_boot()) {
+        boot_timer_ = cold_boot_penalty();
+    } else {
+        boot_timer_ = 1;
     }
 }
 
@@ -70,6 +75,22 @@ bool Bulkhead::allows_powerdown()
 }
 
 
+void Bulkhead::rewind(Time delta)
+{
+    Room::rewind(delta);
+
+    if (is_cold_boot()) {
+        boot_timer_ += delta;
+    }
+}
+
+
+void Bulkhead::rewind_enter_cold_boot()
+{
+    enter_cold_boot();
+    boot_timer_ = 0;
+}
+
 
 void Bulkhead::update(Time delta)
 {
@@ -77,7 +98,13 @@ void Bulkhead::update(Time delta)
 
     Room::ready();
 
-    if (is_powered_down()) {
+    if (is_offline()) {
+        if (is_cold_boot()) {
+            boot_timer_ -= delta;
+            if (boot_timer_ <= 0) {
+                cold_boot_completed();
+            }
+        }
         return;
     }
 

@@ -224,6 +224,8 @@ enum Type : u8 {
     room_width_adjusted,
 
     particle_lance_destroyed,
+
+    reenter_cold_boot,
 };
 
 
@@ -1549,6 +1551,18 @@ struct PhaseShifterStateChange
     u8 unused_ : 7;
 
     static constexpr const auto t = Type::phase_shifter_state_change;
+};
+
+
+
+struct ReenterColdBoot
+{
+    Header header_;
+    u8 x_ : 4;
+    u8 y_ : 4;
+    u8 near_ : 1;
+
+    static constexpr const auto t = Type::reenter_cold_boot;
 };
 
 

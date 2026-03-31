@@ -69,6 +69,9 @@ void DroneBay::update(Time delta)
     if (reload_ > 0) {
         reload_ -= delta;
         if (reload_ < 0) {
+            if (is_cold_boot()) {
+                cold_boot_completed();
+            }
             if (is_player_island(parent())) {
                 time_stream::event::PlayerRoomReloadComplete e;
                 e.room_x_ = position().x;
@@ -99,9 +102,19 @@ void DroneBay::rewind(Time delta)
 
     if (reload_ <= 0) {
         // fully reloaded
+    } else if (is_cold_boot()) {
+        reload_ += delta;
     } else if (reload_ < 1000 * drone_bay_reload_ms) {
         reload_ += delta;
     }
+}
+
+
+
+void DroneBay::rewind_enter_cold_boot()
+{
+    enter_cold_boot();
+    reload_ = 0;
 }
 
 
@@ -199,7 +212,12 @@ void DroneBay::on_powerchange()
         detach_drone(false);
     }
 
-    start_reload();
+
+    if (is_cold_boot()) {
+        reload_ = cold_boot_penalty();
+    } else {
+        start_reload();
+    }
 }
 
 
