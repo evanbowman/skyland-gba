@@ -89,7 +89,7 @@ public:
 
 
     void update(Time delta) override;
-
+    void rewind_enter_cold_boot() override;
 
     static RoomProperties::Bitmask properties()
     {

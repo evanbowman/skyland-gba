@@ -17,7 +17,7 @@
 (setq adv-var-set 0)
 
 (configure-vars
- `((1 . "powerdown_allowed")
+ '((1 . "powerdown_allowed")
    (0 . "rewind_disabled")))
 
 (when (equal (difficulty) difficulty-beginner)

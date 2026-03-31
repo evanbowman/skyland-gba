@@ -76,9 +76,18 @@ void OverdriveCore::update(Time delta)
     } else {
         if (is_powered_down()) {
             set_powerdown(false);
+            cold_boot_completed();
             PLATFORM.speaker().play_sound("poweron.raw", 4);
         }
     }
+}
+
+
+
+void OverdriveCore::rewind_enter_cold_boot()
+{
+    // The overdrive core is special, the cold boot mode following a powercycle
+    // does not affect OverdriveCode. Do nothing.
 }
 
 
