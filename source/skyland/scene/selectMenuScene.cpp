@@ -465,9 +465,10 @@ void SelectMenuScene::enter(Scene& scene)
                             return null_scene();
                         });
                 }
-            } else if (is_player_island(isle) and room and
-                       (*room->metaclass())->category() ==
-                           Room::Category::weapon) {
+            }
+            if (is_player_island(isle) and room and
+                (*room->metaclass())->category() ==
+                Room::Category::weapon) {
 
                 if (not PLATFORM.network_peer().is_connected()) {
                     if (room->get_target()) {
