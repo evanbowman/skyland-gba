@@ -63,7 +63,7 @@ void Bulkhead::on_powerchange()
     if (is_cold_boot()) {
         boot_timer_ = cold_boot_penalty();
     } else {
-        boot_timer_ = 1;
+        boot_timer_ = 0;
     }
 }
 
@@ -73,6 +73,7 @@ bool Bulkhead::allows_powerdown()
 {
     return true;
 }
+
 
 
 void Bulkhead::rewind(Time delta)
@@ -92,6 +93,14 @@ void Bulkhead::rewind_enter_cold_boot()
 }
 
 
+
+void Bulkhead::force_disable_cold_boot_impl()
+{
+    boot_timer_ = 0;
+}
+
+
+
 void Bulkhead::update(Time delta)
 {
     Room::update(delta);
@@ -103,6 +112,7 @@ void Bulkhead::update(Time delta)
             boot_timer_ -= delta;
             if (boot_timer_ <= 0) {
                 cold_boot_completed();
+                boot_timer_ = 0;
             }
         }
         return;

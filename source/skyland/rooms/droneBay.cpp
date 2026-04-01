@@ -119,6 +119,13 @@ void DroneBay::rewind_enter_cold_boot()
 
 
 
+void DroneBay::force_disable_cold_boot_impl()
+{
+    reload_ = std::min(reload_, Time(1000 * drone_bay_reload_ms));
+}
+
+
+
 void DroneBay::___rewind___finished_reload()
 {
     reload_ = 1;

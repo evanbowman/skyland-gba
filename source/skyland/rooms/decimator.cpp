@@ -349,6 +349,12 @@ void Decimator::rewind_enter_cold_boot()
 }
 
 
+void Decimator::force_disable_cold_boot_impl()
+{
+    // ignore
+}
+
+
 
 Time Decimator::interval() const
 {

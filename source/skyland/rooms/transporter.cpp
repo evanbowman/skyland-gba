@@ -126,6 +126,13 @@ void Transporter::rewind_enter_cold_boot()
 
 
 
+void Transporter::force_disable_cold_boot_impl()
+{
+    recharge_ = std::min(recharge_, recharge_time());
+}
+
+
+
 void Transporter::___rewind___finished_reload()
 {
     recharge_ = 1;

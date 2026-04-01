@@ -90,6 +90,8 @@ public:
 
     void update(Time delta) override;
     void rewind_enter_cold_boot() override;
+    void force_disable_cold_boot_impl() override;
+
 
     static RoomProperties::Bitmask properties()
     {

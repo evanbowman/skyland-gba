@@ -38,6 +38,7 @@ public:
 
 
     void rewind_enter_cold_boot() override;
+    void force_disable_cold_boot_impl() override;
 
 
     void ___rewind___finished_reload() override;

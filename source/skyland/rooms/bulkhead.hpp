@@ -33,6 +33,7 @@ public:
 
 
     void rewind_enter_cold_boot() override;
+    void force_disable_cold_boot_impl() override;
 
 
     static Category category()
@@ -110,6 +111,12 @@ public:
     {
         return RoomProperties::habitable |
                RoomProperties::multiboot_compatible | RoomProperties::fireproof;
+    }
+
+
+    Time reload_time_remaining() const override
+    {
+        return boot_timer_;
     }
 
 

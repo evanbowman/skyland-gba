@@ -213,12 +213,24 @@ void Weapon::rewind(Time delta)
 }
 
 
+
 void Weapon::rewind_enter_cold_boot()
 {
     enter_cold_boot();
     Timer::__override_clock(1);
     Timer::__override_interval(cold_boot_penalty());
 }
+
+
+
+void Weapon::force_disable_cold_boot_impl()
+{
+    Timer::__override_interval(std::min(reload(), Timer::interval()));
+    if (Timer::remaining() > Timer::interval()) {
+        Timer::__override_clock(Timer::interval());
+    }
+}
+
 
 
 void Weapon::___rewind___finished_reload()

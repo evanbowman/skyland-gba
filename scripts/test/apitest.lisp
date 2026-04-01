@@ -157,6 +157,19 @@
 
 (assert-eq 240 (lookup 'max-hp (room-meta 'hull)))
 
+;; While some of these fields come from configuration files, and changing them
+;; could break regression, in practice, cannon health, cost, and power usage are
+;; unlikely to change frequently.
+(assert-eq (room-meta 'cannon)
+           '((name . "cannon")
+             (size 1 . 1)
+             (ico1 . 552)
+             (ico2 . 536)
+             (pwr . 34)
+             (cost . 1000)
+             (max-hp . 200)
+             (category . weapon)))
+
 (end-test)
 
 

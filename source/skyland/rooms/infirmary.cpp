@@ -120,6 +120,13 @@ void Infirmary::rewind(Time delta)
 
 
 
+void Infirmary::force_disable_cold_boot_impl()
+{
+    heal_timer_ = heal_interval();
+}
+
+
+
 void Infirmary::rewind_enter_cold_boot()
 {
     enter_cold_boot();

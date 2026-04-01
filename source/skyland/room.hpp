@@ -818,6 +818,7 @@ public:
 
 
     virtual void rewind_enter_cold_boot();
+    void force_disable_cold_boot();
 
 
 protected:
@@ -830,6 +831,7 @@ protected:
     ScenePtr do_select();
 
     virtual ScenePtr select_impl(const RoomCoord& cursor);
+    virtual void force_disable_cold_boot_impl();
 
 
     virtual void on_powerchange()

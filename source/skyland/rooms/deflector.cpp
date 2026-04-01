@@ -102,6 +102,13 @@ void Deflector::rewind_enter_cold_boot()
 
 
 
+void Deflector::force_disable_cold_boot_impl()
+{
+    active_timer_ = std::min(active_timer_, activate_time);
+}
+
+
+
 bool Deflector::allows_powerdown()
 {
     return true;
@@ -132,6 +139,10 @@ u8 Deflector::shield_radius() const
 void Deflector::display_on_hover(Platform::Screen& screen,
                                  const RoomCoord& cursor)
 {
+    if (is_offline()) {
+        return;
+    }
+
     auto origin = parent()->visual_origin();
 
     Sprite sprite;

@@ -606,10 +606,12 @@ bool Room::is_cold_boot() const
 }
 
 
+
 static bool cold_boot_enabled()
 {
     return cold_boot_penalty_ms > 0;
 }
+
 
 
 void Room::cold_boot_completed()
@@ -629,6 +631,7 @@ void Room::cold_boot_completed()
 }
 
 
+
 void Room::rewind_enter_cold_boot()
 {
     PLATFORM.fatal(format("re-entered cold boot during rewind, "
@@ -636,10 +639,31 @@ void Room::rewind_enter_cold_boot()
 }
 
 
+
+void Room::force_disable_cold_boot()
+{
+    if (is_cold_boot()) {
+        force_disable_cold_boot_impl();
+        schedule_repaint();
+        cold_boot_ = false;
+    }
+}
+
+
+
+void Room::force_disable_cold_boot_impl()
+{
+    PLATFORM.fatal(format("force-disable cold boot unimplemented for %",
+                          name()));
+}
+
+
+
 bool Room::is_offline() const
 {
     return is_powered_down() or is_cold_boot();
 }
+
 
 
 void Room::enter_cold_boot()
@@ -650,6 +674,7 @@ void Room::enter_cold_boot()
     cold_boot_ = true;
     schedule_repaint();
 }
+
 
 
 void Room::set_powerdown(bool powerdown)

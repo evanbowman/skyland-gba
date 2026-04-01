@@ -92,6 +92,14 @@ void OverdriveCore::rewind_enter_cold_boot()
 
 
 
+
+void OverdriveCore::force_disable_cold_boot_impl()
+{
+    // ...
+}
+
+
+
 void OverdriveCore::apply_damage(Health damage, const DamageConfiguration& conf)
 {
     const bool was_overloaded = is_overloaded();

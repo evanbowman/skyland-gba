@@ -44,6 +44,7 @@ public:
 
 
     void rewind_enter_cold_boot() override;
+    void force_disable_cold_boot_impl() override;
 
 
     static WeaponOrientation weapon_orientation()
