@@ -11,11 +11,11 @@
 (file-unlink "/bytecode/stdlib-cached.slb")
 
 
-(defn/temp repr-version (vn)
+(defn repr-version (vn)
   (string-join vn "."))
 
 
-(defn/temp version-less (a b)
+(defn version-less (a b)
   (< (lexicographical-compare a b) 0))
 
 
@@ -29,3 +29,6 @@
 
 
 (eval-file "/scripts/config/store_version.lisp")
+
+(unbind 'repr-version
+        'version-less)
