@@ -4376,7 +4376,7 @@ void Platform::Speaker::play_music(const char* name, Microseconds offset)
 
     // auto tmp = allocate<OptDmaBufferData>("test");
     // auto before = __platform__->delta_clock().sample();
-    // // audio_update_fast_isr();
+    // audio_update_fast_isr(); // prev dt: 256
 
     // alignas(4) u16 tmp2[162];
 

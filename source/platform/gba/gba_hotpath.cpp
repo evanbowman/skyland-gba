@@ -28,7 +28,6 @@ s16 parallax_table[280];
 s16 vertical_parallax_table[280];
 
 
-
 // Ripped from tonc demo. This code is decent already, no need to write code
 // for drawing a circle.
 IWRAM_CODE
@@ -116,8 +115,6 @@ void audio_update_fast_isr()
                 completed_sounds_buffer.push_back(it->name_);
             }
             it = snd_ctx.active_sounds.erase(it);
-            if (snd_ctx.active_sounds.empty()) {
-            }
         } else {
             // Manually unrolled loop below. Better performance during testing,
             // uses more iwram of course.
@@ -126,15 +123,19 @@ void audio_update_fast_isr()
             // write location resulted in notably better performance than
             // subscript indexing into mixing_buffer with literal indices
             // (mixing_buffer[0], mixing_buffer[1], etc.).
+            auto* src = (const u32*)(it->data_ + pos);
+            u32 snd0 = src[0];
+            u32 snd1 = src[1];
+
             AudioSample* out = mixing_buffer;
-            *(out++) += it->data_[pos++]; // 0
-            *(out++) += it->data_[pos++]; // 1
-            *(out++) += it->data_[pos++]; // 2
-            *(out++) += it->data_[pos++]; // 3
-            *(out++) += it->data_[pos++]; // 4
-            *(out++) += it->data_[pos++]; // 5
-            *(out++) += it->data_[pos++]; // 6
-            *(out) += it->data_[pos++];   // 7
+            *(out++) += (s8)(snd0);
+            *(out++) += (s8)(snd0 >> 8);
+            *(out++) += (s8)(snd0 >> 16);
+            *(out++) += (s8)(snd0 >> 24);
+            *(out++) += (s8)(snd1);
+            *(out++) += (s8)(snd1 >> 8);
+            *(out++) += (s8)(snd1 >> 16);
+            *(out)   += (s8)(snd1 >> 24);
             ++it;
         }
     }
