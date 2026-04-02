@@ -11,6 +11,8 @@
 
 #pragma once
 
+#include "number/numeric.hpp"
+
 
 
 namespace skyland
@@ -28,6 +30,11 @@ struct ScriptPreloadGuard
     ~ScriptPreloadGuard();
     ScriptPreloadGuard(const ScriptPreloadGuard&) = delete;
 };
+
+
+
+using ElapsedTime = Time;
+ElapsedTime preload_script_during_fade(Time fade_out_duration, const char* script_path);
 
 
 

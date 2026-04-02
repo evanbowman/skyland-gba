@@ -297,9 +297,7 @@ s8 sine8_signed(u8 angle);
 
 // These functions are imprecise versions of sin/cos for embedded
 // systems. Fortunately, we aren't doing heavy scientific calculations, so a
-// slightly imprecise angle is just fine. If you want an angle in terms of 360,
-// cast the result to a float, divide by numeric_limits<s16>::max(), and
-// multiply by 360.
+// slightly imprecise angle is just fine. Range is numeric_limits<s16>::max().
 s16 sine(s16 angle);
 
 

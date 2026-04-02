@@ -794,8 +794,13 @@ void Island::update_simple(Time dt)
         }
     }
 
-    s8 ambient_offset = 4 * float(sine(4 * 3.14f * 0.0005f * timer_ + 180)) /
-                        std::numeric_limits<s16>::max();
+    // s8 ambient_offset = 4 * float(sine(4 * 3.14f * 0.0005f * timer_ + 180)) /
+    //                     std::numeric_limits<s16>::max();
+
+    // 0.00628 ≈ 1/159. Divide first to avoid overflow.
+    // Or equivalently, shift timer_ down before multiplying.
+    s16 angle = static_cast<s16>((timer_ >> 8) * 411 >> 8) + 180;
+    s8 ambient_offset = static_cast<s8>((sine(angle) * 4) >> 15);
 
     if (mountain_terrain_) {
         ambient_offset = 0;

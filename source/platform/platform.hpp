@@ -773,13 +773,7 @@ public:
         // number of overlapping sounds. For such platforms, currently running
         // sounds with a lower priority will be evicted, to make room for
         // higher-priority sounds.
-        //
-        // If you pass in an optional position, platforms that support spatial
-        // audio will attenuate the sound based on distance to the listener (the
-        // camera center);
-        void play_sound(const char* name,
-                        int priority,
-                        Optional<Vec2<Float>> position = {});
+        void play_sound(const char* name, int priority);
         bool is_sound_playing(const char* name);
 
 

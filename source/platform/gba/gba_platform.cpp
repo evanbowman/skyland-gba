@@ -563,7 +563,7 @@ static Microseconds delta_convert_tics(int tics)
     // Hz. Sorry to have created a headache for anyone in the future who may be
     // attempting to port this game.
     //
-    return (tics * 59.59f) / 1000.f;
+    return (Microseconds)((int64_t)tics * 5959 / 100000);
 }
 
 
@@ -1119,17 +1119,17 @@ grayscale_shader(ShaderPalette palette, ColorConstant k, int arg, int index)
 ColorConstant
 contrast_shader(ShaderPalette palette, ColorConstant k, int arg, int index)
 {
-    const Float f = (259.f * ((s8)arg + 255)) / (255 * (259 - (s8)arg));
-
+    const int num = 259 * ((s8)arg + 255);
+    const int den = 255 * (259 - (s8)arg);
     const Color c(k);
 
-    const auto r = clamp(f * (Color::upsample(c.r_) - 128) + 128, 0.f, 255.f);
-    const auto g = clamp(f * (Color::upsample(c.g_) - 128) + 128, 0.f, 255.f);
-    const auto b = clamp(f * (Color::upsample(c.b_) - 128) + 128, 0.f, 255.f);
+    auto apply = [&](u8 ch) -> u8 {
+        int up = Color::upsample(ch);
+        int val = (num * (up - 128) + 128 * den) / den;
+        return Color::downsample((u8)clamp(val, 0, 255));
+    };
 
-    return Color(
-               Color::downsample(r), Color::downsample(g), Color::downsample(b))
-        .hex();
+    return Color(apply(c.r_), apply(c.g_), apply(c.b_)).hex();
 }
 
 
@@ -4252,13 +4252,8 @@ static EWRAM_DATA AnalogChannel analog_channel[4];
 
 
 
-void Platform::Speaker::play_sound(const char* name,
-                                   int priority,
-                                   Optional<Vec2<Float>> position)
+void Platform::Speaker::play_sound(const char* name, int priority)
 {
-    (void)position; // We're not using position data, because on the gameboy
-                    // advance, we aren't supporting spatial audio.
-
     if (auto info = make_sound(name)) {
         info->priority_ = priority;
 

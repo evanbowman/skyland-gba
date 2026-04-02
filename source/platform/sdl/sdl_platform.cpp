@@ -6393,9 +6393,7 @@ void Platform::Speaker::clear_sounds()
 
 
 
-void Platform::Speaker::play_sound(const char* name,
-                                   int priority,
-                                   Optional<Vec2<Float>> position)
+void Platform::Speaker::play_sound(const char* name, int priority)
 {
     if (not window) {
         return;

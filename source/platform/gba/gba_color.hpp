@@ -61,22 +61,20 @@ public:
         return {u8(max - r_), u8(max - g_), u8(max - b_)};
     }
 
-    inline Color grayscale() const
-    {
-        const u8 val = 0.3f * r_ + 0.59f * g_ + 0.11f * b_;
-        return {val, val, val};
-    }
-
-    // Convert color channel to number out of 255 rather than out of 31.
     static u8 upsample(u8 channel)
     {
-        return (255.f / 31.f) * channel;
+        return (channel * 255 + 15) / 31;
     }
 
-    // Convert color channel to number out of 31 rather than out of 255.
     static u8 downsample(u8 channel)
     {
-        return (31.f / 255.f) * channel;
+        return (channel * 31 + 127) / 255;
+    }
+
+    inline Color grayscale() const
+    {
+        const u8 val = (77 * r_ + 150 * g_ + 29 * b_) >> 8;
+        return {val, val, val};
     }
 
     u8 r_;
