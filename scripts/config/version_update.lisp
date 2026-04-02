@@ -7,8 +7,8 @@
 ;;;
 
 ;; Erase old unused bytecode caches saved by previous versions.
-(file-unlink "/bytecode/init-cached.slb")
-(file-unlink "/bytecode/stdlib-cached.slb")
+(file-unlink "/bytecode/init.slb")
+(file-unlink "/bytecode/stdlib.slb")
 
 
 (defn repr-version (vn)
