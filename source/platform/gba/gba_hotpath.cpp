@@ -160,57 +160,22 @@ static constexpr int vram_tile_size()
 // Accepts two vectors of four colors (indexed 4bpp).
 static inline u32 blit(u32 current_color, u32 add_color)
 {
-    u32 result = 0;
+    // Build a mask where each nibble is 0xF if add_color's nibble
+    // is nonzero, 0x0 otherwise.
+    //
+    // OR adjacent bits within each nibble to propagate any set bit to fill the
+    // nibble.
+    u32 mask = add_color | (add_color >> 1);
+    mask |= (mask >> 2);
+    // Now the low bit of each nibble is set iff the nibble was nonzero.
 
-    if (add_color & 0xf0000000) {
-        result |= add_color & 0xf0000000;
-    } else {
-        result |= current_color & 0xf0000000;
-    }
+    // Spread that low bit to fill each nibble.  Multiply by 0xF: each nibble's
+    // low bit becomes 0xF or 0x0.  But we can use subtract instead: isolate low
+    // bits, then nibble = (low_bit << 4) - low_bit = 0xF or 0x0.
+    mask &= 0x11111111;
+    mask = (mask << 4) - mask; // each nibble is now 0xF or 0x0
 
-    if (add_color & 0x0f000000) {
-        result |= add_color & 0x0f000000;
-    } else {
-        result |= current_color & 0x0f000000;
-    }
-
-    if (add_color & 0x00f00000) {
-        result |= add_color & 0x00f00000;
-    } else {
-        result |= current_color & 0x00f00000;
-    }
-
-    if (add_color & 0x000f0000) {
-        result |= add_color & 0x000f0000;
-    } else {
-        result |= current_color & 0x000f0000;
-    }
-
-    if (add_color & 0x0000f000) {
-        result |= add_color & 0x0000f000;
-    } else {
-        result |= current_color & 0x0000f000;
-    }
-
-    if (add_color & 0x00000f00) {
-        result |= add_color & 0x00000f00;
-    } else {
-        result |= current_color & 0x00000f00;
-    }
-
-    if (add_color & 0x000000f0) {
-        result |= add_color & 0x000000f0;
-    } else {
-        result |= current_color & 0x000000f0;
-    }
-
-    if (add_color & 0x0000000f) {
-        result |= add_color & 0x0000000f;
-    } else {
-        result |= current_color & 0x0000000f;
-    }
-
-    return result;
+    return (add_color & mask) | (current_color & ~mask);
 }
 
 
@@ -232,30 +197,3 @@ void blit_tile(u16* out, u16* in)
         ++in32;
     }
 }
-
-
-//
-// In case you're wondering why I'm not using a better blit function with a
-// pre-generated mask, I actually already tried it. It's not faster enough than
-// the above code to be worth wasting rom space on a mask image. Only marginally
-// faster, doesn't make graphical artifacts go away. Rather than optimizing
-// raster more than I already have, I'd prefer to focus on eliminating draw
-// calls in the first place.
-//
-// IWRAM_CODE
-// void _blit_tile(u16* out, const u16* in, const u16* in_mask)
-// {
-//     for (int i = 0; i < vram_tile_size() / 2; ++i) {
-//
-//         auto mask = *in_mask;
-//
-//         u16 result = 0;
-//         result |= *out & ~mask;
-//         result |= *in & mask;
-//         *out = result;
-//
-//         ++out;
-//         ++in;
-//         ++in_mask;
-//     }
-// }
