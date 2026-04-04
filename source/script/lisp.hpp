@@ -373,15 +373,35 @@ struct TreeBranch
         return ValueHeader::Type::tree_node;
     }
 
-    inline Value* pair()  { return dcompr(pair_); }
-    inline Value* left()  { return dcompr(left_); }
-    inline Value* right() { return dcompr(right_); }
+    inline Value* pair()
+    {
+        return dcompr(pair_);
+    }
+    inline Value* left()
+    {
+        return dcompr(left_);
+    }
+    inline Value* right()
+    {
+        return dcompr(right_);
+    }
 
-    void set_pair(Value* p)   { pair_ = compr(p); }
-    void set_left(Value* v)   { left_ = compr(v); }
-    void set_right(Value* v)  { right_ = compr(v); }
+    void set_pair(Value* p)
+    {
+        pair_ = compr(p);
+    }
+    void set_left(Value* v)
+    {
+        left_ = compr(v);
+    }
+    void set_right(Value* v)
+    {
+        right_ = compr(v);
+    }
 
-    static constexpr void finalizer(Value*) {}
+    static constexpr void finalizer(Value*)
+    {
+    }
 
 private:
     CompressedPtr pair_;
@@ -400,13 +420,27 @@ struct TreeKvp
         return ValueHeader::Type::tree_node;
     }
 
-    Symbol::UniqueId key()              { return key_; }
-    void set_key(Symbol::UniqueId id)   { key_ = id; }
+    Symbol::UniqueId key()
+    {
+        return key_;
+    }
+    void set_key(Symbol::UniqueId id)
+    {
+        key_ = id;
+    }
 
-    Value* value()                      { return dcompr(value_); }
-    void set_value(Value* v)            { value_ = compr(v); }
+    Value* value()
+    {
+        return dcompr(value_);
+    }
+    void set_value(Value* v)
+    {
+        value_ = compr(v);
+    }
 
-    static constexpr void finalizer(Value*) {}
+    static constexpr void finalizer(Value*)
+    {
+    }
 
 private:
     CompressedPtr value_;

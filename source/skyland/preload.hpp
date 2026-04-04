@@ -34,7 +34,8 @@ struct ScriptPreloadGuard
 
 
 using ElapsedTime = Time;
-ElapsedTime preload_script_during_fade(Time fade_out_duration, const char* script_path);
+ElapsedTime preload_script_during_fade(Time fade_out_duration,
+                                       const char* script_path);
 
 
 

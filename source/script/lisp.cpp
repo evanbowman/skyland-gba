@@ -314,7 +314,8 @@ const char* decode_symbol_name(Symbol::UniqueId id)
     if (L_CTX.external_symtab_contents_) {
         auto str_id = (const char*)id;
         if (str_id >= L_CTX.external_symtab_contents_ and
-            str_id < L_CTX.external_symtab_contents_ + L_CTX.external_symtab_size_) {
+            str_id <
+                L_CTX.external_symtab_contents_ + L_CTX.external_symtab_size_) {
             return str_id;
         }
     }
@@ -322,8 +323,7 @@ const char* decode_symbol_name(Symbol::UniqueId id)
     if (L_CTX.string_intern_table_) {
         auto str_id = (const char*)id;
         auto& tab = *L_CTX.string_intern_table_;
-        if (str_id >= tab->data_ and
-            str_id < tab->data_ + sizeof(tab->data_)) {
+        if (str_id >= tab->data_ and str_id < tab->data_ + sizeof(tab->data_)) {
             return str_id;
         }
     }

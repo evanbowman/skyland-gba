@@ -9,11 +9,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "preload.hpp"
-#include "stateBit.hpp"
 #include "containers/vector.hpp"
-#include "skyland/skyland.hpp"
-#include "skyland/scene/loadLevelScene.hpp"
 #include "script/lisp.hpp"
+#include "skyland/scene/loadLevelScene.hpp"
+#include "skyland/skyland.hpp"
+#include "stateBit.hpp"
 
 
 
@@ -93,7 +93,8 @@ static void background_fade_task(void* data)
 
 
 
-ElapsedTime preload_script_during_fade(Time fade_out_duration, const char* script_path)
+ElapsedTime preload_script_during_fade(Time fade_out_duration,
+                                       const char* script_path)
 {
     ScriptPreloadGuard preload;
 

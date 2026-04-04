@@ -33,8 +33,8 @@ void Projectile::destroy_out_of_bounds(Island* target)
         min_x = cached_origin.x.as_integer() - 32;
     } else {
         // Otherwise, we need to check the max bound.
-        max_x = cached_origin.x.as_integer() +
-                16 * target->terrain().size() + 32;
+        max_x =
+            cached_origin.x.as_integer() + 16 * target->terrain().size() + 32;
     }
 
     auto pos = sprite_.get_position();

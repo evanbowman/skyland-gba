@@ -665,8 +665,7 @@ void EnemyAI::assign_local_character(Character& character,
                 // }
             }
 
-            if (room->is_offline() and
-                room->metaclass() not_eq overdrive_mt) {
+            if (room->is_offline() and room->metaclass() not_eq overdrive_mt) {
                 slot.ai_weight_ /= 2.0_atp;
             }
 

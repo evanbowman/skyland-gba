@@ -635,7 +635,8 @@ void Room::cold_boot_completed()
 void Room::rewind_enter_cold_boot()
 {
     PLATFORM.fatal(format("re-entered cold boot during rewind, "
-                          "missing boot timer logic for %", this->name()));
+                          "missing boot timer logic for %",
+                          this->name()));
 }
 
 
@@ -653,8 +654,8 @@ void Room::force_disable_cold_boot()
 
 void Room::force_disable_cold_boot_impl()
 {
-    PLATFORM.fatal(format("force-disable cold boot unimplemented for %",
-                          name()));
+    PLATFORM.fatal(
+        format("force-disable cold boot unimplemented for %", name()));
 }
 
 
@@ -814,9 +815,8 @@ ScenePtr Room::select(const RoomCoord& cursor)
 
         auto future_scene = []() { return make_scene<ReadyScene>(); };
         PLATFORM.speaker().play_sound("beep_error", 2);
-        auto err = is_cold_boot() ?
-            SystemString::error_cold_boot_active :
-            SystemString::error_powered_off;
+        auto err = is_cold_boot() ? SystemString::error_cold_boot_active
+                                  : SystemString::error_powered_off;
 
         auto str = loadstr(err);
         return make_scene<NotificationScene>(str->c_str(), future_scene);

@@ -629,8 +629,7 @@ ScenePtr RewindScene::update(Time)
 
         case time_stream::event::Type::reenter_cold_boot: {
             auto e = (time_stream::event::ReenterColdBoot*)end;
-            auto isle = e->near_ ? &APP.player_island()
-                                 : APP.opponent_island();
+            auto isle = e->near_ ? &APP.player_island() : APP.opponent_island();
             if (isle) {
                 if (auto room = isle->get_room({e->x_, e->y_})) {
                     room->rewind_enter_cold_boot();
@@ -638,7 +637,6 @@ ScenePtr RewindScene::update(Time)
             }
             APP.time_stream().pop(sizeof *e);
             break;
-
         }
 
 

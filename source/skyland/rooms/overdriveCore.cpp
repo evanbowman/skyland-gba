@@ -92,7 +92,6 @@ void OverdriveCore::rewind_enter_cold_boot()
 
 
 
-
 void OverdriveCore::force_disable_cold_boot_impl()
 {
     // ...
