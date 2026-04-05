@@ -1446,16 +1446,6 @@ Value* make_symbol(const char* name, u32 len, Symbol::ModeBits mode)
 }
 
 
-static Value* intern_to_symbol(const char* already_interned_str)
-{
-    auto val = alloc_value();
-    val->hdr_.type_ = Value::Type::symbol;
-    val->hdr_.mode_bits_ = (u8)Symbol::ModeBits::stable_pointer;
-    val->symbol().set_name(already_interned_str);
-    return val;
-}
-
-
 Value* make_databuffer(const char* sbr_tag, bool zero_fill)
 {
     if (not scratch_buffers_remaining()) {
@@ -2979,6 +2969,12 @@ Value* dostring(const char* code)
 Value* dostring(CharSequence& code,
                 ::Function<4 * sizeof(void*), void(Value&)> on_error)
 {
+    lexical_frame_push();
+    auto src_path = code.get_src_path();
+    lexical_frame_store(L_CONS(make_symbol("--current-file"),
+                               src_path ? make_string(src_path) :
+                               L_NIL));
+
     int i = 0;
 
     Protected result(get_nil());
@@ -3022,6 +3018,12 @@ Value* dostring(CharSequence& code,
     if (L_CTX.strict_ and L_CTX.operand_stack_->size() not_eq prev_stk) {
         PLATFORM.fatal(::format<64>(
             "stack spill! % %", L_CTX.operand_stack_->size(), prev_stk));
+    }
+
+    if (L_CTX.lexical_bindings_ not_eq L_NIL) {
+        // NOTE: a top-level await expression could have consumed this lexical
+        // frame.
+        lexical_frame_pop();
     }
 
     return result;
@@ -3088,8 +3090,7 @@ void format_impl(Value* value, Printer& p, int depth, bool skip_quotes = false)
             format_impl(get_op0(), p, depth + 1, true);
             pop_op(); // result
         } else {
-            Platform::fatal(::format<64>("missing decorator function for %",
-                                         type->symbol().name()));
+            p.put_str(::format<64>("{%:?}", type->symbol().name()).c_str());
         }
         break;
     }
@@ -5764,7 +5765,7 @@ void eval_loop(EvalStack& eval_stack)
                     for (int i = 0; i < argc; ++i) {
                         pop_op();
                     }
-                    pop_op();
+                    pop_op(); // function on operand stack
                     auto saved_bindings = get_op0();
                     pop_op(); // saved bindings
                     L_CTX.lexical_bindings_ = saved_bindings;
@@ -6177,6 +6178,8 @@ bool is_numeric(Value* v)
 #endif
 
 
+const char* env_wrapped_type = "env";
+
 
 using RequiredArgc = int;
 using Builtin = std::pair<Function::Signature, lisp::Value* (*)(int)>;
@@ -6241,24 +6244,39 @@ BUILTIN_TABLE(
 
            return get_nil();
        }}},
-     {"env",
+     {"caller-environment",
       {EMPTY_SIG(0),
        [](int argc) {
-           Value* result = make_cons(get_nil(), get_nil());
-           push_op(result); // protect from the gc
-
-           Value* current = result;
-
-           get_env([&current](const char* str) {
-               current->cons().set_car(intern_to_symbol(str));
-               auto next = make_cons(get_nil(), get_nil());
-               current->cons().set_cdr(next);
-               current = next;
-           });
-
-           pop_op(); // result
-
-           return result;
+           Protected type_sym = L_SYM(env_wrapped_type);
+           Protected fn = stacktrace()->cons().car();
+           auto it = L_CTX.operand_stack_->end();
+           while (it not_eq L_CTX.operand_stack_->begin()) {
+               if (*it == fn) {
+                   break;
+               }
+               --it;
+           }
+           if (*it not_eq fn or it == L_CTX.operand_stack_->begin()) {
+               return make_error("Failed to retrieve caller's environment!");
+           }
+           --it; // The lexical bindings of the caller are saved on the operand
+                 // stack beneath the caller.
+           if (not is_list(*it)) {
+               return make_error("Caller's environment could not be read!");
+           }
+           return wrap(*it, type_sym);
+       }}},
+     {"current-environment",
+      {EMPTY_SIG(0),
+       [](int argc) {
+           Protected type_sym = L_SYM(env_wrapped_type);
+           return wrap(L_CTX.lexical_bindings_, type_sym);
+       }}},
+     {"toplevel-environment",
+      {EMPTY_SIG(0),
+       [](int argc) {
+           Protected type_sym = L_SYM(env_wrapped_type);
+           return wrap(L_NIL, type_sym);
        }}},
      {"this",
       {SIG0(function),
@@ -6544,6 +6562,35 @@ BUILTIN_TABLE(
      {"sort", {SIG2(cons, cons, function), builtin_sort}},
      {"compile", {SIG1(function, function), builtin_compile}},
      {"disassemble", {SIG1(nil, function), builtin_disassemble}}});
+
+
+Value* builtin_eval(int argc)
+{
+    Protected lexical_scope = L_CTX.lexical_bindings_;
+
+    Value* expr = get_op0();
+    if (argc == 2) {
+        L_EXPECT_OP(0, wrapped);
+        auto& env = get_op0()->wrapped();
+        if (not str_eq(dcompr(env.type_sym_)->symbol().name(), "env")) {
+            return make_error("invalid wrapped type passed to eval!");
+        } else if (env.hdr_.mode_bits_ == (u8)Wrapped::Variant::userdata) {
+            return make_error("cannot unwrap env!");
+        }
+        expr = get_op1();
+        L_CTX.lexical_bindings_ = dcompr(env.lisp_data_);
+    } else {
+        L_EXPECT_ARGC(argc, 1);
+    }
+
+    eval(expr);
+    auto result = get_op0();
+    pop_op(); // result
+
+    L_CTX.lexical_bindings_ = lexical_scope;
+
+    return result;
+}
 
 
 int toplevel_count()

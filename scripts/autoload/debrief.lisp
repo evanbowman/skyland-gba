@@ -34,7 +34,7 @@
     (setq crew (map get-icon (slice (shuffle crew) 0 (choice 4))))
     (setq debrief-strs
           (map (lambda (icon)
-                 (read-ini "/scripts/data/character_inter.ini"
+                 (read-ini (string "/strings/" (lang) "/character_inter.ini")
                            (format "character_%" icon)
                            key))
                crew))))

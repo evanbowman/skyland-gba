@@ -716,6 +716,7 @@ lisp::Value* App::invoke_ram_script(const char* ram_fs_path)
     Vector<char> buffer;
     if (flash_filesystem::read_file_data_text(ram_fs_path, buffer)) {
         lisp::VectorCharSequence seq(buffer);
+        seq.set_src_path(ram_fs_path);
         return lisp::dostring(seq, [](lisp::Value& err) {
             lisp::DefaultPrinter p;
             lisp::format(&err, p);
@@ -802,6 +803,7 @@ lisp::Value* App::invoke_script(
         Vector<char> buffer;
         if (flash_filesystem::read_file_data_text(path, buffer)) {
             lisp::VectorCharSequence seq(buffer);
+            seq.set_src_path(path);
             auto result = lisp::dostring(seq, *err_handler);
             // In case the script took a bit to execute.
             if (not conf.exclude_delta_ and initialized_) {
@@ -811,12 +813,14 @@ lisp::Value* App::invoke_script(
         }
     }
 
+    const char* inp_path = path;
     if (path[0] == '/') {
         ++path;
     }
 
     if (auto contents = PLATFORM.load_file_contents("", path)) {
         lisp::BasicCharSequence seq(contents);
+        seq.set_src_path(inp_path);
         auto result = lisp::dostring(seq, *err_handler);
         if (not conf.exclude_delta_ and initialized_) {
             PLATFORM.delta_clock().reset();

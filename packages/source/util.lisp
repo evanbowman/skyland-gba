@@ -45,7 +45,7 @@
 ;; needed, but the dialog-opts-reset and dialog-opts-push functions may be
 ;; called manually for more fine-grained control over dialog settings.
 (defn/c dialog-setup-y/n ()
-  (dialog-setup-binary-q "yes" "no"))
+  (dialog-setup-binary-q (tr "yes") (tr "no")))
 
 
 (defn/c dialog-setup-binary-q ((txt1 . string) (txt2 . string))
@@ -120,7 +120,7 @@
         (opts nil))
     (foreach (lambda (chr)
                (when-let ((icon (lookup 'icon (cddr chr))))
-                 (when-let ((text (read-ini "/scripts/data/character_inter.ini"
+                 (when-let ((text (read-ini (string "/strings/" (lang) "/character_inter.ini")
                                             (format "character_%" icon)
                                             search)))
                    (setq opts (cons text opts)))))

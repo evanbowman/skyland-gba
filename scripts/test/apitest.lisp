@@ -206,7 +206,7 @@
 (begin-test "misc")
 
 ;; Just make sure that reading a non-existent ini key returns nil...
-(assert-eq nil (read-ini "/scripts/data/character_inter.ini"
+(assert-eq nil (read-ini "/strings/english/character_inter.ini"
                          "character_1"
                          "welcomes_9000"))
 

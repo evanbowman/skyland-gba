@@ -1069,6 +1069,22 @@ public:
     virtual void accept(CharSequenceVisitor& v) = 0;
 
     virtual char operator[](int index) = 0;
+
+
+    const char* get_src_path() const
+    {
+        return src_path_;
+    }
+
+
+    void set_src_path(const char* path)
+    {
+        src_path_ = path;
+    }
+
+
+private:
+    const char* src_path_ = nullptr;
 };
 
 

@@ -1678,6 +1678,9 @@ BINDING_TABLE({
               return lisp::make_boolean(true);
           }
 
+          if (*path == '/') {
+              ++path;
+          }
           auto c = PLATFORM.load_file_contents("", path);
           return lisp::make_boolean(c);
       }}},

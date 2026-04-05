@@ -7,6 +7,13 @@
 (load-library "/packages/lib/locale.slb")
 
 
+;; Convenience alias for translating text.
+(defn/c tr (thing)
+  (if tr-bindings
+      (tr-load thing)
+      thing))
+
+
 (when (is-developer-mode)
   (strict-mode true)
   (lisp-mem-crit-gc-alert true))
@@ -37,7 +44,7 @@
 ;; someday. If you aren't an expert in the scripting language, just avoid defn/c
 ;; and you should be fine.
 (defn dialog-await-y/n ((text . string))
-  (dialog-await-binary-q text "yes" "no"))
+  (dialog-await-binary-q text (tr "yes") (tr "no")))
 
 
 (setvar "enabled_factions_bitfield"

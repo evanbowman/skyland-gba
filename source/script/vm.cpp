@@ -391,6 +391,11 @@ TOP:
                                             "cannot call functions that await",
                                             agitant);
                     push_op(make_error(err_str.c_str()));
+                    // NOTE: this is required, because otherwise, we will
+                    // execute the subsequent instruction, the resume
+                    // instruction, but there isn't actually a valid suspended
+                    // state to resume from!
+                    goto RETURN;
                 }
             }
             break;

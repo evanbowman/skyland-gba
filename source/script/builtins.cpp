@@ -38,16 +38,6 @@ Value* builtin_read(int argc)
 }
 
 
-Value* builtin_eval(int argc)
-{
-    eval(get_op0());
-    auto result = get_op0();
-    pop_op(); // result
-
-    return result;
-}
-
-
 Value* builtin_apply(int argc)
 {
     L_EXPECT_OP(0, cons);

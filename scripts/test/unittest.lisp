@@ -559,6 +559,34 @@
            '(list (if a 1 (list (if a 2 (list (if a 3 (list (if a 4 3)))))))))
 
 (global 'temp)
+
+(setq temp 9)
+(let ((temp 10))
+  (assert-eq 11 (eval '(incr temp) (current-environment)))
+  (assert-eq 10 (eval '(incr temp) (toplevel-environment)))
+  (assert-eq 25
+             ((lambda ()
+                (let ((temp 5))
+                  ((lambda ()
+                     (let ((temp 9))
+                       (eval '(* temp 5) (caller-environment))))))))))
+
+(let ((temp 42))
+  (let ((get-caller-temp
+         (lambda ()
+           (eval 'temp (caller-environment)))))
+    ;; Direct call — caller's environment has temp=42
+    (assert-eq 42 (get-caller-temp))
+    ;; Called through an intermediary that rebinds temp —
+    ;; caller-environment should resolve to call-with-temp's
+    ;; frame, where temp=99, not the original definition site.
+    (let ((call-with-temp
+           (lambda (f)
+             (let ((temp 99))
+               (f)))))
+      (assert-eq 99 (call-with-temp get-caller-temp)))))
+
+
 (setq temp (read "(lambda (a b c) (+ a b c))"))
 (eval temp)
 ;; NOTE: eval is destructive in some cases. Normally, you don't need to worry

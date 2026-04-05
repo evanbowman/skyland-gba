@@ -24,6 +24,7 @@ void load(Settings& output)
     Vector<char> buffer;
     if (flash_filesystem::read_file_data_text(settings_path, buffer)) {
         lisp::VectorCharSequence seq(buffer);
+        seq.set_src_path(settings_path);
         output.data_ = lisp::dostring(seq, [](lisp::Value& v) {
             if (APP.is_developer_mode()) {
                 PLATFORM.fatal("settings corrupted");
