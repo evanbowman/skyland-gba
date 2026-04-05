@@ -38,7 +38,7 @@
 
 
 (defn/c push-set (sym val)
-  (let ((tmp (cons val (eval sym))))
+  (let ((tmp (cons val (eval sym (caller-environment)))))
     (set sym (union tmp tmp))))
 
 
