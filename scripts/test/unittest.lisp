@@ -586,6 +586,14 @@
                (f)))))
       (assert-eq 99 (call-with-temp get-caller-temp)))))
 
+(let ((temp 77))
+  (let ((results nil)
+        (get-caller-temp
+         (lambda (x)
+           (eval 'temp (caller-environment)))))
+    (setq results (map get-caller-temp '(1)))
+    (assert-eq 77 (car results))))
+
 
 (setq temp (read "(lambda (a b c) (+ a b c))"))
 (eval temp)
