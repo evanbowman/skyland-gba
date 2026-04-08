@@ -2,11 +2,11 @@
 ;;; neutral/0/5_human.lisp
 ;;;
 
+(tr-bind-current)
+
 
 (dialog
- "A distress call sounds over your radio! <B:0> "
- "<b:/scripts/data/img/destroyed_town.img.bin>"
- "The remnants of a town appear, wrecked by war..")
+ (tr "A distress call sounds over your radio! <B:0> <b:/scripts/data/img/destroyed_town.img.bin>The remnants of a town appear, wrecked by war.."))
 
 (opponent-init 8 'neutral)
 
@@ -39,13 +39,13 @@
 
 (defn on-converge ()
   (setq on-converge nil)
-  (await (dialog* "<c:Girl:14>Heya! I'm so lucky someone showed up! Damned goblins took my whole village as hostages. Somehow I slept through the whole thing... Anyway, please take me with you! I promise not to get in the way!"))
+  (await (dialog* (tr "<c:Girl:14>Heya! I'm so lucky someone showed up! Damned goblins took my whole village as hostages. Somehow I slept through the whole thing... Anyway, please take me with you! I promise not to get in the way!")))
 
-  (if (dialog-await-binary-q-w/lore "She seems harmless, invite her aboard?"
-                                    "Sure!"
-                                    "No."
-                                    '(("Why let her aboard?" .
-                                       "<c:Girl:14>Hmm.. well let's see. I'm good at cooking, I can clean your ship, I'm pretty decent at crochet and... I don't know if this is even relevant, but I'm a blackbelt in karate! <B:0> Can I come along?")))
+  (if (dialog-await-binary-q-w/lore (tr "She seems harmless, invite her aboard?")
+                                    (tr "Sure!")
+                                    (tr "No.")
+                                    (tr '(("Why let her aboard?" .
+                                           "<c:Girl:14>Hmm.. well let's see. I'm good at cooking, I can clean your ship, I'm pretty decent at crochet and... I don't know if this is even relevant, but I'm a blackbelt in karate! <B:0> Can I come along?"))))
       (on-dialog-accepted)
       (on-dialog-declined)))
 
@@ -55,24 +55,24 @@
   (chr-new (player) (car xy) (cdr xy) 'neutral '((icon . 14)))
   (adventure-log-add 15 '())
   (apply dialog-sequence messages)
-  (pickup-cart 2 "<c:Girl:14>.<d:500>.<d:500>.<d:500> Actually, I was wondering if you can do me one more small favor? I brought this data cartridge with an old photo of my village, can you hold onto it for me?")
+  (pickup-cart 2 (tr "<c:Girl:14>.<d:500>.<d:500>.<d:500> Actually, I was wondering if you can do me one more small favor? I brought this data cartridge with an old photo of my village, can you hold onto it for me?"))
   (exit-with-commentary "welcomes_girl"))
 
 
 (defn on-dialog-accepted ()
   (let ((slots (chr-slots (player))))
     (if slots
-        (join-crew (sample slots) '("The villager girl joined your crew!"))
+        (join-crew (sample slots) (tr '("The villager girl joined your crew!")))
         (progn
-          (await (dialog* "Sadly, there's no room..."))
-          (await (dialog* "<c:Girl:14>Wait up a second, I know your castle's pretty full, but don't leave me here! This island is literally burning! I'll even sleep in a cargo bay..."))
+          (await (dialog* (tr "Sadly, there's no room...")))
+          (await (dialog* (tr "<c:Girl:14>Wait up a second, I know your castle's pretty full, but don't leave me here! This island is literally burning! I'll even sleep in a cargo bay...")))
           (alloc-space 'cargo-bay)
-          (let (((x . y) (await (sel-input* 'cargo-bay "Place cargo bay (1x2):"))))
+          (let (((x . y) (await (sel-input* 'cargo-bay (tr "Place cargo bay (1x2):")))))
             (sound "build0")
             (room-new (player) `(cargo-bay ,x ,y))
             (join-crew (cons x (incr y)) ; slot in cargo bay is y+1
-                       '("<c:Girl:14>Wait, you're serious! I guess I asked for it haha..."
-                         "The villager girl joined your crew!")))))))
+                       (tr '("<c:Girl:14>Wait, you're serious! I guess I asked for it haha..."
+                             "The villager girl joined your crew!"))))))))
 
 
 (setq on-dialog-declined exit)

@@ -96,6 +96,7 @@ void SelectTutorialScene::enter(Scene& prev)
     if (auto script = PLATFORM.load_file_contents("scripts",
                                                   "tutorials/tutorials.lisp")) {
         lisp::BasicCharSequence seq(script);
+        seq.set_src_path("/scripts/tutorials/tutorials.lisp");
         auto result = lisp::dostring(seq, [](lisp::Value& err) {
             lisp::DefaultPrinter p;
             lisp::format(&err, p);
@@ -276,6 +277,8 @@ ScenePtr SelectTutorialScene::update(Time delta)
                 "scripts", file_name->string().value())) {
 
             lisp::BasicCharSequence seq(script);
+            auto full_path = format("/scripts/%", file_name->string().value());
+            seq.set_src_path(full_path.c_str());
             lisp::dostring(seq, [](lisp::Value& err) {
                 lisp::DefaultPrinter p;
                 lisp::format(&err, p);

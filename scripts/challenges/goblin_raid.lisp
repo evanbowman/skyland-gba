@@ -2,6 +2,8 @@
 ;;; challenges/goblin_raid.lisp
 ;;;
 
+(tr-bind-current)
+
 
 (coins-add 8500)
 
@@ -12,11 +14,11 @@
 
 
 (defn challenge-hint ()
-  (dialog "Are you sure you want a hint?")
+  (dialog (tr "Are you sure you want a hint?"))
   (dialog-setup-y/n)
 
   (defn on-dialog-accepted ()
-    (dialog "Hint: Try using an arc-gun against the enemy hull, a repair drone could keep you alive."))
+    (dialog (tr "Hint: Try using an arc-gun against the enemy hull, a repair drone could keep you alive.")))
 
   (setq on-dialog-declined (lambda ())))
 
@@ -25,9 +27,8 @@
 (setq on-fadein
       (lambda ()
         (dialog-sequence
-         "<c:Goblin:2>Hey King, we've found a defenssselesss cassstle!"
-         "<c:Goblin King:3>#cackle# Minionsss, prepare for boarding!")))
-
+         (tr "<c:Goblin:2>Hey King, we've found a defenssselesss cassstle!")
+         (tr "<c:Goblin King:3>#cackle# Minionsss, prepare for boarding!"))))
 
 
 

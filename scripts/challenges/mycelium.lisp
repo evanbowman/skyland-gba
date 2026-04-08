@@ -2,6 +2,7 @@
 ;;; challenges/mycelium.lisp
 ;;;
 
+(tr-bind-current)
 
 (defn on-victory ()
   (challenge-complete 4)
@@ -11,19 +12,19 @@
 (let ((cnt 0))
   (defn challenge-hint ()
     (dialog (if (equal cnt 0)
-                "Are you sure you want a hint?"
-              "Need another hint?"))
+                (tr "Are you sure you want a hint?")
+                (tr "Need another hint?")))
     (dialog-setup-y/n)
 
     (defn on-dialog-accepted ()
       (dialog
        (case cnt
         (0 (+= cnt 1)
-           "Hint: Mycelium won't grow on forcefields, and is weak against arc-guns.")
+           (tr "Hint: Mycelium won't grow on forcefields, and is weak against arc-guns."))
         (1 (+= cnt 1)
-           "Hint: You can incapacitate the cannon by destroying the two forcefields in front of it, allowing the mycelium to grow over the cannon.")
+           (tr "Hint: You can incapacitate the cannon by destroying the two forcefields in front of it, allowing the mycelium to grow over the cannon."))
         (2 (setq cnt 0)
-           "OK, one final hint: After building anything that you need from the manufactory, salvage it for resources."))))
+           (tr "OK, one final hint: After building anything that you need from the manufactory, salvage it for resources.")))))
 
 
     (setq on-dialog-declined (lambda ()))))

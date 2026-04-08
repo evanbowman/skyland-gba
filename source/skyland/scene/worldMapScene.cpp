@@ -1612,6 +1612,7 @@ ScenePtr WorldMapScene::update(Time delta)
     case State::print_saved_text: {
         PLATFORM.load_overlay_texture("overlay");
         const auto screen_tiles = calc_screen_tiles();
+        heading_.reset();
         for (int i = 0; i < screen_tiles.x; ++i) {
             PLATFORM.set_tile(Layer::overlay, i, 0, 112);
             PLATFORM.set_tile(Layer::overlay, i, 1, 112);

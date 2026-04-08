@@ -135,7 +135,7 @@ private:
         {
             // Yeah, the screen is only 30 tiles wide, but remember, this buffer
             // holds utf8 text!
-            StringBuffer<32> name_;
+            StringBuffer<48> name_;
             u16 image_ = 0;
         } character_;
 

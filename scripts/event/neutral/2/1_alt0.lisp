@@ -2,8 +2,10 @@
 ;;; neutral/2/1_alt0.lisp
 ;;;
 
+(tr-bind-current)
 
-(dialog "A damaged fortress floats into view. The residents do not respond to your radio signals.")
+
+(dialog (tr "A damaged fortress floats into view. The residents do not respond to your radio signals."))
 
 
 (opponent-init 5 'neutral)
@@ -24,9 +26,7 @@
 
 (defn on-converge ()
   (setq on-converge nil)
-  (if (dialog-await-y/n (string
-                         "You see a survivor amongst the wreckage. You cannot be sure whether the"
-                         " survivor is trustworthy. Invite survivor aboard?"))
+  (if (dialog-await-y/n (tr "You see a survivor amongst the wreckage. You cannot be sure whether the survivor is trustworthy. Invite survivor aboard?"))
       (on-dialog-accepted)
       (on-dialog-declined)))
 
@@ -37,15 +37,15 @@
       (secret
        4 12
        (if bad
-           "Humans eaten: 17"
-         "Days alone on island: lll")))
+           (tr "Humans eaten: 17")
+           (tr "Days alone on island: lll"))))
 
 
   (defn/temp join-good (slot)
     (chr-new (player) (car slot) (cdr slot) 'neutral
              (list (cons 'race
                          (if (equal (faction) 'goblin) 1 0))))
-    (await (dialog* "The survivor joined your crew!"))
+    (await (dialog* (tr "The survivor joined your crew!")))
     (adventure-log-add 40 '())
     (exit))
 
@@ -55,15 +55,14 @@
     (chr-new (player) (car slot) (cdr slot) 'hostile nil)
     (await (dialog*
             (if (equal (faction) 'goblin)
-                "The survivor turned out to be very unfriendly!"
-                "The survivor turned out to be a vicious goblin!")))
+                (tr "The survivor turned out to be very unfriendly!")
+                (tr "The survivor turned out to be a vicious goblin!"))))
     (adventure-log-add 41 '())
-    (await (dialog* "<c:Goblin:2>Die "
-                    (case (faction)
-                      ('goblin "Traitorsss")
-                      ('human "Humansss")
-                      ('sylph "Sssylph ssscum"))
-                    "!")))
+    (await (dialog* (format (tr "<c:Goblin:2>Die %!")
+                            (case (faction)
+                              ('goblin (tr "Traitorsss"))
+                              ('human (tr "Humansss"))
+                              ('sylph (tr "Sssylph ssscum")))))))
 
 
   (defn on-dialog-accepted ()
@@ -75,7 +74,7 @@
                 (join-good (car slots))
                 (join-bad (car slots))))
           (progn
-            (dialog "Sadly, there's no room...")
+            (dialog (tr "Sadly, there's no room..."))
             (exit))))))
 
 

@@ -94,9 +94,11 @@ void GlossaryViewerModule::load_appendix_page(int page)
         item_name_.emplace(OverlayCoord{6, 1});
     }
 
-    const char* strings_file = "/strings/appendix.txt";
+    const char* strings_file = "/strings/%/appendix.txt";
     auto load_entry = [strings_file](int line) {
-        return get_line_from_file(strings_file, line);
+        return get_line_from_file(format(strings_file,
+                                         systemstring_bound_file()).c_str(),
+                                  line);
     };
 
     StringBuffer<30> temp;

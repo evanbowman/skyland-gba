@@ -1,0 +1,5 @@
+'(("The remains of an abandoned island emerge from the mist, floating towards you..." . "Los restos de una isla abandonada emergen de la niebla, flotando hacia ti...")
+("To the earth below, I will not go." . "A la tierra de abajo, no he de bajar.")
+("You explore, and discover %@ amongst the ruins!" . "¡Exploras y descubres %@ entre las ruinas!")
+("Just as you're turning to leave, you spot a data cartridge sitting on an unfinished game of checkers." . "Justo cuando te das la vuelta para irte, ves un cartucho de datos sobre una partida de damas sin terminar.")
+)

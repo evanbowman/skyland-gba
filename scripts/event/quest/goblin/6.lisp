@@ -2,10 +2,11 @@
 ;;; quest/goblin/6.lisp
 ;;;
 
+(tr-bind-current)
 
 (dialog "<b:/scripts/data/img/ruins.img.bin>"
-        "You discover the ruins of an ancient civilization. "
-        "The island appears deserted, but just as you are about to leave, someone signals for help...")
+        (tr "You discover the ruins of an ancient civilization. ")
+        (tr "The island appears deserted, but just as you are about to leave, someone signals for help..."))
 
 
 (opponent-init 9 'neutral)
@@ -20,15 +21,15 @@
 
 (defn on-converge ()
   (setq on-converge nil)
-  (await (dialog* "A small injured boy begins speaking softly in an archaic language..."))
-  (await (dialog* "<c:Injured Boy:26> "
+  (await (dialog* (tr "A small injured boy begins speaking softly in an archaic language...")))
+  (await (dialog* (tr "<c:Injured Boy:26> ")
                   "<S:1>I am the only survivor! Can you help me get back home?"))
 
-  (if (dialog-await-binary-q-w/lore "You can't understand a word he's saying. But he seems to want to join your crew.<B:0> Invite him aboard?"
-                                    "Yes."
-                                    "I'll pass."
-                                    '(("Who might he be?" .
-                                       "He looks like he might be a Sylph child. They've been up here a long time, but not much is known about them. <B:0> Invite him aboard?")))
+  (if (dialog-await-binary-q-w/lore (tr "You can't understand a word he's saying. But he seems to want to join your crew.<B:0> Invite him aboard?")
+                                    (tr "Yes.")
+                                    (tr "I'll pass.")
+                                    (tr '(("Who might he be?" .
+                                           "He looks like he might be a Sylph child. They've been up here a long time, but not much is known about them. <B:0> Invite him aboard?"))))
       (on-dialog-accepted)
       (on-dialog-declined)))
 
@@ -55,10 +56,10 @@
           (push qids 6)
           (push quests (cons "civ.lisp" m))
           (push qvar (cons 6 id))
-          (dialog "The orphan boy joined your crew! <B:0> Upon discovering your sky chart, he marked a location with an *...")
+          (dialog (tr "The orphan boy joined your crew! <B:0> Upon discovering your sky chart, he marked a location with an *..."))
           (exit))
         (progn
-          (dialog "The injured boy joined your crew! Wonder where he came from...")
+          (dialog (tr "The injured boy joined your crew! Wonder where he came from..."))
           (exit))))))
 
 

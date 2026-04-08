@@ -2,8 +2,10 @@
 ;;; neutral/1/3.lisp
 ;;;
 
+(tr-bind-current)
 
-(dialog "A goblin stronghold approaches... they seem to be willing to negotiate...")
+
+(dialog (tr "A goblin stronghold approaches... they seem to be willing to negotiate..."))
 
 
 
@@ -21,13 +23,9 @@
 
   (defn on-converge ()
     (setq on-converge nil)
-    (if (dialog-await-binary-q (string "<c:Goblin King:3>#cackle# "
-                                       "You're tressspasssing in my territory! "
-                                       "I demand a tribute of "
-                                       fee
-                                       "@! Pay!")
-                               "I'll pay…"
-                               "No way!")
+    (if (dialog-await-binary-q (format (tr "<c:Goblin King:3>#cackle# You're tressspasssing in my territory! I demand a tribute of %@! Pay!") fee)
+                               (tr "I'll pay…")
+                               (tr "No way!"))
         (on-dialog-accepted)
         (on-dialog-declined)))
 
@@ -37,12 +35,11 @@
         (progn
           (opponent-mode 'hostile)
           (adventure-log-add 32 '())
-          (dialog "<c:Goblin King:3>Thatsss not enough! Letsss sssee if theresss anything we can take!!"))
+          (dialog (tr "<c:Goblin King:3>Thatsss not enough! Letsss sssee if theresss anything we can take!!")))
         (progn
           (coins-add (- fee))
-          (await (dialog* "The Goblin King rejoices, having successfully extorted "
-                          (string fee)
-                          "@."))
+          (await (dialog* (format (tr "The Goblin King rejoices, having successfully extorted %@.")
+                                  fee)))
           (adventure-log-add 31 (list fee))
           (exit)))))
 
@@ -53,4 +50,4 @@
       (lambda ()
         (opponent-mode 'hostile)
         (adventure-log-add 33 '())
-        (dialog "<c:Goblin King:3>YARRRGG!!! PREPARE FOR BOARDING!!!")))
+        (dialog (tr "<c:Goblin King:3>YARRRGG!!! PREPARE FOR BOARDING!!!"))))

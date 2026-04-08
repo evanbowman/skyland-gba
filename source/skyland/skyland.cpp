@@ -944,6 +944,14 @@ Ping App::get_ping() const
 
 
 
+void swap_language(const char* new_lang)
+{
+    systemstring_bind_file(new_lang);
+    flash_filesystem::store_file_data("/lang.txt", new_lang, strlen(new_lang));
+}
+
+
+
 } // namespace skyland
 
 

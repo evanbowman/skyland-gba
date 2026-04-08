@@ -2,8 +2,10 @@
 ;;; neutral/3/dev_cameo.lisp
 ;;;
 
+(tr-bind-current)
 
-(dialog "A precarious-looking fort drifts out of the clouds...")
+
+(dialog (tr "A precarious-looking fort drifts out of the clouds..."))
 
 
 (opponent-init 7 'neutral)
@@ -39,13 +41,12 @@
 (setq on-converge
       (lambda ()
         (let ((info (cart-info 0)))
-          (dialog "Looks like no one's home! The sign on the door reads: 'Away on holiday --Evan'. Amongst the clutter, you find a data cartridge!")
+          (dialog (tr "Looks like no one's home! The sign on the door reads: 'Away on holiday --Evan'. Amongst the clutter, you find a data cartridge!"))
           (setq on-dialog-closed
                 (lambda ()
                   (sound "click_digital_1")
                   (cart-add 0)
-                  (dialog "You pick up a cart labeled "
-                          (get info 0)
-                          "! (cartridge 1)")
+                  (dialog (format (tr "You pick up a cart labeled %! (cartridge 1)")
+                                  (get info 0)))
                   (setq on-dialog-closed nil)
                   (exit))))))

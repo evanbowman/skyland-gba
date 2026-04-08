@@ -2,13 +2,14 @@
 ;;; challenges/decimator.lisp
 ;;;
 
+(tr-bind-current)
 
 (defn challenge-hint ()
-  (dialog "Are you sure you want a hint?")
+  (dialog (tr "Are you sure you want a hint?"))
   (dialog-setup-y/n)
 
   (defn on-dialog-accepted ()
-    (dialog "Hint: Decimators will only fire in a straight line."))
+    (dialog (tr "Hint: Decimators will only fire in a straight line.")))
 
   (setq on-dialog-declined (lambda ())))
 

@@ -2,8 +2,9 @@
 ;;; quest_marker/goblin_atomics.lisp
 ;;;
 
+(tr-bind-current)
 
-(dialog "You arrive at the coordinates marked in the ancient texts...")
+(dialog (tr "You arrive at the coordinates marked in the ancient texts..."))
 
 
 (opponent-init 9 'neutral)
@@ -15,14 +16,14 @@
 (weather-set weather-id-ash)
 
 (defn on-converge ()
-  (dialog "You arrive, but the Ashwalker Apprentice seems disturbed...")
+  (dialog (tr "You arrive, but the Ashwalker Apprentice seems disturbed..."))
 
   (defn on-dialog-closed ()
-    (dialog "<c:Ashwalker Apprentice:41>The Order's chants... they've gone ssssilent. <B:0> Our ritualsss teach that if the Order falls, we must use the old weaponsss to take retribution against our enemies. Take thisss:")
+    (dialog (tr "<c:Ashwalker Apprentice:41>The Order's chants... they've gone ssssilent. <B:0> Our ritualsss teach that if the Order falls, we must use the old weaponsss to take retribution against our enemies. Take thisss:"))
     (defn on-dialog-closed ()
-      (dialog "[You write down the launch codes...]")
+      (dialog (tr "[You write down the launch codes...]"))
       (defn on-dialog-closed ()
-        (dialog "<c:Ashwalker Apprentice:41>Handle with care... the radiation still singsss..")
+        (dialog (tr "<c:Ashwalker Apprentice:41>Handle with care... the radiation still singsss.."))
         (defn on-dialog-closed ()
           (foreach (lambda (r)
                      (when (equal (car r) 'cloak)
@@ -32,7 +33,7 @@
           (alloc-space 'warhead)
 
           (sel-input 'warhead
-                     "Place weapon (1x2)"
+                     (tr "Place weapon (1x2)")
                      (lambda (isle x y)
                        (foreach (lambda (r)
                                   (when (equal (car r) 'warhead)
@@ -41,7 +42,7 @@
                        (room-new (player) (list 'warhead x y))
                        (adventure-log-add 64 '())
                        (sound "build0")
-                       (dialog "You retrieved an atomic missile! There were others, but only one was still functioning.")
+                       (dialog (tr "You retrieved an atomic missile! There were others, but only one was still functioning."))
                        (defn on-dialog-closed ()
-                         (dialog "<c:Ashwalker Apprentice:41>Now they'll learn why even the ssstorm fears usss!")
+                         (dialog (tr "<c:Ashwalker Apprentice:41>Now they'll learn why even the ssstorm fears usss!"))
                          (setq on-dialog-closed exit)))))))))

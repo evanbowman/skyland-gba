@@ -1,0 +1,5 @@
+'(("Sandbox mode gives you nearly unlimited resources, and allows you to build on your opponent's island in addition to your own!<B:0> You may also reposition your opponent's characters!<B:0> Try out strategies, or just play around!<B:0> You can even build a couple of big fortresses, select spectate on the start menu, and let the AI control both castles!" . "¡El modo sandbox te da recursos casi ilimitados, y te permite construir en la isla del oponente además de la tuya!<B:0> ¡También puedes reposicionar a los personajes del oponente!<B:0> ¡Prueba estrategias, o simplemente juega!<B:0> ¡Incluso puedes construir dos grandes fortalezas, seleccionar espectador en el menú de inicio, y dejar que la IA controle ambos castillos!")
+("Welcome to the Battle Sandbox! Want any help?" . "¡Bienvenido al Sandbox de Batalla! ¿Necesitas ayuda?")
+("Sure!" . "¡Claro!")
+("No thanks!" . "¡No, gracias!")
+)

@@ -1,0 +1,2 @@
+'(("<c:Milo:5>We seem to only be able to build a small set of structures. By constructing a workshop, we unlock a large number of additional rooms. Workshops also reduce construction cost for all new rooms by a bit." . "<c:Milo:5>Parece que solo podemos construir unas pocas estructuras. Al construir un taller, desbloqueamos un gran número de salas adicionales. Los talleres también reducen un poco el coste de construcción de todas las salas nuevas.")
+)

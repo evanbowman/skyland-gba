@@ -1,0 +1,5 @@
+'(("Farmer Meyer's brother waves in the distance, excited to see you! Err... hopefully you managed to keep some of his lemon trees alive..." . "El hermano del Granjero Meyer saluda a lo lejos, emocionado de verte. Ehm... esperemos que hayas logrado mantener vivos algunos de sus limoneros...")
+("<c:Farmer Ted:9>From the moment I saw you nasty goblins, I knew there was no hope." . "<c:Granjero Ted:9>Desde el momento en que vi a ustedes asquerosos goblins, supe que no había esperanza.")
+("<c:Farmer Ted:9>Hey, you lost my brother's trees!?" . "<c:Granjero Ted:9>¡Oye, perdiste los árboles de mi hermano!?")
+("<c:Farmer Ted:9>Whoa! I didn't think there would be any left, Here's %@ for your trouble!" . "<c:Granjero Ted:9>¡Vaya! No pensé que quedaría ninguno, ¡aquí tienes %@ por las molestias!")
+)

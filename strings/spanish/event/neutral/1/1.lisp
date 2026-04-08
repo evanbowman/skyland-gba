@@ -1,0 +1,7 @@
+'(("A castle lazily drifts across the horizon... possibly uninhabited?" . "Un castillo flota perezosamente por el horizonte... ¿posiblemente deshabitado?")
+("Did you know that Skyland's goblins were human once? But they remained on the ruined surface too long, and were left mutated and cruel..." . "¿Sabías que los goblins de Skyland fueron humanos una vez? Pero permanecieron demasiado tiempo en la superficie arruinada, y quedaron mutados y crueles...")
+("You explore, and salvage %@ from the ruins." . "Exploras y rescatas %@ de las ruinas.")
+("It's a trap!" . "¡Es una trampa!")
+("The fortress appears to be empty, but you cannot be certain. Attempt to board?" . "La fortaleza parece estar vacía, pero no puedes estar seguro. ¿Intentar abordarla?")
+("The fortress sinks back into the clouds, its contents remain an unresolved mystery." . "La fortaleza se hunde de vuelta en las nubes, su contenido sigue siendo un misterio sin resolver.")
+)

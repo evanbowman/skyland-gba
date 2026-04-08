@@ -2,9 +2,11 @@
 ;;; quest/human/4.lisp
 ;;;
 
+(tr-bind-current)
 
 (dialog
- "<b:/scripts/data/img/ceramics.img.bin>A small village specializing in ceramics offers to sell you a batch of ornate tiles. Your crew insists that you'll be able to resell the tiles at another village for a much higher price...")
+ "<b:/scripts/data/img/ceramics.img.bin>"
+ (tr "A small village specializing in ceramics offers to sell you a batch of ornate tiles. Your crew insists that you'll be able to resell the tiles at another village for a much higher price..."))
 
 
 (opponent-init 13 'neutral)
@@ -76,11 +78,11 @@
     (setq on-converge nil)
     (dialog
      (format
-      "<c:Merchant:7>So, whaddya say? Purchase a batch of ceramics for %@?"
+      (tr "<c:Merchant:7>So, whaddya say? Purchase a batch of ceramics for %@?")
       fee
       (* fee 2)))
 
-    (dialog-setup-binary-q "OK!" "No thanks.")
+    (dialog-setup-binary-q (tr "OK!") (tr "No thanks."))
 
     (defn on-dialog-accepted ()
       (let ((m (eval-file "/scripts/event/quest/make_quest_marker.lisp")))
@@ -93,19 +95,19 @@
                  (push qids qid)
                  (push qvar (cons qid fee))
                  (coins-set (- (coins) fee))
-                 (cargo-set (player) x y "ceramic tiles")
-                 (dialog "<c:Merchant:7>Great, here are your tiles!")
+                 (cargo-set (player) x y (tr "ceramic tiles"))
+                 (dialog (tr "<c:Merchant:7>Great, here are your tiles!"))
                  (defn on-dialog-closed ()
-                   (dialog "(After talking with your crew, you mark the location of a town on your sky chart with an *)")
+                   (dialog (tr "(After talking with your crew, you mark the location of a town on your sky chart with an *)"))
                    (exit)
                    (setq on-dialog-closed exit)))))
           (progn
             (dialog
-             "<c:Merchant:7>Oh, I'm so sorry! We can't actually sell you anything today.")
+             (tr "<c:Merchant:7>Oh, I'm so sorry! We can't actually sell you anything today."))
             (setq on-dialog-closed exit)))))
 
 
     (setq on-dialog-declined
           (lambda ()
-            (dialog "<c:Merchant:7>No problem!")
+            (dialog (tr "<c:Merchant:7>No problem!"))
             (setq on-dialog-closed exit)))))

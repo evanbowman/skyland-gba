@@ -13,8 +13,9 @@ namespace skyland
 
 const char* DataCart::config() const
 {
-    auto f = PLATFORM.load_file_contents(
-        "", format("scripts/data/cart/cart%.ini", id_).c_str());
+    auto f = PLATFORM.load_file_contents("", format("strings/%/cart/cart%.ini",
+                                                    systemstring_bound_file(),
+                                                    id_).c_str());
 
     if (not f) {
         Platform::fatal(format("missing cart %", id_).c_str());
@@ -109,7 +110,8 @@ DataCartLibrary::DataCartLibrary() : carts_(cart_lib_backup_data)
     carts_ = input.get();
 
     Conf c;
-    auto f = PLATFORM.load_file_contents("", "scripts/data/cart/library.ini");
+    auto path = format("strings/%/cart/library.ini", systemstring_bound_file());
+    auto f = PLATFORM.load_file_contents("", path.c_str());
     if (f) {
         auto found = c.get(f, "info", "cart_count");
         if (auto val = std::get_if<Conf::Integer>(&found)) {

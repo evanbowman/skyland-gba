@@ -2,10 +2,11 @@
 ;;; quest_marker/delivery.lisp
 ;;;
 
+(tr-bind-current)
 
 (dialog
  "<b:/scripts/data/img/castaway.img.bin>"
- "You arrive at the delivery address...")
+ (tr "You arrive at the delivery address..."))
 
 
 
@@ -21,7 +22,7 @@
       (lambda ()
         (let ((c (cargo-bays (player))))
           (let ((p (filter (lambda (xy)
-                             (equal "parcel"
+                             (equal (tr "parcel")
                                     (cargo (player) (first xy) (second xy))))
                            c)))
             (if p
@@ -34,9 +35,8 @@
                    "")
 
                   (dialog
-                   "<c:Customer:16>Thank you! I wasn't sure it would arrive! Now I can use these machine parts to fix my engines! Here's "
-                   (string temp)
-                   "@ for your trouble!")
+                   (format (tr "<c:Customer:16>Thank you! I wasn't sure it would arrive! Now I can use these machine parts to fix my engines! Here's %@ for your trouble!")
+                           temp)
 
                   (coins-add temp)
                   (adventure-log-add 22 (list temp))
@@ -44,4 +44,4 @@
                   (setq on-dialog-closed exit))
               (progn
                 (setq on-dialog-closed exit)
-                (dialog "Upon closer inspection, no one seems to be home! Good thing too, as it seems that you lost the parcel along the way!")))))))
+                (dialog (tr "Upon closer inspection, no one seems to be home! Good thing too, as it seems that you lost the parcel along the way!")))))))))

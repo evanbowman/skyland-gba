@@ -2,8 +2,9 @@
 ;;; quest_marker/pickup.lisp
 ;;;
 
+(tr-bind-current)
 
-(dialog "At last, the pickup address...")
+(dialog (tr "At last, the pickup address..."))
 
 
 (opponent-init 7 'neutral)
@@ -42,13 +43,13 @@
   (adventure-log-add 25 '())
 
   (if (equal 0 (length (chrs (opponent))))
-      (dialog "The passengers joined your crew!")
+      (dialog (tr "The passengers joined your crew!"))
     (if (< 3 (length (chrs (opponent))))
-        (dialog "Some of the passengers joined your crew!")
-      (dialog "You'd like to invite them aboard, but there seems to be no room..."))))
+        (dialog (tr "Some of the passengers joined your crew!"))
+      (dialog (tr "You'd like to invite them aboard, but there seems to be no room...")))))
 
 
 (defn on-converge ()
   (dialog
-   "<c:Passengers:10>We were starting to wonder if anyone would show up! How about we join up, it'll be safer to travel together! Here's 1500@ as a tip.")
+   (tr "<c:Passengers:10>We were starting to wonder if anyone would show up! How about we join up, it'll be safer to travel together! Here's 1500@ as a tip."))
   (coins-add 1500))

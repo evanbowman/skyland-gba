@@ -2,6 +2,7 @@
 ;;; challenges/backdoor.lisp
 ;;;
 
+(tr-bind-current)
 
 (coins-add 5300)
 
@@ -10,11 +11,11 @@
 
 
 (defn challenge-hint ()
-  (dialog "Are you sure you want a hint?")
+  (dialog (tr "Are you sure you want a hint?"))
   (dialog-setup-y/n)
 
   (defn on-dialog-accepted ()
-    (dialog "Hint: You may need to use a repair-drone in an unconventional way. Also: Read the description for nemesis in the game's glossary.")
+    (dialog (tr "Hint: You may need to use a repair-drone in an unconventional way. Also: Read the description for nemesis in the game's glossary."))
 
     (push-menu "glossary" '(nemesis)))
 

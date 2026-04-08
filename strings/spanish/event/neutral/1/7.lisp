@@ -1,0 +1,7 @@
+'(("You discover the ruins of a forsaken town. I guess no one would mind if you scavenged some resources..." . "Descubres las ruinas de un pueblo abandonado. Supongo que a nadie le importará si recoges algunos recursos...")
+("Something else catches your attention. <d:500>.<d:500>.<d:500> a data cartridge!" . "Algo más llama tu atención. <d:500>.<d:500>.<d:500> ¡un cartucho de datos!")
+("Looks like someone already got here first. You collect %@." . "Parece que alguien llegó primero. Recoges %@.")
+("After boarding, you find a completely intact %. Your crew asks you where to install it..." . "Al abordar, encuentras un % completamente intacto. Tu tripulación te pregunta dónde instalarlo...")
+("Pick a slot (%x%)" . "Elige un espacio (%x%)")
+("All done!" . "¡Listo!")
+)

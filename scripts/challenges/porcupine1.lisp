@@ -2,6 +2,7 @@
 ;;; challenges/porcupine1.lisp
 ;;;
 
+(tr-bind-current)
 
 (coins-set 10000)
 
@@ -16,11 +17,11 @@
 
 
 (defn challenge-hint ()
-  (dialog "Are you sure you want a hint?")
+  (dialog (tr "Are you sure you want a hint?"))
   (dialog-setup-y/n)
 
   (defn on-dialog-accepted ()
-    (dialog "Clear out some of that masonry, then, flak-guns might be useful..."))
+    (dialog (tr "Clear out some of that masonry, then, flak-guns might be useful...")))
 
   (setq on-dialog-declined (lambda ())))
 

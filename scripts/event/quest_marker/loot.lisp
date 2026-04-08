@@ -2,9 +2,10 @@
 ;;; quest_marker/loot.lisp
 ;;;
 
+(tr-bind-current)
 
 (dialog
- "You arrive at the meeting spot...")
+ (tr "You arrive at the meeting spot..."))
 
 
 
@@ -20,7 +21,7 @@
       (lambda ()
         (let ((c (cargo-bays (player))))
           (let ((p (filter (lambda (xy)
-                             (equal "loot"
+                             (equal (tr "loot")
                                     (cargo (player) (first xy) (second xy))))
                            c)))
             (if p
@@ -33,9 +34,9 @@
                    "")
 
                   (dialog
-                   "<c:Contact:2>Sssneaky work! Was starting to think you'd gotten caught! Good haul of machine partsss here - plenty of buyersss waiting! Here'sss "
-                   (string temp)
-                   "@ for your cut!")
+                   (format
+                    (tr "<c:Contact:2>Sssneaky work! Was starting to think you'd gotten caught! Good haul of machine partsss here - plenty of buyersss waiting! Here'sss %@ for your cut!")
+                    temp))
 
                   (coins-add temp)
                   (adventure-log-add 22 (list temp))
@@ -43,4 +44,4 @@
                   (setq on-dialog-closed exit))
               (progn
                 (setq on-dialog-closed exit)
-                (dialog "Upon closer inspection, no one seems to be home! Good thing too, as it seems that you lost the loot along the way!")))))))
+                (dialog (tr "Upon closer inspection, no one seems to be home! Good thing too, as it seems that you lost the loot along the way!"))))))))

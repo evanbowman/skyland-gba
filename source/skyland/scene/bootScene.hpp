@@ -72,32 +72,42 @@ public:
     void enter(Scene& prev) override
     {
         if (opts_->size() > 1) {
-            u8 row = 3;
+            u8 row = 4;
             for (auto& opt : *opts_) {
                 text_opts_.emplace_back(opt.first.c_str(),
                                         OverlayCoord{3, row});
                 row += 2;
             }
         }
+        show_prompt();
     }
 
 
     void exit(Scene& prev) override
     {
         text_opts_.clear();
-        for (int y = 0; y < 20; ++y) {
-            PLATFORM.set_tile(Layer::overlay, 1, y, 0);
+        PLATFORM.fill_overlay(0);
+    }
+
+
+    void show_prompt()
+    {
+        auto path = (*opts_)[sel_].second.c_str();
+        systemstring_bind_file(path);
+        for (u8 x = 0; x < 30; ++x) {
+            PLATFORM.set_tile(Layer::overlay, x, 1, 0);
         }
+        Text::print(SYS_CSTR(choose_language), {1, 1});
     }
 
 
     ScenePtr update(Time delta) override
     {
         auto show_cursor = [&] {
-            for (int y = 0; y < 20; ++y) {
+            for (int y = 3; y < 20; ++y) {
                 PLATFORM.set_tile(Layer::overlay, 1, y, 0);
             }
-            PLATFORM.set_tile(Layer::overlay, 1, 3 + sel_ * 2, 396);
+            PLATFORM.set_tile(Layer::overlay, 1, 4 + sel_ * 2, 396);
         };
 
         show_cursor();
@@ -105,20 +115,20 @@ public:
         if (button_down<Button::up>()) {
             if (sel_ > 0) {
                 --sel_;
+                show_prompt();
                 PLATFORM.speaker().play_sound("click_wooden", 2);
             }
         } else if (button_down<Button::down>()) {
             if (sel_ < (int)opts_->size() - 1) {
                 ++sel_;
+                show_prompt();
                 PLATFORM.speaker().play_sound("click_wooden", 2);
             }
         } else if (opts_->empty() or opts_->size() == 1 or
                    button_down<Button::action_1>()) {
             if (opts_->size() > 1) {
                 auto path = (*opts_)[sel_].second.c_str();
-                systemstring_bind_file(path);
-                flash_filesystem::store_file_data(
-                    lang_file, path, strlen(path));
+                swap_language(path);
             }
 
             if (PLATFORM.device_name() == "MacroDesktopDemo") {
@@ -139,31 +149,25 @@ private:
     {
         auto result = allocate<LanguageOptions>("lang-table");
 
-        auto cp = PLATFORM.load_file_contents("strings", "lang.txt");
+        auto opts = APP.invoke_script("/strings/lang.lisp");
+        lisp::l_foreach(opts, [&](lisp::Value* kvp) {
+            if (kvp->type() not_eq lisp::Value::Type::cons) {
+                PLATFORM.fatal("lang.lisp: "
+                               "invalid language opt format, expected a-list");
+            }
+            std::pair<StringBuffer<48>, StringBuffer<48>> current;
+            auto ui_name = kvp->cons().car();
+            auto internal_name = kvp->cons().cdr();
+            if (ui_name->type() not_eq lisp::Value::Type::string or
+                internal_name->type() not_eq lisp::Value::Type::string) {
+                PLATFORM.fatal("lang.lisp: pair should contain strings!");
+            }
 
-        std::pair<StringBuffer<48>, StringBuffer<48>> current;
-        int parse_state = 0;
-        utf8::scan(
-            [&](utf8::Codepoint cp, const char* raw, int) {
-                if (cp == '=') {
-                    parse_state = 1;
-                } else if (cp == '\n') {
-                    parse_state = 0;
-                    result->emplace_back(current);
-                    current.first.clear();
-                    current.second.clear();
-                } else {
-                    if (parse_state == 0) {
-                        current.first += raw;
-                    } else {
-                        current.second += raw;
-                    }
-                }
-                return true;
-            },
-            cp,
-            strlen(cp));
-
+            result->push_back({
+                    ui_name->string().value(),
+                    internal_name->string().value()
+                });
+        });
         return result;
     }
 };
@@ -475,6 +479,75 @@ public:
                 setup_pools();
                 TitleScreenScene::run_init_scripts(false);
                 return make_scene<RegressionModule>();
+            } else if (match("--init-locale")) {
+                if (not match("--output")) {
+                    error("error: --init-locale is specified, "
+                          "but not --output=<dir>");
+                    PLATFORM_EXTENSION(quit);
+                    return null_scene();
+                }
+                lisp::Protected callback(L_NIL);
+                callback = APP.invoke_script("/strings/extract_strings.lisp");
+                lisp::push_op(lisp::make_function([](int argc) {
+                    L_EXPECT_ARGC(argc, 3);
+                    L_EXPECT_OP(0, function);
+                    L_EXPECT_OP(1, cons);
+                    L_EXPECT_OP(2, string);
+                    lisp::Protected merge_fn(lisp::get_op0());
+                    lisp::Protected result_arg(lisp::get_op1());
+                    auto match = PLATFORM.get_extensions().has_startup_opt;
+                    auto path_prefix = match("--output");
+                    auto output_path = format<256>("%/%", path_prefix, L_LOAD_STRING(2));
+                    if (auto read = PLATFORM.get_extensions().read_external_file) {
+                        Vector<char> existing;
+                        read(output_path.c_str(), existing);
+                        if (existing.size()) {
+                            lisp::VectorCharSequence cs(existing);
+                            lisp::read(cs, 0);
+                            lisp::Protected result(lisp::get_op0());
+                            lisp::pop_op(); // read result
+                            lisp::eval(result);
+                            result = lisp::get_op0();
+                            lisp::pop_op(); // eval result
+
+                            lisp::push_op(result);
+                            lisp::push_op(result_arg);
+                            lisp::safecall(merge_fn, 2);
+                            result_arg = lisp::get_op0();
+                            lisp::pop_op();
+                        }
+                    }
+                    Vector<char> result;
+                    result.push_back('\'');
+                    result.push_back('(');
+                    lisp::l_foreach(result_arg, [&](lisp::Value* v) {
+                        lisp::_Printer<Vector<char>> p;
+                        lisp::format(v, p);
+                        auto it = p.data_.begin();
+                        if (p.data_.size() and p.data_[0] == '\'') {
+                            // Skip over the quote character appended by
+                            // lisp::format, as we're inserting into an already
+                            // quoted list.
+                            //
+                            // FIXME: if lisp::format could insert newlines, we
+                            // wouldn't need to do any of this...
+                            ++it;
+                        }
+                        for (; it not_eq p.data_.end(); ++it) {
+                            result.push_back(*it);
+                        }
+                        result.push_back('\n');
+                    });
+                    result.push_back(')');
+                    result.push_back('\n');
+                    if (auto write = PLATFORM.get_extensions().write_external_file) {
+                        write(output_path.c_str(), result);
+                    }
+                    return L_NIL;
+                }));
+                lisp::safecall(callback, 1);
+                lisp::pop_op(); // result
+                PLATFORM_EXTENSION(quit);
             } else if (match("--compile-packages")) {
                 if (not match("--output")) {
                     error("error: --compile-packages=<dir> is specified, "
@@ -516,7 +589,6 @@ public:
             info("lang selection...");
             return make_scene<LanguageSelectScene>();
         } else {
-            message("bind strings file...");
             Vector<char> data;
             if (flash_filesystem::read_file_data(lang_file, data)) {
                 StringBuffer<48> path;
@@ -525,7 +597,6 @@ public:
                 }
                 systemstring_bind_file(path.c_str());
             }
-
             return make_scene<IntroCreditsScene>();
         }
     }

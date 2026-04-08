@@ -2971,6 +2971,9 @@ Value* dostring(CharSequence& code,
 {
     lexical_frame_push();
     auto src_path = code.get_src_path();
+    if (src_path and src_path[0] == '/') {
+        ++src_path;
+    }
     lexical_frame_store(L_CONS(make_symbol("--current-file"),
                                src_path ? make_string(src_path) :
                                L_NIL));

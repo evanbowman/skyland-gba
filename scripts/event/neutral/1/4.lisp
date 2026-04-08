@@ -2,10 +2,12 @@
 ;;; neutral/1/4.lisp
 ;;;
 
+(tr-bind-current)
+
 
 (dialog
  "<b:/scripts/data/img/overgrown_isle.img.bin>"
- "A nearby island seems to be transmitting an unusual distress signal...")
+ (tr "A nearby island seems to be transmitting an unusual distress signal..."))
 
 
 (opponent-init 7 'neutral)
@@ -48,11 +50,11 @@
 
 (defn on-converge ()
   (setq on-converge nil)
-  (if (dialog-await-binary-q-w/lore "Upon closer inspection, you find that the castle may contain valuable cargo, but it's overgrown with mycelium. You can explore, although there's some risk of cross-contamination. Board anyway?"
-                                    "Let's explore!"
-                                    "No way!"
-                                    '(("What's mycelium?" .
-                                       "Mycelium is a substance that started infesting islands recently. It's pretty difficult to contain; some ships have a policy of burning infested islands on sight. Mycelium grows over the whole surface of an island, sucking a bit more power each time it grows larger. But it does have some defensive potential; when carefully contained, it can be useful as hull. <B:0> Anyway, should we board?")))
+  (if (dialog-await-binary-q-w/lore (tr "Upon closer inspection, you find that the castle may contain valuable cargo, but it's overgrown with mycelium. You can explore, although there's some risk of cross-contamination. Board anyway?")
+                                    (tr "Let's explore!")
+                                    (tr "No way!")
+                                    (tr '(("What's mycelium?" .
+                                           "Mycelium is a substance that started infesting islands recently. It's pretty difficult to contain; some ships have a policy of burning infested islands on sight. Mycelium grows over the whole surface of an island, sucking a bit more power each time it grows larger. But it does have some defensive potential; when carefully contained, it can be useful as hull. <B:0> Anyway, should we board?"))))
       (on-dialog-accepted)
       (on-dialog-declined)))
 
@@ -60,7 +62,7 @@
 (defn on-dialog-accepted ()
   (let ((end (lambda ()
                (pickup-cart-cb 6
-                               "One of your crewmembers finds a data cartridge tangled in the fungal roots..."
+                               (tr "One of your crewmembers finds a data cartridge tangled in the fungal roots...")
                                exit))))
     (if (choice 3)
         (progn
@@ -69,10 +71,10 @@
               (let ((c (get locs (choice (length locs)))))
                 (room-new (player) (list 'mycelium (car c) (cdr c))))
               (adventure-log-add 34 '())
-              (dialog "While attempting to board, several spores on the castle burst, infesting your island with mycelium!")))
+              (dialog (tr "While attempting to board, several spores on the castle burst, infesting your island with mycelium!"))))
           (end))
       (let ((temp (+ 1000 (choice 1000))))
-        (dialog "You explore, and find cargo worth " (string temp) "@!")
+        (dialog (format (tr "You explore, and find cargo worth %@!") temp))
         (coins-add temp)
         (adventure-log-add 35 (list temp))
         (end)))))

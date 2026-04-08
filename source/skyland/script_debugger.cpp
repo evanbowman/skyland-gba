@@ -12,6 +12,7 @@
 #include "ext_workram_data.hpp"
 #include "graphics/overlay.hpp"
 #include "script/bytecode.hpp"
+#include "skyland/skyland.hpp"
 
 
 
@@ -720,10 +721,21 @@ void handle_watchpoint(lisp::Value* expr)
 
 
 
+void debugger_log_error(lisp::Value* expr)
+{
+    warning(format<256>("lisp error: %", expr));
+}
+
+
+
 lisp::debug::Action handle_error_occurred(lisp::Value* expr)
 {
     if (expr->type() not_eq lisp::Value::Type::error) {
         return lisp::debug::Action::resume;
+    }
+
+    if (APP.is_developer_mode()) {
+        debugger_log_error(expr);
     }
 
     PLATFORM.screen().schedule_fade(

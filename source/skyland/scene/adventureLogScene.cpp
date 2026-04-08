@@ -140,20 +140,19 @@ StringBuffer<128> AdventureLogScene::format_logentry(int entry)
 
     if (auto v = load_logentry(entry)) {
 
-        const char* file = "/strings/adventure_log.txt";
+        const char* file = "/strings/%/adventure_log.txt";
         if (APP.faction() == Faction::human) {
-            file = "/strings/adventure_log_human.txt";
+            file = "/strings/%/adventure_log_human.txt";
         } else if (APP.faction() == Faction::goblin) {
-            file = "/strings/adventure_log_goblin.txt";
+            file = "/strings/%/adventure_log_goblin.txt";
         } else if (APP.faction() == Faction::sylph) {
-            file = "/strings/adventure_log_sylph.txt";
+            file = "/strings/%/adventure_log_sylph.txt";
         } else {
-            file = "/strings/adventure_log.txt";
+            file = "/strings/%/adventure_log.txt";
         }
 
-
         auto line = lisp::to_integer(lisp::get_list(v, 0));
-        auto str = get_line_from_file(file, line);
+        auto str = get_line_from_file(format(file, systemstring_bound_file()).c_str(), line);
 
         Buffer<StringBuffer<20>, 8> args;
         lisp::l_foreach(v->cons().cdr(), [&](lisp::Value* val) {

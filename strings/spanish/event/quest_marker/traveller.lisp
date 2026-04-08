@@ -1,0 +1,7 @@
+'(("You reach the location that the mysterious man labeled on your map..." . "Llegas a la ubicación que el misterioso hombre marcó en tu mapa...")
+("<c:Traveller:23>We've arrived! Unfortunately, it's time we parted ways; I need to start repairs and move my island out of the way of this storm. I'm grateful for your help, here're a few things that you may find useful. (2000@ and one random block) " . "<c:Viajero:23>¡Hemos llegado! Desafortunadamente, es hora de separarnos; necesito empezar las reparaciones y mover mi isla fuera del camino de esta tormenta. Te agradezco la ayuda, aquí tienes algunas cosas que pueden serte útiles. (2000@ y un bloque aleatorio) ")
+("Place " . "Colocar ")
+("<c:Traveller:23>Goodbye, and good luck!" . "<c:Viajero:23>¡Adiós, y buena suerte!")
+("The traveller returned to his island!" . "¡El viajero regresó a su isla!")
+("Unfortunately, it seems the traveller is no longer aboard your island..." . "Desafortunadamente, parece que el viajero ya no está a bordo de tu isla...")
+)

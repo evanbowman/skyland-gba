@@ -2,8 +2,10 @@
 ;;; neutral/0/4.lisp
 ;;;
 
+(tr-bind-current)
 
-(dialog "You discover the wreckage of a goblin raid...")
+
+(dialog (tr "You discover the wreckage of a goblin raid..."))
 
 
 (opponent-init 8 'neutral)
@@ -29,7 +31,7 @@
 
 (secret
  0 14
- "Goblins from the surface! Now, they too inhabit the skies... nowhere is safe...")
+ (tr "Goblins from the surface! Now, they too inhabit the skies... nowhere is safe..."))
 
 
 (let ((wpn 'rocket-bomb)
@@ -57,13 +59,11 @@
   (defn on-converge ()
     (setq on-converge nil)
 
-    (if (dialog-await-binary-q-w/lore (string "The island seems thoroughly ransacked... but the "
-                                              "pirates inexplicably left behind a weapon. Haul "
-                                              "it aboard?")
-                                      "Yeah!"
-                                      "No, leave it."
-                                      '(("What's a goblin raid?" .
-                                         "Looks like goblins from the surface world ransacked this island for scrap metal and fuel. It's unclear why they left a weapon lying around, perhaps they left in a hurry. <B:0> Anyway, pick up the weapon?")))
+    (if (dialog-await-binary-q-w/lore (tr "The island seems thoroughly ransacked... but the pirates inexplicably left behind a weapon. Haul it aboard?")
+                                      (tr "Yeah!")
+                                      (tr "No, leave it.")
+                                      (tr '(("What's a goblin raid?" .
+                                             "Looks like goblins from the surface world ransacked this island for scrap metal and fuel. It's unclear why they left a weapon lying around, perhaps they left in a hurry. <B:0> Anyway, pick up the weapon?"))))
         (on-dialog-accepted)
         (on-dialog-declined)))
 
@@ -73,19 +73,19 @@
     (room-del (opponent) (car pos) (cdr pos))
     (let ((xy (await (sel-input*
                       wpn
-                      (format "Pick a slot (%x%)" (car (rinfo 'size wpn)) (cdr (rinfo 'size wpn)))))))
+                      (format (tr "Pick a slot (%x%)") (car (rinfo 'size wpn)) (cdr (rinfo 'size wpn)))))))
       (room-new (player) (list wpn (car xy) (cdr xy)))
       (sound "build0")
       (await
        (dialog* (case wpn
-                  ('rocket-bomb "Like a missile-silo, but starts fires! A useful addition!")
-                  ('ballista "A special cannon that fires projectiles in a wide arc. How useful!")
-                  (else "Wow, a very powerful weapon! <B:0> You're lucky to have found this..."))))
+                  ('rocket-bomb (tr "Like a missile-silo, but starts fires! A useful addition!"))
+                  ('ballista (tr "A special cannon that fires projectiles in a wide arc. How useful!"))
+                  (else (tr "Wow, a very powerful weapon! <B:0> You're lucky to have found this...")))))
       (adventure-log-add 9 (list wpn))
       (exit-with-commentary "goblin_raid_weapon")))
 
 
   (defn on-dialog-declined ()
-    (await (dialog* "Huh!? Who doesn't want free stuff? Suit yourself..."))
+    (await (dialog* (tr "Huh!? Who doesn't want free stuff? Suit yourself...")))
     (adventure-log-add 8 '())
     (exit)))

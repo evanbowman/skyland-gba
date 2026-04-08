@@ -2,9 +2,11 @@
 ;;; neutral/0/0_1.lisp
 ;;;
 
+(tr-bind-current)
+
 
 (dialog
- "In the distance, you see an island inhabited by a lone castaway...")
+ (tr "In the distance, you see an island inhabited by a lone castaway..."))
 
 
 (opponent-init 6 'neutral)
@@ -19,7 +21,7 @@
 
 (secret
  5 14
- "Days stranded: |||| |||| |||| |||| ||||...")
+ (tr "Days stranded: |||| |||| |||| |||| ||||..."))
 
 
 (chr-new (opponent) 1 14 'neutral 0)
@@ -28,11 +30,9 @@
 (defn on-converge ()
   (setq on-converge nil)
   (await (dialog*
-          "<c:Castaway:27>Argh. I'm in a tough spot here. After years of fighting goblins, my crew "
-          "mutinied and left me stranded here. <B:0> At least they picked an island with food, but "
-          "I'm getting so fed up with eating coconuts and bananas!"))
+          (tr "<c:Castaway:27>Argh. I'm in a tough spot here. After years of fighting goblins, my crew mutinied and left me stranded here. <B:0> At least they picked an island with food, but I'm getting so fed up with eating coconuts and bananas!")))
 
-  (if (dialog-await-y/n "He seems harmless, invite him aboard?")
+  (if (dialog-await-y/n (tr "He seems harmless, invite him aboard?"))
       (on-dialog-accepted)
       (on-dialog-declined)))
 
@@ -48,20 +48,20 @@
 
 
 (defn/temp join-has-space (slots)
-  (join-crew (sample slots) "The castaway joined your crew!")
+  (join-crew (sample slots) (tr "The castaway joined your crew!"))
   (exit-with-commentary "welcomes_castaway_2"))
 
 
 (defn/temp join-crowded ()
-  (await (dialog* "Sadly, there's no room..."))
-  (await (dialog* "<c:Castaway:27>Hold on, don't leave me here! I may not meet anyone else for a long time... I'll help you build an addition onto your castle, then there'll be enough space for me to sleep! Let's see... I've got just enough supplies to build a ladder..."))
+  (await (dialog* (tr "Sadly, there's no room...")))
+  (await (dialog* (tr "<c:Castaway:27>Hold on, don't leave me here! I may not meet anyone else for a long time... I'll help you build an addition onto your castle, then there'll be enough space for me to sleep! Let's see... I've got just enough supplies to build a ladder...")))
   (alloc-space 'ladder)
-  (let ((xy (await (sel-input* 'ladder "Place ladder (1x2):"))))
+  (let ((xy (await (sel-input* 'ladder (tr "Place ladder (1x2):")))))
     (sound "build0")
     (room-new (player) `(ladder ,(car xy) ,(cdr xy)))
     (chr-del (opponent) 1 14)
-    (join-crew xy "<c:Castaway:27> Thanks for rescuing me! I'll try to help out however I can!")
-    (await (dialog* "The castaway joined your crew!"))
+    (join-crew xy (tr "<c:Castaway:27> Thanks for rescuing me! I'll try to help out however I can!"))
+    (await (dialog* (tr "The castaway joined your crew!")))
     (exit-with-commentary "welcomes_castaway_2")))
 
 

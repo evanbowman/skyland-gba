@@ -2,10 +2,11 @@
 ;;; quest_marker/atomics.lisp
 ;;;
 
+(tr-bind-current)
 
 (dialog
  "<b:/scripts/data/img/sylph_city_1.img.bin>"
- "You arrive at Aestria, the destination indicated by the conclave elder...")
+ (tr "You arrive at Aestria, the destination indicated by the conclave elder..."))
 
 
 (opponent-init 14 'neutral)
@@ -17,18 +18,18 @@
 
 (defn on-converge ()
   (setq on-converge nil)
-  (dialog "<c:Conclave Elder:51>Aestria was among the first cities we lifted from the mountains. <B:0> The archive lights are dark now... sad to see it like this.")
+  (dialog (tr "<c:Conclave Elder:51>Aestria was among the first cities we lifted from the mountains. <B:0> The archive lights are dark now... sad to see it like this."))
 
   (defn on-dialog-closed ()
-    (dialog "<c:Conclave Elder:51> The Conclave believes documentation will save us. Careful observation. Measured response. <B:0> But our cities go dark while we _debate_. <B:0> The particle lance... I never meant for you to merely retrieve it...")
+    (dialog (tr "<c:Conclave Elder:51> The Conclave believes documentation will save us. Careful observation. Measured response. <B:0> But our cities go dark while we _debate_. <B:0> The particle lance... I never meant for you to merely retrieve it..."))
     (defn on-dialog-closed ()
-      (dialog "<c:Conclave Elder:51>This device can cut through anything. Focused properly, it could pierce the dark castle within the storm. <B:0> I brought this plan to the Conclave. They called it reckless. Unproven. <B:0> But there is no time left for study, we must act!")
+      (dialog (tr "<c:Conclave Elder:51>This device can cut through anything. Focused properly, it could pierce the dark castle within the storm. <B:0> I brought this plan to the Conclave. They called it reckless. Unproven. <B:0> But there is no time left for study, we must act!"))
       (defn on-dialog-closed ()
 
         (alloc-space 'particle-lance)
 
         (sel-input 'particle-lance
-                   "Place weapon (1x3)"
+                   (tr "Place weapon (1x3)")
                    (lambda (isle x y)
                      (foreach (lambda (r)
                                 (when (equal (car r) 'particle-lance)
@@ -37,5 +38,5 @@
                      (room-new (player) (list 'particle-lance x y))
                      (adventure-log-add 64 '())
                      (sound "build0")
-                     (dialog "You retrieved the particle-lance!")
+                     (dialog (tr "You retrieved the particle-lance!"))
                      (setq on-dialog-closed exit)))))))

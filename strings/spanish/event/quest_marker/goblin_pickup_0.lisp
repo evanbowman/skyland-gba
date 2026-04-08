@@ -1,0 +1,6 @@
+'(("You reach the source of the smoke signals..." . "Llegas al origen de las señales de humo...")
+("The scattered clan members joined your crew!" . "¡Los miembros dispersos del clan se unieron a tu tripulación!")
+("Some of the clan members joined your crew!" . "¡Algunos de los miembros del clan se unieron a tu tripulación!")
+("You'd like to invite them aboard, but there seems to be no room..." . "Te gustaría invitarlos a bordo, pero parece que no hay espacio...")
+("<c:Clan Members:2>The ssstorm nearly had us! Together we'll be ssstronger. Here'sss 1500@ from our clan's reserves." . "<c:Miembros del Clan:2>¡La tormenta casssi acaba con nosotrosss! Juntosss ssseremosss más fuertesss. Aquí tenesss 1500@ de lasss resservasss de nuestro clan.")
+)

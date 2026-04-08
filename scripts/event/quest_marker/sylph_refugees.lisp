@@ -2,8 +2,9 @@
 ;;; quest_marker/sylph_refugees.lisp
 ;;;
 
+(tr-bind-current)
 
-(dialog "You arrive at Research Platform Delta. The facility drifts silently, emergency lights pulsing across its hull...")
+(dialog (tr "You arrive at Research Platform Delta. The facility drifts silently, emergency lights pulsing across its hull..."))
 
 
 (opponent-init 7 'neutral)
@@ -19,7 +20,7 @@
 
 (defn on-converge ()
   (dialog
-   "<c:Sylph Facilities Staff:53>Good, you're here. <B:0> This is the third facility evacuation this month. Transport resources are stretched thin across all sectors. <B:0> The lead researchers departed on the priority vessel - their work continues elsewhere. We stayed to secure the equipment. <B:0> The system works, but... it's good to see an independent operator. 1500@ authorized.")
+   (tr "<c:Sylph Facilities Staff:53>Good, you're here. <B:0> This is the third facility evacuation this month. Transport resources are stretched thin across all sectors. <B:0> The lead researchers departed on the priority vessel - their work continues elsewhere. We stayed to secure the equipment. <B:0> The system works, but... it's good to see an independent operator. 1500@ authorized."))
   (coins-add 1500))
 
 
@@ -48,7 +49,7 @@
   (adventure-log-add 25 '())
 
   (if (equal 0 (length (chrs (opponent))))
-      (dialog "The Sylph facilities staff boarded your vessel, bringing with them carefully packed equipment cases.")
+      (dialog (tr "The Sylph facilities staff boarded your vessel, bringing with them carefully packed equipment cases."))
     (if (< 3 (length (chrs (opponent))))
-        (dialog "Some of the staff came aboard. The others will wait for another vessel.")
-      (dialog "The staff are ready to board, but you don't have room for them."))))
+        (dialog (tr "Some of the staff came aboard. The others will wait for another vessel."))
+      (dialog (tr "The staff are ready to board, but you don't have room for them.")))))

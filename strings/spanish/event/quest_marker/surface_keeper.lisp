@@ -1,0 +1,7 @@
+'(("You reach the destination that the surface keeper marked on your map! <B:0> Beyond the clouds, pulses of strange energy light up the toxic atmosphere..." . "¡Llegas al destino que el guardián de la superficie marcó en tu mapa! <B:0> Más allá de las nubes, pulsos de energía extraña iluminan la atmósfera tóxica...")
+("<c:Surface Keeper:43>The readingsss grow stronger... <B:0> Beneath usss lies a cache of ancient weaponsss, their containment failing. <B:0> I must descend to stabilize them, before their radiation spreadsss upward. <B:0> Take thisss payment for your aid. (2000@ and one random block) " . "<c:Guardián de la Superficie:43>Lasss lecturasss ssse intensifican... <B:0> Debajo de nosotrosss hay un depósssito de armasss antiguas, con su contención fallando. <B:0> Debo dessscender para essstabilizarlasss, antesss de que sssu radiación ssse propague hacia arriba. <B:0> Tomad essste pago por vuesstra ayuda. (2000@ y un bloque aleatorio) ")
+("Place " . "Colocar ")
+("<c:Surface Keeper:43>The ancient machinesss require my attention..." . "<c:Guardián de la Superficie:43>Lasss máquinasss antiguas requieren mi atención...")
+("The surface keeper departed!" . "¡El guardián de la superficie partió!")
+("Unfortunately, it seems the surface keeper is no longer aboard your island..." . "Desafortunadamente, parece que el guardián de la superficie ya no está a bordo de tu isla...")
+)

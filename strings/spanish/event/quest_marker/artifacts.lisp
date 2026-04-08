@@ -1,0 +1,5 @@
+'(("Still got those artifacts? The locals might be interested..." . "¿Todavía tienes esos artefactos? A los lugareños podría interesarles...")
+("artifacts" . "artefactos")
+("<c:The Collector:6>Wow, such rare artifacts! I must have them!! How much would you sell them for? Here, take %@!" . "<c:El Coleccionista:6>¡Vaya, qué artefactos tan raros! ¡¡Tengo que tenerlos!! ¿Por cuánto los venderías? ¡Toma, quédate con %@!")
+("Upon closer inspection, no one seems to be home! Good thing too, as it seems that you lost the artifacts along the way!" . "Al mirar más de cerca, ¡parece que no hay nadie en casa! Menos mal, ¡ya que parece que perdiste los artefactos por el camino!")
+)

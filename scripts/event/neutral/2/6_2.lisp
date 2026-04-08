@@ -2,11 +2,12 @@
 ;;; neutral/2/6_2.lisp
 ;;;
 
+(tr-bind-current)
 
 (dialog
- "A heavily damaged fortress appears through the mist. <B:0> "
+ (tr "A heavily damaged fortress appears through the mist. <B:0> ")
  "<b:/scripts/data/img/sylph_ship.img.bin>"
- "Your crew is taken aback - few raiders dare attack Sylph vessels, and fewer still succeed...")
+ (tr "Your crew is taken aback - few raiders dare attack Sylph vessels, and fewer still succeed..."))
 
 
 (opponent-init 10 'neutral)
@@ -63,21 +64,21 @@
         (index i))
     (alloc-space 'sylph-cannon)
     (sel-input 'sylph-cannon
-               (format "Place cannon %/%" index (+ (decr index) remaining))
+               (format (tr "Place cannon %/%") index (+ (decr index) remaining))
                (lambda (isle x y)
                  (room-new (player) (list 'sylph-cannon x y))
                  (sound "build0")
                  (remove-one 'sylph-cannon)
                  (if (equal rem 1)
                      (progn
-                       (dialog "The Sylph are known for their elegant engineering. <B:0> These cannons don't just blast through blocks - they resonate with them somehow, seeming to deal more damage to stronger structures. <B:0> With the cannons safely aboard, you leave the mysterious wreck behind...")
+                       (dialog (tr "The Sylph are known for their elegant engineering. <B:0> These cannons don't just blast through blocks - they resonate with them somehow, seeming to deal more damage to stronger structures. <B:0> With the cannons safely aboard, you leave the mysterious wreck behind..."))
                        (pickup-cart-cb 9
-                                       "One of your crewmembers hands over another item found aboard the Sylph vessel..."
+                                       (tr "One of your crewmembers hands over another item found aboard the Sylph vessel...")
                                        exit))
                      (collect-block (incr index) (decr rem)))))))
 
 
 (defn on-converge ()
-  (dialog "You find the fortress abandoned, but several of its distinctive resonance cannons remain intact... <B:0> Your crew begins loading them aboard...")
+  (dialog (tr "You find the fortress abandoned, but several of its distinctive resonance cannons remain intact... <B:0> Your crew begins loading them aboard..."))
   (setq on-converge nil)
   (collect-block 1 3))

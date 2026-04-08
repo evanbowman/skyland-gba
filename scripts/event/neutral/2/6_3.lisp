@@ -2,13 +2,14 @@
 ;;; neutral/2/6_3.lisp
 ;;;
 
+(tr-bind-current)
+
 
 (dialog
- "Your navigational instruments begin behaving strangely, "
- "their readings pulled toward a point far below. <B:0> "
+ (tr "Your navigational instruments begin behaving strangely, their readings pulled toward a point far below. <B:0> ")
  "<b:/scripts/data/img/crashed_city.img.bin>"
- "Descending through the clounds, you catch glimpses of white stone and still-glowing runes. <B:0>"
- "You discover a fallen Sylph city, partially submerged in the ash...")
+ (tr "Descending through the clouds, you catch glimpses of white stone and still-glowing runes. <B:0>")
+ (tr "You discover a fallen Sylph city, partially submerged in the ash..."))
 
 (weather-set weather-id-ash)
 
@@ -24,11 +25,11 @@
 
 (defn on-converge ()
   (setq on-converge nil)
-  (await (dialog* "Though long deserted, ancient machinery still hums within the ruins, crystal matrices pulsing with unfamiliar energy. <B:0> Most of the city's systems have failed, but a few chambers still maintain their enigmatic purpose... <B:0> Among the ruins, you discover an intricate device of crystal and warm brass, its surfaces etched with flowing Sylph script."))
+  (await (dialog* (tr "Though long deserted, ancient machinery still hums within the ruins, crystal matrices pulsing with unfamiliar energy. <B:0> Most of the city's systems have failed, but a few chambers still maintain their enigmatic purpose... <B:0> Among the ruins, you discover an intricate device of crystal and warm brass, its surfaces etched with flowing Sylph script.")))
   (alloc-space 'phase-shifter)
-  (let ((xy (await (sel-input* 'phase-shifter "Place phase-shifter (1x3)"))))
+  (let ((xy (await (sel-input* 'phase-shifter (tr "Place phase-shifter (1x3)")))))
     (room-new (player) (list 'phase-shifter (car xy) (cdr xy)))
     (sound "build0")
-    (await (dialog* "You picked up a rare piece of Sylph technology! What could it's function be?"))
-    (pickup-cart 9 "One of your crewmembers hands over another item found aboard the Sylph city...")
+    (await (dialog* (tr "You picked up a rare piece of Sylph technology! What could its function be?")))
+    (pickup-cart 9 (tr "One of your crewmembers hands over another item found aboard the Sylph city..."))
     (exit)))

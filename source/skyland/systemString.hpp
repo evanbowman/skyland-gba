@@ -28,7 +28,6 @@ namespace skyland
 void systemstring_drop_index_cache();
 
 
-
 void systemstring_bind_file(const char* path);
 const char* systemstring_bound_file();
 
@@ -747,6 +746,7 @@ enum class SystemString {
 
     dialog_datacarts_prompt,
     dialog_datacarts_return,
+    datacarts_found_at_str,
     dialog_tutorial_prompt,
     adventure_completed_message,
 
@@ -873,6 +873,8 @@ enum class SystemString {
     title_exit_prompt,
     title_exit_yes,
     title_exit_no,
+
+    choose_language,
 
     count,
 };

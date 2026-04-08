@@ -1,0 +1,8 @@
+'(("Your navigational instruments begin behaving strangely, their readings pulled toward a point far below. <B:0> " . "Tus instrumentos de navegación empiezan a comportarse de forma extraña, sus lecturas atraídas hacia un punto muy abajo. <B:0> ")
+("Descending through the clouds, you catch glimpses of white stone and still-glowing runes. <B:0>" . "Al descender entre las nubes, vislumbras piedra blanca y runas aún resplandecientes. <B:0>")
+("You discover a fallen Sylph city, partially submerged in the ash..." . "Descubres una ciudad sylph caída, parcialmente sumergida en la ceniza...")
+("Though long deserted, ancient machinery still hums within the ruins, crystal matrices pulsing with unfamiliar energy. <B:0> Most of the city's systems have failed, but a few chambers still maintain their enigmatic purpose... <B:0> Among the ruins, you discover an intricate device of crystal and warm brass, its surfaces etched with flowing Sylph script." . "Aunque hace mucho que fue abandonada, maquinaria antigua aún zumba entre las ruinas, matrices de cristal pulsando con una energía desconocida. <B:0> La mayoría de los sistemas de la ciudad han fallado, pero algunas cámaras aún mantienen su enigmático propósito... <B:0> Entre las ruinas, descubres un intrincado dispositivo de cristal y latón cálido, sus superficies grabadas con fluida escritura sylph.")
+("Place phase-shifter (1x3)" . "Colocar desplazador de fase (1x3)")
+("You picked up a rare piece of Sylph technology! What could its function be?" . "¡Recogiste una pieza rara de tecnología sylph! ¿Cuál será su función?")
+("One of your crewmembers hands over another item found aboard the Sylph city..." . "Uno de tus tripulantes te entrega otro objeto encontrado en la ciudad sylph...")
+)

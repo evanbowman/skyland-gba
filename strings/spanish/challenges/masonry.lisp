@@ -1,0 +1,6 @@
+'(("<c:Goblin King:3>Masssonry! Masssonry! I hate it! Sssooo old fassshioned! " . "<c:Rey Goblin:3>¡Albañilería! ¡Albañilería! ¡La odio! ¡Tan passada de moda! ")
+("Dessstroy all of it for me? Don't dessstroy anything else!" . "¿Desstruye toda la albañilería por mí? ¡No desstruyasss nada más!")
+("Try upgrading your workshop to a manufactory, regular weapons will not be enough!" . "¡Prueba a mejorar tu taller a una manufactura, las armas normales no serán suficientes!")
+("<c:Goblin King:3>Gaahh, I sssaid only masssonry!" . "<c:Rey Goblin:3>¡Gaahh, dije sssolo la albañilería!")
+("<c:Goblin King:3>Wowowow! Beautiful! Ssspectacular!" . "<c:Rey Goblin:3>¡Wowowow! ¡Hermossso! ¡Essspectacular!")
+)

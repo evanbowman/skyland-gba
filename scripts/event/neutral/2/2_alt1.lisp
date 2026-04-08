@@ -2,8 +2,11 @@
 ;;; neutral/2/2_alt1.lisp
 ;;;
 
+(tr-bind-current)
 
-(dialog "<b:/scripts/data/img/warship.img.bin> An abandoned warship appears! <B:0> No crew seems to be aboard; the ship appears to be completely dormant...")
+
+(dialog "<b:/scripts/data/img/warship.img.bin> "
+        (tr "An abandoned warship appears! <B:0> No crew seems to be aboard; the ship appears to be completely dormant..."))
 
 (opponent-init 13 'neutral)
 
@@ -61,14 +64,18 @@
 (flag-show (opponent) flag-id-old-empire)
 
 
-(defn take (w)
+(defn/temp format-opt (room-sym)
+  (format (tr "Take %…") (rinfo 'name room-sym)))
+
+
+(defn/temp take (w)
   (let ((wpn w))
     (list
-     (string "Take " (rinfo 'name wpn) "…")
+     (format-opt wpn)
      (lambda ()
        (sel-input
         wpn
-        "Place where?"
+        (tr "Place where?")
         (lambda (isle x y)
           (room-new (player) `(,wpn ,x ,y))
 
@@ -79,15 +86,15 @@
 
 
           (sound "build0")
-          (dialog "The fortress remains quiet.<B:0> Now to remove the next one...")
+          (dialog (tr "The fortress remains quiet.<B:0> Now to remove the next one..."))
 
           (let ((opts '(beam-gun incinerator splitter))
                 (wake
                  (lambda ()
                    (opponent-mode 'hostile)
-                   (dialog "<c:Abandoned Ship AI:25> .<d:500>.<d:500>.<d:500>.<d:500> "
-                           "PROCESSING INTERRUPT... <B:0> BLOCK DETECTED MISSING! "
-                           "<B:0> HOSTILE THREAT DETECTED!")
+                   (dialog (tr "<c:Abandoned Ship AI:25> .<d:500>.<d:500>.<d:500>.<d:500> ")
+                           (tr "PROCESSING INTERRUPT... <B:0> BLOCK DETECTED MISSING! ")
+                           (tr "<B:0> HOSTILE THREAT DETECTED!"))
                    (defn on-dialog-closed ()
                      (map (curry room-new (opponent))
                           '((forcefield* 0 10)
@@ -105,25 +112,22 @@
                             (forcefield* 9 9)
                             (forcefield 9 7)
                             (forcefield 10 7)))
-                     (dialog "The vessel begins charging its weapons...")
+                     (dialog (tr "The vessel begins charging its weapons..."))
                      (setq on-dialog-closed nil)))))
 
             (setq opts (filter (notequal? wpn) opts))
             (dialog-opts-reset)
-            (dialog-opts-push (string "Take " (rinfo 'name (get opts 0)) "…") wake)
-            (dialog-opts-push (string "Take " (rinfo 'name (get opts 1)) "…") wake)
-            (unbind 'take))))))))
+            (dialog-opts-push (format-opt (get opts 0)) wake)
+            (dialog-opts-push (format-opt (get opts 1)) wake))))))))
 
 
 (defn on-converge ()
   (setq on-converge nil)
   (dialog
-   "The ship's weapons seem to be more-or-less intact! Attempt to remove one?")
+   (tr "The ship's weapons seem to be more-or-less intact! Attempt to remove one?"))
 
   (dialog-opts-reset)
   (apply dialog-opts-push (take 'beam-gun))
   (apply dialog-opts-push (take 'incinerator))
   (apply dialog-opts-push (take 'splitter))
-  (dialog-opts-push "nope" (lambda ()
-                             (unbind 'take)
-                             (exit))))
+  (dialog-opts-push (tr "nope") exit))

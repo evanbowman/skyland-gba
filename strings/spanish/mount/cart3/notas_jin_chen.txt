@@ -1,0 +1,86 @@
+NOTAS DE INVESTIGACIÓN:
+
+PROYECTO RESPALDO
+
+Por Jin Chen, Ingeniero de
+
+Núcleos
+
+
+Año 12 Post-Migración
+
+Necesito registrar esto
+
+mientras está fresco. Lo
+
+logramos. Tras seis prototipos
+
+fallidos, el número siete
+
+funcionó.
+
+La clave fue reducir todo -
+
+no solo la potencia de salida,
+
+sino también el sistema de
+
+contención. Los intentos
+
+anteriores trataron de igualar
+
+las especificaciones de los
+
+núcleos antiguos. Enfoque
+
+equivocado.
+
+La isla de prueba se mantuvo
+
+en alto 72 horas con el
+
+núcleo pequeño. Apenas
+
+suficiente sustentación para
+
+lo esencial, pero funciona.
+
+Podríamos haber salvado Puerto
+
+Caído si lo hubiéramos
+
+descubierto antes.
+
+
+ESPECIFICACIONES CRÍTICAS:
+
+1/4 del tamaño de cámara
+
+estándar
+
+Entramado de cristal mínimo
+
+Refrigeración simplificada
+
+Mezcla de combustible de bajo
+
+rendimiento
+
+
+No reemplazará un núcleo
+
+principal, pero da tiempo para
+
+un reemplazo o una evacuación.
+
+Lo llamo núcleo de reserva.
+
+Mañana envío los diseños a
+
+otros ingenieros. No quiero
+
+volver a ver otra isla caer
+
+porque no pudieron reemplazar
+
+un núcleo moribundo.

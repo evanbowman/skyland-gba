@@ -513,6 +513,13 @@ static const Platform::Extensions extensions{
     .get_username = [](StringBuffer<28>& output) { output = get_username(); },
     .write_external_file =
         [](const char* path, Vector<char>& output) {
+            try {
+                std::filesystem::path p(path);
+                std::filesystem::create_directories(p.parent_path());
+            } catch (const std::filesystem::filesystem_error& e) {
+                // Ignore.
+            }
+
             std::ofstream out(path, std::ios::binary);
             for (char c : output) {
                 out << c;
@@ -777,6 +784,7 @@ int main(int argc, char** argv)
                    "scripts, and then exit\n"
                 << " --no-window-system       Run a windowless instance of "
                    "the game\n"
+                << " --init-locale            Generate a set of localization files\n"
                 << " --compile-packages=<dir> Compile packages in directory\n"
                 << " --output=<dir>           Output to a directory\n"
                 << " --compile-verbose        Dump bytecode to standard out\n"
@@ -1263,7 +1271,6 @@ std::pair<const char*, u32> Platform::load_file(const char* folder,
     std::string full_path = resource_path() + path;
     std::ifstream file(full_path, std::ios::binary);
     if (!file) {
-        warning(format("missing file %", full_path.c_str()));
         return {nullptr, 0};
     }
 

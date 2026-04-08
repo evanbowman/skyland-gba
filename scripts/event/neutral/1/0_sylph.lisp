@@ -2,9 +2,11 @@
 ;;; neutral/1/0_goblin.lisp
 ;;;
 
+(tr-bind-current)
+
 
 (dialog
- "High above the storm clouds, you notice a solitary watchtower drifting silently through the upper atmosphere... <B:0> A figure in bronze armor stands motionless at its peak, observing the chaos below with detached interest. <B:0> As you approach, they signal your fortress with precise, measured light pulses...")
+ (tr "High above the storm clouds, you notice a solitary watchtower drifting silently through the upper atmosphere... <B:0> A figure in bronze armor stands motionless at its peak, observing the chaos below with detached interest. <B:0> As you approach, they signal your fortress with precise, measured light pulses..."))
 
 
 (opponent-init 4 'neutral)
@@ -22,16 +24,16 @@
 
 (defn on-converge ()
   (dialog
-   "<c:Sylph Sentry:47>The patterns below grow more chaotic with each passing cycle. <B:0> My observations are complete. The archive has been updated. <B:0> My current assignment concludes with the approach of the storm front. <B:0> Your vessel appears... adequate for continued surveillance duties. <B:0>"
-   "I am trained in combat protocols and defensive systems analysis. <B:0> "
+   (tr "<c:Sylph Sentry:47>The patterns below grow more chaotic with each passing cycle. <B:0> My observations are complete. The archive has been updated. <B:0> My current assignment concludes with the approach of the storm front. <B:0> Your vessel appears... adequate for continued surveillance duties. <B:0>")
+   (tr "I am trained in combat protocols and defensive systems analysis. <B:0> ")
    (case (faction)
      ('sylph "<B:0>")
-     (else "My people value knowledge above all else. Your journey may provide... useful data. <B:0>"))
-   " Do you require additional crew?")
+     (else (tr "My people value knowledge above all else. Your journey may provide... useful data. <B:0>")))
+   (tr " Do you require additional crew?"))
 
   (dialog-setup-binary-q
-   (format "Recruit? %@" (* 400 (zone)))
-   "No thanks.")
+   (format (tr "Recruit? %@") (* 400 (zone)))
+   (tr "No thanks."))
 
   (setq on-converge nil))
 
@@ -39,36 +41,34 @@
 (defn on-dialog-accepted ()
   (if (> (* 400 (zone)) (coins))
       (progn
-        (dialog "You cannot afford to pay. The "
-                (case (faction)
-                  ('sylph "sentry")
-                  (else "Sylph"))
-                " becomes impatient, and cuts the transmission.")
+        (dialog (format (tr "You cannot afford to pay. The % becomes impatient, and cuts the transmission.")
+                        (case (faction)
+                          ('sylph (tr "sentry"))
+                          (else (tr "Sylph")))))
         (exit))
       (find-crew-slot-cb
-       "<c:Sylph Sentry:47>You're out of space. This is inconvenient, but I suppose I can help you out..."
+       (tr "<c:Sylph Sentry:47>You're out of space. This is inconvenient, but I suppose I can help you out...")
        'ladder
-       "Place block (1x2):"
+       (tr "Place block (1x2):")
        (lambda (x y _)
          (chr-del (opponent) 0 7)
          (chr-new (player) x y 'neutral '((race . 4) (icon . 47)))
          (coins-add (* -400 (zone)))
          (adventure-log-add 76 '())
-         (dialog "<c:Sylph Sentry:47> Acceptable. I am prepared to serve.")
+         (dialog (tr "<c:Sylph Sentry:47> Acceptable. I am prepared to serve."))
          (defn on-dialog-closed ()
            (setq on-dialog-closed exit)
            (sound "click_digital_1")
-           (dialog "<b:/scripts/data/img/sentry_closeup.img.bin> The sentry joined your crew!"))))))
+           (dialog "<b:/scripts/data/img/sentry_closeup.img.bin> "
+                   (tr "The sentry joined your crew!")))))))
 
 
 (defn on-dialog-declined ()
-  (dialog "<c:Sylph Sentry:47>Understood. Safe travels.")
+  (dialog (tr "<c:Sylph Sentry:47>Understood. Safe travels."))
   (defn on-dialog-closed ()
-    (let ((gender (sample '(("her" "she") ("his" "he")))))
-      (dialog "The figure returns to "
-              (get gender 0)
-              " vigil, bronze helmet gleaming in the cold light as "
-              (get gender 1)
-              " resumes silent vigil over the storms below..."))
+    (let ((gender (sample (tr '(("her" "she") ("his" "he"))))))
+      (dialog (format (tr "The figure returns to % vigil, bronze helmet gleaming in the cold light as % resumes silent vigil over the storms below...")
+                      (get gender 0)
+                      (get gender 1))))
     (setq on-dialog-closed exit))
   (adventure-log-add 76 '()))

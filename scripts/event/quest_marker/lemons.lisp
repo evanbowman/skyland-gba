@@ -2,8 +2,9 @@
 ;;; quest_marker/lemons.lisp
 ;;;
 
+(tr-bind-current)
 
-(dialog "Farmer Meyer's brother waves in the distance, excited to see you! Err... hopefully you managed to keep some of his lemon trees alive...")
+(dialog (tr "Farmer Meyer's brother waves in the distance, excited to see you! Err... hopefully you managed to keep some of his lemon trees alive..."))
 
 
 
@@ -43,17 +44,17 @@
                                         (rooms (player)))))))))
           (if (equal c 0)
               (progn
-                (dialog 
+                (dialog
                 (if (equal (faction) 'goblin)
-                      "<c:Farmer Ted:9>From the moment I saw you nasty goblins, I knew there was no hope."
-                      "<c:Farmer Ted:9>Hey, you lost my brother's trees!?"))
+                    (tr "<c:Farmer Ted:9>From the moment I saw you nasty goblins, I knew there was no hope.")
+                    (tr "<c:Farmer Ted:9>Hey, you lost my brother's trees!?")))
                 (setq on-dialog-closed exit))
             (progn
 
               (dialog
-               "<c:Farmer Ted:9>Whoa! I didn't think there would be any left, Here's "
-               (string c)
-               "@ for your trouble!")
+               (format
+                (tr "<c:Farmer Ted:9>Whoa! I didn't think there would be any left, Here's %@ for your trouble!")
+                c))
 
               (adventure-log-add 23 (list c (room-count (player) 'lemon-tree)))
 

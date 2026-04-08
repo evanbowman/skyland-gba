@@ -2,8 +2,11 @@
 ;;; neutral/1/9.lisp
 ;;;
 
+(tr-bind-current)
 
-(dialog "<b:/scripts/data/img/drone_carrier.img.bin> An old drone carrier approaches and activates. Looks like it hasn't met anyone in a long time...")
+
+(dialog "<b:/scripts/data/img/drone_carrier.img.bin> "
+        (tr "An old drone carrier approaches and activates. Looks like it hasn't met anyone in a long time..."))
 
 
 (opponent-init 7 'neutral)
@@ -37,7 +40,7 @@
    (canvas 6 8 (30 -1073514496 9503251 -140502260 1094563846 59777203 555759724 1610665990 32 33))))
 
 
-(secret 6 14 "yes no")
+(secret 6 14 (tr "yes no"))
 
 (flag-show (opponent) flag-id-old-empire)
 
@@ -52,19 +55,23 @@
 (defn on-converge ()
   (setq on-converge nil)
   ;; want drones?
-  (if (dialog-await-y/n "<c:robot:13> 01010111 01100001 01101110 01110100 00100000 01100100 01110010 01101111 01101110 01100101 01110011 00111111?")
+  (if (dialog-await-y/n (tr "<c:robot:13> 01010111 01100001 01101110 01110100 00100000 01100100 01110010 01101111 01101110 01100101 01110011 00111111?"))
       ;; less than 2?
-      (if (dialog-await-y/n "<c:robot:13> 00111100 00100000 00110010?")
+      (if (dialog-await-y/n (tr "<c:robot:13> 00111100 00100000 00110010?"))
           (progn
             ;; yes less than two, place one.
-            (place-block "Pick a slot (2x1)")
-            (await (dialog* "<c:robot:13> 01000010 01111001 01100101!"))
+            (place-block (tr "Pick a slot (2x1)"))
+            (await (dialog* (tr "<c:robot:13> 01000010 01111001 01100101!")))
             (exit))
           (progn
             ;; not less than two, place two
-            (place-block "Pick a slot (2x1) (1 of 2)")
-            (place-block "Pick a slot (2x1) (2 of 2)")
-            (await (dialog* "<c:robot:13> 01000010 01111001 01100101!"))
+            (place-block (tr "Pick a slot (2x1) (1 of 2)"))
+            (place-block (tr "Pick a slot (2x1) (2 of 2)"))
+            (await (dialog* (tr "<c:robot:13> 01000010 01111001 01100101!")))
             (exit)))
       ;; Player doesn't want drones, simply exit
       (exit)))
+
+;; PS: My brother Ben, who was testing the game, legitimately didn't know what
+;; binary was, he thought computers speaking 1s and 0s was just something from
+;; Futurama, I threw this in to mess with him.

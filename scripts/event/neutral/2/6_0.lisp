@@ -2,10 +2,12 @@
 ;;; neutral/2/6_0.lisp
 ;;;
 
+(tr-bind-current)
+
 
 (dialog
  "<b:/scripts/data/img/burning_isle.img.bin> "
- "An acrid plume of smoke rises from a fortress on the horizon...")
+ (tr "An acrid plume of smoke rises from a fortress on the horizon..."))
 
 
 (opponent-init 7 'neutral)
@@ -33,13 +35,13 @@
 
 (defn on-converge ()
   (setq on-converge nil)
-  (await (dialog* "Looks like a terrible battle happened here... The crew seems to have abandoned the burning island, leaving behind a powerful weapon..."))
+  (await (dialog* (tr "Looks like a terrible battle happened here... The crew seems to have abandoned the burning island, leaving behind a powerful weapon...")))
   (alloc-space 'incinerator)
   (adventure-log-add 46 '())
-  (let ((xy (await (sel-input* 'incinerator "Place weapon (2x2)"))))
+  (let ((xy (await (sel-input* 'incinerator (tr "Place weapon (2x2)")))))
     (room-new (player) (list 'incinerator (car xy) (cdr xy)))
     (room-del (opponent) 0 13)
     (sound "build0")
-    (await (dialog* "A delicate weapon built long ago on the surface... protect it carefully, because you can't build a replacement."))
-    (pickup-cart 7 "Oh! You notice something else...")
+    (await (dialog* (tr "A delicate weapon built long ago on the surface... protect it carefully, because you can't build a replacement.")))
+    (pickup-cart 7 (tr "Oh! You notice something else..."))
     (exit)))

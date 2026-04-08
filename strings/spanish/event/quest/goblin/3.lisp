@@ -1,0 +1,8 @@
+'(("In the distance, you spot a series of colored smoke signals rising from several islands..." . "A lo lejos, divisas una serie de señales de humo de colores elevándose desde varias islas...")
+("<c:Goblin Scout:38>Ssseeing your flag on the horizon givesss us hope! <B:0> Our clan was ssscattered when the ssstorm changed course. We're too few to sssurvive alone, but together... <B:0> Help gather my crew, and we'll join your ssstrength with oursss!" . "<c:Explorador Goblin:38>¡Ver vuestra bandera en el horizonte nosss da essperanza! <B:0> Nuestro clan ssse disperssó cuando la tormenta cambió de rumbo. Sssomosss muy pocosss para sssobrevivir ssolos, pero juntosss... <B:0> ¡Ayúdanosss a reunir a mi tripulación, y uniremosss nuestra fuerza a la vuessstra!")
+("I accept!" . "¡Acepto!")
+("I'm kind of busy…" . "Estoy un poco ocupado…")
+("<c:Goblin Scout:38>Yesss! I've marked their sssignals on your chart with an *!" . "<c:Explorador Goblin:38>¡Sssí! ¡He marcado susss ssseñales en tu carta con un *!")
+("<c:Goblin Scout:38>The ssstorm movesss too fast... we won't reach them in time. My clan isss lossst..." . "<c:Explorador Goblin:38>La tormenta avanza demasiado rápido... no llegaremosss a tiempo. Mi clan essstá perdido...")
+("<c:Goblin Scout:38>Fine then... we'll find another way..." . "<c:Explorador Goblin:38>Puesss vale... encontraremosss otra forma...")
+)

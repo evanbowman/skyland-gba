@@ -2,8 +2,9 @@
 ;;; neutral/0/2.lisp
 ;;;
 
+(tr-bind-current)
 
-(dialog "The remains of an abandoned island emerge from the mist, floating towards you...")
+(dialog (tr "The remains of an abandoned island emerge from the mist, floating towards you..."))
 
 
 (let ((file "/scripts/event/neutral/0/2_layouts.txt"))
@@ -15,7 +16,7 @@
 (if (choice 2)
     (secret
      1 12
-     "To the earth below, I will not go."))
+     (tr "To the earth below, I will not go.")))
 
 
 
@@ -30,7 +31,8 @@
     (adventure-log-add 11 (list amt))
     (coins-add amt)
 
-    (await (dialog* "You explore, and discover " (string amt) "@ amongst the ruins!"))
+    (await (dialog*
+            (format (tr "You explore, and discover %@ amongst the ruins!") amt)))
 
-    (pickup-cart 1 "Just as you're turning to leave, you spot a data cartridge sitting on an unfinished game of checkers.")
+    (pickup-cart 1 (tr "Just as you're turning to leave, you spot a data cartridge sitting on an unfinished game of checkers."))
     (exit)))

@@ -2,6 +2,7 @@
 ;;; autoload/find-crew-slot.lisp
 ;;;
 
+(tr-bind-current)
 
 (lambda (no-space-text room-sym prompt-text)
   (let ((slots (chr-slots (player))))
@@ -10,7 +11,7 @@
         (sample slots)
         ;; The complex scenario: there's no room on the island...
         (progn
-          (await (dialog* "Sadly, there's no room..."))
+          (await (dialog* (tr "Sadly, there's no room...")))
           (alloc-space room-sym)
           (await (dialog* no-space-text))
           (let ((xy (await (sel-input* room-sym prompt-text))))

@@ -2,10 +2,11 @@
 ;;; quest/goblin/4.lisp
 ;;;
 
+(tr-bind-current)
 
 (dialog
  "<b:/scripts/data/img/ceramics.img.bin>"
- "You encounter a goblin salvage crew hauling up strange artifacts through a break in the clouds. Your crew recognizes them as valuable relics from the surface wars...")
+ (tr "You encounter a goblin salvage crew hauling up strange artifacts through a break in the clouds. Your crew recognizes them as valuable relics from the surface wars..."))
 
 
 (opponent-init 13 'neutral)
@@ -77,11 +78,11 @@
     (setq on-converge nil)
     (dialog
      (format
-      "<c:Scavenger:34>Found thessse rare artifactsss in the ruinsss below! Worth a fortune to the right collector. Only %@ for the lot!"
+      (tr "<c:Scavenger:34>Found thessse rare artifactsss in the ruinsss below! Worth a fortune to the right collector. Only %@ for the lot!")
       fee
       (* fee 2)))
 
-    (dialog-setup-binary-q "OK!" "No thanks.")
+    (dialog-setup-binary-q (tr "OK!") (tr "No thanks."))
 
     (defn on-dialog-accepted ()
       (let ((m (eval-file "/scripts/event/quest/make_quest_marker.lisp")))
@@ -94,18 +95,18 @@
                  (push qids qid)
                  (push qvar (cons qid fee))
                  (coins-set (- (coins) fee))
-                 (cargo-set (player) x y "artifacts")
-                 (dialog "<c:Scavenger:34>Careful with the ancient tech!")
+                 (cargo-set (player) x y (tr "artifacts"))
+                 (dialog (tr "<c:Scavenger:34>Careful with the ancient tech!"))
                  (defn on-dialog-closed ()
-                   (dialog "(Your crew marks a collector's location on your sky chart with an *)")
+                   (dialog (tr "(Your crew marks a collector's location on your sky chart with an *)"))
                    (exit)
                    (setq on-dialog-closed exit)))))
           (progn
             (dialog
-             "<c:Scavenger:34>Bah, sssomeone else already claimed the artifactsss...")
+             (tr "<c:Scavenger:34>Bah, sssomeone else already claimed the artifactsss..."))
             (setq on-dialog-closed exit)))))
 
     (setq on-dialog-declined
           (lambda ()
-            (dialog "<c:Scavenger:34>Argh, off with you then!")
+            (dialog (tr "<c:Scavenger:34>Argh, off with you then!"))
             (setq on-dialog-closed exit)))))

@@ -2,6 +2,7 @@
 ;;; challenges/fire_brigade.lisp
 ;;;
 
+(tr-bind-current)
 
 (coins-add 4100)
 
@@ -11,7 +12,7 @@
 
 
 (defn challenge-hint ()
-  (dialog "Sorry, no hints for this one."))
+  (dialog (tr "Sorry, no hints for this one.")))
 
 
 (terrain-set (player) 7)

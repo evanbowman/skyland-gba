@@ -2,6 +2,8 @@
 ;;; neutral/1/6_0.lisp
 ;;;
 
+(tr-bind-current)
+
 
 (opponent-init 11 'neutral)
 
@@ -70,12 +72,10 @@
                                         (not (lookup 'cores info)))) ;; Player must have a core and not already have a backup.
         (defn on-converge ()
           (setq on-converge nil)
-          (await (dialog* "<c:Mayor:10>Nice to meet ya! We were having trouble earlier, "
-                          "but we worked it out on our own..."))
+          (await (dialog* (tr "<c:Mayor:10>Nice to meet ya! We were having trouble earlier, but we worked it out on our own...")))
           (exit))
         (progn
-          (dialog "A small village radios you... "
-                  "sounds like they're having trouble with their power-core...")
+          (dialog (tr "A small village radios you... sounds like they're having trouble with their power-core..."))
 
           (defn on-converge ()
             (setq on-converge nil)
@@ -83,14 +83,9 @@
             ;; In case anything changed...
             (setq info (power-supplies))
 
-            (if (dialog-await-binary-q (string "<c:Mayor:10>After a few years of use, our old power "
-                                               "supply ran out of atomic fuel, and we're running on "
-                                               "this weaker standby-core. Can you help our town by "
-                                               "trading one of your own power-cores for our "
-                                               "standby? We'll throw in two weapons and three of our "
-                                               "crew members to sweeten the deal!")
-                                       "OK, let's trade!"
-                                       "Sorry, I can't…")
+            (if (dialog-await-binary-q (tr "<c:Mayor:10>After a few years of use, our old power supply ran out of atomic fuel, and we're running on this weaker standby-core. Can you help our town by trading one of your own power-cores for our standby? We'll throw in two weapons and three of our crew members to sweeten the deal!")
+                                       (tr "OK, let's trade!")
+                                       (tr "Sorry, I can't…"))
                 (on-dialog-accepted)
                 (on-dialog-declined)))))
 
@@ -100,7 +95,7 @@
 
     (defn/temp add-weapon ()
       (alloc-space wpn)
-      (let ((xy (await (sel-input* wpn (string "Place " (rinfo 'name wpn)
+      (let ((xy (await (sel-input* wpn (string (format (tr "Place %") (rinfo 'name wpn))
                                                (format " (%x%):"
                                                        (car (rinfo 'size wpn))
                                                        (cdr (rinfo 'size wpn))))))))
@@ -146,5 +141,5 @@
 
         (adventure-log-add 36 (list (rinfo 'name wpn) 3))
 
-        (pickup-cart 3 "<c:Mayor:10>Oh, I almost forgot! When removing the old core, we found some documents left by a mechanic from the last time we replaced a core. <B:0> We have no use for these records, why don't you take them!")
+        (pickup-cart 3 (tr "<c:Mayor:10>Oh, I almost forgot! When removing the old core, we found some documents left by a mechanic from the last time we replaced a core. <B:0> We have no use for these records, why don't you take them!"))
         (exit))))

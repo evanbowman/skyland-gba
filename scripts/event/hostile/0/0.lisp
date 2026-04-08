@@ -2,6 +2,8 @@
 ;;; hostile/0/0.lisp
 ;;;
 
+(tr-bind-current)
+
 
 (opponent-init 3 'hostile)
 
@@ -10,8 +12,7 @@
 
 
 (dialog
- "Your castle sails through the clouds, buffeted by a cool breeze. "
- "Another fortress approaches, flying a black flag...")
+ (tr "Your castle sails through the clouds, buffeted by a cool breeze. Another fortress approaches, flying a black flag..."))
 
 
 (if (not (equal (choice 3) 0))

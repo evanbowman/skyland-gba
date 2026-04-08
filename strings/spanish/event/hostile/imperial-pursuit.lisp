@@ -1,0 +1,8 @@
+'(("Your sensors detect something tracking you. <B:0> " . "Tus sensores detectan algo siguiéndote. <B:0> ")
+("The damaged toll station must have transmitted your signature to the network. <B:0> " . "La estación de peaje dañada debió transmitir tu firma a la red. <B:0> ")
+("A patrol vessel approaches, flying an imperial flag... <B:0> " . "Una nave patrulla se acerca, ondeando una bandera imperial... <B:0> ")
+("But something seems off about it." . "Pero algo no cuadra.")
+("As the vessel draws closer, you see the crew through the viewports. <B:0> Not imperial officers. Goblins." . "A medida que la nave se acerca, ves a la tripulación a través de las mirillas. <B:0> No son oficiales imperiales. Goblins.")
+("<c:Goblin Raider:32> You! You're the one who broke that sstation! <B:0> We sstripped it for partsss after you left! <B:0> Got lotsss of good salvage... but now we want YOUR sship too! <B:0> Thankss for the help! #cackle#" . "<c:Asaltante Goblin:32> ¡Tú! ¡Eresss el que rompió essa essstación! <B:0> ¡La dessmontamosss pieza a pieza despuésss de que te fuisste! <B:0> Conssseguimosss mucho buen material... ¡pero ahora queremos TU nave también! <B:0> ¡¡Graciasss por la ayuda!! #carcajada#")
+("The raiders begin charging weapons..." . "Los asaltantes comienzan a cargar armas...")
+)

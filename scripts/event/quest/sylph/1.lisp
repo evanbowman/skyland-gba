@@ -2,10 +2,11 @@
 ;;; quest/sylph/1.lisp
 ;;;
 
+(tr-bind-current)
 
 (dialog
  "<b:/scripts/data/img/banana_cover.img.bin>"
- "You can't quite believe what you're seeing! A castle appears as if out of nowhere. Through the window, you see a man rushing about frantically, dressed in a banana suit!?")
+ (tr "You can't quite believe what you're seeing! A castle appears as if out of nowhere. Through the window, you see a man rushing about frantically, dressed in a banana suit!?"))
 
 
 (opponent-init 8 'neutral)
@@ -42,18 +43,18 @@
 
 (secret
  4 13
- "I'm not going crazy, I'm not going crazy, I'm not going crazy...")
+ (tr "I'm not going crazy, I'm not going crazy, I'm not going crazy..."))
 
 (secret
  5 14
- "BANANA! BANANAA!!! BANANA! BANANA?")
+ (tr "BANANA! BANANAA!!! BANANA! BANANA?"))
 
 
 (setq on-converge
       (lambda ()
         (dialog
-         "<c:Banana Man:8>Waaa! My precious b'nanas! Stolen by goblins! Why do I need them, you ask!? That's TOP SECRET! Help me teach those goblins a lesson?")
-        (dialog-setup-binary-q "Of course!" "I'm kind of busy…")
+         (tr "<c:Banana Man:8>Waaa! My precious b'nanas! Stolen by goblins! Why do I need them, you ask!? That's TOP SECRET! Help me teach those goblins a lesson?"))
+        (dialog-setup-binary-q (tr "Of course!") (tr "I'm kind of busy…"))
 
         (setq on-dialog-accepted
               (lambda ()
@@ -64,11 +65,11 @@
                         (adventure-log-add 17 '())
                         (push qids 1)
                         (push quests (cons "nanas.lisp" m))
-                        (dialog "<c:Banana Man:8>No time to waste! I know exactly where they've taken my bananas, and I marked the location on your sky chart with an *!"))
+                        (dialog (tr "<c:Banana Man:8>No time to waste! I know exactly where they've taken my bananas, and I marked the location on your sky chart with an *!")))
                     (progn
-                      (dialog "Without warning, banana man became distracted by something and cut the transmission. Such a shame, he was interesting!"))))))
+                      (dialog (tr "Without warning, banana man became distracted by something and cut the transmission. Such a shame, he was interesting!")))))))
 
         (setq on-dialog-declined
               (lambda ()
-                (dialog "<c:Banana Man:8>You won't help me!? _sigh_ Nobody helps Banana Man these days...")
+                (dialog (tr "<c:Banana Man:8>You won't help me!? _sigh_ Nobody helps Banana Man these days..."))
                 (setq on-dialog-closed exit)))))

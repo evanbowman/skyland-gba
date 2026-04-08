@@ -2,9 +2,7 @@
 ;;; challenges/exchange.lisp
 ;;;
 
-
-(defn challenge-hint ()
-  (dialog "Sorry, no hints..."))
+(tr-bind-current)
 
 
 (defn on-victory ()
@@ -12,11 +10,11 @@
 
 
 (defn challenge-hint ()
-  (dialog "Are you sure you want a hint?")
+  (dialog (tr "Are you sure you want a hint?"))
   (dialog-setup-y/n)
 
   (defn on-dialog-accepted ()
-    (dialog "Hint: Transporters can remove crewmembers from enemy castles..."))
+    (dialog (tr "Hint: Transporters can remove crewmembers from enemy castles...")))
 
   (setq on-dialog-declined (lambda ())))
 

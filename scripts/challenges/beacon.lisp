@@ -2,18 +2,19 @@
 ;;; challenges/beacon.lisp
 ;;;
 
+(tr-bind-current)
 
 (setq on-fadein
       (lambda ()
-        (dialog "<c:Crew:5>Those goblins noticed us and are about to jump away to bring help! Destroy them before they can get away!")))
+        (dialog (tr "<c:Crew:5>Those goblins noticed us and are about to jump away to bring help! Destroy them before they can get away!"))))
 
 
 (defn challenge-hint ()
-  (dialog "Are you sure you want a hint?")
+  (dialog (tr "Are you sure you want a hint?"))
   (dialog-setup-y/n)
 
   (defn on-dialog-accepted ()
-    (dialog "Cannons and missiles aren't going to work here. You'll need to find a way to punch a hole inside the enemy's walls and deploy a drone..."))
+    (dialog (tr "Cannons and missiles aren't going to work here. You'll need to find a way to punch a hole inside the enemy's walls and deploy a drone...")))
 
   (setq on-dialog-declined (lambda ())))
 

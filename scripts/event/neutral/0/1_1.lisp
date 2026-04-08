@@ -13,9 +13,10 @@
 ;;; this character as humans -- no wait, she's entirely crazy.
 ;;;
 
+(tr-bind-current)
 
 (dialog
- "A small but heavily fortified island appears on your scanners. Scattered debris floats nearby - twisted metal and charred wood from recent conflicts...")
+ (tr "A small but heavily fortified island appears on your scanners. Scattered debris floats nearby - twisted metal and charred wood from recent conflicts..."))
 
 
 (opponent-init 7 'neutral)
@@ -30,24 +31,24 @@
 (defn/temp attack-player ((txt . string))
   (opponent-mode 'hostile)
   (await (dialog* txt))
-  (await (dialog* "Your opponent has locked weapons, prepare for battle!")))
+  (await (dialog* (tr "Your opponent has locked weapons, prepare for battle!"))))
 
 
 (defn/temp pay-toll (toll)
   (if (< (coins) toll)
       (progn
         (adventure-log-add 68 '())
-        (attack-player "<c:Anvil Annie:44>Broke, eh? Well, Sweet Bertha doesn't work for free! Time to collect your scrap as payment instead!"))
+        (attack-player (tr "<c:Anvil Annie:44>Broke, eh? Well, Sweet Bertha doesn't work for free! Time to collect your scrap as payment instead!")))
       (progn
         (adventure-log-add 69 (list toll))
         (coins-add (- toll))
-        (dialog "<c:Anvil Annie:44>There we go! See how easy that was? Now get out of my airspace before I change my mind!")
+        (dialog (tr "<c:Anvil Annie:44>There we go! See how easy that was? Now get out of my airspace before I change my mind!"))
         (exit))))
 
 
 (defn/temp refuse ()
   (adventure-log-add 70 '())
-  (attack-player "<c:Anvil Annie:44>I KNEW IT! Only goblin spies would refuse to pay! Time to blast some answers out of you!"))
+  (attack-player (tr "<c:Anvil Annie:44>I KNEW IT! Only goblin spies would refuse to pay! Time to blast some answers out of you!")))
 
 
 (defn/temp strength (isle)
@@ -58,13 +59,13 @@
 
 (defn/temp join-crew ()
   (if (dialog-await-binary-q
-       "<c:Anvil Annie:44>...That's a powerful warship you're flying. <B:0> <s:3>. . . . . <s:0> <B:0> Alright. New calculation. <B:0> If you wanted me dead, I'd already BE dead. And if you're hunting what I THINK you're hunting... <B:0> ...maybe I've been watching the wrong skies. <B:0> You gotta let me aboard, we should join up!"
-       "Welcome aboard!"
-       "Politely decline.")
+       (tr "<c:Anvil Annie:44>...That's a powerful warship you're flying. <B:0> <s:3>. . . . . <s:0> <B:0> Alright. New calculation. <B:0> If you wanted me dead, I'd already BE dead. And if you're hunting what I THINK you're hunting... <B:0> ...maybe I've been watching the wrong skies. <B:0> You gotta let me aboard, we should join up!")
+       (tr "Welcome aboard!")
+       (tr "Politely decline."))
       (let ((goblin nil)
-            ((x . y) (find-crew-slot "<c:Anvil Annie:44>I'm sure we can find some space!"
+            ((x . y) (find-crew-slot (tr "<c:Anvil Annie:44>I'm sure we can find some space!")
                                      'ladder
-                                     "Place block (1x2):")))
+                                     (tr "Place block (1x2):"))))
         (foreach (lambda (chr)
                    (if (equal (lookup 'race (cddr chr)) 1)
                        (setq goblin true)))
@@ -80,14 +81,14 @@
                      '((icon . 44))))
         (if goblin
             (progn
-              (await (dialog* "<c:Anvil Annie:44>Finally aboard! Let me just... <B:0> <s:3>. . . <s:0>"))
-              (await (dialog* "<c:Anvil Annie:44>Wait. WAIT. <B:0> Those biosigns... <B:0> GOBLINS!? <B:0> I KNEW IT! This was a trap all along!"))
-              (attack-player "Anvil Annie has turned hostile!"))
+              (await (dialog* (tr "<c:Anvil Annie:44>Finally aboard! Let me just... <B:0> <s:3>. . . <s:0>")))
+              (await (dialog* (tr "<c:Anvil Annie:44>Wait. WAIT. <B:0> Those biosigns... <B:0> GOBLINS!? <B:0> I KNEW IT! This was a trap all along!")))
+              (attack-player (tr "Anvil Annie has turned hostile!")))
             (progn
-              (await (dialog* "Anvil Annie joined your crew!"))
+              (await (dialog* (tr "Anvil Annie joined your crew!")))
               (exit))))
       (progn
-        (await (dialog* "<c:Anvil Annie:44>Understood, right. Hard to trust anyone, these days..."))
+        (await (dialog* (tr "<c:Anvil Annie:44>Understood, right. Hard to trust anyone, these days...")))
         (exit))))
 
 
@@ -101,28 +102,28 @@
       ((or (> pstr 2)
            (and (> pstr 1)
                 (chance 2)))
-       (if (dialog-await-binary-q "<c:Anvil Annie:44>Your fortifications... That's not goblin salvage work. Human military refit. Maybe even pre-migration hardware. <B:0> 400@. Covert rates. <B:0> And you sail straight through - no loitering, no surveys, no 'equipment malfunctions' near my perimeter!"
-                                  "Pay 400@."
-                                  "Refuse bribe.")
+       (if (dialog-await-binary-q (tr "<c:Anvil Annie:44>Your fortifications... That's not goblin salvage work. Human military refit. Maybe even pre-migration hardware. <B:0> 400@. Covert rates. <B:0> And you sail straight through - no loitering, no surveys, no 'equipment malfunctions' near my perimeter!")
+                                  (tr "Pay 400@.")
+                                  (tr "Refuse bribe."))
            (pay-toll 400)
            (refuse)))
       (true
-       (if (dialog-await-binary-q "<c:Anvil Annie:44>...HA! Oh, that's PRECIOUS! <B:0> You actually thought - with THAT floating scrapyard - you could intimidate ME? <B:0> 800@ now. And count yourself lucky I don't raise it any higher!"
-                                  "Pay 800@."
-                                  "Refuse bribe.")
+       (if (dialog-await-binary-q (tr "<c:Anvil Annie:44>...HA! Oh, that's PRECIOUS! <B:0> You actually thought - with THAT floating scrapyard - you could intimidate ME? <B:0> 800@ now. And count yourself lucky I don't raise it any higher!")
+                                  (tr "Pay 800@.")
+                                  (tr "Refuse bribe."))
            (pay-toll 800)
            (refuse))))))
 
 
 (defn/temp negotiate ()
-  (let ((sel (await (dialog-choice* "<c:Anvil Annie:44>Alright, let's negotiate. <B:0> I'm listening, but no sudden moves, gotit?"
-                                    (list "Pay 700@."
+  (let ((sel (await (dialog-choice* (tr "<c:Anvil Annie:44>Alright, let's negotiate. <B:0> I'm listening, but no sudden moves, gotit?")
+                                    (list (tr "Pay 700@.")
                                           (let ((st (strength (player))))
                                             (cond
-                                              ((> st 2) "Intimidate.")
-                                              ((equal st 2) "Intimidate. (risky)")
-                                              (true "Intimidate. (foolish)")))
-                                          "Refuse Bribe.")))))
+                                              ((> st 2) (tr "Intimidate."))
+                                              ((equal st 2) (tr "Intimidate. (risky)"))
+                                              (true (tr "Intimidate. (foolish)"))))
+                                          (tr "Refuse Bribe."))))))
     (case sel
       (0 (pay-toll 700))
       (1 (intimidate))
@@ -131,17 +132,15 @@
 
 (defn on-converge ()
   (setq on-converge nil)
-  (await (dialog* "<c:Anvil Annie:44>Unknown vessel! You're trespassing in MY airspace! <B:0> "
-                  "I've been keeping this stretch of sky clear for twenty years, and I don't plan on stopping now! <B:0> "
-                  "Don't even think about giving me that 'innocent trader' routine - I can smell goblin sympathizers from three leagues away!"))
+  (await (dialog* (tr "<c:Anvil Annie:44>Unknown vessel! You're trespassing in MY airspace! <B:0> I've been keeping this stretch of sky clear for twenty years, and I don't plan on stopping now! <B:0> Don't even think about giving me that 'innocent trader' routine - I can smell goblin sympathizers from three leagues away!")))
   (dialog-opts-reset)
   (if (dialog-await-binary-q-w/lore
-       "<c:Anvil Annie:44>Tell you what, spy - <B:0>you hand over 700@ right now, and maybe Sweet Bertha here won't blow a hole in your hull! (pats cannon)"
-       "Negotiate."
-       "Refuse Bribe."
-       '(("We aren't spies!" .
-          "<c:Anvil Annie:44>Course you'd say that. Real spies always deny it. Innocent traders? They get confused, ask what I'm talking about. But you knew EXACTLY what I meant...")
-         ("What's this debris field?" .
-          "<c:Anvil Annie:44>Spies, saboteurs, sleeper agents! They think they're so clever with their fake distress calls and forged cargo manifests! But I can spot 'em from leagues away! <B:0> See that scorched hull fragment? 'Friendly trader' who tried to scan my weapon configurations! <B:0> The nerve! They're ALL connected, part of some massive intelligence network! <B:0> Anyway...")))
+       (tr "<c:Anvil Annie:44>Tell you what, spy - <B:0>you hand over 700@ right now, and maybe Sweet Bertha here won't blow a hole in your hull! (pats cannon)")
+       (tr "Negotiate.")
+       (tr "Refuse Bribe.")
+       (tr '(("We aren't spies!" .
+              "<c:Anvil Annie:44>Course you'd say that. Real spies always deny it. Innocent traders? They get confused, ask what I'm talking about. But you knew EXACTLY what I meant...")
+             ("What's this debris field?" .
+              "<c:Anvil Annie:44>Spies, saboteurs, sleeper agents! They think they're so clever with their fake distress calls and forged cargo manifests! But I can spot 'em from leagues away! <B:0> See that scorched hull fragment? 'Friendly trader' who tried to scan my weapon configurations! <B:0> The nerve! They're ALL connected, part of some massive intelligence network! <B:0> Anyway..."))))
       (negotiate)
       (refuse)))

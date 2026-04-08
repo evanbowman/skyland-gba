@@ -2,9 +2,11 @@
 ;;; neutral/1/0_goblin.lisp
 ;;;
 
+(tr-bind-current)
+
 
 (dialog
- "An unusual structure emerges from the clouds... <B:0> A fortress of rough-hewn stone, adorned with crude but intricate carvings. <B:0> Inside, you spot goblin figures moving with unexpected discipline and precision...")
+ (tr "An unusual structure emerges from the clouds... <B:0> A fortress of rough-hewn stone, adorned with crude but intricate carvings. <B:0> Inside, you spot goblin figures moving with unexpected discipline and precision..."))
 
 
 (opponent-init 5 'neutral)
@@ -71,11 +73,11 @@
 (setq on-converge
       (lambda ()
         (dialog
-         "<c:Goblin Monk:41>We are the Ashwalker Order. While other goblins chase mere plunder, we seek the ancient strength that let our ancestors survive the surface world. <B:0> Our training could serve your crew well... for the right price.")
+         (tr "<c:Goblin Monk:41>We are the Ashwalker Order. While other goblins chase mere plunder, we seek the ancient strength that let our ancestors survive the surface world. <B:0> Our training could serve your crew well... for the right price."))
 
         (dialog-setup-binary-q
-         (format "Recruit? %@" (* 400 (zone)))
-         "No thanks.")
+         (format (tr "Recruit? %@") (* 400 (zone)))
+         (tr "No thanks."))
 
         (setq on-converge nil)))
 
@@ -83,29 +85,29 @@
 (defn on-dialog-accepted ()
   (if (> (* 400 (zone)) (coins))
       (progn
-        (dialog "You cannot afford to pay. The monks become impatient, and cut the transmission.")
+        (dialog (tr "You cannot afford to pay. The monks become impatient, and cut the transmission."))
         (exit))
       (find-crew-slot-cb
-       "<c:Goblin Monk:41>This is inconvenient, but I suppose we can help you out..."
+       (tr "<c:Goblin Monk:41>This is inconvenient, but I suppose we can help you out...")
        'ladder
-       "Place block (1x2):"
+       (tr "Place block (1x2):")
        (lambda (x y _)
          (chr-del (opponent) 0 14)
          (chr-new (player) x y 'neutral '((race . 1) (icon . 41)))
          (coins-add (* -400 (zone)))
          (adventure-log-add 66 '())
-         (dialog "<c:Warrior Monk:41>I live to serve!")
+         (dialog (tr "<c:Warrior Monk:41>I live to serve!"))
          (defn on-dialog-closed ()
            (setq on-dialog-closed nil)
-           (dialog "The monk joined your crew!")
+           (dialog (tr "The monk joined your crew!"))
            (pickup-cart-cb 10
-                           "The Ashwalker Monk reluctantly hands over a datacart that he'd been keeping..."
+                           (tr "The Ashwalker Monk reluctantly hands over a datacart that he'd been keeping...")
                            exit))))))
 
 
 
 (setq on-dialog-declined
       (lambda ()
-        (dialog "The monks became angry, and cut the transmission.")
+        (dialog (tr "The monks became angry, and cut the transmission."))
         (adventure-log-add 66 '())
         (exit)))

@@ -2,10 +2,11 @@
 ;;; quest/goblin/5.lisp
 ;;;
 
+(tr-bind-current)
 
 (dialog
  "<b:/scripts/data/img/surface_keeper.img.bin>"
- "Your sensors detect movement in the radioactive clouds below... <B:0> A figure emerges, wrapped in thick robes and wearing elaborate breathing apparatus. <B:0> They signal your fortress from their floating observation post...")
+ (tr "Your sensors detect movement in the radioactive clouds below... <B:0> A figure emerges, wrapped in thick robes and wearing elaborate breathing apparatus. <B:0> They signal your fortress from their floating observation post..."))
 
 
 (opponent-init 9 'neutral)
@@ -21,9 +22,9 @@
 (defn on-converge ()
   (setq on-converge nil)
 
-  (dialog "<c:Surface Keeper:43>The cloudsss thin here... allowing usss to reach the sssky dwellersss. <B:0> Our instruments detect... disturbing energy readingsss in the ruinsss below. <B:0> Something awakensss. We require aid from those who command flying fortressesss.")
+  (dialog (tr "<c:Surface Keeper:43>The cloudsss thin here... allowing usss to reach the sssky dwellersss. <B:0> Our instruments detect... disturbing energy readingsss in the ruinsss below. <B:0> Something awakensss. We require aid from those who command flying fortressesss."))
 
-  (dialog-setup-binary-q "I accept!" "I'm kind of busy…")
+  (dialog-setup-binary-q (tr "I accept!") (tr "I'm kind of busy…"))
 
   (defn on-dialog-accepted ()
     (let ((m (eval-file "/scripts/event/quest/make_quest_marker.lisp")))
@@ -33,19 +34,19 @@
         (push quests (cons "surface_keeper.lisp" m)))
 
       (find-crew-slot-cb
-       "<c:Surface Keeper:43>No ssspace! Let's ssseee..."
+       (tr "<c:Surface Keeper:43>No ssspace! Let's ssseee...")
        'ladder
-       "Place block (1x2):"
+       (tr "Place block (1x2):")
        (lambda (x y _)
          (chr-del (opponent) 1 13)
          (let ((id (chr-new (player) x y 'neutral '((race . 1) (icon . 43)))))
            (push qvar (cons 5 id)))
 
          (dialog (if m
-                     "<c:Surface Keeper:43>Yesss... time is critical. I've marked the sssource of the disturbance on your chart with an *."
-                     "<c:Surface Keeper:43>The energy readingsss have grown too unstable... We can no longer approach sssafely. The containment mussst have already failed..."))
+                     (tr "<c:Surface Keeper:43>Yesss... time is critical. I've marked the sssource of the disturbance on your chart with an *.")
+                     (tr "<c:Surface Keeper:43>The energy readingsss have grown too unstable... We can no longer approach sssafely. The containment mussst have already failed...")))
          (defn on-dialog-closed ()
-           (dialog "The surface keeper goblin joined your crew!")
+           (dialog (tr "The surface keeper goblin joined your crew!"))
            (setq on-dialog-closed exit))))))
 
 

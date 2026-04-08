@@ -115,7 +115,7 @@
 
 
 
-(let ((file "/scripts/event/shop/chat.txt"))
+(let ((file (string "/scripts/event/shop/" (lang) "/shop_chat.txt")))
   (let ((txt (file-get-line file (+ 1 (choice (file-line-count file))))))
     (defn on-shop-enter ()
 

@@ -2,13 +2,15 @@
 ;;; neutral/1/0_human.lisp
 ;;;
 
+(tr-bind-current)
+
 
 (dialog
  ;; The first time this event happens, show a cover image
  (if (not (adv-var-load 'mercenary-event))
      "<b:/scripts/data/img/marauder.img.bin> "
    "")
- "You discover a fortress inhabited by some mercenaries...")
+ (tr "You discover a fortress inhabited by some mercenaries..."))
 
 
 (opponent-init 5 'neutral)
@@ -74,9 +76,8 @@
 
 (defn on-converge ()
   (setq on-converge nil)
-  (if (dialog-await-y/n (string "One of the mercenaries offers to join you crew, for a cost of "
-                                (* 400 (zone))
-                                "@. Accept offer?"))
+  (if (dialog-await-y/n (format (tr "One of the mercenaries offers to join you crew, for a cost of %@. Accept offer?")
+                                (* 400 (zone))))
       (on-dialog-accepted)
       (on-dialog-declined)))
 
@@ -85,8 +86,7 @@
   (let ((dest (chr-slots (player))))
     (if (> (* 400 (zone)) (coins))
         (progn
-          (await (dialog* "You cannot afford to pay. "
-                          "The mercenaries become impatient, and cut the transmission."))
+          (await (dialog* (tr "You cannot afford to pay. The mercenaries become impatient, and cut the transmission.")))
           (exit))
       (if dest
           (progn
@@ -94,17 +94,17 @@
             (setq dest (sample dest))
             (chr-new (player) (car dest) (cdr dest) 'neutral '((race . 0) (icon . 17)))
             (chr-del (opponent) 0 14)
-            (await (dialog* "<c:Mercenary:17> Ahoy! Ready to knock some heads!?"))
-            (await (dialog* "The mercenary joined your crew!"))
+            (await (dialog* (tr "<c:Mercenary:17> Ahoy! Ready to knock some heads!?")))
+            (await (dialog* (tr "The mercenary joined your crew!")))
             (exit)
             (adventure-log-add 27 (list (* 400 (zone)))))
         (progn
-          (await (dialog* "Sadly, there's no room..."))
+          (await (dialog* (tr "Sadly, there's no room...")))
           (exit))))))
 
 
 (defn on-dialog-declined ()
-  (await (dialog* "The mercenaries became angry, and cut the transmission."))
+  (await (dialog* (tr "The mercenaries became angry, and cut the transmission.")))
   (adventure-log-add 28 '())
   (exit))
 

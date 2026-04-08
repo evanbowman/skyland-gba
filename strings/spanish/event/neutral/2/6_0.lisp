@@ -1,0 +1,6 @@
+'(("An acrid plume of smoke rises from a fortress on the horizon..." . "Una columna de humo acre se eleva desde una fortaleza en el horizonte...")
+("Looks like a terrible battle happened here... The crew seems to have abandoned the burning island, leaving behind a powerful weapon..." . "Parece que aquí ocurrió una batalla terrible... La tripulación parece haber abandonado la isla en llamas, dejando atrás un arma poderosa...")
+("Place weapon (2x2)" . "Colocar arma (2x2)")
+("A delicate weapon built long ago on the surface... protect it carefully, because you can't build a replacement." . "Un arma delicada construida hace mucho en la superficie... protégela con cuidado, porque no puedes fabricar un reemplazo.")
+("Oh! You notice something else..." . "¡Oh! Notas algo más...")
+)

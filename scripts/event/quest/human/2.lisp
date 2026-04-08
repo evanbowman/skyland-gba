@@ -2,8 +2,10 @@
 ;;; quest/human/2.lisp
 ;;;
 
+(tr-bind-current)
 
-(dialog "<b:/scripts/data/img/farm_colony.img.bin>A nearby farming colony requests assistance...")
+(dialog "<b:/scripts/data/img/farm_colony.img.bin>"
+        (tr "A nearby farming colony requests assistance..."))
 
 
 (opponent-init 9 'neutral)
@@ -49,7 +51,7 @@
     (if m
         (progn
           (dialog
-           "<c:Farmer Meyer:9>Looks like a bad storm's coming this way! Hey, I have an idea! How about you do me a favor and relocate my orchard of lemon trees to my brother's island... I'll tell him to pay you 1400@ for each one that you successfully deliver!")
+           (tr "<c:Farmer Meyer:9>Looks like a bad storm's coming this way! Hey, I have an idea! How about you do me a favor and relocate my orchard of lemon trees to my brother's island... I'll tell him to pay you 1400@ for each one that you successfully deliver!"))
 
           (defn on-dialog-closed ()
             (map (lambda (room)
@@ -73,9 +75,9 @@
 
             (adventure-log-add 18 (list (room-count (player) 'lemon-tree)))
 
-            (dialog "<c:Farmer Meyer:9>Please take good care of them! I marked my brother's address on your sky chart with an *!")
+            (dialog (tr "<c:Farmer Meyer:9>Please take good care of them! I marked my brother's address on your sky chart with an *!"))
             (defn on-dialog-closed ()
-              (dialog "<c:Farmer Meyer:9>Anything else you'd like to discuss?")
+              (dialog (tr "<c:Farmer Meyer:9>Anything else you'd like to discuss?"))
 
               (let ((t (this)))
                 (let ((chat (lambda (str)
@@ -83,18 +85,18 @@
                                 (lambda ()
                                   (dialog s)
                                   (setq on-dialog-closed t))))))
-                  (dialog-opts-push "Farming?"
-                                    (chat "<c:Farmer Meyer:9>Farms up here grow crops cultivated for cold air. Even so, nothing would grow at this altitude without heat from the island reactor core..."))
+                  (dialog-opts-push (tr "Farming?")
+                                    (chat (tr "<c:Farmer Meyer:9>Farms up here grow crops cultivated for cold air. Even so, nothing would grow at this altitude without heat from the island reactor core...")))
 
-                  (dialog-opts-push "Irrigation?"
-                                    (chat "<c:Farmer Meyer:9>Although we do get some light rain up here, it's not enough for growing crops. But we can harvest water from the clouds, of course..."))
+                  (dialog-opts-push (tr "Irrigation?")
+                                    (chat (tr "<c:Farmer Meyer:9>Although we do get some light rain up here, it's not enough for growing crops. But we can harvest water from the clouds, of course...")))
 
-                  (dialog-opts-push "Nope!" (lambda ()
-                                             (dialog "<c:Farmer Meyer:9>Good luck!")
-                                             (setq on-dialog-closed exit)
-                                             (exit)))))
+                  (dialog-opts-push (tr "Nope!") (lambda ()
+                                                   (dialog (tr "<c:Farmer Meyer:9>Good luck!"))
+                                                   (setq on-dialog-closed exit)
+                                                   (exit)))))
 
               )))
       (progn
-        (dialog "<c:Farmer Meyer:9>I was going to ask you to help relocate some of these lemon trees, but the storm's getting closer and I need to move out! Maybe we'll meet again, someday...")
+        (dialog (tr "<c:Farmer Meyer:9>I was going to ask you to help relocate some of these lemon trees, but the storm's getting closer and I need to move out! Maybe we'll meet again, someday..."))
         (setq on-dialog-closed exit)))))

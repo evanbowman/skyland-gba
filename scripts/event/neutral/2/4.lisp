@@ -2,11 +2,13 @@
 ;;; neutral/2/4.lisp
 ;;;
 
+(tr-bind-current)
+
 
 (dialog
- "Through sheets of rain, you spot a fortress ahead... <B:0> Its walls are wrapped in writhing mycelium, organic patterns reaching toward the high windows... <B:0>"
-  "<b:/scripts/data/img/goblin_queen_close.img.bin> "
- "From her twisted throne, the goblin queen studies you intently... <B:0> Your crew warns that those who refuse her demands rarely survive to regret it...")
+ (tr "Through sheets of rain, you spot a fortress ahead... <B:0> Its walls are wrapped in writhing mycelium, organic patterns reaching toward the high windows... <B:0>")
+ "<b:/scripts/data/img/goblin_queen_close.img.bin> "
+ (tr "From her twisted throne, the goblin queen studies you intently... <B:0> Your crew warns that those who refuse her demands rarely survive to regret it..."))
 
 (weather-set weather-id-rain)
 
@@ -100,14 +102,13 @@
                         (floor (/ (coins) 2)))))))
   (defn on-converge ()
     (setq on-converge nil)
-    (let ((msg (string "<c:Goblin Queen:40>#cackle# You're tressspasssing in my territory! "
-                       "I demand a tribute of "
-                       (string val)
-                       "@! Pay!")))
+    (let ((msg (string (tr "<c:Goblin Queen:40>#cackle# You're tressspasssing in my territory! ")
+                       (format (tr "I demand a tribute of %@! Pay!")
+                               val))))
       (if (dialog-await-binary-q-w/lore msg
-                                        (format "I'll pay… (%@)" val)
-                                        "No way!"
-                                        '(("Goblin Queen?" . "It's said that she began as a promising Ashwalker Apprentice, studying ancient technology and surface lore. But where other monks sought to contain and guard dangerous artifacts, she saw opportunities for power. She began experimenting with forbidden technologies, particularly the controlled growth of mycelium... <B:0> What should we do?")))
+                                        (format (tr "I'll pay… (%@)") val)
+                                        (tr "No way!")
+                                        (tr '(("Goblin Queen?" . "It's said that she began as a promising Ashwalker Apprentice, studying ancient technology and surface lore. But where other monks sought to contain and guard dangerous artifacts, she saw opportunities for power. She began experimenting with forbidden technologies, particularly the controlled growth of mycelium... <B:0> What should we do?"))))
           (on-dialog-accepted)
           (on-dialog-declined))))
 
@@ -117,13 +118,12 @@
         (progn
           (opponent-mode 'hostile)
           (adventure-log-add 32 '())
-          (dialog "<c:Goblin Queen:40>Thatsss not enough! Letsss sssee if theresss anything we can take!!"))
+          (dialog (tr "<c:Goblin Queen:40>Thatsss not enough! Letsss sssee if theresss anything we can take!!")))
         (progn
           (coins-add (- val))
           (adventure-log-add 31 (list val))
-          (dialog "The Goblin Queen rejoices, having successfully extorted "
-                  (string val)
-                  "@.")
+          (dialog (format (tr "The Goblin Queen rejoices, having successfully extorted %@.")
+                          val))
           (exit)))))
 
 
@@ -131,7 +131,7 @@
 (defn on-dialog-declined ()
   (opponent-mode 'hostile)
   (adventure-log-add 33 '())
-  (dialog "<c:Goblin Queen:40>UNACCEPTABLE!! PREPARE FOR BOARDING!!!"))
+  (dialog (tr "<c:Goblin Queen:40>UNACCEPTABLE!! PREPARE FOR BOARDING!!!")))
 
 
 (defn on-room-destroyed (isle sym)
@@ -141,4 +141,4 @@
                  1)
           (progn
             (setq on-room-destroyed nil)
-            (dialog "As victory draws near, the goblin queen slips away...")))))
+            (dialog (tr "As victory draws near, the goblin queen slips away..."))))))

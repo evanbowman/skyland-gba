@@ -2,9 +2,11 @@
 ;;; neutral/1/8_0_human.lisp
 ;;;
 
+(tr-bind-current)
+
 
 (dialog
- "<b:/scripts/data/img/docks.img.bin>While docking at a crowded transit hub, you notice a dog wandering between the platforms...")
+ (tr "<b:/scripts/data/img/docks.img.bin>While docking at a crowded transit hub, you notice a dog wandering between the platforms..."))
 
 
 (opponent-init 11 'neutral)
@@ -21,23 +23,23 @@
 
 (defn on-converge ()
   (setq on-converge nil)
-  (await (dialog* "<c:Station Master:9>Poor thing's owner had to evacuate ahead of the storm. Been trying to find someone to take him in before we have to close the station..."))
+  (await (dialog* (tr "<c:Station Master:9>Poor thing's owner had to evacuate ahead of the storm. Been trying to find someone to take him in before we have to close the station...")))
 
-  (if (dialog-await-y/n "He seems friendly, invite him aboard?")
+  (if (dialog-await-y/n (tr "He seems friendly, invite him aboard?"))
       (on-dialog-accepted)
       (on-dialog-declined)))
 
 
 (defn on-dialog-accepted ()
-  (let ((xy (find-crew-slot "<c:Dog:24>BOWOWOWOW!"
+  (let ((xy (find-crew-slot (tr "<c:Dog:24>BOWOWOWOW!")
                             'ladder
-                            "Place block (1x2):")))
+                            (tr "Place block (1x2):"))))
     (chr-del (opponent) 0 12)
     (chr-new (player) (car xy) (cdr xy) 'neutral '((race . 3) (icon . 24)))
     (dialog-sequence
-     "<c:Dog:24>Woof! Bowowow!"
-     "A new friend joins your crew!"
-     "<c:Station Master:9>Not much of a mechanic, but quick on his feet and fierce in a fight!"
+     (tr "<c:Dog:24>Woof! Bowowow!")
+     (tr "A new friend joins your crew!")
+     (tr "<c:Station Master:9>Not much of a mechanic, but quick on his feet and fierce in a fight!")
      exit)))
 
 

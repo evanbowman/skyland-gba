@@ -69,15 +69,16 @@ public:
 
         temp.clear();
 
-        const char* drone_info_file = "/strings/drone_info.txt";
+        const char* drone_info_file_fmt = "/strings/%/drone_info.txt";
+        auto drone_info_file = format(drone_info_file_fmt, systemstring_bound_file());
 
-        auto lcnt = file_line_count(drone_info_file);
+        auto lcnt = file_line_count(drone_info_file.c_str());
 
         int linum = (drone_->position().x + drone_->position().y +
                      APP.current_world_location()) %
                     lcnt;
 
-        auto line = get_line_from_file(drone_info_file, linum + 1);
+        auto line = get_line_from_file(drone_info_file.c_str(), linum + 1);
 
         const char* str = line->c_str();
         tv_.emplace();

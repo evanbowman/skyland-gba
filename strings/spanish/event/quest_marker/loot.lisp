@@ -1,0 +1,5 @@
+'(("You arrive at the meeting spot..." . "Llegas al punto de encuentro...")
+("loot" . "botín")
+("<c:Contact:2>Sssneaky work! Was starting to think you'd gotten caught! Good haul of machine partsss here - plenty of buyersss waiting! Here'sss %@ for your cut!" . "<c:Contacto:2>¡Buen trabajo a essscondidas! ¡Empezaba a penssar que osss habían pillado! Buen cargamento de piezasss de maquinaria - ¡hay muchosss compradoresss esperando! ¡Aquí tenesss %@ por tu parte!")
+("Upon closer inspection, no one seems to be home! Good thing too, as it seems that you lost the loot along the way!" . "Al mirar más de cerca, ¡parece que no hay nadie en casa! Menos mal, ¡ya que parece que perdiste el botín por el camino!")
+)

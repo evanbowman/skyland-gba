@@ -2,8 +2,9 @@
 ;;; neutral/0/3_goblin.lisp
 ;;;
 
+(tr-bind-current)
 
-(dialog "Your sensors detect some goblin scavengers returning from a raid. <B:0> Their leader excitedly waves you down, eager to trade their mysterious finds...")
+(dialog (tr "Your sensors detect some goblin scavengers returning from a raid. <B:0> Their leader excitedly waves you down, eager to trade their mysterious finds..."))
 
 (opponent-init 5 'neutral)
 
@@ -29,7 +30,7 @@
       (sel-input
        item
        (string
-        "Place first "
+        (tr "Place first ")
         (rinfo 'name item)
         (format " (%x%):" (car (rinfo 'size item)) (cdr (rinfo 'size item))))
        (lambda (isle x y)
@@ -38,7 +39,7 @@
          (alloc-space item)
          (sel-input
           item
-          (string "Place second " (rinfo 'name item) ":")
+          (string (tr "Place second ") (rinfo 'name item) ":")
           (lambda (isle x y)
             (room-new (player) (list item x y))
             (sound "build0")
@@ -59,26 +60,24 @@
 
   (setq on-converge
         (lambda ()
-          (dialog "<c:Scavenger:35> Found thessse "
-                  (rinfo 'name item)
-                  "s"
+          (dialog (format (tr "<c:Scavenger:35> Found thessse %s") (rinfo 'name item))
                   (if (equal (faction) 'goblin)
-                      " on a human isssle!"
-                      "... err ... Well, don't worry where I got them! <B:0>")
-                  " Still working, barely sssinged! 1300@ for two, yesss? Better price than waiting for your workshop to build them!"
+                      (tr " on a human isssle!")
+                      (tr "... err ... Well, don't worry where I got them! <B:0>"))
+                  (tr " Still working, barely sssinged! 1300@ for two, yesss? Better price than waiting for your workshop to build them!")
                   (if (< (coins) 1300)
-                      "...but you don't ssseem to have enough. Do you want to sssalvage some stuff to come up with the fundsss? I'll check back in 15 secondsss?"
+                      (tr "...but you don't ssseem to have enough. Do you want to sssalvage some stuff to come up with the fundsss? I'll check back in 15 secondsss?")
                       ""))
           (dialog-opts-reset)
-          (dialog-opts-push "Purchase for 1300@." on-dialog-accepted)
-          (dialog-opts-push "Take by force."
+          (dialog-opts-push (tr "Purchase for 1300@.") on-dialog-accepted)
+          (dialog-opts-push (tr "Take by force.")
                             (lambda ()
                               (adventure-log-add 71 (list (rinfo 'name item)))
-                              (dialog "<c:Scavenger:35>Gah! Fine, take them! <B:0> Ssstolen from some fat merchantsss anyway... <B:0> But we won't forget thisss. We know where to find more friendsss...")
+                              (dialog (tr "<c:Scavenger:35>Gah! Fine, take them! <B:0> Ssstolen from some fat merchantsss anyway... <B:0> But we won't forget thisss. We know where to find more friendsss..."))
                               (push-pending-event (+ 2 (choice 4)) "/scripts/event/hostile/scavenger-vengeance.lisp")
                               (setq on-dialog-closed
-                                    (place-items item "The goblins storm off, swearing vengeance..."))))
-          (dialog-opts-push "Decline offer." on-dialog-declined)
+                                    (place-items item (tr "The goblins storm off, swearing vengeance...")))))
+          (dialog-opts-push (tr "Decline offer.") on-dialog-declined)
           (setq on-converge nil)))
 
 
@@ -94,7 +93,7 @@
                   (defn fut ()
                     (if (> (coins) 1299)
                         (progn
-                          (dialog "<c:Scavenger:35>Ssseems like you have enough now!")
+                          (dialog (tr "<c:Scavenger:35>Ssseems like you have enough now!"))
                           (setq on-dialog-closed f))
                         (f))))
 
@@ -103,13 +102,13 @@
                       (setq skip 0)
                       (on-timeout 15000 'fut))
                     (progn
-                      (dialog "<c:Scavenger:35>Sorry, that's not enough! Do you want to sssalvage some ssstuff to come up with the ressourcesss for payment? I'll check back in in 15 seconds?")
+                      (dialog (tr "<c:Scavenger:35>Sorry, that's not enough! Do you want to sssalvage some ssstuff to come up with the ressourcesss for payment? I'll check back in in 15 seconds?"))
                       (dialog-setup-y/n)
                       (setq on-dialog-accepted (lambda () (on-timeout 15000 'fut)))
                       (setq on-dialog-declined (lambda () (unbind 'fut) (exit))))))
               (progn
                 (adventure-log-add 67 (list (rinfo 'name item) 1300))
                 (coins-add -1300)
-                ((place-items item "<c:Scavenger:35>Yesss! Sssmart choice! Don't mind the burn marksss, they add character!")))))))
+                ((place-items item (tr "<c:Scavenger:35>Yesss! Sssmart choice! Don't mind the burn marksss, they add character!"))))))))
 
 (setq on-dialog-declined exit)

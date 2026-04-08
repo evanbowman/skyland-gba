@@ -2,8 +2,9 @@
 ;;; quest_marker/goblin_pickup_1.lisp
 ;;;
 
+(tr-bind-current)
 
-(dialog "It was a trap!")
+(dialog (tr "It was a trap!"))
 
 (opponent-init 8 'hostile)
 

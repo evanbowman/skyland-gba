@@ -1,0 +1,8 @@
+'(("You discover a fortress inhabited by some mercenaries..." . "Descubres una fortaleza habitada por unos mercenarios...")
+("One of the mercenaries offers to join you crew, for a cost of %@. Accept offer?" . "Uno de los mercenarios se ofrece a unirse a tu tripulación, por un coste de %@. ¿Aceptar?")
+("You cannot afford to pay. The mercenaries become impatient, and cut the transmission." . "No puedes permitirte pagar. Los mercenarios se impacientan y cortan la transmisión.")
+("<c:Mercenary:17> Ahoy! Ready to knock some heads!?" . "<c:Mercenario:17> ¡Ahoy! ¿¡Listos para repartir leña!?")
+("The mercenary joined your crew!" . "¡El mercenario se unió a tu tripulación!")
+("Sadly, there's no room..." . "Lamentablemente, no hay espacio...")
+("The mercenaries became angry, and cut the transmission." . "Los mercenarios se enfurecieron y cortaron la transmisión.")
+)

@@ -2,8 +2,10 @@
 ;;; quest/sylph/3.lisp
 ;;;
 
+(tr-bind-current)
+
 (dialog
- "While passing a Sylph radio relay, you begin receiving a coded message... <B:0> The signal stutters and repeats, its pattern suggesting automated distress protocols rather than live transmission...")
+ (tr "While passing a Sylph radio relay, you begin receiving a coded message... <B:0> The signal stutters and repeats, its pattern suggesting automated distress protocols rather than live transmission..."))
 
 (opponent-init 5 'neutral)
 
@@ -13,7 +15,7 @@
 
 (defn on-converge ()
   (dialog
-   "<c:Sylph Relay:25>This is Research Platform Delta broadcasting emergency evacuation request. <B:0> Current situation: core crystal degradation exceeded safety thresholds forty-two minutes ago. Platform now operating on reserve power. <B:0> Personnel status: three researchers remain on station. Primary evacuation vessel delayed due to storm interference. <B:0> Calculating... nearest Conclave rescue ship is eight hours distant. Our power reserves project complete failure in approximately six hours. <B:0> Your vessel appears within range. We are transmitting precise coordinates and approach vectors. <B:0> Time is... a factor.")
+   (tr "<c:Sylph Relay:25>This is Research Platform Delta broadcasting emergency evacuation request. <B:0> Current situation: core crystal degradation exceeded safety thresholds forty-two minutes ago. Platform now operating on reserve power. <B:0> Personnel status: three researchers remain on station. Primary evacuation vessel delayed due to storm interference. <B:0> Calculating... nearest Conclave rescue ship is eight hours distant. Our power reserves project complete failure in approximately six hours. <B:0> Your vessel appears within range. We are transmitting precise coordinates and approach vectors. <B:0> Time is... a factor."))
 
   (defn on-dialog-closed ()
     (let ((m (eval-file "/scripts/event/quest/make_quest_marker.lisp")))
@@ -23,6 +25,6 @@
             (push qids 3)
             (push quests (cons "sylph_refugees.lisp" m))
             (adventure-log-add 19 '())
-            (dialog "The coordinates lock into your navigation system. The platform's location appears on your sky chart, marked with an *. <B:0> The signal continues its automated loop, counting down the remaining power reserves..."))
+            (dialog (tr "The coordinates lock into your navigation system. The platform's location appears on your sky chart, marked with an *. <B:0> The signal continues its automated loop, counting down the remaining power reserves...")))
           (progn
-            (dialog "<c:Sylph Relay:25>Update: Research Platform Delta has ceased all transmissions. <B:0> Last recorded message indicated structural failure. <B:0> Evacuation objective... cancelled. <B:0> Recording incident for archive review."))))))
+            (dialog (tr "<c:Sylph Relay:25>Update: Research Platform Delta has ceased all transmissions. <B:0> Last recorded message indicated structural failure. <B:0> Evacuation objective... cancelled. <B:0> Recording incident for archive review.")))))))

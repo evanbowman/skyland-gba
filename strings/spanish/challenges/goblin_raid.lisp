@@ -1,0 +1,5 @@
+'(("Are you sure you want a hint?" . "¿Seguro que quieres una pista?")
+("Hint: Try using an arc-gun against the enemy hull, a repair drone could keep you alive." . "Pista: Prueba a usar un cañón de arco contra el casco enemigo, un dron de reparación podría mantenerte con vida.")
+("<c:Goblin:2>Hey King, we've found a defenssselesss cassstle!" . "<c:Goblin:2>¡Eh Rey, hemosss encontrado un cassstillo indefensso!")
+("<c:Goblin King:3>#cackle# Minionsss, prepare for boarding!" . "<c:Rey Goblin:3>#carcajada# ¡Sssecuacesss, preparaosss para el abordaje!")
+)

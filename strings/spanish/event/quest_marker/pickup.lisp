@@ -1,0 +1,6 @@
+'(("At last, the pickup address..." . "Por fin, la dirección de recogida...")
+("The passengers joined your crew!" . "¡Los pasajeros se unieron a tu tripulación!")
+("Some of the passengers joined your crew!" . "¡Algunos de los pasajeros se unieron a tu tripulación!")
+("You'd like to invite them aboard, but there seems to be no room..." . "Te gustaría invitarlos a bordo, pero parece que no hay espacio...")
+("<c:Passengers:10>We were starting to wonder if anyone would show up! How about we join up, it'll be safer to travel together! Here's 1500@ as a tip." . "<c:Pasajeros:10>¡Empezábamos a preguntarnos si alguien vendría! ¿Qué tal si nos unimos? ¡Será más seguro viajar juntos! Aquí tienes 1500@ de propina.")
+)

@@ -17,22 +17,11 @@
 #include "string.hpp"
 
 
-void locale_set_language(int language_id);
-void locale_set_language_english();
-int locale_get_language();
-
-bool locale_requires_doublesize_font();
-
 using LocalizedStrBuffer = StringBuffer<1987>;
 using LocalizedText = DynamicMemory<LocalizedStrBuffer>;
 
 
 void set_font_image(const char* font_image_name);
-
-
-StringBuffer<31> locale_language_name(int language);
-
-LocalizedText locale_localized_language_name(int language);
 
 
 // string conversion, output as standard arabic numerals (0-9)
@@ -84,10 +73,5 @@ void format_time(StringBuffer<buffer_size>& str, const DateTime& dt)
 template <u32 buffer_size>
 void log_format_time(StringBuffer<buffer_size>& str, const DateTime& dt)
 {
-    const auto saved_language = locale_get_language();
-    locale_set_language(1);
-
     format_time(str, dt);
-
-    locale_set_language(saved_language);
 }

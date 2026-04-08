@@ -1,0 +1,24 @@
+weather: Lluvia
+A pesar de la altitud, a veces llueve en Skyland. ¡Reduce la producción de células solares a 1/2, producción de molinos duplicada! ¡Mantente seco!
+weather: Tormenta
+¡Reduce la producción de células solares a 1/2, producción de molinos duplicada! Las peores tormentas parecen seguir patrones - casi como si tuvieran un propósito...
+weather: Nieve
+La temperatura en estos sistemas puede caer drásticamente. ¡Reduce la producción de células solares a 1/2, producción de molinos duplicada! Los bloques de agua se helan. 
+weather: Ceniza
+Bajo la capa de nubes yace el mundo de la superficie, ahogado en ceniza radiactiva. Causa periódicamente \Vdust_storm_damage de daño a las zonas expuestas de tu castillo... ¡cuidado!
+weather: Noche
+¡Producción de células solares reducida a cero! La oscuridad revela la verdadera extensión del mundo arruinado abajo - brillando con radiación residual.
+weather: Tormenta Solar
+Ocurre en raras ocasiones, al pasar bajo un agujero de ozono. ¡Producción de células solares duplicada! Mayor daño por fuego. Riesgo periódico de incendios espontáneos en tu isla...
+faction: Colonial
+Asentamientos independientes que se separaron durante la caótica migración a los cielos. Cada colonia se gobierna a sí misma y mantiene una cautelosa neutralidad...
+faction: Horda Goblin
+Humanos que quedaron demasiado tiempo en la superficie tóxica, transformados por radiación. Algunos conservan su inteligencia y se puede razonar... con cuidado.
+faction: Viejo Imperio
+Restos de gobiernos de superficie pre-migración. Sus defensas automatizadas aún patrullan ciertos territorios. Poca tripulación viva queda a bordo de estas fortalezas.
+faction: Segundo Imperio
+Formado tras la migración, intentando reunificar a la humanidad bajo una bandera. Sus ambiciones se han desvanecido a medida que las colonias forjaron identidades propias.
+faction: Merodeador
+Una facción generalmente no alineada de humanos, goblins, etc., que, aunque violentos, pueden aliarse contigo... por el precio adecuado.
+faction: Sylph
+Moradores de las montañas que elevaron metódicamente sus ciudades enteras al cielo antes de que la superficie colapsara. Viven a grandes altitudes, rara vez interactuando con otros.

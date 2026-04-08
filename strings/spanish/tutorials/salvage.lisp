@@ -1,0 +1,3 @@
+'(("<c:Milo:5>Hi again! Looks like a hostile castle approaches, let's take a quick look and build some defenses!" . "<c:Milo:5>¡Hola de nuevo! Parece que se acerca un castillo hostil, ¡echemos un vistazo rápido y construyamos algunas defensas!")
+("<c:Milo:5>We need to build some hull, but looks like we don't have enough resources! Not to worry, we can just salvage some rooms to recover some resources. You can access the salvage menu by hovering over a room and pressing B!" . "<c:Milo:5>Necesitamos construir algo de casco, ¡pero parece que no tenemos suficientes recursos! No te preocupes, podemos desguazar algunas salas para recuperar recursos. ¡Puedes acceder al menú de desguace pasando el cursor sobre una sala y pulsando B!")
+)

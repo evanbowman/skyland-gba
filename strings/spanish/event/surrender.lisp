@@ -1,0 +1,5 @@
+'(("<c:Goblin Pirates:2>You %! We'll never surrender to the likesss of you!" . "<c:Piratas Goblin:2>¡Vosotrosss %! ¡Nunca nosss rendiremosss ante gentuza como vosotrosss!")
+("Nasssty Humansss" . "Asquerososs Humanosss")
+("Traitorsss" . "Traidoresss")
+("Arrogant Sssylph" . "Arrogantesss Sssylph")
+)

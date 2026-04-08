@@ -2,6 +2,7 @@
 ;;; surrender.lisp
 ;;;
 
+(tr-bind-current)
 
 (let ((c (choice 2))
       (p "/scripts/event/surrender/"))
@@ -13,9 +14,8 @@
    (true
     (if (chance 3)
         (dialog
-         "<c:Goblin Pirates:2>You "
-         (case (faction)
-           ('human "Nasssty Humansss")
-           ('goblin "Traitorsss")
-           ('sylph "Arrogant Sssylph"))
-         "! We'll never surrender to the likesss of you!")))))
+         (format (tr "<c:Goblin Pirates:2>You %! We'll never surrender to the likesss of you!")
+                 (tr (case (faction)
+                       ('human "Nasssty Humansss")
+                       ('goblin "Traitorsss")
+                       ('sylph "Arrogant Sssylph")))))))))

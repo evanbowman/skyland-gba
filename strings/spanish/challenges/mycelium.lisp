@@ -1,0 +1,6 @@
+'(("Are you sure you want a hint?" . "¿Seguro que quieres una pista?")
+("Need another hint?" . "¿Necesitas otra pista?")
+("Hint: Mycelium won't grow on forcefields, and is weak against arc-guns." . "Pista: El micelio no crece sobre campos de fuerza, y es débil contra cañones de arco.")
+("Hint: You can incapacitate the cannon by destroying the two forcefields in front of it, allowing the mycelium to grow over the cannon." . "Pista: Puedes inutilizar el cañón destruyendo los dos campos de fuerza delante de él, permitiendo que el micelio crezca sobre el cañón.")
+("OK, one final hint: After building anything that you need from the manufactory, salvage it for resources." . "Vale, una última pista: Después de construir lo que necesites de la manufactura, desguázala para recuperar recursos.")
+)

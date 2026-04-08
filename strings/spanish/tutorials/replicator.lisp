@@ -1,0 +1,4 @@
+'(("<c:Milo:5>This is a replicator, it will allow you to duplicate an existing crew member for 700@!" . "<c:Milo:5>¡Esto es un replicador, te permitirá duplicar un tripulante existente por 700@!")
+("<c:Milo:5>Pretty cool! right? <B:0> There is no limit to the number of replicants you can create, but beware: replicants have less HP, and they cannot be healed." . "<c:Milo:5>¡Bastante genial! ¿verdad? <B:0> No hay límite en el número de replicantes que puedes crear, pero cuidado: los replicantes tienen menos HP, y no pueden ser curados.")
+("<c:Milo:5>You can even create replicants from replicants, but they will be even weaker than the replicant that they were created from!" . "<c:Milo:5>¡Incluso puedes crear replicantes a partir de replicantes, pero serán aún más débiles que el replicante del que fueron creados!")
+)

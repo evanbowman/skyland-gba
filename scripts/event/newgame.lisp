@@ -63,3 +63,9 @@
 (eval-file "/scripts/adventure_vars.lisp")
 
 (eval-file "/scripts/reset_hooks.lisp")
+
+;; NOTE: this resolves a bug where someone opens skyland-forever, then enters an
+;; adventure game, and starts a new adventure, and before doing anything else,
+;; opens the island editor from the sky chart, and the procgen opponent is still
+;; activated and switches the game into skyland-forever.
+(opponent-mode 'neutral)

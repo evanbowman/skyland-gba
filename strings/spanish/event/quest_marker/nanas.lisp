@@ -1,0 +1,5 @@
+'(("Could it be... the stolen bananas!" . "Será posible... ¡los plátanos robados!")
+("<c:Banana Man:8>MY BANANAS!!! HAND THEM OVER!!!" . "<c:Hombre Plátano:8>¡¡¡MIS PLÁTANOS!!! ¡¡¡DEVOLVÉDMELOS!!!")
+("<c:Goblins:2>Argh, he's sstill chasing us! This guy is relentlessss! Alright, it's not worth the trouble, we'll just give you the bananas back." . "<c:Goblins:2>¡Argh, nosss sssigue perssiguiendo! ¡Esste tío es imparable! Vale, no merece la pena, osss devolvemosss losss plátanosss.")
+("<c:Banana Man:8>Hooray! My bananas! Time for Banana Breakfast!" . "<c:Hombre Plátano:8>¡Hurra! ¡Mis plátanos! ¡Hora del Desayuno Platanero!")
+)

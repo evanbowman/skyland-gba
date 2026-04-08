@@ -1,0 +1,8 @@
+'(("A goblin stronghold approaches... they seem to be willing to negotiate..." . "Una fortaleza goblin se acerca... parece que están dispuestos a negociar...")
+("<c:Goblin King:3>#cackle# You're tressspasssing in my territory! I demand a tribute of %@! Pay!" . "<c:Rey Goblin:3>#carcajada# ¡Estásss invadiendo mi territorio! ¡Exijo un tributo de %@! ¡Paga!")
+("I'll pay…" . "Pagaré…")
+("No way!" . "¡Ni hablar!")
+("<c:Goblin King:3>Thatsss not enough! Letsss sssee if theresss anything we can take!!" . "<c:Rey Goblin:3>¡¡Essso no es sssuficiente!! ¡¡Veamosss sssi hay algo que podamosss tomar!!")
+("The Goblin King rejoices, having successfully extorted %@." . "El Rey Goblin se regocija, habiendo extorsionado %@ con éxito.")
+("<c:Goblin King:3>YARRRGG!!! PREPARE FOR BOARDING!!!" . "<c:Rey Goblin:3>¡¡¡YARRRGG!!! ¡¡¡PREPARAOSSS PARA EL ABORDAJE!!!")
+)

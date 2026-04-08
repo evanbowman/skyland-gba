@@ -69,7 +69,7 @@ void DataCartModule::show_cart(int index)
         Text::print(format("cart_%", index + 1).c_str(), {12, 6}, colors);
 
     } else {
-        tmp.append(" found at ", colors);
+        tmp.append(SYS_CSTR(datacarts_found_at_str), colors);
         auto exact = cart->get_label_string("exact_location");
         for (char& c : exact) {
             // FIXME: ini conf library ignoring whitespace in strings. Fix conf.cpp.

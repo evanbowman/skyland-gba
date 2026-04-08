@@ -2,8 +2,10 @@
 ;;; neutral/2/1_alt1.lisp
 ;;;
 
+(tr-bind-current)
 
-(dialog "A damaged fortress floats into view. The residents do not respond to your radio signals.")
+
+(dialog (tr "A damaged fortress floats into view. The residents do not respond to your radio signals."))
 
 
 (opponent-init 8 'neutral)
@@ -48,7 +50,7 @@
 
 
 (defn on-converge ()
-  (dialog "The island's radio appears to be broken. <B:0> Three survivors signal to you that they'd like to come aboard, but it's not clear whether they can be trusted. <B:0> Invite survivors aboard?")
+  (dialog (tr "The island's radio appears to be broken. <B:0> Three survivors signal to you that they'd like to come aboard, but it's not clear whether they can be trusted. <B:0> Invite survivors aboard?"))
 
   (dialog-setup-y/n)
   (setq on-converge nil))
@@ -85,20 +87,19 @@
                            (get room 2)
                            'mirror-hull)))
            (rooms (opponent)))
-  (await (dialog* "The survivors turned out to be vicious goblins, and their island is not as defenseless as it initially appeared..."))
-  (await (dialog* "<c:Goblin:2>Die "
-                  (cond
-                    ((equal (faction) 'goblin) "Traitorsss")
-                    ((equal (faction) 'human) "Humansss")
-                    ((equal (faction) 'sylph) "Sssylph ssscum"))
-                  "!")))
+  (await (dialog* (tr "The survivors turned out to be vicious goblins, and their island is not as defenseless as it initially appeared...")))
+  (await (dialog* (format (tr "<c:Goblin:2>Die %!")
+                          (cond
+                            ((equal (faction) 'goblin) (tr "Traitorsss"))
+                            ((equal (faction) 'human) (tr "Humansss"))
+                            ((equal (faction) 'sylph) (tr "Sssylph ssscum")))))))
 
 
 (defn/temp join-good ()
   (move-chrs 'neutral)
   (await (if (chrs (opponent))
-             (dialog* "Some of the survivors joined your crew!")
-             (dialog* "The survivors joined your crew!")))
+             (dialog* (tr "Some of the survivors joined your crew!"))
+             (dialog* (tr "The survivors joined your crew!"))))
   (await (dialog* "..."))
   (exit))
 

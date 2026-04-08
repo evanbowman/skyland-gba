@@ -2,13 +2,15 @@
 ;;; neutral/2/6_1.lisp
 ;;;
 
+(tr-bind-current)
+
 
 (dialog
- "An unexpected storm forces your island to retreat below the clouds... <B:0>"
- "Your scanners detect the presence of another island nearby... <B:0>"
+ (tr "An unexpected storm forces your island to retreat below the clouds... <B:0>")
+ (tr "Your scanners detect the presence of another island nearby... <B:0>")
  "<b:/scripts/data/img/deflector_city.img.bin>"
- "Shielded by a powerful deflector field, the fortress appears immune to damage from the harsh surface atmosphere. <B:0>"
- "They contact you offering assistance...")
+ (tr "Shielded by a powerful deflector field, the fortress appears immune to damage from the harsh surface atmosphere. <B:0>")
+ (tr "They contact you offering assistance..."))
 
 
 (weather-set weather-id-ash)
@@ -24,15 +26,15 @@
 
 
 (defn on-converge ()
-  (dialog "<c:Scavenger:29>Hello! Having trouble there? <B:0> Fortunately for you, we have a large stockpile of spare deflector fields! Here, take this one!")
+  (dialog (tr "<c:Scavenger:29>Hello! Having trouble there? <B:0> Fortunately for you, we have a large stockpile of spare deflector fields! Here, take this one!"))
   (setq on-converge nil)
   (alloc-space 'deflector)
   (sel-input 'deflector
-             "Place deflector (1x1)"
+             (tr "Place deflector (1x1)")
              (lambda (isle x y)
                (room-new (player) (list 'deflector x y))
                (sound "build0")
-               (dialog "<c:Scavenger:29>Careful with that shield, it's very old and handmade! <B:0> "
-                       "We've been living near the radioactive ash for a long time, and we've managed to coexist with it! Unfortunately, some others were not so lucky...<B:0>"
-                       "We have to be moving on, good luck!")
+               (dialog (tr "<c:Scavenger:29>Careful with that shield, it's very old and handmade! <B:0> ")
+                       (tr "We've been living near the radioactive ash for a long time, and we've managed to coexist with it! Unfortunately, some others were not so lucky...<B:0>")
+                       (tr "We have to be moving on, good luck!"))
                (exit))))

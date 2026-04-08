@@ -2,8 +2,9 @@
 ;;; quest_marker/atomics.lisp
 ;;;
 
+(tr-bind-current)
 
-(dialog "You arrive at the coordinates of the hidden stash of atomics...")
+(dialog (tr "You arrive at the coordinates of the hidden stash of atomics..."))
 
 
 (opponent-init 9 'neutral)
@@ -16,10 +17,10 @@
 (defn on-converge ()
   (setq on-converge nil)
   (dialog-sequence
-   "You arrive, but the princess looks troubled..."
-   "<c:Warrior Princess of E. Cay:28>Since shortly after we departed, I haven't been able to contact anyone back home. <B:0> I have instructions, if our kingdom is overrun, to activate the atomics and use them to avenge my people's deaths. Please accept this:"
-   "[You write down the launch codes...]"
-   "<c:Warrior Princess of E. Cay:28>Now, be very careful when moving them..."
+   (tr "You arrive, but the princess looks troubled...")
+   (tr "<c:Warrior Princess of E. Cay:28>Since shortly after we departed, I haven't been able to contact anyone back home. <B:0> I have instructions, if our kingdom is overrun, to activate the atomics and use them to avenge my people's deaths. Please accept this:")
+   (tr "[You write down the launch codes...]")
+   (tr "<c:Warrior Princess of E. Cay:28>Now, be very careful when moving them...")
    (lambda ()
      (foreach (lambda (r)
                 (when (equal (car r) 'cloak)
@@ -29,7 +30,7 @@
      (alloc-space 'warhead)
 
      (sel-input 'warhead
-                "Place weapon (1x2)"
+                (tr "Place weapon (1x2)")
                 (lambda (isle x y)
                   (foreach (lambda (r)
                              (when (equal (car r) 'warhead)
@@ -38,7 +39,7 @@
                   (room-new (player) (list 'warhead x y))
                   (adventure-log-add 64 '())
                   (sound "build0")
-                  (dialog "You retrieved an atomic missile! There were others, but only one was still functioning.")
+                  (dialog (tr "You retrieved an atomic missile! There were others, but only one was still functioning."))
                   (defn on-dialog-closed ()
-                    (dialog "<c:Warrior Princess of E. Cay:28>Those goblins will be sorry they crossed us!")
+                    (dialog (tr "<c:Warrior Princess of E. Cay:28>Those goblins will be sorry they crossed us!"))
                     (setq on-dialog-closed exit)))))))

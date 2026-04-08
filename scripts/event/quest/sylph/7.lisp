@@ -2,12 +2,13 @@
 ;;; quest/sylph/7.lisp
 ;;;
 
+(tr-bind-current)
 
 (dialog
- "In the distance, you hear the metallic clang of gears and winches... <B:0>"
+ (tr "In the distance, you hear the metallic clang of gears and winches... <B:0>")
  "<b:/scripts/data/img/mining.img.bin>"
- "A mining rig appears! <B:0> "
- "Steam billows from its engines as cranes dredge heavy ore from the surface...")
+ (tr "A mining rig appears! <B:0> ")
+ (tr "Steam billows from its engines as cranes dredge heavy ore from the surface..."))
 
 
 (opponent-init 12 'neutral)
@@ -76,9 +77,9 @@
 
 (defn on-converge ()
   (setq on-converge nil)
-  (dialog "<c:Mining Chief:20>Hey there! One of our other mining platforms nearby is running low on blasting equipment. <B:0> Can you do us a favor and transport some explosives for us?")
+  (dialog (tr "<c:Mining Chief:20>Hey there! One of our other mining platforms nearby is running low on blasting equipment. <B:0> Can you do us a favor and transport some explosives for us?"))
   (defn on-dialog-closed ()
-    (dialog "Sounds extremely dangerous... but the miners offer to pay you quite well. Accept task?")
+    (dialog (tr "Sounds extremely dangerous... but the miners offer to pay you quite well. Accept task?"))
     (dialog-setup-y/n))
 
   (defn on-dialog-accepted ()
@@ -91,7 +92,7 @@
             ;; push adventure log
             (push qids 7)
             (push quests (cons "dynamite-ii.lisp" m))
-            (dialog "<c:Mining Chief:20>Great! Let's move some of this cargo over to your island...")
+            (dialog (tr "<c:Mining Chief:20>Great! Let's move some of this cargo over to your island..."))
             (adventure-log-add 57 nil)
 
             (defn on-dialog-closed ()
@@ -102,7 +103,7 @@
                      (alloc-space bloc)
                      (sel-input
                       bloc
-                      (string "Place explosive " (+ cnt 1) "/7:")
+                      (string (tr "Place explosive ") (+ cnt 1) "/7:")
                       (lambda (isle x y)
                         (room-new (player) (list bloc x y))
                         (sound "build0")
@@ -113,11 +114,11 @@
 
                         (if (equal cnt 7)
                             (progn
-                              (dialog "<c:Mining Chief:20> Here, I'll mark the delivery location on your map with an *. Be careful, OK? <B:0> This stuff is extremely volatile. (hover to see blast radius) <B:0> The slightest damage and it'll make an explosion like you've never seen!")
+                              (dialog (tr "<c:Mining Chief:20> Here, I'll mark the delivery location on your map with an *. Be careful, OK? <B:0> This stuff is extremely volatile. (hover to see blast radius) <B:0> The slightest damage and it'll make an explosion like you've never seen!"))
                               (setq on-dialog-closed exit))
                           (t))))))))))
         (progn
-          (dialog "<c:Mining Chief:20>Unfortunately, we just got a report from our other mining rig that bad weather will make the delivery impossible. Thanks anyway!")
+          (dialog (tr "<c:Mining Chief:20>Unfortunately, we just got a report from our other mining rig that bad weather will make the delivery impossible. Thanks anyway!"))
           (exit)))))
 
   (setq on-dialog-declined exit))

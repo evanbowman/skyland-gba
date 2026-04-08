@@ -1,0 +1,7 @@
+'(("The storm overtakes your castle... A massive fortress emerges from the tempest... " . "La tormenta alcanza tu castillo... Una fortaleza colosal emerge de la tempestad... ")
+("There is little hope of survival..." . "Hay poca esperanza de sobrevivir...")
+("You probably aren't strong enough yet..." . "Probablemente aún no eres lo bastante fuerte...")
+("You just might survive..." . "Puede que sobrevivas...")
+("Ready for the final showdown?" . "¿Listo para el enfrentamiento final?")
+("<c:Storm King:4> . . ." . "<c:Rey de la Tormenta:4> . . .")
+)

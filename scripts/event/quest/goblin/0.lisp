@@ -2,10 +2,12 @@
 ;;; quest/goblin/0.lisp
 ;;;
 
+(tr-bind-current)
+
 
 (dialog
  "<b:/scripts/data/img/raider_waypoint.img.bin>"
- "You approach a raider waypoint. A goblin crew broadcasts a signal requesting help...")
+ (tr "You approach a raider waypoint. A goblin crew broadcasts a signal requesting help..."))
 
 
 (opponent-init 9 'neutral)
@@ -20,8 +22,8 @@
 (setq on-converge
       (lambda ()
         (dialog
-         "<c:Raider:39>Sssnatched some valuable cargo from a merchant fleet, but our ship took heavy damage in the fight. With that ssstorm approaching, we won't make it to the black market in time. Help usss deliver the goods? We'll sssplit the profit, and our contact paysss well!")
-        (dialog-setup-binary-q "I accept!" "Sorry, but no.")
+         (tr "<c:Raider:39>Sssnatched some valuable cargo from a merchant fleet, but our ship took heavy damage in the fight. With that ssstorm approaching, we won't make it to the black market in time. Help usss deliver the goods? We'll sssplit the profit, and our contact paysss well!"))
+        (dialog-setup-binary-q (tr "I accept!") (tr "Sorry, but no."))
 
         (setq on-dialog-accepted
               (lambda ()
@@ -33,14 +35,12 @@
                          (coins-add 500)
                          (push qids 0)
                          (adventure-log-add 16 '())
-                         (cargo-set (player) x y "loot")
-                         (dialog "<c:raider:39>Excccellent! I'll mark the location with an * on your chart!")
+                         (cargo-set (player) x y (tr "loot"))
+                         (dialog (tr "<c:raider:39>Excccellent! I'll mark the location with an * on your chart!"))
                          (setq on-dialog-closed exit)))
                       (progn
                         (dialog
-                         "<c:Raider:39>Bah! Jussst got word our contact had to move their "
-                         "operation - ssstorm's getting too close. Here'sss 400@ for your time, "
-                         "at leassst.")
+                         (tr "<c:Raider:39>Bah! Jussst got word our contact had to move their operation - ssstorm's getting too close. Here'sss 400@ for your time, at leassst."))
                         (setq on-dialog-closed
                               (lambda ()
                                 (coins-add 400)
@@ -48,5 +48,5 @@
 
         (setq on-dialog-declined
               (lambda ()
-                (dialog "<c:Raider:39>Bah, fine... We'll find another sssship to move the loot...")
+                (dialog (tr "<c:Raider:39>Bah, fine... We'll find another sssship to move the loot..."))
                 (setq on-dialog-closed exit)))))

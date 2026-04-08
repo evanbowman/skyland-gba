@@ -622,4 +622,8 @@ void parallax_background_task(void*);
 
 
 
+void swap_language(const char* new_lang);
+
+
+
 } // namespace skyland

@@ -2,10 +2,11 @@
 ;;; neutral/1/7.lisp
 ;;;
 
+(tr-bind-current)
 
 (dialog
  "<b:/scripts/data/img/ruins_isle.img.bin>"
- "You discover the ruins of a forsaken town. I guess no one would mind if you scavenged some resources...")
+ (tr "You discover the ruins of a forsaken town. I guess no one would mind if you scavenged some resources..."))
 
 
 
@@ -44,7 +45,7 @@
 
 
 (defn/temp depart ()
-  (pickup-cart 4 "Something else catches your attention. <d:500>.<d:500>.<d:500> a data cartridge!")
+  (pickup-cart 4 (tr "Something else catches your attention. <d:500>.<d:500>.<d:500> a data cartridge!"))
   (exit))
 
 
@@ -53,7 +54,7 @@
   (case (choice 6)
     (0 (let ((amt (+ 200 (choice 400))))
          (coins-add amt)
-         (await (dialog* (format "Looks like someone already got here first. You collect %@."
+         (await (dialog* (format (tr "Looks like someone already got here first. You collect %@.")
                                  amt)))
          (adventure-log-add 38 (list amt))
          (depart)))
@@ -66,14 +67,13 @@
                                 beam-gun
                                 deflector
                                 splitter))))
-            (await (dialog* "After boarding, you find a completely intact "
-                            (rinfo 'name pick)
-                            ". Your crew asks you where to install it..."))
+            (await (dialog* (format (tr "After boarding, you find a completely intact %. Your crew asks you where to install it...")
+                                    (rinfo 'name pick))))
             (alloc-space pick)
-            (let ((xy (await (sel-input* pick (format "Pick a slot (%x%)"
+            (let ((xy (await (sel-input* pick (format (tr "Pick a slot (%x%)")
                                                       (car (rinfo 'size pick))
                                                       (cdr (rinfo 'size pick)))))))
               (room-new (player) `(,pick ,(car xy) ,(cdr xy)))
               (sound "build0")
-              (await (dialog* "All done!"))
+              (await (dialog* (tr "All done!")))
               (depart))))))

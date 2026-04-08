@@ -2,22 +2,23 @@
 ;;; storm_king.lisp
 ;;;
 
+(tr-bind-current)
 
 (eval-file "/scripts/reset_hooks.lisp")
 
 
 (dialog
- "The storm overtakes your castle... A massive fortress emerges from the tempest... "
+ (tr "The storm overtakes your castle... A massive fortress emerges from the tempest... ")
  (case (zone)
-  (0 "There is little hope of survival...")
-  (1 "You probably aren't strong enough yet...")
-  (2 "You just might survive...")
-  (3 "Ready for the final showdown?")))
+  (0 (tr "There is little hope of survival..."))
+  (1 (tr "You probably aren't strong enough yet..."))
+  (2 (tr "You just might survive..."))
+  (3 (tr "Ready for the final showdown?"))))
 
 
 (setq on-fadein
       (lambda ()
-        (dialog "<c:Storm King:4> . . .")))
+        (dialog (tr "<c:Storm King:4> . . ."))))
 
 
 (adventure-log-add 48 '())

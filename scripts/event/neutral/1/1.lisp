@@ -2,8 +2,10 @@
 ;;; neutral/1/1.lisp
 ;;;
 
+(tr-bind-current)
 
-(dialog "A castle lazily drifts across the horizon... possibly uninhabited?")
+
+(dialog (tr "A castle lazily drifts across the horizon... possibly uninhabited?"))
 
 
 
@@ -21,7 +23,7 @@
 
 (secret
  0 13
- "Did you know that Skyland's goblins were human once? But they remained on the ruined surface too long, and were left mutated and cruel...")
+ (tr "Did you know that Skyland's goblins were human once? But they remained on the ruined surface too long, and were left mutated and cruel..."))
 
 
 
@@ -32,7 +34,8 @@
         (if (not trap)
             (let ((val (+ 600 (choice 300))))
               (coins-add val)
-              (await (dialog* "You explore, and salvage " (string val) "@ from the ruins."))
+              (await (dialog*
+                      (format (tr "You explore, and salvage %@ from the ruins.") val)))
               (adventure-log-add 29 (list val))
               (exit))
           (progn
@@ -48,17 +51,16 @@
             (opponent-mode 'hostile)
             (flag-show (opponent) flag-id-pirate)
             (adventure-log-add 30 '())
-            (dialog "It's a trap!"))))))
+            (dialog (tr "It's a trap!")))))))
 
 
 (defn on-converge ()
   (setq on-converge '())
-  (if (dialog-await-y/n "The fortress appears to be empty, but you cannot be certain. Attempt to board?")
+  (if (dialog-await-y/n (tr "The fortress appears to be empty, but you cannot be certain. Attempt to board?"))
       (on-dialog-accepted)
       (on-dialog-declined)))
 
 
 (defn on-dialog-declined ()
-  (await (dialog* "The fortress sinks back into the clouds, "
-                  "its contents remain an unresolved mystery."))
+  (await (dialog* (tr "The fortress sinks back into the clouds, its contents remain an unresolved mystery.")))
   (exit))

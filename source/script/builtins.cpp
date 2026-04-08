@@ -441,9 +441,14 @@ Value* builtin_format(int argc)
                 return L_NIL;
             }
 
-            DefaultPrinter p;
-            format(get_op(fmt_arg), p);
-            *builder += p.data_.c_str();
+            auto arg = get_op(fmt_arg);
+            if (arg->type() == Value::Type::string) {
+                *builder += arg->string().value();
+            } else {
+                DefaultPrinter p;
+                format(get_op(fmt_arg), p);
+                *builder += p.data_.c_str();
+            }
 
             --fmt_arg;
         } else {

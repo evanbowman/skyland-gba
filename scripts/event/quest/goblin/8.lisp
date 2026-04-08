@@ -2,12 +2,13 @@
 ;;; quest/goblin/8.lisp
 ;;;
 
+(tr-bind-current)
 
 (dialog
- "A proximity alarm wakes your crew in the night! <B:0>"
+ (tr "A proximity alarm wakes your crew in the night! <B:0>")
  "<b:/scripts/data/img/night.img.bin>"
- "An ancient fortress appears in the moonlight. <B:0>"
- "You almost ran right into it! Inside, you hear the sounds of ritual chanting...")
+ (tr "An ancient fortress appears in the moonlight. <B:0>")
+ (tr "You almost ran right into it! Inside, you hear the sounds of ritual chanting..."))
 
 (weather-set weather-id-night)
 
@@ -20,9 +21,9 @@
 
 (defn on-converge ()
   (dialog
-   "<c:Ashwalker Elder:42>The ssstorm brings change... Our seers have had visionsss of an ancient weapon, buried in the ruinsss of our ancestorsss. <B:0> A relic from before the Great Change that made usss what we are... <B:0> It must not remain below when the ssstorm arrives. <B:0> Will you help retrieve it?")
+   (tr "<c:Ashwalker Elder:42>The ssstorm brings change... Our seers have had visionsss of an ancient weapon, buried in the ruinsss of our ancestorsss. <B:0> A relic from before the Great Change that made usss what we are... <B:0> It must not remain below when the ssstorm arrives. <B:0> Will you help retrieve it?"))
 
-   (dialog-setup-binary-q "Okay..." "Sssorry, but no.")
+   (dialog-setup-binary-q (tr "Okay...") (tr "Sssorry, but no."))
 
    (defn on-dialog-accepted ()
      (let ((m (eval-file "/scripts/event/quest/make_quest_marker.lisp")))
@@ -32,22 +33,22 @@
              (adventure-log-add 63 '())
              (push qids 8)
              (push quests (cons "goblin_atomics.lisp" m))
-             (dialog "<c:Ashwalker Elder:42> The location hasss been marked on your chart with an *! <B:0> My apprentice will guide you through the old rituals...")
+             (dialog (tr "<c:Ashwalker Elder:42> The location hasss been marked on your chart with an *! <B:0> My apprentice will guide you through the old rituals..."))
              (defn on-dialog-closed ()
-               (dialog "<c:Ashwalker Apprentice:41> Finally, a chance to prove my worth to the Order! <B:0> I know all the ancient wardsss against radiation!")
+               (dialog (tr "<c:Ashwalker Apprentice:41> Finally, a chance to prove my worth to the Order! <B:0> I know all the ancient wardsss against radiation!"))
 
                (defn on-dialog-closed ()
                  (setq on-dialog-closed nil)
                  (find-crew-slot-cb
-                  "<c:Ashwalker Apprentice:41> Hmm... you ssseem to be out of ssspace... <B:0> Let me fix that!"
+                  (tr "<c:Ashwalker Apprentice:41> Hmm... you ssseem to be out of ssspace... <B:0> Let me fix that!")
                   'ladder
-                  "Place block (1x2):"
+                  (tr "Place block (1x2):")
                   (lambda (x y _)
                     (chr-new (player) x y 'neutral '((icon . 41) (race . 1)))
-                    (dialog "The apprentice joined your crew!")
+                    (dialog (tr "The apprentice joined your crew!"))
                     (setq on-dialog-closed exit))))))
            (progn
-             (dialog "<c:Ashwalker Elder:42>The visionsss were unclear... The ssstorm movesss too quickly, the path isss already blocked...")))))
+             (dialog (tr "<c:Ashwalker Elder:42>The visionsss were unclear... The ssstorm movesss too quickly, the path isss already blocked..."))))))
 
 
    (setq on-dialog-declined exit))

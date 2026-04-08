@@ -2,21 +2,22 @@
 ;;; challenges/demolition.lisp
 ;;;
 
+(tr-bind-current)
 
 (defn on-fadein ()
   (dialog-sequence
-   "<c:Goblin King:3>This whole island needs to be demolissshed! That'sss right, every sssingle block! Not one block can remain!"
-   "<c:Goblin:2>Hey King, we've finished wiring the island with explosssivesss!"
-   "<c:Goblin King:3>Heh. Well, thisss complicatesss thingsss... hahahahaha!"))
+   (tr "<c:Goblin King:3>This whole island needs to be demolissshed! That'sss right, every sssingle block! Not one block can remain!")
+   (tr "<c:Goblin:2>Hey King, we've finished wiring the island with explosssivesss!")
+   (tr "<c:Goblin King:3>Heh. Well, thisss complicatesss thingsss... hahahahaha!")))
 
 
 (defn challenge-hint ()
-  (dialog "Are you sure you want a hint?")
+  (dialog (tr "Are you sure you want a hint?"))
   (dialog-setup-y/n)
 
   (defn on-dialog-accepted ()
-    (dialog "Hint: Check which blocks are vulnerable to ion cannons. "
-            "The glossary has a search filter for this..."))
+    (dialog (tr "Hint: Check which blocks are vulnerable to ion cannons. ")
+            (tr "The glossary has a search filter for this...")))
 
   (setq on-dialog-declined (lambda ())))
 
@@ -45,8 +46,8 @@
               (setq hint (cons "(" hint))
               (setq hint (apply string hint))
 
-              (dialog "<c:Goblin King:3>NO! WRONG!! "
-                      "The island is sssinking and sssome blocksss remain! "
+              (dialog (tr "<c:Goblin King:3>NO! WRONG!! ")
+                      (tr "The island is sssinking and sssome blocksss remain! ")
                       hint)
               (setq skip 1)
               (exit 3)))

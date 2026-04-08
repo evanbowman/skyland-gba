@@ -2,8 +2,9 @@
 ;;; quest_marker/goblin_pickup_0.lisp
 ;;;
 
+(tr-bind-current)
 
-(dialog "You reach the source of the smoke signals...")
+(dialog (tr "You reach the source of the smoke signals..."))
 
 
 (opponent-init 7 'neutral)
@@ -42,13 +43,13 @@
   (adventure-log-add 25 '())
 
   (if (equal 0 (length (chrs (opponent))))
-      (dialog "The scattered clan members joined your crew!")
+      (dialog (tr "The scattered clan members joined your crew!"))
     (if (< 3 (length (chrs (opponent))))
-        (dialog "Some of the clan members joined your crew!")
-      (dialog "You'd like to invite them aboard, but there seems to be no room..."))))
+        (dialog (tr "Some of the clan members joined your crew!"))
+      (dialog (tr "You'd like to invite them aboard, but there seems to be no room...")))))
 
 
 (defn on-converge ()
   (dialog
-   "<c:Clan Members:2>The ssstorm nearly had us! Together we'll be ssstronger. Here'sss 1500@ from our clan's reserves.")
+   (tr "<c:Clan Members:2>The ssstorm nearly had us! Together we'll be ssstronger. Here'sss 1500@ from our clan's reserves."))
   (coins-add 1500))

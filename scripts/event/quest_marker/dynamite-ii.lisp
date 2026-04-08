@@ -2,8 +2,9 @@
 ;;; quest_marker/dyanmite-ii.lisp
 ;;;
 
+(tr-bind-current)
 
-(dialog "You reach the destination mining platform...")
+(dialog (tr "You reach the destination mining platform..."))
 
 
 (opponent-init 12 'neutral)
@@ -53,13 +54,12 @@
                                     (rooms (player)))))))))
       (if (equal c 0)
           (progn
-            (dialog "<c:Mining Chief:20>You lost the explosives along the way? You're lucky to have survived! But sorry, we can't pay you.")
+            (dialog (tr "<c:Mining Chief:20>You lost the explosives along the way? You're lucky to have survived! But sorry, we can't pay you."))
             (setq on-dialog-closed exit))
         (progn
 
-          (dialog "<c:Mining Chief:20>Fantastic! We were a bit worried, but you did great! Here's "
-                  (string c)
-                  "@ for your trouble!")
+          (dialog (format (tr "<c:Mining Chief:20>Fantastic! We were a bit worried, but you did great! Here's %@ for your trouble!")
+                          c))
 
           (coins-add c)
 

@@ -1,0 +1,7 @@
+'(("A heavily damaged fortress appears through the mist. <B:0> " . "Una fortaleza gravemente dañada aparece entre la niebla. <B:0> ")
+("Your crew is taken aback - few raiders dare attack Sylph vessels, and fewer still succeed..." . "Tu tripulación se queda atónita - pocos asaltantes se atreven a atacar naves sylph, y menos aún lo logran...")
+("Place cannon %/%" . "Colocar cañón %/%")
+("The Sylph are known for their elegant engineering. <B:0> These cannons don't just blast through blocks - they resonate with them somehow, seeming to deal more damage to stronger structures. <B:0> With the cannons safely aboard, you leave the mysterious wreck behind..." . "Los sylph son conocidos por su elegante ingeniería. <B:0> Estos cañones no solo destrozan bloques - resuenan con ellos de algún modo, pareciendo causar más daño a estructuras más resistentes. <B:0> Con los cañones a salvo a bordo, dejas atrás el misterioso pecio...")
+("One of your crewmembers hands over another item found aboard the Sylph vessel..." . "Uno de tus tripulantes te entrega otro objeto encontrado a bordo de la nave sylph...")
+("You find the fortress abandoned, but several of its distinctive resonance cannons remain intact... <B:0> Your crew begins loading them aboard..." . "Encuentras la fortaleza abandonada, pero varios de sus característicos cañones de resonancia permanecen intactos... <B:0> Tu tripulación comienza a cargarlos a bordo...")
+)

@@ -2,6 +2,7 @@
 ;;; challenges/goliath.lisp
 ;;;
 
+(tr-bind-current)
 
 (coins-add 6000)
 
@@ -11,7 +12,7 @@
 
 
 (defn challenge-hint ()
-  (dialog "Sorry, no hints for this one."))
+  (dialog (tr "Sorry, no hints for this one.")))
 
 
 (terrain-set (player) 8)

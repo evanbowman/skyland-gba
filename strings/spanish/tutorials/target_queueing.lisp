@@ -1,0 +1,2 @@
+'(("<c:Milo:5>To make target assignment easier, weapons have command queues. <B:0> When picking a weapon target, you can press the SELECT button to create a target queue, allowing you to pick a weapon's (or weapon group's) next three targets all at once! Just like this:" . "<c:Milo:5>Para facilitar la asignación de objetivos, las armas tienen colas de comandos. <B:0> Al elegir un objetivo para un arma, puedes pulsar el botón SELECT para crear una cola de objetivos, ¡permitiéndote elegir los próximos tres objetivos de un arma (o grupo de armas) de una sola vez! Así:")
+)

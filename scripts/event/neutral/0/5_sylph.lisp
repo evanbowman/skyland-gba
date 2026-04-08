@@ -2,10 +2,11 @@
 ;;; neutral/0/5_sylph.lisp
 ;;;
 
+(tr-bind-current)
+
+
 (dialog
- "A distress call sounds over your radio! <B:0> "
- "<b:/scripts/data/img/destroyed_town.img.bin>"
- "The remnants of a town appear, wrecked by raiders...")
+ (tr "A distress call sounds over your radio! <B:0> <b:/scripts/data/img/destroyed_town.img.bin>The remnants of a town appear, wrecked by raiders..."))
 
 (opponent-init 8 'neutral)
 
@@ -41,28 +42,29 @@
 (defn on-converge ()
   (setq on-converge nil)
   (await (dialog*
-          "<c:Sylph Researcher:49>Someone's here! Thank the winds. <B:0> I was conducting field research when raiders attacked. I tried to warn the villagers - they thought I was overreacting. 'Sylph paranoia,' one said. <B:0> When the attack came, I tried to help defend, but... <B:0> I'm a researcher, not a soldier. The building collapsed. Everyone scattered or was taken. <B:0> By the time I dug myself out, I was alone."))
-  (if (dialog-await-binary-q-w/lore "He seems shaken, invite him aboard?"
-                                    "Welcome aboard!" "Not today."
-                                    '(("field research?" .
-                                       "<c:Sylph Researcher:49>We document adaptation strategies - how humans build efficiently, manage with limited resources. <B:0> The Conclave thought understanding survival methods might help our cities. <B:0> <d:800> I told them their defenses were inadequate. They didn't listen. <B:0> Maybe I didn't explain it right. Maybe they thought I was... condescending.")))
+          (tr "<c:Sylph Researcher:49>Someone's here! Thank the winds. <B:0> I was conducting field research when raiders attacked. I tried to warn the villagers - they thought I was overreacting. 'Sylph paranoia,' one said. <B:0> When the attack came, I tried to help defend, but... <B:0> I'm a researcher, not a soldier. The building collapsed. Everyone scattered or was taken. <B:0> By the time I dug myself out, I was alone.")))
+  (if (dialog-await-binary-q-w/lore (tr "He seems shaken, invite him aboard?")
+                                    (tr "Welcome aboard!")
+                                    (tr "Not today.")
+                                    (tr '(("field research?" .
+                                           "<c:Sylph Researcher:49>We document adaptation strategies - how humans build efficiently, manage with limited resources. <B:0> The Conclave thought understanding survival methods might help our cities. <B:0> <d:800> I told them their defenses were inadequate. They didn't listen. <B:0> Maybe I didn't explain it right. Maybe they thought I was... condescending."))))
       (on-dialog-accepted)
       (on-dialog-declined)))
 
 
 (defn on-dialog-accepted ()
   (find-crew-slot-cb
-   "<c:Sylph Researcher:49>Ah. Full capacity. That's... let me think. <B:0> The structural integrity here is compromised. I can calculate optimal placement for-"
+   (tr "<c:Sylph Researcher:49>Ah. Full capacity. That's... let me think. <B:0> The structural integrity here is compromised. I can calculate optimal placement for-")
    'ladder
-   "Place block (1x2):"
+   (tr "Place block (1x2):")
    (lambda (x y _)
      (chr-del (opponent) 1 12)
      (chr-new (player) x y 'neutral '((race . 4) (icon . 49)))
-     (dialog "<c:Sylph Researcher:49>Thank you. <B:0> <d:600> I keep thinking - if I'd phrased it differently, shown them the calculations in a way they'd understand... <B:0> <d:800> But I presented it like a research paper. To people fighting for survival every day. <B:0> They needed practical help, not observations.")
+     (dialog (tr "<c:Sylph Researcher:49>Thank you. <B:0> <d:600> I keep thinking - if I'd phrased it differently, shown them the calculations in a way they'd understand... <B:0> <d:800> But I presented it like a research paper. To people fighting for survival every day. <B:0> They needed practical help, not observations."))
      (adventure-log-add 15 '())
      (defn on-dialog-closed ()
        (setq on-dialog-closed nil)
-       (dialog "The Sylph joined your crew!")
+       (dialog (tr "The Sylph joined your crew!"))
        (exit)))))
 
 

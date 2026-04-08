@@ -2,11 +2,11 @@
 ;;; neutral/0/5_goblin.lisp
 ;;;
 
+(tr-bind-current)
+
 
 (dialog
- "A distress call sounds over your radio! <B:0> "
- "<b:/scripts/data/img/destroyed_town.img.bin>"
- "The remnants of a town appear, wrecked by war..")
+ (tr "A distress call sounds over your radio! <B:0> <b:/scripts/data/img/destroyed_town.img.bin>The remnants of a town appear, wrecked by war.."))
 
 
 (opponent-init 8 'neutral)
@@ -40,13 +40,13 @@
 
 (defn on-converge ()
   (dialog
-   "<c:Goblin Raider:39>Finally, sssomeone answered! <B:0> My raid crew left me behind when the town's defenssses were stronger than expected. <B:0> Got knocked out by some debris when their ion cannon hit us... By the time I came to, everyone wasss gone. _bitter_laugh_ Guesss they figured I was dead weight. <B:0> Would you have room for a more... reliable crew member?")
+   (tr "<c:Goblin Raider:39>Finally, sssomeone answered! <B:0> My raid crew left me behind when the town's defenssses were stronger than expected. <B:0> Got knocked out by some debris when their ion cannon hit us... By the time I came to, everyone wasss gone. _bitter_laugh_ Guesss they figured I was dead weight. <B:0> Would you have room for a more... reliable crew member?"))
 
   (setq on-dialog-closed
         (lambda ()
-            (dialog "She seems decent, invite her aboard?")
+            (dialog (tr "She seems decent, invite her aboard?"))
 
-          (dialog-setup-binary-q "Welcome aboard!" "Not today.")
+          (dialog-setup-binary-q (tr "Welcome aboard!") (tr "Not today."))
 
           (setq on-dialog-closed '())))
 
@@ -55,16 +55,16 @@
 
 (defn on-dialog-accepted ()
   (find-crew-slot-cb
-   "<c:Goblin Raider:39>Hold on, don't leave me here! I know your cassstle's full, but thisss island is burning!"
+   (tr "<c:Goblin Raider:39>Hold on, don't leave me here! I know your cassstle's full, but thisss island is burning!")
    'ladder
-   "Place block (1x2):"
+   (tr "Place block (1x2):")
    (lambda (x y _)
      (chr-del (opponent) 1 12)
      (chr-new (player) x y 'neutral '((race . 1) (icon . 39)))
-     (dialog "<c:Goblin Raider:39>Thanks for ressscuing me! I'll try to help out however I can!")
+     (dialog (tr "<c:Goblin Raider:39>Thanks for ressscuing me! I'll try to help out however I can!"))
      (defn on-dialog-closed ()
        (setq on-dialog-closed nil)
-       (dialog "The goblin joined your crew!")
+       (dialog (tr "The goblin joined your crew!"))
        (exit)))))
 
 (setq on-dialog-declined exit)

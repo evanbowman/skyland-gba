@@ -2,8 +2,9 @@
 ;;; quest_marker/nanas.lisp
 ;;;
 
+(tr-bind-current)
 
-(dialog "Could it be... the stolen bananas!")
+(dialog (tr "Could it be... the stolen bananas!"))
 
 
 (opponent-init 11 'hostile)
@@ -34,14 +35,14 @@
 (setq on-converge
       (lambda ()
         (dialog
-         "<c:Banana Man:8>MY BANANAS!!! HAND THEM OVER!!!")
+         (tr "<c:Banana Man:8>MY BANANAS!!! HAND THEM OVER!!!"))
 
         (setq on-converge nil)
 
         (setq on-dialog-closed
               (lambda ()
                 (dialog
-                 "<c:Goblins:2>Argh, he's sstill chasing us! This guy is relentlessss! Alright, it's not worth the trouble, we'll just give you the bananas back.")
+                 (tr "<c:Goblins:2>Argh, he's sstill chasing us! This guy is relentlessss! Alright, it's not worth the trouble, we'll just give you the bananas back."))
                 (setq on-dialog-closed
                       (lambda ()
                         (island-configure
@@ -69,7 +70,7 @@
                         (adventure-log-add 24 '())
 
                         (dialog
-                         "<c:Banana Man:8>Hooray! My bananas! Time for Banana Breakfast!")
+                         (tr "<c:Banana Man:8>Hooray! My bananas! Time for Banana Breakfast!"))
                         (setq on-dialog-closed
                               (lambda ()
                                 (achieve 11)

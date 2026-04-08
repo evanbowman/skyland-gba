@@ -2,9 +2,10 @@
 ;;; challenges/arcgun_defense.lisp
 ;;;
 
+(tr-bind-current)
 
 (defn challenge-hint ()
-  (dialog "Sorry, no hints for this one."))
+  (dialog (tr "Sorry, no hints for this one.")))
 
 
 (defn on-victory ()

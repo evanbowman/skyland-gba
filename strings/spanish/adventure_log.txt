@@ -1,0 +1,77 @@
+
+rechazada nave hostil, -%@, +%@.
+
+¡% tripulantes murieron en combate!
+__unused__
+¡derrotado el rey de la tormenta!
+¡rescatado un náufrago!
+hallado pecio abandonado, no se exploró.
+hallado pecio abandonado, ¡encontrado %!
+¡comprados dos % a comerciantes por %@!
+exploradas ruinas abandonadas, hallados %@.
+encuentro con pirata barbarroja, soborno fallido.
+encuentro con pirata barbarroja, pagados %@.
+encuentro con pirata barbarroja, soborno rechazado.
+¡rescatada una huérfana! ¡se unió a la tripulación!
+¡aceptada misión de entrega del puesto mercante!
+¡aceptada misteriosa tarea del hombre plátano!
+¡aceptada misión del granjero meyer! (entregar % árboles)
+¡aceptada misión del chófer!
+comprados azulejos para reventa, coste %@.
+¡azulejos revendidos por %@!
+misión mercante completada, ganados %@.
+hermano de meyer pagó %@ por entrega de % árboles.
+¡salvados los plátanos del hombre plátano!
+misión del chófer completada. (+3 tripulantes)
+¡alcanzada zona %!
+¡contratado mercenario por %@!
+oferta de mercenarios rechazada...
+recuperados %@ de un castillo abandonado.
+¡¿el castillo abandonado era una trampa!?
+pagados %@ al rey goblin.
+¡rey goblin rechazó soborno y atacó!
+rey goblin atacó tras rechazar soborno.
+isla contaminada por castillo infestado.
+recuperados %@ de isla infestada.
+núcleo donado a aldea, +2 % y +3 tripulantes!
+¡todo el casco mejorado a casco apilado!
+recogidos %@ de pueblo abandonado!
+encontrado portadrones...
+¡rescatado superviviente de nave destruida!
+¡superviviente feral de nave atacó!
+¡piratas atacan desde buque de guerra robado!
+piratas en buque robado siguen tras soborno...
+¡comprado diezmador robado de nave fugitiva!
+¡comprado casco-espejo!
+¡¡recuperado incinerador de isla en llamas!!
+recogidos %@ de isla abandonada.
+un buque de guerra masivo ataca...
+¡descubierta una tienda!
+comprado % por %@.
+aceptando derrota, ¡un goblin se unió a la tripulación!
+¡aceptada misión del misterioso viajero!
+¡invitado un explorador a bordo!
+¡aceptada misión del niño huérfano!
+niño perdido devuelto a los sylph...
+descendido bajo las nubes por mal tiempo.
+¡aceptada misión de mineros! (entregar 7 explosivos)
+¡misión de mineros completada! (+%@)
+¡pago insuficiente a estación de misiles imperial!
+¡pago realizado a estación de misiles imperial!
+¡pago rechazado a estación de misiles imperial!
+aceptada rendición goblin, bloques desguazados...
+¡aceptada misión del arsenal atómico!
+¡arsenal atómico recuperado!
+¡encontrada tormenta solar!
+¡encontrados monjes guerreros!
+¡comprados dos % a carroñeros por %@!
+¡pago insuficiente a annie yunque!
+soborno pagado a annie yunque. (-%@)
+pago rechazado a annie yunque.
+robados %s a unos carroñeros.
+carroñeros extorsionan % en venganza.
+¡carroñeros vuelven y atacan!
+¡vandalizada estación de misiles imperial!
+¡goblins intentan recuperar el diezmador!
+¡encontrado centinela sylph!
+¡saboteada estación de peaje imperial!

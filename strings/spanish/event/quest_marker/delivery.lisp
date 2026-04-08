@@ -1,0 +1,5 @@
+'(("You arrive at the delivery address..." . "Llegas a la dirección de entrega...")
+("parcel" . "paquete")
+("<c:Customer:16>Thank you! I wasn't sure it would arrive! Now I can use these machine parts to fix my engines! Here's %@ for your trouble!" . "<c:Cliente:16>¡Gracias! ¡No estaba seguro de que llegaría! ¡Ahora puedo usar estas piezas de maquinaria para arreglar mis motores! ¡Aquí tienes %@ por las molestias!")
+("Upon closer inspection, no one seems to be home! Good thing too, as it seems that you lost the parcel along the way!" . "Al mirar más de cerca, ¡parece que no hay nadie en casa! Menos mal, ¡ya que parece que perdiste el paquete por el camino!")
+)

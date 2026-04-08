@@ -2,6 +2,7 @@
 ;;; autoload/repairman.lisp
 ;;;
 
+(tr-bind-current)
 
 (lambda (ret)
   (let ((done ret))
@@ -16,30 +17,30 @@
                            ('weapon (+= weapon-damage damage))))))
                  (rooms (player)))
 
-        (dialog "<c:Repairman:30>What a nice ship you have here... <B:0> "
-                "GAH! It's got dents all over it! <B:0>"
-                "Let's see... <B:0>"
+        (dialog (tr "<c:Repairman:30>What a nice ship you have here... <B:0> ")
+                (tr "GAH! It's got dents all over it! <B:0>")
+                (tr "Let's see... <B:0>")
                 (if weapon-damage
-                    (format "%@ to fix the damage to your weapons... <B:0>"
+                    (format (tr "%@ to fix the damage to your weapons... <B:0>")
                             (* 3 weapon-damage))
                     "")
                 (if hull-damage
-                    (format "%@ to fix that hull damage... <B:0>"
+                    (format (tr "%@ to fix that hull damage... <B:0>")
                             (int (* 3/4 hull-damage)))
                     "")
-                "And 200@ for the repair fee. <B:0>"
-                "Want to go ahead with the repairs?")
+                (tr "And 200@ for the repair fee. <B:0>")
+                (tr "Want to go ahead with the repairs?"))
 
         (dialog-opts-reset)
 
         (let ((cost (+ (* 3 weapon-damage)
                        (int (* 3/4 hull-damage))
                        200)))
-          (dialog-opts-push (format "Yes! (%@)" cost)
+          (dialog-opts-push (format (tr "Yes! (%@)") cost)
                             (lambda ()
                               (if (< (coins) cost)
                                   (progn
-                                    (dialog "<c:Repairman:30>Sorry, you can't afford it!")
+                                    (dialog (tr "<c:Repairman:30>Sorry, you can't afford it!"))
                                     (setq on-dialog-closed done))
                                   (progn
                                     (sound "build0")
@@ -50,11 +51,11 @@
                                                             (get room 2)
                                                             (rinfo 'max-hp (car room))))
                                              (rooms (player)))
-                                    (dialog "<c:Repairman:30> <s:3>. . . . . <s:0> "
-                                            "OK! All finished! <B:0> Nice working with ya!")
+                                    (dialog (tr "<c:Repairman:30> <s:3>. . . . . <s:0> ")
+                                            (tr "OK! All finished! <B:0> Nice working with ya!"))
                                     (setq on-dialog-closed done)))))
 
-          (dialog-opts-push "Nevermind..."
+          (dialog-opts-push (tr "Nevermind...")
                             (lambda ()
-                              (dialog "<c:Repairman:30>No problem! Have a nice day!")
+                              (dialog (tr "<c:Repairman:30>No problem! Have a nice day!"))
                               (setq on-dialog-closed done))))))))

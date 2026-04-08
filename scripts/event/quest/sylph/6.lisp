@@ -2,7 +2,9 @@
 ;;; quest/sylph/6.lisp
 ;;;
 
-(dialog "You discover the wreckage of a goblin raid... most of the raiders fled, but among the debris, you hear frightened breathing...")
+(tr-bind-current)
+
+(dialog (tr "You discover the wreckage of a goblin raid... most of the raiders fled, but among the debris, you hear frightened breathing..."))
 
 (opponent-init 8 'neutral)
 
@@ -36,20 +38,20 @@
 
 (defn on-converge ()
   (setq on-converge nil)
-  (await (dialog* "<c:Goblin Child:50>#hisses# Ssstay away! I know what you are! <B:0> You're... you're Sssylph! <B:0> My father told me! He sssaid if the Sssylph ever catch us, they... they cook goblin children in their big metal potsss! <B:0> #voice cracks# But I won't let you! I'll... I'll bite you!"))
-  (if (dialog-await-binary-q-w/lore "The child is terrified. Try to calm him down?"
-                                    "Help the child."
-                                    "Leave him."
-                                    '(("we don't eat children" .
-                                       "<c:Goblin Child:50>That'sss what you'd sssay! <B:0> Father sssaid you trick us with your fancy wordsss! <B:0> But... but you haven't grabbed me yet... <B:0> Why?")
-                                      ("where is your father?" .
-                                       "<c:Goblin Child:50>He... he was on one of the other shipsss. <B:0> We were raiding a human town, but their defenssses were too ssstrong. Everyone fled! <B:0> I fell through a hole in the deck. By the time I climbed out... <B:0> #starts crying# Everyone was gone!")))
+  (await (dialog* (tr "<c:Goblin Child:50>#hisses# Ssstay away! I know what you are! <B:0> You're... you're Sssylph! <B:0> My father told me! He sssaid if the Sssylph ever catch us, they... they cook goblin children in their big metal potsss! <B:0> #voice cracks# But I won't let you! I'll... I'll bite you!")))
+  (if (dialog-await-binary-q-w/lore (tr "The child is terrified. Try to calm him down?")
+                                    (tr "Help the child.")
+                                    (tr "Leave him.")
+                                    (tr '(("we don't eat children" .
+                                           "<c:Goblin Child:50>That'sss what you'd sssay! <B:0> Father sssaid you trick us with your fancy wordsss! <B:0> But... but you haven't grabbed me yet... <B:0> Why?")
+                                          ("where is your father?" .
+                                           "<c:Goblin Child:50>He... he was on one of the other shipsss. <B:0> We were raiding a human town, but their defenssses were too ssstrong. Everyone fled! <B:0> I fell through a hole in the deck. By the time I climbed out... <B:0> #starts crying# Everyone was gone!"))))
       (on-dialog-accepted)
       (on-dialog-declined)))
 
 
 (defn on-dialog-accepted ()
-  (await (dialog* "<c:Goblin Child:50>You... you'd really take me home? <B:0> But why would Sssylph help a goblin? <B:0> Father sssaid you think we're... what was the word... 'degraded'? That we're not worth sssaving... <B:0> #suspicious# Thisss is a trick, isssn't it?"))
+  (await (dialog* (tr "<c:Goblin Child:50>You... you'd really take me home? <B:0> But why would Sssylph help a goblin? <B:0> Father sssaid you think we're... what was the word... 'degraded'? That we're not worth sssaving... <B:0> #suspicious# Thisss is a trick, isssn't it?")))
 
   (let ((sl (chr-slots (player))))
     (when (not sl)
@@ -73,15 +75,15 @@
               (push qids 6)
               (push quests (cons "goblin_child_return.lisp" m))
               (push qvar (cons 6 id))
-              (await (dialog* "<c:Goblin Child:50>#whispers nervously# Don't show fear. Father sssaid they can sssmell fear... <B:0> Wait... where are your cooking pots?"))
-              (await (dialog* "The goblin child joined your crew! He's marked his home settlement on your sky chart with an *..."))
+              (await (dialog* (tr "<c:Goblin Child:50>#whispers nervously# Don't show fear. Father sssaid they can sssmell fear... <B:0> Wait... where are your cooking pots?")))
+              (await (dialog* (tr "The goblin child joined your crew! He's marked his home settlement on your sky chart with an *...")))
               (exit))
             (progn
-              (await (dialog* "The goblin child joined your crew! Maybe you can find his home..."))
+              (await (dialog* (tr "The goblin child joined your crew! Maybe you can find his home...")))
               (exit)))))))
 
 
 (defn on-dialog-declined ()
-  (await (dialog* "<c:Goblin Child:50>#voice breaking# I knew it... no one comesss back for goblinss..."))
-  (await (dialog* "You leave him behind in the ruins..."))
+  (await (dialog* (tr "<c:Goblin Child:50>#voice breaking# I knew it... no one comesss back for goblinss...")))
+  (await (dialog* (tr "You leave him behind in the ruins...")))
   (exit))

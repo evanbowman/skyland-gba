@@ -160,15 +160,22 @@
 ;; While some of these fields come from configuration files, and changing them
 ;; could break regression, in practice, cannon health, cost, and power usage are
 ;; unlikely to change frequently.
-(assert-eq (room-meta 'cannon)
-           '((name . "cannon")
-             (size 1 . 1)
-             (ico1 . 552)
-             (ico2 . 536)
-             (pwr . 34)
-             (cost . 1000)
-             (max-hp . 200)
-             (category . weapon)))
+(let ((prev-lang (lang)))
+  ;; NOTE: the room name string returned by room-meta is dependent on which
+  ;; language is currently configured in game settings.
+  (lang-set "english")
+  (let ((info (room-meta 'cannon)))
+    (lang-set prev-lang)
+    (assert-eq info
+               '((name . "cannon")
+                 (size 1 . 1)
+                 (ico1 . 552)
+                 (ico2 . 536)
+                 (pwr . 34)
+                 (cost . 1000)
+                 (max-hp . 200)
+                 (category . weapon)))))
+
 
 (end-test)
 
@@ -216,7 +223,7 @@
 
 (begin-test "cart")
 
-(assert-eq "image" (read-ini "/scripts/data/cart/cart7.ini"
+(assert-eq "image" (read-ini "/strings/english/cart/cart7.ini"
                              "contents"
                              "type"))
 
@@ -391,6 +398,76 @@
 
 
 ;; Clear directory listing from screen.
+(foreach (lambda (y)
+           (regr-print "" 1 y))
+         (range 5 10))
+
+
+(defn/temp cdddr (v)
+  (cdr (cddr v)))
+
+
+(defn visit-strings (expr callback within-tr)
+  (cond
+    ((list? expr)
+     (let ((is-tr (or within-tr (equal (car expr) 'tr))))
+       (foreach (lambda (sub-expr)
+                  (visit-strings sub-expr callback is-tr))
+                expr)))
+    ((pair? expr)
+     (visit-strings (car expr) callback within-tr)
+     (visit-strings (cdr expr) callback within-tr))
+    ((string? expr)
+     (when within-tr
+       (callback expr)))))
+
+
+(defn/temp verify-translation-linkage (locale path)
+  (let* ((tr-data (eval-file path))
+         (path-sep "/")
+         (path-suffix (string-join (cdddr (split path path-sep)) path-sep))
+         (script (string "/scripts/" path-suffix))
+         (missing nil))
+    (when (file-exists? script)
+      (regr-print path-suffix 2 7)
+      (let ((script-data (read-file script)))
+        (foreach (lambda (expr)
+                   (visit-strings expr (lambda (str)
+                                         (when (not (lookup str tr-data))
+                                           (push missing str)))
+                                  false))
+                 script-data)))
+    (when missing
+      (fatal (format "No % translation for text: %"
+                     locale
+                     (car missing))))))
+
+
+;; NOTE: these checks are too time-consuming to run on the gba. The nighly
+;; regression system, using the desktop build of the game, runs these
+;; localization string checks.
+(let ((skip-files nil)
+      (lang-opts (map cdr (eval-file "/strings/lang.lisp"))))
+  (foreach (lambda (locale)
+             (when (equal (device-info 'name) "GameboyAdvance")
+               ;; NOTE: the code in this file is quite convoluted, and walking
+               ;; it recursively with visit-strings causes issues on gba
+               ;; builds. Nighly regression, which also leverages more powerful
+               ;; desktop builds, should catch issues in ignored files.
+               ;; FIXME...
+               (push skip-files (format "/strings/%/event/surrender/crew.lisp"
+                                        locale)))
+             (regr-print "                              " 0 5)
+             (regr-print (string "verifying localization: " locale) 1 5)
+             (filesystem-walk (string "/strings/" locale)
+                              (lambda (path)
+                                (when (and (ends-with path ".lisp")
+                                           (not (int? (find path skip-files))))
+                                  (verify-translation-linkage locale path)))))
+           lang-opts))
+
+
+
 (foreach (lambda (y)
            (regr-print "" 1 y))
          (range 5 10))

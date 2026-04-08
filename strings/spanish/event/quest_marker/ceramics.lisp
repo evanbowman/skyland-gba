@@ -1,0 +1,5 @@
+'(("Still got those ceramics? The locals might be interested..." . "¿Todavía tienes esas cerámicas? A los lugareños podría interesarles...")
+("ceramic tiles" . "azulejos")
+("<c:The Collector:6>Wow, such beautiful craftmanship! I must have them!! How much would you sell them for? Here, take %@!" . "<c:El Coleccionista:6>¡Vaya, qué artesanía tan hermosa! ¡¡Tengo que tenerlos!! ¿Por cuánto los venderías? ¡Toma, quédate con %@!")
+("Upon closer inspection, no one seems to be home! Good thing too, as it seems that you lost the tiles along the way!" . "Al mirar más de cerca, ¡parece que no hay nadie en casa! Menos mal, ¡ya que parece que perdiste los azulejos por el camino!")
+)

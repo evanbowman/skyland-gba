@@ -2,8 +2,9 @@
 ;;; quest_marker/ceramics.lisp
 ;;;
 
+(tr-bind-current)
 
-(dialog "Still got those ceramics? The locals might be interested...")
+(dialog (tr "Still got those ceramics? The locals might be interested..."))
 
 
 
@@ -32,7 +33,7 @@
           (let ((p (filter
                     (lambda (xy)
                       (equal
-                       "ceramic tiles"
+                       (tr "ceramic tiles")
                        (cargo (player) (first xy) (second xy))))
                     c)))
             (if p
@@ -45,7 +46,7 @@
 
                   (dialog
                    (format
-                    "<c:The Collector:6>Wow, such beautiful craftmanship! I must have them!! How much would you sell them for? Here, take %@!"
+                    (tr "<c:The Collector:6>Wow, such beautiful craftmanship! I must have them!! How much would you sell them for? Here, take %@!")
                     sale))
 
                   (coins-add sale)
@@ -55,4 +56,4 @@
                   (setq on-dialog-closed exit))
               (progn
                 (setq on-dialog-closed exit)
-                (dialog "Upon closer inspection, no one seems to be home! Good thing too, as it seems that you lost the tiles along the way!")))))))
+                (dialog (tr "Upon closer inspection, no one seems to be home! Good thing too, as it seems that you lost the tiles along the way!"))))))))

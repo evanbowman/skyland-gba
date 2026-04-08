@@ -50,10 +50,16 @@
 
 
  2) Multi-language ROM (harder)
- I need to make some
- organizational changes to
- support multilingual ROMs
- properly. Follow step 1 and
- get a translated ROM working,
- then contact me for help at
- evan.a.bowman@gmail.com
+ Multilanguage roms are a work
+ in progress. To enable a new
+ language, copy/paste an
+ existing language directory,
+ e.g. strings/spanish/,
+ and create translations for
+ everything.
+ You'll also want to create
+ a version of
+ strings/english.idf for your
+ language. Finally, add a
+ mapping for your desired
+ language to /strings/lang.lisp

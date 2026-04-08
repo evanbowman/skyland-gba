@@ -2,8 +2,10 @@
 ;;; neutral/2/5.lisp
 ;;;
 
+(tr-bind-current)
 
-(dialog "A shop approaches! Looks like they specialize in selling various types of defenses...")
+
+(dialog (tr "A shop approaches! Looks like they specialize in selling various types of defenses..."))
 
 
 
