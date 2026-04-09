@@ -479,6 +479,9 @@ standard_charset_map(const utf8::Codepoint& cp)
         case UTF8_GETCHR(u8"…"): return 310;
         case UTF8_GETCHR(u8"Ö"): return 314;
         case UTF8_GETCHR(u8"ẞ"): return 315;
+        case UTF8_GETCHR(u8"ã"): return 338;
+        case UTF8_GETCHR(u8"õ"): return 337;
+
         case UTF8_GETCHR(u8"&"): return 316;
         case UTF8_GETCHR(u8"┌"): return 319;
         case UTF8_GETCHR(u8"┐"): return 320;
