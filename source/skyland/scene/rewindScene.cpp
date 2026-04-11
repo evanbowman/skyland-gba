@@ -2022,29 +2022,26 @@ ScenePtr RewindScene::update(Time)
         case time_stream::event::bird_left_map: {
             auto e = (time_stream::event::BirdLeftMap*)end;
 
-            if (auto dt = PLATFORM.make_dynamic_texture()) {
-                Vec2<Fixnum> pos;
-                pos.x = e->x_pos_.get();
-                pos.y = e->y_pos_.get();
+            Vec2<Fixnum> pos;
+            pos.x = e->x_pos_.get();
+            pos.y = e->y_pos_.get();
 
-                RoomCoord coord;
-                coord.x = e->x_coord_;
-                coord.y = e->y_coord_;
+            RoomCoord coord;
+            coord.x = e->x_coord_;
+            coord.y = e->y_coord_;
 
-                const auto tm = e->flight_timer_.get();
+            const auto tm = e->flight_timer_.get();
 
-                Float speed;
-                memcpy(&speed, e->speed_, sizeof speed);
+            Float speed;
+            memcpy(&speed, e->speed_, sizeof speed);
 
-                APP.birds().push(APP.alloc_entity<GenericBird>(*dt,
-                                                               coord,
-                                                               pos,
-                                                               speed,
-                                                               tm,
-                                                               (u8)e->color_,
-                                                               (bool)e->near_,
-                                                               (bool)e->flip_));
-            }
+            APP.birds().push(APP.alloc_entity<GenericBird>(coord,
+                                                           pos,
+                                                           speed,
+                                                           tm,
+                                                           (u8)e->color_,
+                                                           (bool)e->near_,
+                                                           (bool)e->flip_));
 
             APP.time_stream().pop(sizeof *e);
             break;

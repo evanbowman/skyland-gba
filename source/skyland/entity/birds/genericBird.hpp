@@ -24,14 +24,12 @@ namespace skyland
 class GenericBird : public Bird
 {
 public:
-    GenericBird(Platform::DynamicTexturePtr dt,
-                const RoomCoord& coord,
+    GenericBird(const RoomCoord& coord,
                 bool near = false);
 
 
     // Alternate constructor, intended for rewind implementation.
-    GenericBird(Platform::DynamicTexturePtr dt,
-                const RoomCoord& coord,
+    GenericBird(const RoomCoord& coord,
                 const Vec2<Fixnum>& position,
                 Float speed,
                 Time flight_timer,
@@ -74,7 +72,7 @@ public:
 private:
     void roost(Island* island, Time delta);
 
-    Platform::DynamicTexturePtr dt_;
+    Optional<Platform::DynamicTexturePtr> dt_;
     RoomCoord position_;
     bool near_;
     bool alerted_ = false;
@@ -84,7 +82,6 @@ private:
     enum class State {
         roost,
         fly,
-        caw,
     } state_ = State::roost;
 
     Time anim_timer_ = 0;

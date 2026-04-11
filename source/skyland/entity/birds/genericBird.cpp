@@ -24,46 +24,44 @@ namespace skyland
 
 
 
-GenericBird::GenericBird(Platform::DynamicTexturePtr dt,
-                         const RoomCoord& position,
-                         bool near)
-    : Bird({{}, {}}), dt_(dt), position_(position), near_(near)
+GenericBird::GenericBird(const RoomCoord& position, bool near)
+    : Bird({{}, {}}), position_(position), near_(near)
 {
     // NOTE: Two bird graphics of different color sit interleaved in texture
     // data.
     color_ = rng::choice<2>(rng::utility_state);
 
-    dt_->remap(63 * 2 + color_);
-
-    sprite_.set_texture_index(dt->mapping_index() * 2);
-    sprite_.set_size(Sprite::Size::w16_h32);
+    sprite_.set_size(Sprite::Size::w16_h16);
+    sprite_.set_tidx_16x16(123, color_);
 
     sprite_.set_flip({(bool)rng::choice<2>(rng::utility_state), false});
-
-    // sprite_.set_priority(2);
 }
 
 
 
-GenericBird::GenericBird(Platform::DynamicTexturePtr dt,
-                         const RoomCoord& coord,
+GenericBird::GenericBird(const RoomCoord& coord,
                          const Vec2<Fixnum>& position,
                          Float speed,
                          Time flight_timer,
                          u8 color,
                          bool near,
                          bool flip)
-    : Bird({{}, {}}), dt_(dt), position_(coord), near_(near),
+    : Bird({{}, {}}), position_(coord), near_(near),
       flight_timer_(flight_timer), color_(color), speed_(speed)
 {
     sprite_.set_position(position);
     sprite_.set_flip({flip, false});
     sprite_.set_size(Sprite::Size::w16_h32);
-    // sprite_.set_priority(2);
-    sprite_.set_texture_index(dt->mapping_index() * 2);
 
-    anim_index_ = 1;
-    dt_->remap((63 + anim_index_) * 2 + color_);
+    dt_ = PLATFORM.make_dynamic_texture();
+    if (not dt_) {
+        sprite_.set_alpha(Sprite::Alpha::transparent);
+        this->kill();
+    } else {
+        sprite_.set_texture_index((*dt_)->mapping_index() * 2);
+        anim_index_ = 1;
+        (*dt_)->remap((63 + anim_index_) * 2 + color_);
+    }
 
     state_ = State::fly;
 
@@ -167,6 +165,17 @@ void GenericBird::update(Time delta)
         roost(island, delta);
 
         if (alerted_ and delta > 0) {
+
+            dt_ = PLATFORM.make_dynamic_texture();
+            if (not dt_) {
+                break;
+            }
+
+            sprite_.set_size(Sprite::Size::w16_h32);
+            sprite_.set_texture_index((*dt_)->mapping_index() * 2);
+            anim_index_ = 1;
+            (*dt_)->remap((63 + anim_index_) * 2 + color_);
+
             state_ = State::fly;
             anim_timer_ = 0;
 
@@ -174,34 +183,6 @@ void GenericBird::update(Time delta)
 
             speed_ = 0.00003f * (1 + rng::choice<3>(rng::utility_state));
         }
-        break;
-    }
-
-    case State::caw: {
-        roost(island, delta);
-
-        anim_timer_ += delta;
-        flight_timer_ += delta;
-        if (anim_timer_ > milliseconds(150)) {
-            anim_timer_ -= milliseconds(150);
-            anim_index_ = not anim_index_;
-            dt_->remap((75 + anim_index_) * 2 + color_);
-        }
-        if (flight_timer_ > seconds(2)) {
-            flight_timer_ = 0;
-            dt_->remap(63 * 2 + color_);
-            state_ = State::roost;
-        }
-
-        if (alerted_ and delta > 0) {
-            state_ = State::fly;
-            anim_timer_ = 0;
-            flight_timer_ = 0;
-            sprite_.set_flip({(bool)rng::choice<2>(rng::utility_state), false});
-
-            speed_ = 0.00003f * (1 + rng::choice<3>(rng::utility_state));
-        }
-
         break;
     }
 
@@ -217,7 +198,9 @@ void GenericBird::update(Time delta)
                 ++anim_index_;
             }
 
-            dt_->remap((63 + anim_index_) * 2 + color_);
+            if (dt_) {
+                (*dt_)->remap((63 + anim_index_) * 2 + color_);
+            }
         }
 
         auto pos = sprite_.get_position();
@@ -284,22 +267,14 @@ void GenericBird::rewind(Time delta)
         break;
     }
 
-    case State::caw: {
-        flight_timer_ = 0;
-        anim_timer_ = 0;
-        dt_->remap(63 * 2 + color_);
-        state_ = State::roost;
-        break;
-    }
-
     case State::fly: {
         flight_timer_ -= delta;
         if (flight_timer_ <= 0) {
             state_ = State::roost;
             alerted_ = false;
-            dt_->remap(63 * 2 + color_);
-            sprite_.set_texture_index(dt_->mapping_index() * 2);
-            sprite_.set_size(Sprite::Size::w16_h32);
+            dt_.reset();
+            sprite_.set_size(Sprite::Size::w16_h16);
+            sprite_.set_tidx_16x16(123, color_);
             break;
         }
         anim_timer_ -= delta;
@@ -312,7 +287,9 @@ void GenericBird::rewind(Time delta)
                 --anim_index_;
             }
 
-            dt_->remap((63 + anim_index_) * 2 + color_);
+            if (dt_) {
+                (*dt_)->remap((63 + anim_index_) * 2 + color_);
+            }
         }
 
         auto pos = sprite_.get_position();
@@ -422,12 +399,9 @@ void GenericBird::spawn(Island& island, int count)
 
                 auto pos = RoomCoord{column, y};
 
-                if (auto dt = PLATFORM.make_dynamic_texture()) {
-                    bool near = is_player_island(&island);
-                    APP.birds().push(
-                        APP.alloc_entity<GenericBird>(*dt, pos, near));
-                    break;
-                }
+                bool near = is_player_island(&island);
+                APP.birds().push(APP.alloc_entity<GenericBird>(pos, near));
+                break;
             }
         }
     }
