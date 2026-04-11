@@ -98,6 +98,9 @@
 (macro when (EXPR BODY) `(if ,EXPR (progn ,@BODY)))
 (macro unless (EXPR BODY) `(if (not ,EXPR) (progn ,@BODY)))
 
+;; Multiline string macro
+(macro s+ (EXPR REST) (apply string (cons EXPR REST)))
+
 (global 'setfn)
 (setq setfn
       (compile

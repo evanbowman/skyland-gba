@@ -8,9 +8,9 @@
       (p "/scripts/event/surrender/"))
   (cond
    ((equal c 0)
-    (eval-file (string p "crew.lisp")))
+    (eval-file (string p "choice.lisp")))
    ((and (equal c 1) (equal (difficulty) difficulty-beginner))
-    (eval-file (string p "crew.lisp")))
+    (eval-file (string p "choice.lisp")))
    (true
     (if (chance 3)
         (dialog

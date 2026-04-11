@@ -2253,6 +2253,23 @@ BINDING_TABLE({
 
           return (lisp::Value*)promise;
       }}},
+    {"sel-input-opponent*",
+     {SIG2(promise, nil, string),
+      [](int argc) {
+          L_EXPECT_OP(0, string);
+
+          lisp::Protected promise(lisp::make_promise());
+
+          lisp::Protected bundle(
+              lisp::make_cons(lisp::get_op(0), promise));
+          bundle = lisp::make_cons(bundle, lisp::get_op(1));
+          bundle = lisp::make_cons(L_INT(0), bundle);
+          if (bundle->type() == lisp::Value::Type::cons) {
+              APP.setup_input(bundle);
+          }
+
+          return (lisp::Value*)promise;
+      }}},
     {"island-set-pos",
      {SIG3(nil, wrapped, rational, rational),
       [](int argc) {

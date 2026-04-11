@@ -5,9 +5,8 @@
 (defn/c tr-bind ((path . string))
   (let ((full-path (string "/strings/" (lang) path)))
     (when (file-exists? full-path)
-      (let ((bindings (eval-file full-path)))
-        (when bindings
-          (setq tr-bindings (append bindings tr-bindings)))))))
+      (when-let ((bindings (eval-file full-path)))
+        (setq tr-bindings (append bindings tr-bindings))))))
 
 (defn/c tr-bind-current ()
   (when-let ((path (eval '--current-file (caller-environment)))

@@ -1,0 +1,7 @@
+'(("<c:Goblin Pirates:2>We sssurrender! Honessst, we promise to help you pillage any other cassstles!" . "<c:Piratas Goblin:2>¡Nosss rendimosss! ¡En ssserio, prometemosss ayudarosss a saquear cualquier otro cassstillo!")
+("<c:Goblin Pirates:2>We sssurrender! Honessst, we promise not to pillage any other cassstles!" . "<c:Piratas Goblin:2>¡Nosss rendimosss! ¡En ssserio, prometemosss no saquear ningún otro cassstillo!")
+("The goblins offer surrender, accept terms?" . "Los goblins ofrecen rendirse, ¿aceptar los términos?")
+("+1 crew, +%@" . "+1 tripulante, +%@")
+("Salvage rights: % blocks." . "Derechos de desguace: % bloques.")
+("Unacceptable! (+%@)" . "¡Inaceptable! (+%@)")
+)

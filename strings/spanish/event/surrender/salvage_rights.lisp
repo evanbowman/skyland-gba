@@ -1,0 +1,6 @@
+'(("Take block: (%/%)" . "Tomar bloque: (%/%)")
+("This will remove the island's only power source, causing it to become unstable (you won't be able to take any more blocks), are you sure?" . "Esto eliminará la única fuente de energía de la isla, volviéndola inestable (no podrás tomar más bloques), ¿estás seguro?")
+("Place block:" . "Colocar bloque:")
+("Place block: (%/%)" . "Colocar bloque: (%/%)")
+("Accepted surrender, and acquired % blocks!" . "¡Rendición aceptada, y adquiridos % bloques!")
+)

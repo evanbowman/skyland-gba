@@ -446,23 +446,13 @@
 ;; NOTE: these checks are too time-consuming to run on the gba. The nighly
 ;; regression system, using the desktop build of the game, runs these
 ;; localization string checks.
-(let ((skip-files nil)
-      (lang-opts (map cdr (eval-file "/strings/lang.lisp"))))
+(let ((lang-opts (map cdr (eval-file "/strings/lang.lisp"))))
   (foreach (lambda (locale)
-             (when (equal (device-info 'name) "GameboyAdvance")
-               ;; NOTE: the code in this file is quite convoluted, and walking
-               ;; it recursively with visit-strings causes issues on gba
-               ;; builds. Nighly regression, which also leverages more powerful
-               ;; desktop builds, should catch issues in ignored files.
-               ;; FIXME...
-               (push skip-files (format "/strings/%/event/surrender/crew.lisp"
-                                        locale)))
              (regr-print "                              " 0 5)
              (regr-print (string "verifying localization: " locale) 1 5)
              (filesystem-walk (string "/strings/" locale)
                               (lambda (path)
-                                (when (and (ends-with path ".lisp")
-                                           (not (int? (find path skip-files))))
+                                (when (ends-with path ".lisp")
                                   (verify-translation-linkage locale path)))))
            lang-opts))
 
