@@ -134,6 +134,7 @@ public:
 private:
     Time timer_ = 0;
     u8 flicker_cyc_ = 0;
+    u8 charge_frames_ = 0;
 };
 
 

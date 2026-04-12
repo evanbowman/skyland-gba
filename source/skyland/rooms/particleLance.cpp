@@ -29,6 +29,10 @@ namespace skyland
 
 
 
+static const u8 particle_lance_charge_frames = 4;
+
+
+
 void ParticleLance::format_description(StringBuffer<512>& buffer)
 {
     buffer = SYSTR(description_particle_lance)->c_str();
@@ -46,6 +50,8 @@ ParticleLance::ParticleLance(Island* parent, const RoomCoord& position)
 void ParticleLance::rewind(Time delta)
 {
     Room::rewind(delta);
+
+    charge_frames_ = 0;
 
     if (active_) {
         ++flicker_cyc_;
@@ -81,6 +87,9 @@ void ParticleLance::update(Time delta)
     }
 
     if (active_) {
+        if (charge_frames_) {
+            --charge_frames_;
+        }
         ++flicker_cyc_;
         if (flicker_cyc_ == 5) {
             flicker_cyc_ = 0;
@@ -159,6 +168,13 @@ ScenePtr ParticleLance::select_impl(const RoomCoord& cursor)
     PLATFORM.speaker().play_sound("particle_beam.raw", 7);
 
     active_ = true;
+    if (APP.game_speed() == GameSpeed::stopped) {
+        // When paused, the effect doesn't look as good, just draw the beam.
+        charge_frames_ = 0;
+    } else {
+        charge_frames_ = particle_lance_charge_frames;
+    }
+
     project_damage(10);
 
     ready();
@@ -189,6 +205,23 @@ void ParticleLance::display(Platform::Screen& screen)
 
     pos.y -= 8.0_fixed;
     pos.x += 8.0_fixed + 16.0_fixed;
+
+    if (charge_frames_) {
+        // auto anim_index = particle_lance_charge_frames - charge_frames_;
+        // s16 scl_grow = anim_index * 4;
+        // spr.set_scale({scl_grow, scl_grow});
+        pos.x -= 3.0_fixed;
+        if (charge_frames_ <= 2) {
+            spr.set_scale({16, 16});
+            // pos.x -= 1.0_fixed;
+            pos.y += 8.0_fixed;
+        }
+        spr.set_tidx_16x16(78, 0);
+        spr.set_mix({ColorConstant::silver_white, 255});
+        spr.set_position(pos);
+        PLATFORM.screen().draw(spr);
+        return;
+    }
 
     spr.set_tidx_16x16(91, 0);
     spr.set_mix({ColorConstant::silver_white, 255});
