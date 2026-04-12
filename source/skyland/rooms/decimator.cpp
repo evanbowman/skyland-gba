@@ -352,7 +352,11 @@ void Decimator::update(Time delta)
 
             if (reload_ > charge_sound_trigger and
                 reload_ - delta <= charge_sound_trigger) {
-                PLATFORM.speaker().play_sound("decimator_charge.raw", 5);
+                auto dec_charge_sound = "decimator_charge.raw";
+                if (not PLATFORM.speaker().is_sound_playing(dec_charge_sound)) {
+                    PLATFORM.speaker().play_sound(dec_charge_sound, 5);
+                }
+
             }
 
             auto ripple_effect_trigger = electric_ripple_effect_rate * 3 - milliseconds(40);
