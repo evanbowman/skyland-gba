@@ -25,6 +25,127 @@ namespace skyland
 
 
 
+static const Time electric_ripple_effect_rate = milliseconds(140);
+
+
+
+class ElectricRippleEffectQuarter : public Entity
+{
+public:
+    ElectricRippleEffectQuarter(Platform::DynamicTexturePtr dt,
+                                const Vec2<Fixnum>& pos,
+                                int quarter)
+        : Entity({{}, {}}), dt_(dt), timer_(0), quarter_(quarter)
+    {
+        sprite_.set_texture_index(dt->mapping_index());
+
+        auto p = pos;
+
+        switch (quarter) {
+        case 1:
+            sprite_.set_flip({true, false});
+            p.x += 32.0_fixed;
+            break;
+
+        case 2:
+            sprite_.set_flip({false, true});
+            p.y += 32.0_fixed;
+            break;
+
+        case 3:
+            sprite_.set_flip({true, true});
+            p.x += 32.0_fixed;
+            p.y += 32.0_fixed;
+            break;
+        }
+
+        sprite_.set_position(p);
+
+        dt_->remap(74 * 2);
+    }
+
+
+    void shade(ColorConstant clr)
+    {
+        sprite_.set_mix({clr, 255});
+    }
+
+
+    void update(Time delta) override
+    {
+        timer_ += delta * 2;
+
+        if (timer_ > electric_ripple_effect_rate) {
+            timer_ -= electric_ripple_effect_rate;
+
+
+            if (keyframe_ == 4) {
+                kill();
+            } else {
+                keyframe_++;
+                if (quarter_ == 0) {
+                    dt_->remap((74 - keyframe_) * 2);
+                }
+            }
+        }
+    }
+
+
+    void rewind(Time delta) override
+    {
+        timer_ -= delta * 2;
+
+        if (timer_ < 0) {
+            timer_ += electric_ripple_effect_rate;
+
+            if (keyframe_ == 0) {
+                kill();
+            } else {
+                if (quarter_ == 0) {
+                    dt_->remap((74 - keyframe_) * 2);
+                }
+                keyframe_--;
+            }
+        }
+    }
+
+
+private:
+    Platform::DynamicTexturePtr dt_;
+    Time timer_ = 0;
+    int quarter_;
+    int keyframe_ = 0;
+};
+
+
+
+extern SharedVariable energy_glow_color;
+
+
+
+void electric_ripple(const Vec2<Fixnum>& pos)
+{
+    auto dt = PLATFORM.make_dynamic_texture();
+    if (dt) {
+        auto p = pos;
+        p.x -= 32.0_fixed;
+        p.y -= 32.0_fixed;
+        auto make_segment = [&](int q) {
+            auto e = APP.alloc_entity<ElectricRippleEffectQuarter>(*dt, p, q);
+            if (e) {
+                e->shade(custom_color(energy_glow_color));
+                return APP.effects().push(std::move(e));
+            }
+        };
+        make_segment(3);
+        make_segment(2);
+        make_segment(1);
+        make_segment(0);
+    }
+}
+
+
+
 SHARED_VARIABLE(decimator_reload_ms);
 
 
@@ -226,6 +347,18 @@ void Decimator::update(Time delta)
     if (has_pilot and reload_ > 0) {
 
         if (not opponent_friendly) {
+
+            auto ripple_effect_trigger = electric_ripple_effect_rate * 3 - milliseconds(40);
+            if (reload_ > ripple_effect_trigger and reload_ - delta <= ripple_effect_trigger) {
+                auto c = visual_center();
+                if (is_player_island(parent())) {
+                    c.x += 16.0_fixed;
+                } else {
+                    c.x -= 16.0_fixed;
+                }
+                electric_ripple(c);
+            }
+
             reload_ -= delta;
 
             if (parent()->phase() and reload_ < 0) {
