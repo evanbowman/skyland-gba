@@ -348,6 +348,13 @@ void Decimator::update(Time delta)
 
         if (not opponent_friendly) {
 
+            const auto charge_sound_trigger = milliseconds(1450);
+
+            if (reload_ > charge_sound_trigger and
+                reload_ - delta <= charge_sound_trigger) {
+                PLATFORM.speaker().play_sound("decimator_charge.raw", 5);
+            }
+
             auto ripple_effect_trigger = electric_ripple_effect_rate * 3 - milliseconds(40);
             if (reload_ > ripple_effect_trigger and reload_ - delta <= ripple_effect_trigger) {
                 auto c = visual_center();
