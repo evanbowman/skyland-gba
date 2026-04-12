@@ -59,10 +59,8 @@
                     (dialog (tr "A flash of resplendent light emanates from the city... <B:0> the approaching storm clouds recede far into the horizon... <B:0> The Sylph castle seems to have also transported some strange block onto your island... <B:0> Where do you want to place it?"))
                     (unbind 'fut)
                     (defn on-dialog-closed ()
-                      (place-new-block 'amplifier
-                                       (tr "Place amplifier:")
-                                       (lambda (x y)
-                                         (exit)))))))))
+                      (place-new-block 'amplifier (tr "Place amplifier:"))
+                      (exit)))))))
 
     (defn on-converge ()
       (dialog (tr "Despite multiple attempts to contact the city, the inhabitants are unresponsive. It's too bad the child isn't aboard your island anymore, maybe he'd know what this was all about..."))

@@ -3,13 +3,9 @@
 ;;;
 
 
-(lambda (room-sym text callback)
+(lambda (room-sym text)
   (alloc-space room-sym)
-  (let ((cb callback)
-        (rsym room-sym))
-    (sel-input room-sym
-               text
-               (lambda (isle x y)
-                 (sound "build0")
-                 (room-new (player) (list rsym x y))
-                 (cb x y)))))
+  (let (([x . y] (await (sel-input* room-sym text))))
+    (sound "build0")
+    (room-new (player) (list room-sym x y))
+    (cons x y)))

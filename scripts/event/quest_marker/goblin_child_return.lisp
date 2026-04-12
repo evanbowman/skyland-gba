@@ -101,10 +101,8 @@
            (coins-add 2000))
          (tr "The goblins have also gifted you a salvaged power supply! Where do you want to place it?")
          (lambda ()
-           (place-new-block 'chaos-core
-                            (tr "Place chaos-core:")
-                            (lambda (x y)
-                              (exit))))))
+           (place-new-block 'chaos-core (tr "Place chaos-core:"))
+           (exit))))
 
       (defn on-converge ()
         (dialog (tr "You arrive at the goblin settlement, but the child is no longer aboard your island. The goblins eye your fortress with suspicion and hostility..."))
