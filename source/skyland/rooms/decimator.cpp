@@ -123,7 +123,7 @@ extern SharedVariable energy_glow_color;
 
 
 
-void electric_ripple(const Vec2<Fixnum>& pos)
+void electric_ripple(Room& source, const Vec2<Fixnum>& pos)
 {
     auto dt = PLATFORM.make_dynamic_texture();
     if (dt) {
@@ -133,7 +133,9 @@ void electric_ripple(const Vec2<Fixnum>& pos)
         auto make_segment = [&](int q) {
             auto e = APP.alloc_entity<ElectricRippleEffectQuarter>(*dt, p, q);
             if (e) {
-                e->shade(custom_color(energy_glow_color));
+                if (is_player_island(source.parent())) {
+                    e->shade(custom_color(energy_glow_color));
+                }
                 return APP.effects().push(std::move(e));
             }
         };
@@ -367,7 +369,7 @@ void Decimator::update(Time delta)
                 } else {
                     c.x -= 16.0_fixed;
                 }
-                electric_ripple(c);
+                electric_ripple(*this, c);
             }
 
             reload_ -= delta;
