@@ -489,6 +489,13 @@ InitStatus initialize(const InitConfig& conf)
             break;
         }
 
+        u32 record_end = offset + r.full_size();
+        if (record_end > start_offset + disk_capacity) {
+            info("record extends past end of save media, reformatting");
+            reformat = true;
+            break;
+        }
+
         u8 crc8 = 0;
         int read_size = r.file_info_.data_length_.get();
 
@@ -897,11 +904,7 @@ bool store_file_data(const char* path,
         compress(file_data, comp_buffer);
     }
 
-    const bool compress_file =
-        opts.use_compression_ and
-        // FIXME: decompression code mysteriously doesn't work if the input
-        // buffer is larger than 2k...
-        file_data.chunks_used() < 2;
+    const bool compress_file = opts.use_compression_;
 
     auto& input = compress_file ? comp_buffer : file_data;
 

@@ -30,10 +30,10 @@ void decompress(const Vector<char>& input, Vector<char>& output);
 
 
 
-template <u32 size>
+template <u32 in_size, u32 out_size>
 void compress_sink(heatshrink_encoder& enc,
-                   const Buffer<char, size>& input,
-                   Buffer<char, size>& result)
+                   const Buffer<char, in_size>& input,
+                   Buffer<char, out_size>& result)
 {
     int write_index = 0;
     while ((u32)write_index < input.size()) {
@@ -103,10 +103,10 @@ void compress(const Buffer<char, sz>& input, Buffer<char, sz>& result)
 
 
 
-template <u32 size>
+template <u32 input_size, u32 output_size>
 void decompress_sink(heatshrink_decoder& enc,
-                     const Buffer<char, size>& input,
-                     Buffer<char, size>& result)
+                     const Buffer<char, input_size>& input,
+                     Buffer<char, output_size>& result)
 {
     int write_index = 0;
     while ((u32)write_index < input.size()) {

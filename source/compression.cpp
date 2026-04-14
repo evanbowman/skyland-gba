@@ -23,34 +23,35 @@ void compress(const Vector<char>& input, Vector<char>& output)
         Buffer<char, 1000> output_;
     };
 
-    auto win = allocate<Window>("compr-window");
+    auto win_in = allocate<Buffer<char, 1000>>("compr-window-in");
+    auto win_out = allocate<Buffer<char, 1400>>("compr-window-out");
 
     heatshrink_encoder enc;
     heatshrink_encoder_reset(&enc);
 
     for (auto it = input.begin(); it not_eq input.end(); ++it) {
-        if (win->input_.full()) {
-            compress_sink(enc, win->input_, win->output_);
-            for (char c : win->output_) {
+        if (win_in->full()) {
+            compress_sink(enc, *win_in, *win_out);
+            for (char c : *win_out) {
                 output.push_back(c);
             }
-            win->input_.clear();
-            win->output_.clear();
+            win_in->clear();
+            win_out->clear();
         }
-        win->input_.push_back(*it);
+        win_in->push_back(*it);
     }
 
-    if (not win->input_.empty()) {
-        compress_sink(enc, win->input_, win->output_);
-        for (char c : win->output_) {
+    if (not win_in->empty()) {
+        compress_sink(enc, *win_in, *win_out);
+        for (char c : *win_out) {
             output.push_back(c);
         }
-        win->input_.clear();
-        win->output_.clear();
+        win_in->clear();
+        win_out->clear();
     }
 
-    compress_finish(enc, win->output_);
-    for (char c : win->output_) {
+    compress_finish(enc, *win_out);
+    for (char c : *win_out) {
         output.push_back(c);
     }
 }
@@ -65,7 +66,8 @@ void decompress(const Vector<char>& input, Vector<char>& output)
         Buffer<char, 1000> output_;
     };
 
-    auto win = allocate<Window>("compr-window");
+    auto win_in = allocate<Buffer<char, 256>>("dcompr-window-in");
+    auto win_out = allocate<Buffer<char, 2000>>("dcompr-window-out");
 
     heatshrink_decoder enc;
     heatshrink_decoder_reset(&enc);
@@ -74,28 +76,28 @@ void decompress(const Vector<char>& input, Vector<char>& output)
         // NOTE: why size == 255? We want to make sure that the output buffer is
         // large enough to hold the decompressed stuff. A greater than 4x
         // compression ratio would be quite high for heatshrink...
-        if (win->input_.size() == 255) {
-            decompress_sink(enc, win->input_, win->output_);
-            for (char c : win->output_) {
+        if (win_in->size() == 255) {
+            decompress_sink(enc, *win_in, *win_out);
+            for (char c : *win_out) {
                 output.push_back(c);
             }
-            win->input_.clear();
-            win->output_.clear();
+            win_in->clear();
+            win_out->clear();
         }
-        win->input_.push_back(*it);
+        win_in->push_back(*it);
     }
 
-    if (not win->input_.empty()) {
-        decompress_sink(enc, win->input_, win->output_);
-        for (char c : win->output_) {
+    if (not win_in->empty()) {
+        decompress_sink(enc, *win_in, *win_out);
+        for (char c : *win_out) {
             output.push_back(c);
         }
-        win->input_.clear();
-        win->output_.clear();
+        win_in->clear();
+        win_out->clear();
     }
 
-    decompress_finish(enc, win->output_);
-    for (char c : win->output_) {
+    decompress_finish(enc, *win_out);
+    for (char c : *win_out) {
         output.push_back(c);
     }
 }
