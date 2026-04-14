@@ -11,6 +11,7 @@
 
 #include "placeDroneScene.hpp"
 #include "readyScene.hpp"
+#include "repairDroneRangeScene.hpp"
 #include "skyland/entity/drones/attackDrone.hpp"
 #include "skyland/network.hpp"
 #include "skyland/rooms/droneBay.hpp"
@@ -187,6 +188,12 @@ void PlaceDroneScene::display()
     cursor.set_texture_index((*drone_class_)->spr_texture_index());
     cursor.set_alpha(Sprite::Alpha::translucent);
     PLATFORM.screen().draw(cursor);
+
+    if (str_eq((*drone_class_)->name(), "repair-drone")) {
+        auto anchor = island->visual_origin();
+        auto op = Sprite::Alpha::translucent;
+        RepairDroneRangeScene::show_repair_drone_range(cursor_loc, anchor, op);
+    }
 }
 
 

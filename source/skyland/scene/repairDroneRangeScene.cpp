@@ -57,15 +57,12 @@ ScenePtr RepairDroneRangeScene::update(Time delta)
 
 
 
-void RepairDroneRangeScene::display()
+void RepairDroneRangeScene::show_repair_drone_range(const RoomCoord& pos,
+                                                    const Vec2<Fixnum>& origin,
+                                                    Sprite::Alpha alpha)
 {
-    WorldScene::display();
-
-    auto pos = drone_->position();
-
-    auto origin = drone_->destination()->visual_origin();
-
     Sprite sprite;
+    sprite.set_alpha(alpha);
     sprite.set_size(Sprite::Size::w16_h32);
     sprite.set_texture_index(13);
 
@@ -96,6 +93,19 @@ void RepairDroneRangeScene::display()
 
         PLATFORM.screen().draw(sprite);
     }
+}
+
+
+
+void RepairDroneRangeScene::display()
+{
+    WorldScene::display();
+
+    auto pos = drone_->position();
+
+    auto origin = drone_->destination()->visual_origin();
+    auto opacity = Sprite::Alpha::opaque;
+    show_repair_drone_range(pos, origin, opacity);
 }
 
 

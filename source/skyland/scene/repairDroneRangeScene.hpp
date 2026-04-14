@@ -37,6 +37,10 @@ public:
     void display() override;
 
 
+    static void show_repair_drone_range(const RoomCoord& position,
+                                        const Vec2<Fixnum>& origin,
+                                        Sprite::Alpha alpha);
+
 public:
     SharedEntityRef<Drone> drone_;
     Optional<Text> description_;
