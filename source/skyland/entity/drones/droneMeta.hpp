@@ -47,7 +47,11 @@ struct DroneMeta
         virtual bool spawn_near() const = 0;
 
 
+
         virtual const char* name() const = 0;
+
+
+        virtual u16 spr_texture_index() const = 0;
 
 
         virtual u16 icon() const = 0;
@@ -105,6 +109,12 @@ struct DroneMeta
         u16 unsel_icon() const override
         {
             return T::unsel_icon();
+        }
+
+
+        u16 spr_texture_index() const override
+        {
+            return T::spr_texture_index();
         }
 
 

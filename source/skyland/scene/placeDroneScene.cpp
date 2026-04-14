@@ -182,6 +182,11 @@ void PlaceDroneScene::display()
     cursor.set_position(origin);
 
     PLATFORM.screen().draw(cursor);
+
+    cursor.set_size(Sprite::Size::w16_h32);
+    cursor.set_texture_index((*drone_class_)->spr_texture_index());
+    cursor.set_alpha(Sprite::Alpha::translucent);
+    PLATFORM.screen().draw(cursor);
 }
 
 

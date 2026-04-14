@@ -39,6 +39,12 @@ public:
     }
 
 
+    static u16 spr_texture_index()
+    {
+        return 64;
+    }
+
+
     static const char* get_name()
     {
         return "cannon-drone";

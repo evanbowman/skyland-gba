@@ -32,7 +32,13 @@ public:
     FlakDrone(Island* parent, Island* destination, const RoomCoord& grid_pos)
         : Drone(get_name(), parent, destination, grid_pos)
     {
-        sprite_.set_texture_index(66);
+        sprite_.set_texture_index(spr_texture_index());
+    }
+
+
+    static u16 spr_texture_index()
+    {
+        return 66;
     }
 
 

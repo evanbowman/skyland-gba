@@ -260,7 +260,7 @@ ReconstructionDrone::ReconstructionDrone(Island* parent,
                                          const RoomCoord& grid_pos)
     : Drone(get_name(), parent, destination, grid_pos)
 {
-    sprite_.set_texture_index(50);
+    sprite_.set_texture_index(spr_texture_index());
     health_ = full_health();
 }
 

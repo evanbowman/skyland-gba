@@ -29,6 +29,12 @@ public:
                         const RoomCoord& grid_pos);
 
 
+    static u16 spr_texture_index()
+    {
+        return 50;
+    }
+
+
     static const char* get_name()
     {
         return "reconstruction-drone";
