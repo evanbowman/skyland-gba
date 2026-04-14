@@ -413,8 +413,8 @@ espera por favor...
 ¿seguro que reciclas?  +
 A:  sí 
 B:  no 
-¡no se puede reciclar una sala ocupada!
-¡este bloque no se puede reciclar!
+¡sala ocupada, no reciclable!
+¡bloque no reciclable!
 ¿destruir dron?
 despejado
 chubasco
@@ -435,7 +435,7 @@ fijar objetivos de armas
 fijar grupo de armas
 elegir grupo de armas: 
 desplegar:
-lanzar dron: seleccionar posición
+lanzar: seleccionar posición
 automatizar reconstrucción:
 seleccionado %/%:
 -- puntuaciones --
