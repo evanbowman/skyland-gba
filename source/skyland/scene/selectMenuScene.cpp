@@ -760,6 +760,9 @@ ScenePtr SelectMenuScene::update(Time delta)
         } else {
             pos.x += offset;
         }
+        Fixnum max_x = 240.0_fixed - box_width;
+        pos.x = clamp(pos.x, 0.0_fixed, max_x);
+
         pos.y += 8.0_fixed;
 
         // Push the menu upwards if it ends up offscreen
