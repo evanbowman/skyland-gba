@@ -1,7 +1,7 @@
 '(("<b:/scripts/data/img/docks.img.bin>While docking at a crowded transit hub, you notice a dog wandering between the platforms..." . "<b:/scripts/data/img/docks.img.bin>Al atracar en un concurrido centro de tránsito, notas un perro deambulando entre las plataformas...")
 ("<c:Station Master:9>Poor thing's owner had to evacuate ahead of the storm. Been trying to find someone to take him in before we have to close the station..." . "<c:Jefe de Estación:9>El dueño del pobre tuvo que evacuar antes de la tormenta. Llevo un rato intentando encontrar a alguien que lo acoja antes de que tengamos que cerrar la estación...")
 ("He seems friendly, invite him aboard?" . "Parece amigable, ¿invitarlo a bordo?")
-("<c:Dog:24>BOWOWOWOW!" . "<c:Perro:24>¡GUAUAUAU!")
+("<c:Dog:24><a:BOUNCE>BOWOWOWOW!" . "<c:Perro:24>¡<a:BOUNCE>GUAUAUAU!")
 ("Place block (1x2):" . "Colocar bloque (1x2):")
 ("<c:Dog:24>Woof! Bowowow!" . "<c:Perro:24>¡Guau! ¡Guauauau!")
 ("A new friend joins your crew!" . "¡Un nuevo amigo se une a tu tripulación!")

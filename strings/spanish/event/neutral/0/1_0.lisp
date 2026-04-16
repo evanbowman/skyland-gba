@@ -4,7 +4,7 @@
 ("<c:Redbeard:12>Yaargh!! I'm just a simple marauder, trying to earn a decent living here! [via petty extortion, how else?] <B:0> So what's it gonna be? Last chance..." . "<c:Barbarroja:12>¡¡Yaargh!! ¡Soy un simple merodeador, intentando ganarme la vida honradamente! [mediante pequeñas extorsiones, ¿cómo si no?] <B:0> Bueno, ¿qué va a ser? Última oportunidad...")
 ("Pay 600@." . "Pagar 600@.")
 ("Fight back." . "¡Luchar!")
-("<c:Redbeard:12>Negotiate!? Ha. <d:1000> Hahahah! <d:1000> The only negotiation will be how fast you pay me!" . "<c:Barbarroja:12>¿¡Negociar!? Ja. <d:1000> ¡Jajajaj! <d:1000> ¡La única negociación será lo rápido que me pagues!")
+("<c:Redbeard:12>Negotiate!? Ha. <d:1000> <a:LAUGH>Hahahah! <d:1000> The only negotiation will be how fast you pay me!" . "<c:Barbarroja:12>¿¡Negociar!? Ja. <d:1000> ¡<a:LAUGH>Jajajaj! <d:1000> ¡La única negociación será lo rápido que me pagues!")
 ("<c:Redbeard:12>Aarrrgh!! You're trespassing in my domain. Gimme 600@ or I'll blast your island to bits!" . "<c:Barbarroja:12>¡¡Aarrrgh!! Estás invadiendo mi dominio. ¡Dame 600@ o haré pedazos tu isla!")
 ("Here's 600@…" . "Aquí tienes 600@…")
 ("You're bluffing!" . "¡Estás faroleando!")

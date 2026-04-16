@@ -8,7 +8,7 @@
   (dialog-sequence
    (tr "<c:Goblin King:3>This whole island needs to be demolissshed! That'sss right, every sssingle block! Not one block can remain!")
    (tr "<c:Goblin:2>Hey King, we've finished wiring the island with explosssivesss!")
-   (tr "<c:Goblin King:3>Heh. Well, thisss complicatesss thingsss... hahahahaha!")))
+   (tr "<c:Goblin King:3>Heh. Well, thisss complicatesss thingsss... ha.. <a:LAUGH>hahahahaha!")))
 
 
 (defn challenge-hint ()

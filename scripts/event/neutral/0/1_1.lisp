@@ -82,7 +82,7 @@
         (if goblin
             (progn
               (await (dialog* (tr "<c:Anvil Annie:44>Finally aboard! Let me just... <B:0> <s:3>. . . <s:0>")))
-              (await (dialog* (tr "<c:Anvil Annie:44>Wait. WAIT. <B:0> Those biosigns... <B:0> GOBLINS!? <B:0> I KNEW IT! This was a trap all along!")))
+              (await (dialog* (tr "<c:Anvil Annie:44>Wait. WAIT. <B:0> Those biosigns... <d:1000> <a:SHAKE>GOBLINS!? <B:0> I KNEW IT! This was a trap all along!")))
               (attack-player (tr "Anvil Annie has turned hostile!")))
             (progn
               (await (dialog* (tr "Anvil Annie joined your crew!")))
@@ -108,7 +108,7 @@
            (pay-toll 400)
            (refuse)))
       (true
-       (if (dialog-await-binary-q (tr "<c:Anvil Annie:44>...HA! Oh, that's PRECIOUS! <B:0> You actually thought - with THAT floating scrapyard - you could intimidate ME? <B:0> 800@ now. And count yourself lucky I don't raise it any higher!")
+       (if (dialog-await-binary-q (tr "<c:Anvil Annie:44>...HA! Oh, that's <a:WAVE>PRECIOUS! <B:0> You actually thought - with THAT floating scrapyard - you could intimidate ME? <B:0> 800@ now. And count yourself lucky I don't raise it any higher!")
                                   (tr "Pay 800@.")
                                   (tr "Refuse bribe."))
            (pay-toll 800)

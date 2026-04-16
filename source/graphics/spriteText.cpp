@@ -37,7 +37,7 @@ struct SpriteTextDictionary
     u16 tile_for_slot(int slot) const
     {
         auto& txtr = backing_textures_[slot / slots_per_dt];
-        return u16(txtr->mapping_index() + slot % slots_per_dt);
+        return u16(txtr->mapping_index() * slots_per_dt + slot % slots_per_dt);
     }
 
 
@@ -48,7 +48,8 @@ struct SpriteTextDictionary
     };
 
 
-    Optional<AllocResult> allocate_glyph(utf8::Codepoint cp)
+    Optional<AllocResult> allocate_glyph(utf8::Codepoint cp,
+                                         SpriteText::Configuration conf)
     {
         int cap = capacity();
 
@@ -89,8 +90,12 @@ struct SpriteTextDictionary
 
         auto dst_tile = tile_for_slot(free_slot);
 
-        PLATFORM.load_sprite_chunk(
-            dst_tile, mapping->offset_, 1, mapping->texture_name_);
+        PLATFORM.load_sprite_chunk(dst_tile,
+                                   mapping->offset_,
+                                   1,
+                                   mapping->texture_name_,
+                                   conf.shade_bg_index_,
+                                   conf.shade_fg_index_);
 
         slots_[free_slot].cp_ = cp;
         slots_[free_slot].refcount_ = 1;
@@ -151,17 +156,7 @@ static void try_release_dictionary()
 
 
 
-void sprite_text_clear()
-{
-    if (sprite_text_mem) {
-        (*sprite_text_mem)->clear();
-        sprite_text_mem.reset();
-    }
-}
-
-
-
-SpriteText::SpriteText(const char* str)
+SpriteText::SpriteText(const char* str, const Configuration& conf)
 {
     auto& dict = dictionary();
 
@@ -173,7 +168,7 @@ SpriteText::SpriteText(const char* str)
                 x_cursor += 8;
                 return true;
             }
-            auto result = dict.allocate_glyph(cp);
+            auto result = dict.allocate_glyph(cp, conf);
             if (result) {
                 entries_.push_back(
                     {result->tile_index_, result->slot_index_, x_cursor, {}});
@@ -219,6 +214,8 @@ SpriteText::~SpriteText()
 SpriteText::SpriteText(SpriteText&& other)
     : position_(other.position_)
     , pixel_width_(other.pixel_width_)
+    , position_absolute_(other.position_absolute_)
+    , show_chars_(other.show_chars_)
 {
     for (auto& e : other.entries_) {
         entries_.push_back(e);
@@ -242,6 +239,8 @@ SpriteText& SpriteText::operator=(SpriteText&& other)
 
         other.entries_.clear();
         other.pixel_width_ = 0;
+        show_chars_ = other.show_chars_;
+        position_absolute_ = other.position_absolute_;
     }
     return *this;
 }
@@ -309,9 +308,13 @@ void SpriteText::restore()
         auto& slot = dict.slots_[entry.slot_index_];
         auto mapping = locale_texture_map()(slot.cp_);
         if (mapping) {
-            PLATFORM.load_sprite_chunk(
-                entry.tile_index_, mapping->offset_, 1,
-                mapping->texture_name_);
+            Configuration conf; // FIXME! Store this in SpriteText
+            PLATFORM.load_sprite_chunk(entry.tile_index_,
+                                       mapping->offset_,
+                                       1,
+                                       mapping->texture_name_,
+                                       conf.shade_bg_index_,
+                                       conf.shade_fg_index_);
         }
     }
 }

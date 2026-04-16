@@ -19,7 +19,20 @@
 class SpriteText
 {
 public:
-    SpriteText(const char* str);
+
+    struct Configuration
+    {
+        u8 shade_bg_index_ = 0;
+        u8 shade_fg_index_ = 3;
+
+        static Configuration create()
+        {
+            // The gcc developers really need to fix this...
+            return {};
+        }
+    };
+
+    SpriteText(const char* str, const Configuration& conf = Configuration::create());
     ~SpriteText();
 
     SpriteText(SpriteText&& other);
@@ -87,6 +100,3 @@ private:
     bool position_absolute_ = false;
     u8 show_chars_ = 0;
 };
-
-
-void sprite_text_clear();

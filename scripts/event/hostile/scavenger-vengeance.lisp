@@ -37,7 +37,7 @@
   (dialog-opts-push (tr "Mock their cowardice.")
                     (lambda ()
                       (adventure-log-add 73 nil)
-                      (dialog (tr "<c:Scavenger:35>COWARDICE?! <B:0> We'll show you cowardice, you arrogant fool! <B:0> TEAR THEM APART! Leave nothing but scrap metal floating in the cloudsss!"))
+                      (dialog (tr "<c:Scavenger:35><a:SHAKE>COWARDICE?! <B:0> We'll show you cowardice, you arrogant fool! <B:0> TEAR THEM APART! Leave nothing but scrap metal floating in the cloudsss!"))
                       (opponent-mode 'hostile)))
 
   (dialog-opts-push (tr "Refuse and fight.")

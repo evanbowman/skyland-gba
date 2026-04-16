@@ -38,7 +38,7 @@
 
 (defn on-converge ()
   (setq on-converge nil)
-  (await (dialog* (tr "<c:Goblin Child:50>#hisses# Ssstay away! I know what you are! <B:0> You're... you're Sssylph! <B:0> My father told me! He sssaid if the Sssylph ever catch us, they... they cook goblin children in their big metal potsss! <B:0> #voice cracks# But I won't let you! I'll... I'll bite you!")))
+  (await (dialog* (tr "<c:Goblin Child:50>#hisses# Ssstay away! I know what you are! <B:0> You're... you're <a:TREMBLE>Sssylph! <B:0> My father told me! He sssaid if the Sssylph ever catch us, they... they cook goblin children in their big metal potsss! <B:0> #voice cracks# But I won't let you! I'll... I'll bite you!")))
   (if (dialog-await-binary-q-w/lore (tr "The child is terrified. Try to calm him down?")
                                     (tr "Help the child.")
                                     (tr "Leave him.")

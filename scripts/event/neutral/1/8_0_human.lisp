@@ -31,7 +31,7 @@
 
 
 (defn on-dialog-accepted ()
-  (let ((xy (find-crew-slot (tr "<c:Dog:24>BOWOWOWOW!")
+  (let ((xy (find-crew-slot (tr "<c:Dog:24><a:BOUNCE>BOWOWOWOW!")
                             'ladder
                             (tr "Place block (1x2):"))))
     (chr-del (opponent) 0 12)

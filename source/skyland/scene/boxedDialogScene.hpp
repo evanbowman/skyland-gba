@@ -27,6 +27,18 @@ namespace skyland
 
 
 
+enum class TextAnimation : u8 {
+    none,
+    wave,
+    laugh,
+    shake,
+    tremble,
+    bounce,
+    pulse,
+};
+
+
+
 // Copy-pasted from the fullscreen dialog scene, but with the base class and a
 // couple of other things changed. Argh this is so bad by I'm in a hurry.
 
@@ -149,12 +161,8 @@ private:
 
         Buffer<SpriteText, 4> anim_text_;
         SpriteText* anim_ready_ = nullptr;
-        enum AnimStyle
-        {
-            none,
-            shake,
-        };
-        Buffer<AnimStyle, 4> anim_style_;
+        Buffer<TextAnimation, 4> anim_style_;
+        Time text_anim_timer_;
     };
 
     DynamicMemory<Data> data_;

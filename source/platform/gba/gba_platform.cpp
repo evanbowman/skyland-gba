@@ -1663,7 +1663,9 @@ void Platform::load_overlay_chunk(TileDesc dst,
 void Platform::load_sprite_chunk(TileDesc dst,
                                  TileDesc src,
                                  u16 count,
-                                 const char* image_file)
+                                 const char* image_file,
+                                 u8 shade_bg_idx,
+                                 u8 shade_fg_idx)
 {
     const u8* image_data = (const u8*)current_spritesheet->tile_data_;
 
@@ -1690,9 +1692,31 @@ void Platform::load_sprite_chunk(TileDesc dst,
 
     const auto chunk_size = vram_tile_size() * count;
 
-    memcpy32(sprite_vram_base_addr + vram_tile_size() * dst,
+    constexpr int tile_size = vram_tile_size();
+    alignas(u32) u8 buffer[tile_size] = {0};
+
+    memcpy32(buffer,
              image_data + vram_tile_size() * src,
-             chunk_size / 4); // memcpy32 copy amount is in units of words.
+             chunk_size / 4);
+    const auto bg_color = buffer[0] & 0x0f;
+
+    for (int i = 0; i < tile_size; ++i) {
+        auto c = buffer[i];
+        if (c & bg_color) {
+            buffer[i] = shade_bg_idx;
+        } else {
+            buffer[i] = shade_fg_idx;
+        }
+        if (c & (bg_color << 4)) {
+            buffer[i] |= shade_bg_idx << 4;
+        } else {
+            buffer[i] |= shade_fg_idx << 4;
+        }
+    }
+
+    memcpy32(sprite_vram_base_addr + vram_tile_size() * dst,
+             buffer,
+             chunk_size / 4);
 }
 
 

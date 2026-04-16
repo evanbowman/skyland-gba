@@ -57,7 +57,8 @@
 
 
 (defn/temp try-negotiate ()
-  (let ((sel (await (dialog-choice* (tr (s+ "<c:Redbeard:12>Negotiate!? Ha. <d:1000> Hahahah! "
+  (let ((sel (await (dialog-choice* (tr (s+ "<c:Redbeard:12>Negotiate!? Ha. <d:1000> "
+                                            "<a:LAUGH>Hahahah! "
                                             "<d:1000> The only negotiation will be how fast you "
                                             "pay me!"))
                                     (tr '("Here's 600@…"

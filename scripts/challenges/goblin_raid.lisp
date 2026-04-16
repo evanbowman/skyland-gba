@@ -28,7 +28,7 @@
       (lambda ()
         (dialog-sequence
          (tr "<c:Goblin:2>Hey King, we've found a defenssselesss cassstle!")
-         (tr "<c:Goblin King:3><a:SHAKE>#cackle# Minionsss, prepare for boarding!"))))
+         (tr "<c:Goblin King:3>#cackle# Minionsss, prepare for boarding!"))))
 
 
 

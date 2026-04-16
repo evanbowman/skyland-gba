@@ -2822,6 +2822,18 @@ static int FIXME_get_metatile_size(const char* texture_name)
 
 
 
+void Platform::load_sprite_chunk(TileDesc dst,
+                                 TileDesc src,
+                                 u16 count,
+                                 const char* image_file,
+                                 u8 shade_bg_idx,
+                                 u8 shade_fg_idx)
+{
+    fatal("load_sprite_chunk() implementation missing for SDL platform!");
+}
+
+
+
 StringBuffer<256> last_overlay_texture;
 void Platform::load_overlay_chunk(TileDesc dst,
                                   TileDesc src,

@@ -30,6 +30,79 @@ namespace skyland
 
 
 
+inline void animate_text(SpriteText& text,
+                         TextAnimation anim,
+                         Microseconds timer)
+{
+    const int n = text.glyph_count();
+
+    auto ang = [](Microseconds t) -> s16 { return (s16)(t & 0xFFFF); };
+    auto scale = [](s16 s, int amp) -> s8 {
+        // amp is peak-to-peak range. Map sine [-INT16_MAX, INT16_MAX]
+        // to an integer in [0, amp], then recenter.
+        const s32 unsigned_sine = (s32)s + INT16_MAX; // [0, 2*INT16_MAX]
+        const s32 stepped = (unsigned_sine * (amp + 1)) / ((s32)INT16_MAX * 2 + 1);
+        return (s8)(stepped - amp / 2);
+    };
+    for (int i = 0; i < n; ++i) {
+        SpriteText::GlyphOffset off{};
+
+        switch (anim) {
+        case TextAnimation::none:
+            break;
+
+        case TextAnimation::wave: {
+            const Microseconds phase = (timer >> 3) + i * 6000;
+            off.y_ = scale(sine(ang(phase)), 1);
+            break;
+        }
+
+        case TextAnimation::laugh: {
+            const Microseconds py = (timer >> 2) + i * 11000;
+            off.y_ = scale(sine(ang(py)), 1);
+            off.x_ = 0;
+            break;
+        }
+
+        case TextAnimation::shake: {
+            off.x_ = scale(sine(ang(timer >> 1)), 1);
+            off.y_ = scale(sine(ang((timer >> 1) + 15000)), 1);
+            break;
+        }
+
+        case TextAnimation::tremble: {
+            const Microseconds px = (timer >> 1) + i * 7919;
+            const Microseconds py = (timer >> 1) + i * 5413;
+            off.x_ = scale(sine(ang(px)), 1);
+            off.y_ = scale(sine(ang(py)), 1);
+            break;
+        }
+
+        case TextAnimation::bounce: {
+            // Upward-only hop. -3 clears the baseline clearly on 8px glyphs.
+            const Microseconds phase = (timer >> 3) + i * 8000;
+            const s16 s = sine(ang(phase));
+            off.y_ = (s > 0) ? (s8)(-((s32)s * 3) / INT16_MAX) : 0;
+            break;
+        }
+
+        case TextAnimation::pulse: {
+            // Outward push from center. Cap amplitude at 2 — beyond
+            // that, adjacent glyphs visibly separate past the gap.
+            const int center = n / 2;
+            const s16 s = sine(ang(timer >> 3));
+            const int sign = (i < center) ? -1 : 1;
+            off.x_ = (s8)(scale(s, 2) * sign);
+            break;
+        }
+        }
+
+        text.set_glyph_offset(i, off);
+    }
+}
+
+
+
 BoxedDialogScene::BoxedDialogScene(DialogBuffer buffer)
     : text_state_(buffer_.end()), data_(allocate<Data>("dialog-data"))
 {
@@ -132,6 +205,10 @@ void BoxedDialogScene::process_command()
     }
 
     case 'a': {
+        if (PLATFORM.device_name() not_eq "GameboyAdvance") {
+            // TODO: implement sprite text for desktop port!
+            break;
+        }
         auto anim = parse_command_str();
         auto it = text_state_.current_word_;
         StringBuffer<96> anim_text;
@@ -140,9 +217,17 @@ void BoxedDialogScene::process_command()
         }
         data_->anim_text_.emplace_back(anim_text.c_str());
         data_->anim_text_.back().position_absolute();
-        auto style = Data::AnimStyle::none;
-        if (anim == "SHAKE") {
-            style = Data::AnimStyle::shake;
+        auto style = TextAnimation::none;
+        if (anim == "LAUGH") {
+            style = TextAnimation::laugh;
+        } else if (anim == "SHAKE") {
+            style = TextAnimation::shake;
+        } else if (anim == "WAVE") {
+            style = TextAnimation::wave;
+        } else if (anim == "TREMBLE") {
+            style = TextAnimation::tremble;
+        } else if (anim == "BOUNCE") {
+            style = TextAnimation::bounce;
         }
         data_->anim_style_.push_back(style);
         data_->anim_ready_ = &data_->anim_text_.back();
@@ -421,7 +506,7 @@ bool BoxedDialogScene::advance_text(Time delta, bool sfx)
         }
 
         const auto p_y = st.y - (y_offset);
-        if (not data_->anim_ready_) {
+        if (not data_->anim_ready_ or punctuation_or_whitespace(*text_state_.current_word_)) {
             if (cp == '@') {
                 PLATFORM.set_tile(Layer::overlay, x_offset, p_y, 146);
             } else if (cp == '*') {
@@ -612,6 +697,13 @@ ScenePtr BoxedDialogScene::update(Time delta)
 {
     if (data_->coins_) {
         data_->coins_->update(delta);
+    }
+
+    data_->text_anim_timer_ += delta;
+    for (u32 i = 0; i < data_->anim_text_.size(); ++i) {
+        auto style = data_->anim_style_[i];
+        auto& text = data_->anim_text_[i];
+        animate_text(text, style, data_->text_anim_timer_);
     }
 
     auto is_action_button_down = [&] {
