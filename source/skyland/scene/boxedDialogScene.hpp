@@ -13,6 +13,7 @@
 
 #include "inspectP2Scene.hpp"
 #include "readyScene.hpp"
+#include "graphics/spriteText.hpp"
 #include "skyland/dialog.hpp"
 #include "skyland/player/opponent/enemyAI.hpp"
 #include "skyland/scene_pool.hpp"
@@ -145,6 +146,15 @@ private:
         Optional<Text> character_name_text_;
 
         DeferredScene next_scene_ = []() { return null_scene(); };
+
+        Buffer<SpriteText, 4> anim_text_;
+        SpriteText* anim_ready_ = nullptr;
+        enum AnimStyle
+        {
+            none,
+            shake,
+        };
+        Buffer<AnimStyle, 4> anim_style_;
     };
 
     DynamicMemory<Data> data_;

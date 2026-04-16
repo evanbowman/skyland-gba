@@ -184,6 +184,7 @@ SpriteText::SpriteText(const char* str)
         str,
         strlen(str));
 
+    show_chars_ = entries_.size();
     pixel_width_ = x_cursor;
 }
 
@@ -254,6 +255,13 @@ void SpriteText::set_position(const Vec2<Fixnum>& pos)
 
 
 
+const Vec2<Fixnum>& SpriteText::position() const
+{
+    return position_;
+}
+
+
+
 void SpriteText::set_glyph_offset(int index, GlyphOffset offset)
 {
     if (index >= 0 and index < (int)entries_.size()) {
@@ -267,14 +275,22 @@ void SpriteText::draw()
 {
     auto& screen = PLATFORM.screen();
 
-    for (auto& entry : entries_) {
+    auto vc = PLATFORM.screen().get_view().int_center();
+    Vec2<Fixnum> vc_fp {Fixnum::from_integer(vc.x), Fixnum::from_integer(vc.y)};
+
+    for (u32 i = 0; i < entries_.size() and i < (u32)show_chars_; ++i) {
+        auto& entry = entries_[i];
         Sprite spr;
         spr.set_priority(0);
         spr.set_size(Sprite::Size::w8_h8);
         spr.set_texture_index(entry.tile_index_);
-        spr.set_position({
+        auto pos = Vec2<Fixnum>{
             position_.x + Fixnum(entry.x_offset_ + entry.anim_.x_),
-            position_.y + Fixnum(entry.anim_.y_)});
+            position_.y + Fixnum(entry.anim_.y_)};
+        if (position_absolute_) {
+            pos = pos + vc_fp;
+        }
+        spr.set_position(pos);
         screen.draw(spr);
     }
 }

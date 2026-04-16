@@ -65,6 +65,14 @@ const int y_start = 1;
 
 
 
+static bool punctuation_or_whitespace(char c)
+{
+    return (c == '!' or c == '\'' or c == ' ' or c == ',' or c == '?' or
+            c == '.');
+}
+
+
+
 void BoxedDialogScene::process_command()
 {
     ++text_state_.current_word_;
@@ -120,6 +128,25 @@ void BoxedDialogScene::process_command()
 
     case 'S': {
         conlang_ = parse_command_int();
+        break;
+    }
+
+    case 'a': {
+        auto anim = parse_command_str();
+        auto it = text_state_.current_word_;
+        StringBuffer<96> anim_text;
+        while (*it not_eq '\0' and not punctuation_or_whitespace(*it)) {
+            anim_text.push_back(*(it++));
+        }
+        data_->anim_text_.emplace_back(anim_text.c_str());
+        data_->anim_text_.back().position_absolute();
+        auto style = Data::AnimStyle::none;
+        if (anim == "SHAKE") {
+            style = Data::AnimStyle::shake;
+        }
+        data_->anim_style_.push_back(style);
+        data_->anim_ready_ = &data_->anim_text_.back();
+        data_->anim_ready_->hide();
         break;
     }
 
@@ -274,14 +301,6 @@ void BoxedDialogScene::process_command()
 
 
 
-static bool punctuation_or_whitespace(char c)
-{
-    return (c == '!' or c == '\'' or c == ' ' or c == ',' or c == '?' or
-            c == '.');
-}
-
-
-
 bool BoxedDialogScene::advance_text(Time delta, bool sfx)
 {
     const auto delay = [&] {
@@ -401,15 +420,30 @@ bool BoxedDialogScene::advance_text(Time delta, bool sfx)
             x_offset = st.x - (text_state_.pos_ + 2);
         }
 
-        if (cp == '@') {
-            PLATFORM.set_tile(Layer::overlay, x_offset, st.y - (y_offset), 146);
-        } else if (cp == '*') {
-            PLATFORM.set_tile(Layer::overlay, x_offset, st.y - (y_offset), 149);
+        const auto p_y = st.y - (y_offset);
+        if (not data_->anim_ready_) {
+            if (cp == '@') {
+                PLATFORM.set_tile(Layer::overlay, x_offset, p_y, 146);
+            } else if (cp == '*') {
+                PLATFORM.set_tile(Layer::overlay, x_offset, p_y, 149);
+            } else {
+                PLATFORM.set_tile(Layer::overlay, x_offset, p_y, t);
+            }
         } else {
-            PLATFORM.set_tile(Layer::overlay, x_offset, st.y - (y_offset), t);
+            auto pos = data_->anim_ready_->position();
+            if (pos.x == 0.0_fixed and pos.y == 0.0_fixed) {
+                data_->anim_ready_->set_position({
+                        Fixnum::from_integer(x_offset * 8),
+                        Fixnum::from_integer(p_y * 8)
+                    });
+            }
+            data_->anim_ready_->reveal_char();
         }
 
         text_state_.current_word_remaining_--;
+        if (not text_state_.current_word_remaining_) {
+            data_->anim_ready_ = nullptr;
+        }
         text_state_.current_word_++;
         text_state_.pos_++;
 
@@ -494,6 +528,9 @@ void BoxedDialogScene::clear_textbox()
                           st.y - 7,
                           112);
     }
+    data_->anim_text_.clear();
+    data_->anim_style_.clear();
+    data_->anim_ready_ = nullptr;
 }
 
 
@@ -955,6 +992,10 @@ ScenePtr BoxedDialogScene::update(Time delta)
 
 void BoxedDialogScene::display()
 {
+    for (auto& spr_text : data_->anim_text_) {
+        spr_text.draw();
+    }
+
     if (img_view_ and display_mode_ not_eq DisplayMode::animate_out) {
         Sprite spr;
         spr.set_size(Sprite::Size::w32_h32);

@@ -29,6 +29,7 @@ public:
     SpriteText& operator=(const SpriteText&) = delete;
 
     void set_position(const Vec2<Fixnum>& pos);
+    const Vec2<Fixnum>& position() const;
 
     struct GlyphOffset
     {
@@ -54,6 +55,21 @@ public:
     // were overwritten by other systems, e.g. changing the underlying texture.
     void restore();
 
+    void position_absolute()
+    {
+        position_absolute_ = true;
+    }
+
+    void hide()
+    {
+        show_chars_ = 0;
+    }
+
+    void reveal_char()
+    {
+        ++show_chars_;
+    }
+
 private:
     void release();
 
@@ -67,7 +83,9 @@ private:
 
     Buffer<GlyphEntry, 32> entries_;
     Vec2<Fixnum> position_;
-    u16 pixel_width_ = 0;
+    u8 pixel_width_ = 0;
+    bool position_absolute_ = false;
+    u8 show_chars_ = 0;
 };
 
 
