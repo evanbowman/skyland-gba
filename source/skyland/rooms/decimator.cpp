@@ -358,11 +358,12 @@ void Decimator::update(Time delta)
                 if (not PLATFORM.speaker().is_sound_playing(dec_charge_sound)) {
                     PLATFORM.speaker().play_sound(dec_charge_sound, 5);
                 }
-
             }
 
-            auto ripple_effect_trigger = electric_ripple_effect_rate * 3 - milliseconds(40);
-            if (reload_ > ripple_effect_trigger and reload_ - delta <= ripple_effect_trigger) {
+            auto ripple_effect_trigger =
+                electric_ripple_effect_rate * 3 - milliseconds(40);
+            if (reload_ > ripple_effect_trigger and
+                reload_ - delta <= ripple_effect_trigger) {
                 auto c = visual_center();
                 if (is_player_island(parent())) {
                     c.x += 16.0_fixed;

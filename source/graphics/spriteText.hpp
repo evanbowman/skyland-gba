@@ -10,16 +10,15 @@
 
 #pragma once
 
-#include "platform/platform.hpp"
-#include "localization.hpp"
 #include "allocator.hpp"
+#include "localization.hpp"
+#include "platform/platform.hpp"
 
 
 
 class SpriteText
 {
 public:
-
     struct Configuration
     {
         u8 shade_bg_index_ = 0;
@@ -32,7 +31,8 @@ public:
         }
     };
 
-    SpriteText(const char* str, const Configuration& conf = Configuration::create());
+    SpriteText(const char* str,
+               const Configuration& conf = Configuration::create());
     ~SpriteText();
 
     SpriteText(SpriteText&& other);

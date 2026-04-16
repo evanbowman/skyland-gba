@@ -24,8 +24,7 @@ namespace skyland
 class GenericBird : public Bird
 {
 public:
-    GenericBird(const RoomCoord& coord,
-                bool near = false);
+    GenericBird(const RoomCoord& coord, bool near = false);
 
 
     // Alternate constructor, intended for rewind implementation.

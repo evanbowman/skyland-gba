@@ -12,9 +12,9 @@
 #pragma once
 
 #include "decoration.hpp"
+#include "skyland/skyland.hpp"
 #include "skyland/sound.hpp"
 #include "skyland/tile.hpp"
-#include "skyland/skyland.hpp"
 
 
 
@@ -111,8 +111,9 @@ public:
 
     ScenePtr select_impl(const RoomCoord& cursor) override
     {
-        auto opts = APP.invoke_script(format("/strings/%/tuning-crystal.lisp",
-                                             systemstring_bound_file()).c_str());
+        auto opts = APP.invoke_script(
+            format("/strings/%/tuning-crystal.lisp", systemstring_bound_file())
+                .c_str());
         auto count = lisp::length(opts);
         selected_color_++;
         if (selected_color_ >= count) {

@@ -2975,8 +2975,7 @@ Value* dostring(CharSequence& code,
         ++src_path;
     }
     lexical_frame_store(L_CONS(make_symbol("--current-file"),
-                               src_path ? make_string(src_path) :
-                               L_NIL));
+                               src_path ? make_string(src_path) : L_NIL));
 
     int i = 0;
 

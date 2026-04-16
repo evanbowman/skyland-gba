@@ -163,10 +163,8 @@ private:
                 PLATFORM.fatal("lang.lisp: pair should contain strings!");
             }
 
-            result->push_back({
-                    ui_name->string().value(),
-                    internal_name->string().value()
-                });
+            result->push_back(
+                {ui_name->string().value(), internal_name->string().value()});
         });
         return result;
     }
@@ -497,8 +495,10 @@ public:
                     lisp::Protected result_arg(lisp::get_op1());
                     auto match = PLATFORM.get_extensions().has_startup_opt;
                     auto path_prefix = match("--output");
-                    auto output_path = format<256>("%/%", path_prefix, L_LOAD_STRING(2));
-                    if (auto read = PLATFORM.get_extensions().read_external_file) {
+                    auto output_path =
+                        format<256>("%/%", path_prefix, L_LOAD_STRING(2));
+                    if (auto read =
+                            PLATFORM.get_extensions().read_external_file) {
                         Vector<char> existing;
                         read(output_path.c_str(), existing);
                         if (existing.size()) {
@@ -540,7 +540,8 @@ public:
                     });
                     result.push_back(')');
                     result.push_back('\n');
-                    if (auto write = PLATFORM.get_extensions().write_external_file) {
+                    if (auto write =
+                            PLATFORM.get_extensions().write_external_file) {
                         write(output_path.c_str(), result);
                     }
                     return L_NIL;

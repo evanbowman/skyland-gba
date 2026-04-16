@@ -11,9 +11,9 @@
 
 #pragma once
 
+#include "graphics/spriteText.hpp"
 #include "inspectP2Scene.hpp"
 #include "readyScene.hpp"
-#include "graphics/spriteText.hpp"
 #include "skyland/dialog.hpp"
 #include "skyland/player/opponent/enemyAI.hpp"
 #include "skyland/scene_pool.hpp"

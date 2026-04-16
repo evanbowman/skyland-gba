@@ -2260,8 +2260,7 @@ BINDING_TABLE({
 
           lisp::Protected promise(lisp::make_promise());
 
-          lisp::Protected bundle(
-              lisp::make_cons(lisp::get_op(0), promise));
+          lisp::Protected bundle(lisp::make_cons(lisp::get_op(0), promise));
           bundle = lisp::make_cons(bundle, lisp::get_op(1));
           bundle = lisp::make_cons(L_INT(0), bundle);
           if (bundle->type() == lisp::Value::Type::cons) {

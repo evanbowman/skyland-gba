@@ -433,7 +433,8 @@ bool BoxedDialogScene::advance_text(Time delta, bool sfx)
         }
 
         const auto p_y = st.y - (y_offset);
-        if (not data_->anim_ready_ or punctuation_or_whitespace(*text_state_.current_word_)) {
+        if (not data_->anim_ready_ or
+            punctuation_or_whitespace(*text_state_.current_word_)) {
             if (cp == '@') {
                 PLATFORM.set_tile(Layer::overlay, x_offset, p_y, 146);
             } else if (cp == '*') {
@@ -444,10 +445,9 @@ bool BoxedDialogScene::advance_text(Time delta, bool sfx)
         } else {
             auto pos = data_->anim_ready_->position();
             if (pos.x == 0.0_fixed and pos.y == 0.0_fixed) {
-                data_->anim_ready_->set_position({
-                        Fixnum::from_integer(x_offset * 8),
-                        Fixnum::from_integer(p_y * 8)
-                    });
+                data_->anim_ready_->set_position(
+                    {Fixnum::from_integer(x_offset * 8),
+                     Fixnum::from_integer(p_y * 8)});
             }
             data_->anim_ready_->reveal_char();
         }
@@ -797,11 +797,9 @@ ScenePtr BoxedDialogScene::update(Time delta)
 
             const auto cname_len = utf8::len(data_->character_.name_.c_str());
 
-            const bool overlap =
-                max_text_len + 4 + 1 + cname_len >= 30;
+            const bool overlap = max_text_len + 4 + 1 + cname_len >= 30;
 
-            const bool overlap_edge =
-                max_text_len + 4 + 1 + cname_len >= 29;
+            const bool overlap_edge = max_text_len + 4 + 1 + cname_len >= 29;
 
             u16 corner_tile = 90;
 

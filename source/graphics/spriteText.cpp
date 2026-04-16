@@ -131,16 +131,14 @@ struct SpriteTextDictionary
 
 
 
-static Optional<DynamicMemory<SpriteTextDictionary>>
-    sprite_text_mem;
+static Optional<DynamicMemory<SpriteTextDictionary>> sprite_text_mem;
 
 
 
 static SpriteTextDictionary& dictionary()
 {
     if (not sprite_text_mem) {
-        sprite_text_mem =
-            allocate<SpriteTextDictionary>("sprite-text-mem");
+        sprite_text_mem = allocate<SpriteTextDictionary>("sprite-text-mem");
     }
     return **sprite_text_mem;
 }
@@ -212,10 +210,9 @@ SpriteText::~SpriteText()
 
 
 SpriteText::SpriteText(SpriteText&& other)
-    : position_(other.position_)
-    , pixel_width_(other.pixel_width_)
-    , position_absolute_(other.position_absolute_)
-    , show_chars_(other.show_chars_)
+    : position_(other.position_), pixel_width_(other.pixel_width_),
+      position_absolute_(other.position_absolute_),
+      show_chars_(other.show_chars_)
 {
     for (auto& e : other.entries_) {
         entries_.push_back(e);
@@ -275,7 +272,7 @@ void SpriteText::draw()
     auto& screen = PLATFORM.screen();
 
     auto vc = PLATFORM.screen().get_view().int_center();
-    Vec2<Fixnum> vc_fp {Fixnum::from_integer(vc.x), Fixnum::from_integer(vc.y)};
+    Vec2<Fixnum> vc_fp{Fixnum::from_integer(vc.x), Fixnum::from_integer(vc.y)};
 
     for (u32 i = 0; i < entries_.size() and i < (u32)show_chars_; ++i) {
         auto& entry = entries_[i];
@@ -283,9 +280,9 @@ void SpriteText::draw()
         spr.set_priority(0);
         spr.set_size(Sprite::Size::w8_h8);
         spr.set_texture_index(entry.tile_index_);
-        auto pos = Vec2<Fixnum>{
-            position_.x + Fixnum(entry.x_offset_ + entry.anim_.x_),
-            position_.y + Fixnum(entry.anim_.y_)};
+        auto pos =
+            Vec2<Fixnum>{position_.x + Fixnum(entry.x_offset_ + entry.anim_.x_),
+                         position_.y + Fixnum(entry.anim_.y_)};
         if (position_absolute_) {
             pos = pos + vc_fp;
         }
@@ -330,7 +327,8 @@ void animate_text(SpriteText& text, TextAnimation anim, Microseconds timer)
         // amp is peak-to-peak range. Map sine [-INT16_MAX, INT16_MAX]
         // to an integer in [0, amp], then recenter.
         const s32 unsigned_sine = (s32)s + INT16_MAX; // [0, 2*INT16_MAX]
-        const s32 stepped = (unsigned_sine * (amp + 1)) / ((s32)INT16_MAX * 2 + 1);
+        const s32 stepped =
+            (unsigned_sine * (amp + 1)) / ((s32)INT16_MAX * 2 + 1);
         return (s8)(stepped - amp / 2);
     };
     for (int i = 0; i < n; ++i) {

@@ -70,7 +70,8 @@ public:
         temp.clear();
 
         const char* drone_info_file_fmt = "/strings/%/drone_info.txt";
-        auto drone_info_file = format(drone_info_file_fmt, systemstring_bound_file());
+        auto drone_info_file =
+            format(drone_info_file_fmt, systemstring_bound_file());
 
         auto lcnt = file_line_count(drone_info_file.c_str());
 

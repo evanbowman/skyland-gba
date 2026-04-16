@@ -13,9 +13,10 @@ namespace skyland
 
 const char* DataCart::config() const
 {
-    auto f = PLATFORM.load_file_contents("", format("strings/%/cart/cart%.ini",
-                                                    systemstring_bound_file(),
-                                                    id_).c_str());
+    auto f = PLATFORM.load_file_contents(
+        "",
+        format("strings/%/cart/cart%.ini", systemstring_bound_file(), id_)
+            .c_str());
 
     if (not f) {
         Platform::fatal(format("missing cart %", id_).c_str());

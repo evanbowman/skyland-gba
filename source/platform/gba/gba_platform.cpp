@@ -1695,9 +1695,7 @@ void Platform::load_sprite_chunk(TileDesc dst,
     constexpr int tile_size = vram_tile_size();
     alignas(u32) u8 buffer[tile_size] = {0};
 
-    memcpy32(buffer,
-             image_data + vram_tile_size() * src,
-             chunk_size / 4);
+    memcpy32(buffer, image_data + vram_tile_size() * src, chunk_size / 4);
     const auto bg_color = buffer[0] & 0x0f;
 
     for (int i = 0; i < tile_size; ++i) {
@@ -1714,9 +1712,8 @@ void Platform::load_sprite_chunk(TileDesc dst,
         }
     }
 
-    memcpy32(sprite_vram_base_addr + vram_tile_size() * dst,
-             buffer,
-             chunk_size / 4);
+    memcpy32(
+        sprite_vram_base_addr + vram_tile_size() * dst, buffer, chunk_size / 4);
 }
 
 
