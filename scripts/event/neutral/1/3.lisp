@@ -50,4 +50,4 @@
       (lambda ()
         (opponent-mode 'hostile)
         (adventure-log-add 33 '())
-        (dialog (tr "<c:Goblin King:3>YARRRGG!!! PREPARE FOR BOARDING!!!"))))
+        (dialog (tr "<c:Goblin King:3>YARRRGG!!! <a:SHAKE>PREPARE <a:SHAKE>FOR <a:SHAKE>BOARDING!!!"))))

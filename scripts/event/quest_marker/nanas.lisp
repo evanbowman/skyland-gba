@@ -35,7 +35,7 @@
 (setq on-converge
       (lambda ()
         (dialog
-         (tr "<c:Banana Man:8>MY BANANAS!!! HAND THEM OVER!!!"))
+         (tr "<c:Banana Man:8><a:SHAKE>MY <a:SHAKE>BANANAS!!! HAND THEM OVER!!!"))
 
         (setq on-converge nil)
 

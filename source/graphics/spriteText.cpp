@@ -352,8 +352,8 @@ void animate_text(SpriteText& text, TextAnimation anim, Microseconds timer)
         }
 
         case TextAnimation::shake: {
-            off.x_ = scale(sine(ang(timer >> 1)), 1);
-            off.y_ = scale(sine(ang((timer >> 1) + 15000)), 1);
+            off.x_ = scale(sine(ang(timer >> 1) - (timer >> 3)), 1);
+            off.y_ = scale(sine(ang((timer >> 1) - (timer >> 3) + 15000)), 1);
             break;
         }
 

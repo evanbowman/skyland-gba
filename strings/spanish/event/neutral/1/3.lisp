@@ -4,5 +4,5 @@
 ("No way!" . "¡Ni hablar!")
 ("<c:Goblin King:3>Thatsss not enough! Letsss sssee if theresss anything we can take!!" . "<c:Rey Goblin:3>¡¡Essso no es sssuficiente!! ¡¡Veamosss sssi hay algo que podamosss tomar!!")
 ("The Goblin King rejoices, having successfully extorted %@." . "El Rey Goblin se regocija, habiendo extorsionado %@ con éxito.")
-("<c:Goblin King:3>YARRRGG!!! PREPARE FOR BOARDING!!!" . "<c:Rey Goblin:3>¡¡¡YARRRGG!!! ¡¡¡PREPARAOSSS PARA EL ABORDAJE!!!")
+("<c:Goblin King:3>YARRRGG!!! <a:SHAKE>PREPARE <a:SHAKE>FOR <a:SHAKE>BOARDING!!!" . "<c:Rey Goblin:3>¡¡¡YARRRGG!!! <B:0> ¡¡¡<a:SHAKE>PREPARAOSSS <a:SHAKE>PARA <a:SHAKE>EL <a:SHAKE>ABORDAJE!!!")
 )
