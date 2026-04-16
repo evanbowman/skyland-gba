@@ -50,7 +50,7 @@
      (adventure-log-add 7 '())
      (chr-del (opponent) 1 14)
      (chr-new (player) x y 'neutral '((race . 1) (icon . 38)))
-     (dialog (tr "<c:Castaway:38> Thanks for ressscuing me! I'll try to help out however I can! <B:0> ... <B:0> What? You've been banissshed too? <B:0> Ha! <a:LAUGH>HAHAHA! Sssome sssorry lot of goblinsss we are!"))
+     (dialog (tr "<c:Castaway:38> Thanks for ressscuing me! I'll try to help out however I can! <B:0> ... <B:0> What? You've been banissshed too? <B:0> Ha! HAHAHA! Sssome sssorry lot of goblinsss we are!"))
      (defn on-dialog-closed ()
        (setq on-dialog-closed nil)
        (if (or (chance 2) (< (coins) 300))
