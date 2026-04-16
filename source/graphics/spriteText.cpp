@@ -358,8 +358,8 @@ void animate_text(SpriteText& text, TextAnimation anim, Microseconds timer)
         }
 
         case TextAnimation::tremble: {
-            const Microseconds px = (timer >> 1) + i * 7919;
-            const Microseconds py = (timer >> 1) + i * 5413;
+            const Microseconds px = ((timer >> 1) - (timer >> 3)) + i * 7919;
+            const Microseconds py = ((timer >> 1) - (timer >> 3)) + i * 5413;
             off.x_ = scale(sine(ang(px)), 1);
             off.y_ = scale(sine(ang(py)), 1);
             break;
