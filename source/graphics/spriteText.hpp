@@ -100,3 +100,19 @@ private:
     bool position_absolute_ = false;
     u8 show_chars_ = 0;
 };
+
+
+
+enum class TextAnimation : u8 {
+    none,
+    wave,
+    laugh,
+    shake,
+    tremble,
+    bounce,
+    pulse,
+};
+
+
+
+void animate_text(SpriteText& text, TextAnimation anim, Time timer);

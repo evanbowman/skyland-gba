@@ -27,18 +27,6 @@ namespace skyland
 
 
 
-enum class TextAnimation : u8 {
-    none,
-    wave,
-    laugh,
-    shake,
-    tremble,
-    bounce,
-    pulse,
-};
-
-
-
 // Copy-pasted from the fullscreen dialog scene, but with the base class and a
 // couple of other things changed. Argh this is so bad by I'm in a hurry.
 

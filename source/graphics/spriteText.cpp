@@ -318,3 +318,74 @@ void SpriteText::restore()
         }
     }
 }
+
+
+
+void animate_text(SpriteText& text, TextAnimation anim, Microseconds timer)
+{
+    const int n = text.glyph_count();
+
+    auto ang = [](Microseconds t) -> s16 { return (s16)(t & 0xFFFF); };
+    auto scale = [](s16 s, int amp) -> s8 {
+        // amp is peak-to-peak range. Map sine [-INT16_MAX, INT16_MAX]
+        // to an integer in [0, amp], then recenter.
+        const s32 unsigned_sine = (s32)s + INT16_MAX; // [0, 2*INT16_MAX]
+        const s32 stepped = (unsigned_sine * (amp + 1)) / ((s32)INT16_MAX * 2 + 1);
+        return (s8)(stepped - amp / 2);
+    };
+    for (int i = 0; i < n; ++i) {
+        SpriteText::GlyphOffset off{};
+
+        switch (anim) {
+        case TextAnimation::none:
+            break;
+
+        case TextAnimation::wave: {
+            const Microseconds phase = (timer >> 3) + i * 6000;
+            off.y_ = scale(sine(ang(phase)), 1);
+            break;
+        }
+
+        case TextAnimation::laugh: {
+            const Microseconds py = (timer >> 2) + i * 11000;
+            off.y_ = scale(sine(ang(py)), 1);
+            off.x_ = 0;
+            break;
+        }
+
+        case TextAnimation::shake: {
+            off.x_ = scale(sine(ang(timer >> 1)), 1);
+            off.y_ = scale(sine(ang((timer >> 1) + 15000)), 1);
+            break;
+        }
+
+        case TextAnimation::tremble: {
+            const Microseconds px = (timer >> 1) + i * 7919;
+            const Microseconds py = (timer >> 1) + i * 5413;
+            off.x_ = scale(sine(ang(px)), 1);
+            off.y_ = scale(sine(ang(py)), 1);
+            break;
+        }
+
+        case TextAnimation::bounce: {
+            // Upward-only hop. -3 clears the baseline clearly on 8px glyphs.
+            const Microseconds phase = (timer >> 3) + i * 8000;
+            const s16 s = sine(ang(phase));
+            off.y_ = (s > 0) ? (s8)(-((s32)s * 3) / INT16_MAX) : 0;
+            break;
+        }
+
+        case TextAnimation::pulse: {
+            // Outward push from center. Cap amplitude at 2 — beyond
+            // that, adjacent glyphs visibly separate past the gap.
+            const int center = n / 2;
+            const s16 s = sine(ang(timer >> 3));
+            const int sign = (i < center) ? -1 : 1;
+            off.x_ = (s8)(scale(s, 2) * sign);
+            break;
+        }
+        }
+
+        text.set_glyph_offset(i, off);
+    }
+}
