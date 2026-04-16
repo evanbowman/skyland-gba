@@ -1660,6 +1660,43 @@ void Platform::load_overlay_chunk(TileDesc dst,
 
 
 
+void Platform::load_sprite_chunk(TileDesc dst,
+                                 TileDesc src,
+                                 u16 count,
+                                 const char* image_file)
+{
+    const u8* image_data = (const u8*)current_spritesheet->tile_data_;
+
+    if (image_file) {
+        bool found = false;
+        for (auto& info : sprite_textures) {
+            if (str_cmp(image_file, info.name_) == 0) {
+                image_data = (const u8*)info.tile_data_;
+                found = true;
+                break;
+            }
+        }
+        if (not found) {
+            for (auto& info : overlay_textures) {
+                if (str_cmp(image_file, info.name_) == 0) {
+                    image_data = (const u8*)info.tile_data_;
+                    break;
+                }
+            }
+        }
+    }
+
+    u8* sprite_vram_base_addr = (u8*)&MEM_TILE[cbb_sprite_texture][1];
+
+    const auto chunk_size = vram_tile_size() * count;
+
+    memcpy32(sprite_vram_base_addr + vram_tile_size() * dst,
+             image_data + vram_tile_size() * src,
+             chunk_size / 4); // memcpy32 copy amount is in units of words.
+}
+
+
+
 static void map_dynamic_textures()
 {
     for (int i = 0; i < Platform::dynamic_texture_count; ++i) {

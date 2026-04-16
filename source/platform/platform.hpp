@@ -234,6 +234,8 @@ public:
                             u16 count,
                             const char* image_file = nullptr);
 
+    void load_sprite_chunk(TileDesc dst, TileDesc src, u16 count, const char* image_file = nullptr);
+
     TileDesc map_tile0_chunk(TileDesc tile);
     TileDesc map_tile1_chunk(TileDesc tile);
 

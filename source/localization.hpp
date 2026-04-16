@@ -21,6 +21,9 @@ using LocalizedStrBuffer = StringBuffer<1987>;
 using LocalizedText = DynamicMemory<LocalizedStrBuffer>;
 
 
+Platform::TextureCpMapper locale_texture_map();
+
+
 void set_font_image(const char* font_image_name);
 
 
