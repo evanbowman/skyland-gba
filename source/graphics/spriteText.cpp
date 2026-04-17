@@ -346,8 +346,9 @@ void animate_text(SpriteText& text, TextAnimation anim, Microseconds timer)
 
         case TextAnimation::laugh: {
             const Microseconds py = (timer >> 2) + i * 11000;
+            const Microseconds px = (timer >> 3) + i * 11000;
             off.y_ = scale(sine(ang(py)), 1);
-            off.x_ = 0;
+            off.x_ = scale(sine(ang(px)), 1);
             break;
         }
 
