@@ -1,6 +1,6 @@
 '(("<c:Goblin King:3>This whole island needs to be demolissshed! That'sss right, every sssingle block! Not one block can remain!" . "<c:Rey Goblin:3>¡Toda esssta isla tiene que ssser demolida! ¡Assí esss, hasssta el último bloque! ¡No puede quedar ni uno!")
 ("<c:Goblin:2>Hey King, we've finished wiring the island with explosssivesss!" . "<c:Goblin:2>¡Eh Rey, hemosss terminado de cablear la isla con explosssivosss!")
-("<c:Goblin King:3>Heh. Well, thisss complicatesss thingsss... ha.. <a:LAUGH>hahahahaha!" . "<c:Rey Goblin:3>Jeh. Bueno, esssto complica lasss cosasss... jaja ¡<a:LAUGH>jajajajaja!")
+("<c:Goblin King:3>Heh. Well, thisss complicatesss thingsss... ha.. <a:LAUGH>hahahahaha!" . "<c:Rey Goblin:3>Jeh. Bueno, esssto complica lasss cosasss... <B:0> jaja ¡<a:LAUGH>jajajajaja!")
 ("Are you sure you want a hint?" . "¿Seguro que quieres una pista?")
 ("Hint: Check which blocks are vulnerable to ion cannons. " . "Pista: Comprueba qué bloques son vulnerables a cañones iónicos. ")
 ("The glossary has a search filter for this..." . "El glosario tiene un filtro de búsqueda para esto...")
