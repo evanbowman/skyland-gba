@@ -42,16 +42,20 @@
      ((eval-file "/scripts/event/hostile_pick_template.lisp")))))
 
 
+(defn/temp collect-chrs ()
+  (map (lambda (c) (lookup 'id (cddr c)))
+       (chrs (player))))
+
+
 (let ((vfn on-victory) ;; Save cached copy of on-victory hook in case already set.
       (c (coins))
-      (crew (length (chrs (player)))))
+      (prev-crew (collect-chrs)))
   (defn on-victory ()
 
-    ;; For each crew member at the start of the level, check if crew member still
-    ;; exists. If not, record death in the adventure log.
-    (let ((rem (length (chrs (player)))))
-      (when (< rem crew)
-        (adventure-log-add 4 (list (- crew rem)))))
+    (let* ((current-crew (collect-chrs))
+           (crew-died (filter (lambda (id) (not (contains current-crew id))) prev-crew)))
+      (when crew-died
+        (adventure-log-add 4 (list (length crew-died)))))
 
     (adventure-log-add 2 (list (- c (coins)) (coins-victory)))
 

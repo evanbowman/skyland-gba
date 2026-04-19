@@ -204,5 +204,5 @@
 ;; interpreter calls on-autoload for a symbol, to attempt to lazy-bind a value
 ;; from a file.
 (defn/c --on-autoload (sym)
-  (if (int? (find sym --autoload-symbols))
+  (if (contains --autoload-symbols sym)
       (set-temp sym (eval-file (string "/scripts/autoload/" sym ".lisp")))))

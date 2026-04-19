@@ -20,6 +20,9 @@
             (not (pred e)))
           lat))
 
+(defn/c contains (lat entry)
+  (int? (find entry lat)))
+
 (defn/c remove (lat elem)
   (remove-if lat (equalto? elem)))
 
