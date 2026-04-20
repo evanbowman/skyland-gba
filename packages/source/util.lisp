@@ -138,6 +138,9 @@
       (setq on-dialog-closed nil))
     (exit)))
 
+(defn/c try-commentary ((key . string))
+  (when-let ((message (load-commentary key)))
+    (await (dialog* message))))
 
 (defn/c push-pending-event ((turns . int) (script . string))
   (push pending-events (cons turns script)))

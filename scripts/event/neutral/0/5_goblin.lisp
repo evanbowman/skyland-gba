@@ -54,17 +54,17 @@
 
 
 (defn on-dialog-accepted ()
-  (find-crew-slot-cb
-   (tr "<c:Goblin Raider:39>Hold on, don't leave me here! I know your cassstle's full, but thisss island is burning!")
-   'ladder
-   (tr "Place block (1x2):")
-   (lambda (x y _)
-     (chr-del (opponent) 1 12)
-     (chr-new (player) x y 'neutral '((race . 1) (icon . 39)))
-     (dialog (tr "<c:Goblin Raider:39>Thanks for ressscuing me! I'll try to help out however I can!"))
-     (defn on-dialog-closed ()
-       (setq on-dialog-closed nil)
-       (dialog (tr "The goblin joined your crew!"))
-       (exit)))))
+  (let (([x . y] (find-crew-slot (tr (s+ "<c:Goblin Raider:39>Hold on, don't leave me here! "
+                                         "I know your cassstle's full, but thisss island "
+                                         "is burning!"))
+                                 'ladder
+                                 (tr "Place block (1x2):"))))
+    (chr-del (opponent) 1 12)
+    (chr-new (player) x y 'neutral '((race . 1) (icon . 39)))
+    (await (dialog* (tr (s+ "<c:Goblin Raider:39>Thanks for ressscuing me! "
+                            "I'll try to help out however I can!"))))
+    (await (dialog* (tr "The goblin joined your crew!")))
+    (exit-with-commentary "welcomes_raider")))
+
 
 (setq on-dialog-declined exit)

@@ -42,22 +42,21 @@
 
 
 (defn on-dialog-accepted ()
-  (find-crew-slot-cb
-   (tr "<c:Castaway:38>Hold on, don't leave me here! I know your cassstle's full, but I can help make some ssspace!")
-   'ladder
-   (tr "Place block (1x2):")
-   (lambda (x y _)
-     (adventure-log-add 7 '())
-     (chr-del (opponent) 1 14)
-     (chr-new (player) x y 'neutral '((race . 1) (icon . 38)))
-     (dialog (tr "<c:Castaway:38> Thanks for ressscuing me! I'll try to help out however I can! <B:0> ... <B:0> What? You've been banissshed too? <B:0> Ha! HAHAHA! Sssome sssorry lot of goblinsss we are!"))
-     (defn on-dialog-closed ()
-       (setq on-dialog-closed nil)
-       (if (or (chance 2) (< (coins) 300))
-           (dialog (tr "The castaway joined your crew!"))
-           (progn
-             (coins-set (- (coins) 300))
-             (dialog (tr "The castaway joined your crew. Starving, he ate 300@ of your food supplies!"))))
-       (exit)))))
+  (let (([x . y] (find-crew-slot (tr "<c:Castaway:38>Hold on, don't leave me here! I know your cassstle's full, but I can help make some ssspace!")
+                                 'ladder
+                                 (tr "Place block (1x2):"))))
+    (adventure-log-add 7 '())
+    (chr-del (opponent) 1 14)
+    (chr-new (player) x y 'neutral '((race . 1) (icon . 38)))
+    (await (dialog* (tr (s+ "<c:Castaway:38> Thanks for ressscuing me! I'll try to help out "
+                            "however I can! <B:0> ... <B:0> "
+                            "What? You've been banissshed too? <B:0> "
+                            "Ha! HAHAHA! Sssome sssorry lot of goblinsss we are!"))))
+    (if (or (chance 2) (< (coins) 300))
+        (await (dialog* (tr "The castaway joined your crew!")))
+        (progn
+          (coins-set (- (coins) 300))
+          (await (dialog* (tr "The castaway joined your crew. Starving, he ate 300@ of your food supplies!")))))
+    (exit-with-commentary "welcomes_castaway_goblin")))
 
 (setq on-dialog-declined exit)
