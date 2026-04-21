@@ -7,6 +7,8 @@
 (eval-file "/scripts/event/check_zone.lisp")
 (setvar "rewind_disabled" 1)
 
+(tr-bind-current)
+
 
 (adventure-log-add 49 '())
 
@@ -45,24 +47,24 @@
     (let ((info (get shop-items item)))
       (if (< (coins) (get info 1))
           (progn
-            (dialog "Hah! You can't afford that!")
+            (dialog (tr "Hah! You can't afford that!"))
             (defn on-dialog-closed ()
               (push-menu "item-shop" '())))
         (progn
           (dialog
-           "<c:Shopkeeper:7>"
-           name
-           (format "? I'll sell you one for %@..." (get info 1)))
+           (format (tr "<c:Shopkeeper:7>%? I'll sell you one for %@...")
+                   name
+                   (get info 1)))
 
           (dialog-opts-reset)
 
           (dialog-opts-push
-           "I'll buy it!"
+           (tr "I'll buy it!")
            (lambda ()
              (alloc-space (get info 0))
 
              (sel-input (get info 0)
-                        "Pick a slot:"
+                        (tr "Pick a slot:")
                         (lambda (isle x y)
                           (room-new (player) (list (get info 0) x y))
                           (sound "build0")
@@ -93,7 +95,7 @@
                               (push-menu "item-shop" '())
                             (progn
                               (dialog
-                               "<c:Shopkeeper:7>How am I supposed to keep customers if you buy the whole store!? <B:0> WE'RE CLOSED.")
+                               (tr "<c:Shopkeeper:7>How am I supposed to keep customers if you buy the whole store!? <B:0> WE'RE CLOSED."))
                               (let ((xy (cdr (wg-pos))))
                                 ;; Switch the current map node to a visited node
                                 ;; type, preventing us from talking to the
@@ -101,62 +103,62 @@
                                 (wg-node-set (first xy) (second xy) 1))
                               (exit)))))))
 
-          (dialog-opts-push (if (> (length name) 13)
+          (dialog-opts-push (if (> (length (format (tr "describe %") name)) 26)
                                 ;; Use alternate text for long block names.
-                                (string name " stats?")
-                              (format "describe %" name))
+                                (format (tr "% stats?") name)
+                              (format (tr "describe %") name))
                             (lambda ()
                               (push-menu "glossary" (list (car info)))
                               (push-menu "item-shop" '())))
 
-          (dialog-opts-push "No thanks…"
+          (dialog-opts-push (tr "No thanks…")
                             (lambda ()
                               (push-menu "item-shop" '()))))))))
 
 
 
-(let ((file (string "/scripts/event/shop/" (lang) "/shop_chat.txt")))
+(let ((file (string "/strings/" (lang) "/shop_chat.txt")))
   (let ((txt (file-get-line file (+ 1 (choice (file-line-count file))))))
     (defn on-shop-enter ()
 
       (let ((ret (this)))
 
-        (dialog "<c:Shopkeeper:7>What would you like to do?")
+        (dialog (tr "<c:Shopkeeper:7>What would you like to do?"))
         (setq on-dialog-closed nil)
 
         (dialog-opts-reset)
 
-        (dialog-opts-push "shop"
+        (dialog-opts-push (tr "shop")
                           (lambda ()
                             (push-menu "item-shop" '())))
 
         (if (rooms-damaged (player))
             (dialog-opts-push
-             "repair"
+             (tr "repair")
              (lambda ()
-               (dialog "<c:Shopkeeper:7>Let me have my repairman come over and assess the damages...")
+               (dialog (tr "<c:Shopkeeper:7>Let me have my repairman come over and assess the damages..."))
                (setq on-dialog-closed (repairman ret)))))
 
         (if (not (equal (faction) 'sylph))
-            (dialog-opts-push "retune core"
+            (dialog-opts-push (tr "retune core")
                               (lambda ()
-                                (dialog "<c:Shopkeeper:7>Core service, eh? Well... I've got this Sylph fellow who showed up last week. Bit odd, claims he can 'retune' your power matrix or some such...")
+                                (dialog (tr "<c:Shopkeeper:7>Core service, eh? Well... I've got this Sylph fellow who showed up last week. Bit odd, claims he can 'retune' your power matrix or some such..."))
                                 (setq on-dialog-closed (core-service ret)))))
 
-        (dialog-opts-push "chat"
+        (dialog-opts-push (tr "chat")
                           (lambda ()
-                            (dialog "<c:Shopkeeper:7>One piece of news that I learned today is: "
+                            (dialog (tr "<c:Shopkeeper:7>One piece of news that I learned today is: ")
                                     txt
-                                    "<B:0> Interesting, huh?")
+                                    (tr "<B:0> Interesting, huh?"))
                             (setq on-dialog-closed ret)))
 
-        (dialog-opts-push "back" (lambda () nil))))))
+        (dialog-opts-push (tr "back") (lambda () nil))))))
 
 
 
 (defn on-fadein ()
   (dialog
-   "<c:Shopkeeper:7>Welcome to my shop! Let me know if you see anything you like! "
-   "(When done, use the START menu to return to your sky chart!)")
+   (tr (s+ "<c:Shopkeeper:7>Welcome to my shop! Let me know if you see anything you like! "
+           "(When done, use the START menu to return to your sky chart!)")))
 
   (setq on-dialog-closed on-shop-enter))

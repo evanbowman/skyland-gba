@@ -2,11 +2,6 @@
 ;;; neutral/2/5.lisp
 ;;;
 
-(tr-bind-current)
-
-
-(dialog (tr "A shop approaches! Looks like they specialize in selling various types of defenses..."))
-
 
 
 (push zone-shop-items
@@ -22,6 +17,10 @@
 
 
 (eval-file "/scripts/event/shop/shop.lisp")
+(tr-bind-current)
+
+
+(dialog (tr "A shop approaches! Looks like they specialize in selling various types of defenses..."))
 
 
 
