@@ -42,6 +42,26 @@
 (setq shop-items (lookup (wg-pos) zone-shop-items))
 
 
+(defn/temp take-item (info)
+  (setq shop-items
+        (filter
+         (lambda (item)
+           (> (get item 2) 0))
+         (replace shop-items
+                  (equalto? info)
+                  (list (car info)
+                        (get info 1)
+                        (- (get info 2) 1)
+                        (get info 2)))))
+  ;; Write-back the inner list
+  (setq zone-shop-items
+        (map (lambda (z)
+               (if (equal (car z) (wg-pos))
+                   (cons (wg-pos) shop-items)
+                   z))
+             zone-shop-items)))
+
+
 (defn on-shop-item-sel (nm item)
   (let ((name nm))
     (let ((info (get shop-items item)))
@@ -62,46 +82,23 @@
            (tr "I'll buy it!")
            (lambda ()
              (alloc-space (get info 0))
-
-             (sel-input (get info 0)
-                        (tr "Pick a slot:")
-                        (lambda (isle x y)
-                          (room-new (player) (list (get info 0) x y))
-                          (sound "build0")
-
-                          (coins-add (* -1 (get info 1)))
-                          (adventure-log-add 50 (list name (get info 1)))
-
-                          (setq shop-items
-                                (filter
-                                 (lambda (item)
-                                   (> (get item 2) 0))
-                                 (replace shop-items
-                                          (equalto? info)
-                                          (list (car info)
-                                                (get info 1)
-                                                (- (get info 2) 1)
-                                                (get info 2)))))
-
-                          ;; Writeback the modified inner list.
-                          (setq zone-shop-items
-                                (map (lambda (z)
-                                       (if (equal (car z) (wg-pos))
-                                           (cons (wg-pos) shop-items)
-                                         z))
-                                     zone-shop-items))
-
-                          (if shop-items
-                              (push-menu "item-shop" '())
-                            (progn
-                              (dialog
-                               (tr "<c:Shopkeeper:7>How am I supposed to keep customers if you buy the whole store!? <B:0> WE'RE CLOSED."))
-                              (let ((xy (cdr (wg-pos))))
-                                ;; Switch the current map node to a visited node
-                                ;; type, preventing us from talking to the
-                                ;; shopkeeper if we return. (empty shop!)
-                                (wg-node-set (first xy) (second xy) 1))
-                              (exit)))))))
+             (let (([x . y] (await (sel-input* (get info 0) (tr "Pick a slot:")))))
+               (room-new (player) (list (get info 0) x y))
+               (sound "build0")
+               (coins-add (* -1 (get info 1)))
+               (adventure-log-add 50 (list name (get info 1)))
+               (take-item info)
+               (if shop-items
+                   (push-menu "item-shop" '())
+                   (progn
+                     (dialog
+                      (tr "<c:Shopkeeper:7>How am I supposed to keep customers if you buy the whole store!? <B:0> WE'RE CLOSED."))
+                     (let ((xy (cdr (wg-pos))))
+                       ;; Switch the current map node to a visited node
+                       ;; type, preventing us from talking to the
+                       ;; shopkeeper if we return. (empty shop!)
+                       (wg-node-set (first xy) (second xy) 1))
+                     (exit))))))
 
           (dialog-opts-push (if (> (length (format (tr "describe %") name)) 26)
                                 ;; Use alternate text for long block names.
