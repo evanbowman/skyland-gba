@@ -27,10 +27,16 @@
   (remove-if lat (equalto? elem)))
 
 (defn/c assoc (filter-key alst)
-  (get (filter (lambda (v)
-                 (equal (car v) filter-key))
-               alst)
-       0))
+  (let ((result nil)
+        (iter alst))
+    (while iter
+      (if (equal (car (car iter)) filter-key)
+          (progn
+            (setq result (car iter))
+            (setq iter nil))
+          (setq iter (cdr iter))))
+    result))
+
 
 (defn/c lookup (key alst)
   (when-let ((kvp (assoc key alst)))
