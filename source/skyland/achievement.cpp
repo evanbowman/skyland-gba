@@ -299,7 +299,7 @@ void init()
 
     // Required for an achievement.
     challenge_count =
-        lisp::length(APP.invoke_script("/scripts/challenges/index.lisp"));
+        lisp::length(APP.invoke_script("/scripts/challenges/levels.lisp"));
 
     for (int i = 0; i < Achievement::count; ++i) {
         const u64 flag = 1 << i;
