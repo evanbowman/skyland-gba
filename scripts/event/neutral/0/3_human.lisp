@@ -35,7 +35,7 @@
 
   (defn on-converge ()
     (setq on-converge nil)
-    (if (dialog-await-y/n (format (tr "<c:Merchant:7>We ordered too many %s and we're having a big sale today! Much cheaper than if you built them yourself. @ for two, what do you say?")
+    (if (dialog-await-y/n (format (tr "<c:Merchant:7>We ordered too many %s and we're having a big sale today! Much cheaper than if you built them yourself. %@ for two, what do you say?")
                                   (rinfo 'name item)
                                   cost))
         (on-dialog-accepted)

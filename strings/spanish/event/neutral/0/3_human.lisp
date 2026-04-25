@@ -1,5 +1,5 @@
 '(("Some merchants broadcast an advertisement for advanced technology! Let's see if they have anything useful!" . "¡Unos comerciantes emiten un anuncio de tecnología avanzada! ¡Veamos si tienen algo útil!")
-("<c:Merchant:7>We ordered too many %s and we're having a big sale today! Much cheaper than if you built them yourself. @ for two, what do you say?" . "<c:Comerciante:7>¡Pedimos demasiados %s y hoy tenemos una gran oferta! Mucho más barato que si los construyeras tú mismo. @ por dos, ¿qué dices?")
+("<c:Merchant:7>We ordered too many %s and we're having a big sale today! Much cheaper than if you built them yourself. %@ for two, what do you say?" . "<c:Comerciante:7>¡Pedimos demasiados %s y hoy tenemos una gran oferta! Mucho más barato que si los construyeras tú mismo. %@ por dos, ¿qué dices?")
 ("Place first " . "Colocar primer ")
 ("Place second " . "Colocar segundo ")
 ("<c:Merchant:7>Looks great! You made a fine choice!" . "<c:Comerciante:7>¡Estupendo! ¡Buena elección!")
