@@ -145,5 +145,5 @@
 
 
 ;; NOTE: most functions in stdlib.lisp were moved to the precompiled core
-;; package, which is now loaded by init.lisp. See /scripts/packages/source/ for
+;; package, which is now loaded by init.lisp. See /packages/source/ for
 ;; the function implementations.
