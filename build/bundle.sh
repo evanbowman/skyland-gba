@@ -26,8 +26,9 @@ if [ -n "$SKYLAND_BIN" ]; then
 else
     echo "WARNING: No desktop build found in the current directory."
     echo "Bytecode packages in /script/packages/ will not be recompiled."
-    echo "To compile them, build the, desktop edition and place it here,"
+    echo "To compile them, build the desktop edition and place it here,"
     echo "then re-run this script."
+    echo "Rebuilding the bytecode packages isn't strictly necessary."
 fi
 
 python3 ../tools/encode_files.py

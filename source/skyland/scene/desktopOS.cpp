@@ -975,7 +975,6 @@ public:
                     nm.push_back(' ');
                 }
                 u8 y = u8(4 + i);
-                info(nm);
                 if (alternate) {
                     Text::print(nm.c_str(), {0, y});
                     if (selected_track_ == i) {
