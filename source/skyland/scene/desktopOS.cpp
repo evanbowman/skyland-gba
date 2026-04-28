@@ -606,49 +606,154 @@ public:
         }
 
 
+        StringBuffer<26> heading() override
+        {
+            auto ret = Window::heading();
+            switch (view_) {
+            case View::main_page:
+                break;
+
+            case View::memory_page:
+                ret += ":mem";
+                break;
+            }
+            return ret;
+        }
+
+
         enum class View : u8 {
             main_page,
+            memory_page,
         } view_ = View::main_page;
 
 
         void repaint() override
         {
-            Window::repaint();
-            int sbr_used = scratch_buffers_in_use();
-            int sbr_total =
-                scratch_buffers_in_use() + scratch_buffers_remaining();
-            Text::print(format("SBR:[%/%]", sbr_used, sbr_total).c_str(),
-                        {1, 5});
-            auto lisp_mem = lisp::value_pool_info();
-            Text::print(format("lisp:[%/%]",
-                               lisp_mem.first,
-                               lisp_mem.first + lisp_mem.second)
+            switch (view_) {
+            case View::main_page: {
+                Window::repaint();
+                int sbr_used = scratch_buffers_in_use();
+                int sbr_total =
+                    scratch_buffers_in_use() + scratch_buffers_remaining();
+                Text::print(format("mem:[%/%]", sbr_used, sbr_total).c_str(),
+                            {1, 5});
+                auto lisp_mem = lisp::value_pool_info();
+                Text::print(format("lisp:[%/%]",
+                                   lisp_mem.first,
+                                   lisp_mem.first + lisp_mem.second)
                             .c_str(),
-                        {1, 7});
-            int ent_used = 0;
-            int ent_total = 0;
-            for (auto& pl : globals().entity_pools_.pools()) {
-                ent_used +=
-                    pl->pooled_element_count() - pl->pooled_element_remaining();
-                ent_total += pl->pooled_element_count();
+                            {1, 7});
+                int ent_used = 0;
+                int ent_total = 0;
+                for (auto& pl : globals().entity_pools_.pools()) {
+                    ent_used +=
+                        pl->pooled_element_count() - pl->pooled_element_remaining();
+                    ent_total += pl->pooled_element_count();
+                }
+                Text::print(format("entity:[%/%]", ent_used, ent_total).c_str(),
+                            {13, 5});
+
+                auto stat = flash_filesystem::statistics();
+                Text::print(
+                            format("disk:[%/%]",
+                                   stat.bytes_used_ / 1024,
+                                   (stat.bytes_used_ + stat.bytes_available_) / 1024)
+                            .c_str(),
+                            {1, 9});
+
+                u32 mstack = 0;
+                if (auto s = PLATFORM.get_extensions().get_stack_usage) {
+                    mstack = s();
+                }
+
+                Text::print(format("stk: [%]", mstack).c_str(), {14, 9});
+                break;
             }
-            Text::print(format("entity:[%/%]", ent_used, ent_total).c_str(),
-                        {13, 5});
 
-            auto stat = flash_filesystem::statistics();
-            Text::print(
-                format("disk:[%/%]",
-                       stat.bytes_used_ / 1024,
-                       (stat.bytes_used_ + stat.bytes_available_) / 1024)
-                    .c_str(),
-                {1, 9});
+            case View::memory_page: {
+                Window::repaint();
+                SbrInfoArray info;
+                sbr_info(info);
+                Vec2<u8> cursor = {1, 4};
+                for (const char* tag : info) {
+                    if (tag) {
+                        Text::print("x", cursor);
+                    } else {
+                        Text::print("-", cursor);
+                    }
+                    cursor.x += 2;
+                    if (cursor.x >= 28) {
+                        cursor.x = 1;
+                        ++cursor.y;
+                    }
+                }
+                break;
+            }
+            }
+        }
 
-            u32 mstack = 0;
-            if (auto s = PLATFORM.get_extensions().get_stack_usage) {
-                mstack = s();
+
+        void update() override
+        {
+            if (not g_os_->is_focused(this)) {
+                return;
             }
 
-            Text::print(format("stk: [%]", mstack).c_str(), {14, 9});
+            Window::update();
+
+            switch (view_) {
+            case View::memory_page: {
+                auto& cursor = g_os_->get_cursor();
+                const int px = cursor.x.as_integer();
+                const int py = cursor.y.as_integer();
+
+                constexpr int origin_px_x   = 1 * 8;
+                constexpr int origin_px_y   = 4 * 8;
+                constexpr int col_pitch     = 16;
+                constexpr int row_pitch     = 8;
+                constexpr int cell_w        = 8;
+                constexpr int cell_h        = 8;
+                constexpr int cols_per_row  = 14;
+
+                const int rel_x = px - origin_px_x;
+                const int rel_y = py - origin_px_y + 8;
+
+                int hovered = -1;
+                if (rel_x >= 0 && rel_y >= 0) {
+                    const int col   = rel_x / col_pitch;
+                    const int sub_x = rel_x % col_pitch;
+                    const int row   = rel_y / row_pitch;
+                    const int sub_y = rel_y % row_pitch;
+
+                    if (col < cols_per_row && sub_x < cell_w && sub_y < cell_h) {
+                        const int idx = row * cols_per_row + col;
+                        if (idx < (int)scratch_buffer_count) {
+                            hovered = idx;
+                        }
+                    }
+                }
+
+                if (hovered >= 0) {
+                    if (auto name = describe_sbr(hovered)) {
+                        for (int x = 0; x < 30; ++x) {
+                            PLATFORM.set_tile(Layer::overlay, x, 16, 82);
+                        }
+                        if (strlen(name) == 0) {
+                            name = "unknown";
+                        }
+                        Text::print(name, {0, 16});
+                    }
+                } else {
+                    for (int x = 0; x < 30; ++x) {
+                        PLATFORM.set_tile(Layer::overlay, x, 16, 82);
+                    }
+                }
+                break;
+            }
+
+            case View::main_page:
+                break;
+            }
         }
 
 
@@ -663,7 +768,17 @@ public:
             }
 
             if (auto view_menu = g_os_->insert_dropdown_menu("View")) {
-                (void)view_menu;
+                view_menu->add_option("main", [] {
+                    if (auto win = g_os_->get_window("System Monitor")) {
+                        ((SystemMonitorWindow*)win)->view_ = View::main_page;
+                    }
+                });
+
+                view_menu->add_option("memory", [] {
+                    if (auto win = g_os_->get_window("System Monitor")) {
+                        ((SystemMonitorWindow*)win)->view_ = View::memory_page;
+                    }
+                });
             }
         }
     };
@@ -1999,6 +2114,15 @@ public:
     }
 
 
+    bool is_focused(Window* w)
+    {
+        if (mem_->windows_.empty()) {
+            return false;
+        }
+        return &*mem_->windows_.back() == w;
+    }
+
+
     void update_focus()
     {
         mem_->menu_bar_opts_.clear();
@@ -2033,6 +2157,12 @@ public:
     {
         mem_->menu_bar_opts_.clear();
         draw_menu_bar();
+    }
+
+
+    const Vec2<Fixnum>& get_cursor() const
+    {
+        return cursor_;
     }
 
 

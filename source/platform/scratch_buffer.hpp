@@ -86,3 +86,8 @@ struct ScratchBufferMemory
     static PtrType create(ScratchBuffer::Tag t,
                           u32 zero_fill_size = SCRATCH_BUFFER_SIZE);
 };
+
+
+
+using SbrInfoArray = std::array<const char*, scratch_buffer_count>;
+void sbr_info(SbrInfoArray& results);

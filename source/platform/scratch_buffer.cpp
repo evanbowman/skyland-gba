@@ -201,3 +201,18 @@ ScratchBufferMemory::PtrType ScratchBufferMemory::create(ScratchBuffer::Tag t,
 {
     return make_zeroed_sbr(t, zero_fill_size);
 }
+
+
+
+void sbr_info(SbrInfoArray& results)
+{
+    for (u32 i = 0; i < scratch_buffer_pool.cells().size(); ++i) {
+        auto& cell = scratch_buffer_pool.cells()[i];
+        if (not scratch_buffer_pool.is_freed(&cell)) {
+            auto tag = ((ScratchBuffer*)cell.mem_.data())->tag_;
+            results[i] = tag;
+        } else {
+            results[i] = nullptr;
+        }
+    }
+}
