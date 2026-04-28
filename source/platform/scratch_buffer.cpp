@@ -216,3 +216,18 @@ void sbr_info(SbrInfoArray& results)
         }
     }
 }
+
+
+
+const char* describe_sbr(u32 buffer_num)
+{
+    if (buffer_num >= scratch_buffer_count) {
+        return nullptr;
+    }
+    auto& cell = scratch_buffer_pool.cells()[buffer_num];
+    if (not scratch_buffer_pool.is_freed(&cell)) {
+        return ((ScratchBuffer*)cell.mem_.data())->tag_;
+    } else {
+        return "(free)";
+    }
+}

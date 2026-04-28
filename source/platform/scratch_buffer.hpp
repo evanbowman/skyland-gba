@@ -91,3 +91,5 @@ struct ScratchBufferMemory
 
 using SbrInfoArray = std::array<const char*, scratch_buffer_count>;
 void sbr_info(SbrInfoArray& results);
+
+const char* describe_sbr(u32 buffer_num);
