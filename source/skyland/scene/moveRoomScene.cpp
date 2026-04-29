@@ -328,6 +328,7 @@ ScenePtr MoveRoomScene::update(Time delta)
                         dest.y = dest.y - offset_y;
                         island_->move_room(room->position(), dest);
                         room->set_hidden(true);
+                        island_->rooms().reindex(false);
                     }
                 }
 
