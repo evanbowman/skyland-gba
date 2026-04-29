@@ -21,4 +21,4 @@
    (0 . "rewind_disabled")))
 
 (when (equal (difficulty) difficulty-beginner)
-  (setvar "cold_boot_penalty_ms" 0))
+  (engine-set "cold_boot_penalty_ms" 0))

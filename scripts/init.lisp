@@ -47,10 +47,10 @@
   (dialog-await-binary-q text (tr "yes") (tr "no")))
 
 
-(setvar "enabled_factions_bitfield"
-        (bit-or faction-enable-human-mask
-                faction-enable-goblin-mask
-                faction-enable-sylph-mask))
+(engine-set "enabled_factions_bitfield"
+            (bit-or faction-enable-human-mask
+                    faction-enable-goblin-mask
+                    faction-enable-sylph-mask))
 
 
 (unbind 'load-library-cached)

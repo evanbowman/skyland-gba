@@ -5,7 +5,7 @@
 
 (eval-file "/scripts/reset_hooks.lisp")
 (eval-file "/scripts/event/check_zone.lisp")
-(setvar "rewind_disabled" 1)
+(engine-set "rewind_disabled" 1)
 
 (tr-bind-current)
 

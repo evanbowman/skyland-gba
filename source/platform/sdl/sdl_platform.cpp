@@ -937,7 +937,7 @@ static const std::map<u16, SDL_Color> special_palettes = {
 
 TileDesc Platform::get_tile(Layer layer, u16 x, u16 y)
 {
-    if (layer == Layer::overlay) {
+    if (layer == Layer::overlay or layer == Layer::background) {
         x %= 32;
         y %= 32;
     }
@@ -1029,8 +1029,11 @@ void Platform::set_tile(Layer layer,
 
     case Layer::map_0:
     case Layer::map_1:
-    case Layer::background:
         tile_layers_[layer][{x, y}] = {val, palette.value_or(0)};
+        break;
+
+    case Layer::background:
+        tile_layers_[layer][{x % 32, y % 32}] = {val, palette.value_or(0)};
         break;
 
     case Layer::overlay:
@@ -3012,29 +3015,60 @@ static bool is_tile_transparent(SDL_Surface* surface,
         }
     }
 
-    bool is_transparent = true;
     Uint8* pixels = (Uint8*)surface->pixels;
-    int pitch = surface->pitch;
-    int bpp = surface->format->BytesPerPixel;
+    const int pitch = surface->pitch;
+    const int bpp   = surface->format->BytesPerPixel;
+    const int w     = surface->w;
+    const int h     = surface->h;
+
+    bool is_transparent = true;
 
     for (int y = 0; y < tile_size && is_transparent; ++y) {
         for (int x = 0; x < tile_size && is_transparent; ++x) {
-            int pixel_x = tile_x * tile_size + x;
-            int pixel_y = tile_y * tile_size + y;
+            const int px = tile_x * tile_size + x;
+            const int py = tile_y * tile_size + y;
 
-            Uint8* pixel_ptr = pixels + pixel_y * pitch + pixel_x * bpp;
-            Uint32 pixel_value = *(Uint32*)pixel_ptr;
+            // Guard against tilesheets whose dimensions aren't an exact
+            // multiple of tile_size, and against a bad tile coordinate.
+            if (px >= w || py >= h) continue;
+
+            Uint8* p = pixels + py * pitch + px * bpp;
+
+            Uint32 pixel_value = 0;
+            switch (bpp) {
+            case 1:
+                pixel_value = *p;
+                break;
+            case 2:
+                pixel_value = *(Uint16*)p;
+                break;
+            case 3:
+                if (SDL_BYTEORDER == SDL_BIG_ENDIAN) {
+                    pixel_value = (p[0] << 16) | (p[1] << 8) | p[2];
+                } else {
+                    pixel_value = p[0] | (p[1] << 8) | (p[2] << 16);
+                }
+                break;
+            case 4:
+                pixel_value = *(Uint32*)p;
+                break;
+            default:
+                // Unknown format — bail out conservatively by treating
+                // the tile as non-transparent so we don't optimize away
+                // a draw we actually need.
+                if (SDL_MUSTLOCK(surface)) SDL_UnlockSurface(surface);
+                return false;
+            }
 
             Uint8 r, g, b, a;
             SDL_GetRGBA(pixel_value, surface->format, &r, &g, &b, &a);
 
-            // Check if pixel is not transparent (alpha > 0)
-            if (r == 255 and g == 0 and b == 255) {
+            // Magenta (#FF00FF) is treated as a colorkey-style transparent
+            // pixel regardless of its alpha value.
+            const bool is_magenta = (r == 255 && g == 0 && b == 255);
 
-            } else {
-                if (a > 0) {
-                    is_transparent = false;
-                }
+            if (a > 0 && !is_magenta) {
+                is_transparent = false;
             }
         }
     }
@@ -3217,7 +3251,7 @@ void Platform::load_tile0_texture(const char* name_or_path)
     }
 
     tile0_index_zero_is_transparent =
-        is_tile_transparent(loaded_surface, 0, 0, 0);
+        is_tile_transparent(loaded_surface, 0, 0);
 
     // NOTE: don't do the expansion for externally loaded files, which are
     // neither flattened nor metatiled, as expanding them messes up texture
@@ -3273,7 +3307,7 @@ void Platform::load_tile1_texture(const char* name_or_path)
     }
 
     tile1_index_zero_is_transparent =
-        is_tile_transparent(loaded_surface, 0, 0, 0);
+        is_tile_transparent(loaded_surface, 0, 0);
 
     if (std::string(name_or_path).find('.') == std::string::npos) {
         loaded_surface = expand_surface_to_width(loaded_surface, 2048);
@@ -3754,7 +3788,7 @@ bool Platform::load_overlay_texture(const char* name)
     extract_text_colors_from_overlay();
 
     overlay_index_zero_is_transparent =
-        is_tile_transparent(overlay_surface, 0, 0, 8);
+        is_tile_transparent(overlay_surface, 0, 0);
 
     current_overlay_texture =
         SDL_CreateTextureFromSurface(renderer, overlay_surface);
@@ -5248,66 +5282,57 @@ static void draw_parallax_background(
     if (not renderer) {
         return;
     }
-
     if (!texture) {
         return;
     }
-
     auto& tiles = tile_layers_[Layer::background];
     if (tiles.empty()) {
         return;
     }
-
     auto draw_strip = [&](const ParallaxStrip& strip) {
         const int tile_size = 8;
         const int wrap_width = 256; // 32 tiles * 8 pixels
-
         for (auto& [pos, tile_info] : tiles) {
             if (tile_info.tile_desc == 0)
                 continue;
-
             s32 tile_x = (s32)pos.first;
             s32 tile_y = (s32)pos.second;
-
             // Skip tiles not in this strip's row range
             if (tile_y < strip.start_tile_row || tile_y > strip.end_tile_row) {
                 continue;
             }
-
             SDL_Rect src =
                 get_tile_source_rect_8x8(tile_info.tile_desc, texture_width);
-
-            // Calculate base position with scroll
-            s32 base_x = tile_x * tile_size - strip.scroll.x;
             s32 base_y = tile_y * tile_size - strip.scroll.y;
-
+            // Y-cull early; strips have a fixed row range and no Y wrap.
+            if (base_y + tile_size <= 0 || base_y >= 160)
+                continue;
+            // Reduce X into [0, wrap_width) the way the GBA's BG hardware
+            // does implicitly. A single +/- wrap_width adjustment fails
+            // whenever |strip.scroll.x| > wrap_width, which is normal for
+            // parallax — that's where the gaps come from.
+            s32 raw_x = tile_x * tile_size - strip.scroll.x;
+            s32 base_x = ((raw_x % wrap_width) + wrap_width) % wrap_width;
             SDL_Rect dst;
-            dst.x = base_x;
             dst.y = base_y;
             dst.w = tile_size;
             dst.h = tile_size;
-
-            // Draw at base position if on screen
-            if (dst.x + dst.w > 0 && dst.x < 240 && dst.y + dst.h > 0 &&
-                dst.y < 160) {
+            // Primary copy: base_x in [0, 256); on-screen iff base_x < 240.
+            if (base_x < 240) {
+                dst.x = base_x;
                 SDL_RenderCopy(renderer, texture, &src, &dst);
             }
-
-            // Draw wrapped copy if needed (either +256 or -256)
-            if (dst.x < 0) {
-                dst.x += wrap_width;
-                if (dst.x < 240) {
-                    SDL_RenderCopy(renderer, texture, &src, &dst);
-                }
-            } else if (dst.x >= 240) {
-                dst.x -= wrap_width;
-                if (dst.x + dst.w > 0) {
-                    SDL_RenderCopy(renderer, texture, &src, &dst);
-                }
+            // Wrapped copy at base_x - wrap_width: right edge is at
+            // base_x - wrap_width + tile_size, visible iff > 0, i.e.
+            // base_x > wrap_width - tile_size  (= 248 for 8px tiles).
+            // The two regions are mutually exclusive (240 < 248), so a
+            // tile is drawn at most once per strip.
+            if (base_x > wrap_width - tile_size) {
+                dst.x = base_x - wrap_width;
+                SDL_RenderCopy(renderer, texture, &src, &dst);
             }
         }
     };
-
     // Gap filler strip (rows 20-21) - positioned flush with end of strip2
     // This fills the gap between cloud layers during vertical parallax
     ParallaxStrip gap_filler;
@@ -5315,7 +5340,6 @@ static void draw_parallax_background(
     gap_filler.end_tile_row = 21;
     gap_filler.scroll = strip2.scroll;
     gap_filler.scroll.y = strip2.scroll.y + 32; // 32 pixels = 4 tile rows
-
     // Bottom filler strip (rows 18-19 repeated) - positioned beneath strip3
     // This fills the gap at the bottom when strip3 scrolls up
     ParallaxStrip bottom_filler;
@@ -5324,7 +5348,6 @@ static void draw_parallax_background(
     bottom_filler.scroll = strip3.scroll;
     bottom_filler.scroll.y =
         strip3.scroll.y - 16; // Bump down 32 pixels (4 rows)
-
     // Draw all strips
     draw_strip(strip1);
     draw_strip(strip2);

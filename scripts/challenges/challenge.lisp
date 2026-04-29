@@ -7,7 +7,7 @@
 
 (if (bound? 'challenge-hint) (unbind 'challenge-hint))
 
-(setvar "powerdown_allowed" 0)
-(setvar "rewind_disabled" 1)
+(engine-set "powerdown_allowed" 0)
+(engine-set "rewind_disabled" 1)
 
 (eval-file "/scripts/challenges/index.lisp")

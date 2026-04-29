@@ -147,7 +147,7 @@
 
 
 (defn/c configure-vars ((vlat . pair))
-  (let ((sv setvar)
+  (let ((sv engine-set)
         (l vlat))
     (while l
       (let ((kvp (car l)))

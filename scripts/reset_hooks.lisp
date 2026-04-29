@@ -41,7 +41,7 @@
 (if (not (bound? 'friendlies-seen))
     (setq friendlies-seen '()))
 
-(setvar "rewind_disabled" 0)
+(engine-set "rewind_disabled" 0)
 
 (tr-reset)
 

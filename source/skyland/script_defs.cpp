@@ -2868,7 +2868,7 @@ BINDING_TABLE({
           });
           return L_NIL;
       }}},
-    {"setvar",
+    {"engine-set",
      {SIG2(nil, string, rational),
       [](int argc) {
           L_EXPECT_OP(1, string);
@@ -2886,7 +2886,7 @@ BINDING_TABLE({
 
           Platform::fatal(error.c_str());
       }}},
-    {"getvar",
+    {"engine-get",
      {SIG1(integer, string),
       [](int argc) {
           L_EXPECT_OP(0, string);

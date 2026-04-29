@@ -21,5 +21,5 @@
 
 (flag-show (player) 0)
 
-(setvar "powerdown_allowed" 1)
-(setvar "rewind_disabled" 0)
+(engine-set "powerdown_allowed" 1)
+(engine-set "rewind_disabled" 0)

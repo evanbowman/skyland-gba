@@ -1,4 +1,4 @@
-* SDL Platform implementation [23/32]
+* SDL Platform implementation [27/33]
 ** DONE fix dynamic texture mapping for certain texture sizes...
 ** DONE implement rendering for background layer
 ** DONE top left corner in textures loaded from files doesn't display...
@@ -21,16 +21,17 @@
 ** DONE fix junk tiles on title screen
 ** DONE Display charted course on sky map
 ** DONE figure out why birds flee map upon level load (bad tile lookup?)
+** DONE fix missing tile in top left corner (again!?)
+** DONE fix issue where entering the glossary and leaving from overworld causes color palette to be swapped back to default (no weather effects)
+** DONE Weather engine color palette bugfix
+** DONE gaps appearing in cloud effects
+** DONE cloud effects for radioactive ash not working correctly
 ** TODO Fix color palette issue when a block with a group does palette swap anim
 ** TODO Fix sylph flag palette issue
 ** TODO display keyboard buttons in tutorial player for desktop version
-** TODO fix missing tile in top left corner (again!?)
 ** TODO properly display darkened tiles during powerdown
 ** TODO lightning isn't quite correct
-** TODO After saving an adventure game, the title screen tilesets are messed up
-** DONE fix issue where entering the glossary and leaving from overworld causes color palette to be swapped back to default (no weather effects)
-** TODO Weather engine color palette bugfix
-** TODO cloud effects for radioactive ash not working correctly
+** TODO After saving an adventure game or winning, the title screen tilesets are messed up
 *** NOTE: this issue happens because we don't have true palette effects, we're faking it
 *** to fix this, do I need to implement actual palette support? Dynamically recolor the texture?
 
