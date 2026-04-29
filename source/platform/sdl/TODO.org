@@ -1,4 +1,4 @@
-* SDL Platform implementation [22/30]
+* SDL Platform implementation [23/32]
 ** DONE fix dynamic texture mapping for certain texture sizes...
 ** DONE implement rendering for background layer
 ** DONE top left corner in textures loaded from files doesn't display...
@@ -28,7 +28,9 @@
 ** TODO properly display darkened tiles during powerdown
 ** TODO lightning isn't quite correct
 ** TODO After saving an adventure game, the title screen tilesets are messed up
-** TODO fix issue where entering the glossary and leaving from overworld causes color palette to be swapped back to default (no weather effects)
+** DONE fix issue where entering the glossary and leaving from overworld causes color palette to be swapped back to default (no weather effects)
+** TODO Weather engine color palette bugfix
+** TODO cloud effects for radioactive ash not working correctly
 *** NOTE: this issue happens because we don't have true palette effects, we're faking it
 *** to fix this, do I need to implement actual palette support? Dynamically recolor the texture?
 
