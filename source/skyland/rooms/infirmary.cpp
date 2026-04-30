@@ -50,6 +50,7 @@ void Infirmary::on_powerchange()
     } else {
         heal_timer_ = heal_interval();
     }
+    Room::ready();
 }
 
 
@@ -57,6 +58,17 @@ void Infirmary::on_powerchange()
 bool Infirmary::allows_powerdown()
 {
     return true;
+}
+
+
+
+Time Infirmary::reload_time_remaining() const
+{
+    if (is_cold_boot()) {
+        return heal_timer_;
+    } else {
+        return 0;
+    }
 }
 
 
@@ -91,6 +103,7 @@ void Infirmary::update(Time delta)
             cold_boot_completed();
             heal_timer_ += heal_interval();
         }
+        Room::ready();
     } else if (characters_healing) {
         heal_timer_ -= delta;
         if (heal_timer_ <= 0) {

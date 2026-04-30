@@ -101,6 +101,9 @@ public:
     void display(Platform::Screen& screen) override;
 
 
+    Time reload_time_remaining() const override;
+
+
 private:
     Time heal_timer_ = 0;
     bool amplify_ = false;
