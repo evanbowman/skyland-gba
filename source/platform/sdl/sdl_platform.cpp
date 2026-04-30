@@ -5473,6 +5473,7 @@ static void draw_tile_layer(Layer layer,
             SDL_SetRenderTarget(renderer, nullptr);
 
             // Draw the recolored tile to screen
+            SDL_SetTextureBlendMode(tile_recolor_buffer, SDL_BLENDMODE_BLEND);
             SDL_RenderCopy(renderer, tile_recolor_buffer, &temp_dst, &dst);
         } else {
             if (tile_info.palette == 9) {

@@ -59,7 +59,11 @@
          (defn on-dialog-closed ()
            (setq on-dialog-closed exit)
            (sound "click_digital_1")
-           (dialog "<b:/scripts/data/img/sentry_closeup.img.bin> "
+           (dialog (if (equal (device-info 'name) "GameboyAdvance")
+                       "<b:/scripts/data/img/sentry_closeup.img.bin> "
+                       ;; TODO: fix drawing inline images in boxed dialog for
+                       ;; non-gba targets.
+                       "")
                    (tr "The sentry joined your crew!")))))))
 
 

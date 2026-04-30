@@ -1,4 +1,4 @@
-* SDL Platform implementation [28/33]
+* SDL Platform implementation [30/34]
 ** DONE fix dynamic texture mapping for certain texture sizes...
 ** DONE implement rendering for background layer
 ** DONE top left corner in textures loaded from files doesn't display...
@@ -27,7 +27,8 @@
 ** DONE gaps appearing in cloud effects
 ** DONE cloud effects for radioactive ash not working correctly
 ** DONE After saving an adventure game or winning, the title screen tilesets are messed up
-** TODO Fix sylph flag palette issue
+** DONE fix mask effect
+** DONE Fix sylph flag palette issue
 ** TODO Fix color palette issue when a block with a group does palette swap anim
 ** TODO properly display darkened tiles during powerdown
 ** TODO display keyboard buttons in tutorial player for desktop version
