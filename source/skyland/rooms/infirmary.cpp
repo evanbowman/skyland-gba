@@ -70,7 +70,7 @@ void Infirmary::update(Time delta)
     }
 
     // Optimization: room has no inhabitants, don't schedule for updates.
-    if (characters().empty()) {
+    if (characters().empty() and not is_cold_boot()) {
         return;
     }
 
