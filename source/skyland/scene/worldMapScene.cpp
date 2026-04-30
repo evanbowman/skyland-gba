@@ -2389,6 +2389,7 @@ void WorldMapScene::exit(Scene& next_scene)
 
     PLATFORM.load_overlay_texture("overlay");
 
+    PLATFORM.clear_layer(Layer::map_1_ext);
     show_island_exterior(APP.opponent_island());
 }
 
