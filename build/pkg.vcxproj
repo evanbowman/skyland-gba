@@ -126,6 +126,8 @@ if %errorlevel% neq 0 goto :cmEnd
 if %errorlevel% neq 0 goto :cmEnd
 "C:\Program Files\CMake\bin\cmake.exe" -E copy_directory C:/Users/evana/Documents/skyland-beta/build/../strings C:/Users/evana/Documents/skyland-beta/build/Debug/strings
 if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_directory C:/Users/evana/Documents/skyland-beta/build/../packages C:/Users/evana/Documents/skyland-beta/build/Debug/packages
+if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
 :cmErrorLevel
@@ -155,6 +157,8 @@ if %errorlevel% neq 0 goto :cmEnd
 "C:\Program Files\CMake\bin\cmake.exe" -E copy_directory C:/Users/evana/Documents/skyland-beta/build/../scripts C:/Users/evana/Documents/skyland-beta/build/Release/scripts
 if %errorlevel% neq 0 goto :cmEnd
 "C:\Program Files\CMake\bin\cmake.exe" -E copy_directory C:/Users/evana/Documents/skyland-beta/build/../strings C:/Users/evana/Documents/skyland-beta/build/Release/strings
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_directory C:/Users/evana/Documents/skyland-beta/build/../packages C:/Users/evana/Documents/skyland-beta/build/Release/packages
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
@@ -186,6 +190,8 @@ if %errorlevel% neq 0 goto :cmEnd
 if %errorlevel% neq 0 goto :cmEnd
 "C:\Program Files\CMake\bin\cmake.exe" -E copy_directory C:/Users/evana/Documents/skyland-beta/build/../strings C:/Users/evana/Documents/skyland-beta/build/MinSizeRel/strings
 if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_directory C:/Users/evana/Documents/skyland-beta/build/../packages C:/Users/evana/Documents/skyland-beta/build/MinSizeRel/packages
+if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
 :cmErrorLevel
@@ -215,6 +221,8 @@ if %errorlevel% neq 0 goto :cmEnd
 "C:\Program Files\CMake\bin\cmake.exe" -E copy_directory C:/Users/evana/Documents/skyland-beta/build/../scripts C:/Users/evana/Documents/skyland-beta/build/RelWithDebInfo/scripts
 if %errorlevel% neq 0 goto :cmEnd
 "C:\Program Files\CMake\bin\cmake.exe" -E copy_directory C:/Users/evana/Documents/skyland-beta/build/../strings C:/Users/evana/Documents/skyland-beta/build/RelWithDebInfo/strings
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_directory C:/Users/evana/Documents/skyland-beta/build/../packages C:/Users/evana/Documents/skyland-beta/build/RelWithDebInfo/packages
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone

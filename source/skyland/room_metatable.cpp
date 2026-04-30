@@ -273,13 +273,19 @@ public:
     RoomMeta table_[sizeof...(Rooms)];
     Bitvector<sizeof...(Rooms)> enabled_rooms_;
 
+private:
+    template <std::size_t... Is>
+    static constexpr auto build_impl(std::index_sequence<Is...>)
+    {
+        return mapbox::eternal::hash_map<mapbox::eternal::string, int>(
+            { std::pair<mapbox::eternal::string, int>{
+                Rooms::name(), static_cast<int>(Is)}... });
+    }
+
+public:
     static constexpr auto build_string_mapping_table()
     {
-        return []<std::size_t... Is>(std::index_sequence<Is...>) {
-            return mapbox::eternal::hash_map<mapbox::eternal::string, int>(
-                {std::pair<mapbox::eternal::string, int>{
-                    Rooms::name(), static_cast<int>(Is)}...});
-        }(std::index_sequence_for<Rooms...>{});
+        return build_impl(std::index_sequence_for<Rooms...>{});
     }
 
     static constexpr auto string_mapping_table = build_string_mapping_table();

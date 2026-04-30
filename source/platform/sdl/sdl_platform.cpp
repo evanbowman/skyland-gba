@@ -44,6 +44,7 @@
 #include <unistd.h> // for fork, execl, readlink
 #elif defined(_WIN32)
 #include <windows.h> // for GetModuleFileNameA, CreateProcessA
+#include <lmcons.h>
 #endif
 #include <filesystem>
 
@@ -2401,7 +2402,7 @@ void Platform::overwrite_overlay_tile(u16 index, const EncodedTile& t)
 #endif
 
 
-static Platform::Screen::Shader current_shader = passthrough_shader;
+Platform::Screen::Shader current_shader = passthrough_shader;
 static int current_shader_arg = 0;
 
 

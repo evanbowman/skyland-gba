@@ -405,7 +405,7 @@ with open('fs.bin', 'wb') as filesystem:
     fs_hash_fname = "fs_hash.dat"
     fs_hash_path = os.path.join(project_root_path, fs_hash_fname)
     with open(fs_hash_path, 'wb') as fs_hash_file:
-        fs_hash_file.write(struct.pack('l', fs_hash))
+        fs_hash_file.write(struct.pack('l', fs_hash & 0xFFFFFFFF))
 
     encode_file(fs_hash_path, "/" + fs_hash_fname, filesystem)
 
