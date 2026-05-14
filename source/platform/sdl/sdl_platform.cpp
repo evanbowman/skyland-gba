@@ -32,12 +32,14 @@
 #include <unordered_set>
 #if defined(__APPLE__)
 #include <fcntl.h>
+#include <signal.h>
 #include <limits.h>
 #include <mach-o/dyld.h> // for _NSGetExecutablePath
 #include <pwd.h>
 #include <sys/resource.h>
 #include <unistd.h> // for fork, execl
 #elif defined(__linux__)
+#include <signal.h>
 #include <fcntl.h>
 #include <limits.h>
 #include <pwd.h>
@@ -401,6 +403,10 @@ StringBuffer<28> get_username()
     return result;
 #endif
 }
+
+
+const std::string& get_save_file_dir();
+std::string get_save_file_path();
 
 
 static const Platform::Extensions extensions{
@@ -1386,12 +1392,15 @@ Optional<Platform::DynamicTexturePtr> Platform::make_dynamic_texture()
 
 
 
+static bool has_save_file_dir;
+const char* save_file_name = "save.dat";
+const char* crash_file_name = "save.crash";
 #ifdef __APPLE__
 #include <pwd.h>
 #include <sys/stat.h>
 #include <unistd.h>
 
-std::string get_save_file_path()
+const std::string& get_save_file_dir()
 {
     static std::string save_path;
 
@@ -1405,24 +1414,33 @@ std::string get_save_file_path()
 
         // Use Application Support directory (standard macOS location)
         std::string app_support =
-            std::string(home) + "/Library/Application Support/Skyland";
+            std::string(home) + "/Library/Application Support/Skyland/";
 
         // Create directory if it doesn't exist
         mkdir(app_support.c_str(), 0755);
 
-        save_path = app_support + "/save.dat";
+        save_path = app_support;
 
         info(format("Save file location: %", save_path.c_str()));
     }
 
+    has_save_file_dir = true;
     return save_path;
 }
 #else
-std::string get_save_file_path()
+const std::string& get_save_file_dir()
 {
-    return "save.dat"; // Current directory for Linux/Windows
+    static std::string save_path = ""; // Current directory for Linux/Windows
+    has_save_file_dir = true;
+    return save_path;
 }
 #endif
+
+
+std::string get_save_file_path()
+{
+    return get_save_file_dir() + save_file_name;
+}
 
 
 
@@ -6577,6 +6595,73 @@ void initialize_audio()
 
 
 
+#ifdef _WIN32
+
+static volatile LONG in_crash_handler = 0;
+
+
+static LONG WINAPI crash_exception_filter(EXCEPTION_POINTERS*)
+{
+    if (InterlockedExchange(&in_crash_handler, 1)) {
+        return EXCEPTION_CONTINUE_SEARCH;
+    }
+
+    (*unrecoverrable_error_callback)("signal");
+
+    return EXCEPTION_CONTINUE_SEARCH;
+}
+
+static void install_crash_handlers()
+{
+    SetUnhandledExceptionFilter(crash_exception_filter);
+}
+#else
+
+static char alt_stack_mem[SIGSTKSZ];
+static volatile sig_atomic_t in_crash_handler = 0;
+
+
+static void crash_signal_handler(int sig, siginfo_t*, void*)
+{
+    if (in_crash_handler) {
+        _exit(128 + sig);
+    }
+    in_crash_handler = 1;
+
+    (*unrecoverrable_error_callback)("signal");
+
+    struct sigaction sa{};
+    sa.sa_handler = SIG_DFL;
+    sigemptyset(&sa.sa_mask);
+    sigaction(sig, &sa, nullptr);
+    raise(sig);
+}
+
+
+static void install_crash_handlers()
+{
+    // Alternate stack so a stack-overflow SIGSEGV still has somewhere to run.
+    stack_t ss{};
+    ss.ss_sp = alt_stack_mem;
+    ss.ss_size = sizeof(alt_stack_mem);
+    ss.ss_flags = 0;
+    sigaltstack(&ss, nullptr);
+
+    struct sigaction sa{};
+    sa.sa_sigaction = crash_signal_handler;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = SA_SIGINFO | SA_ONSTACK | SA_RESETHAND;
+
+    sigaction(SIGSEGV, &sa, nullptr);
+    sigaction(SIGBUS,  &sa, nullptr);
+    sigaction(SIGFPE,  &sa, nullptr);
+    sigaction(SIGILL,  &sa, nullptr);
+    sigaction(SIGABRT, &sa, nullptr);
+}
+#endif
+
+
+
 Platform::Platform()
 {
     update_viewport();
@@ -6589,6 +6674,8 @@ Platform::Platform()
     if (in) {
         in.read((char*)save_buffer, ::save_capacity);
     }
+
+    install_crash_handlers();
 }
 
 
