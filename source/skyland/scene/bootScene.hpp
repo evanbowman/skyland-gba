@@ -24,6 +24,7 @@
 #include "skyland/scene/modules/regressionModule.hpp"
 #include "skyland/scene/modules/skylandForever.hpp"
 #include "skyland/scene/titleScreenScene.hpp"
+#include "skyland/scene/modules/controllerSetupModule.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/settings.hpp"
 #include "skyland/skyland.hpp"
@@ -588,7 +589,13 @@ public:
 
         if (not flash_filesystem::file_exists(lang_file) or clean_boot_) {
             info("lang selection...");
-            return make_scene<LanguageSelectScene>();
+            if (PLATFORM.device_name() == "PC") {
+                auto next = make_scene<ControllerSetupModule>();
+                next->next_ = make_deferred_scene<LanguageSelectScene>();
+                return next;
+            } else {
+                return make_scene<LanguageSelectScene>();
+            }
         } else {
             Vector<char> data;
             if (flash_filesystem::read_file_data(lang_file, data)) {
@@ -598,7 +605,13 @@ public:
                 }
                 systemstring_bind_file(path.c_str());
             }
-            return make_scene<IntroCreditsScene>();
+            if (PLATFORM.device_name() == "PC") {
+                auto next = make_scene<ControllerSetupModule>();
+                next->next_ = make_deferred_scene<IntroCreditsScene>();
+                return next;
+            } else {
+                return make_scene<IntroCreditsScene>();
+            }
         }
     }
 };

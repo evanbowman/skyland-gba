@@ -65,7 +65,11 @@ void ControllerSetupModule::enter(Scene& prev)
     settings::load(settings_);
     repaint();
 
-    auto title = loadstr(SystemString::module_button_mapping);
+    auto title_systr = SystemString::button_mapping_show;
+    if (button_index_ > 0) {
+        title_systr = SystemString::button_mapping_edit;
+    }
+    auto title = loadstr(title_systr);
     auto mg = centered_text_margins(utf8::len(title->c_str()));
     Text::print(title->c_str(), {(u8)mg, 1});
 }
@@ -180,7 +184,8 @@ ScenePtr ControllerSetupModule::update(Time delta)
     }
 
     if (button_index_ > -1 or
-        PLATFORM.input().down_transition<Button::action_2>()) {
+        PLATFORM.input().down_transition<Button::action_2>() or
+        PLATFORM.input().down_transition<Button::action_1>()) {
         PLATFORM.screen().schedule_fade(1.f);
         if (next_) {
             return (*next_)();

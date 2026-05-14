@@ -250,6 +250,9 @@ enum class SystemString {
     module_colormode,
     module_button_mapping,
 
+    button_mapping_show,
+    button_mapping_edit,
+
     months,
 
     developer_mode_msg,
