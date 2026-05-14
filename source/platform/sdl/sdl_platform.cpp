@@ -6617,7 +6617,6 @@ static void install_crash_handlers()
 }
 #else
 
-static char alt_stack_mem[SIGSTKSZ];
 static volatile sig_atomic_t in_crash_handler = 0;
 
 
@@ -6642,8 +6641,13 @@ static void install_crash_handlers()
 {
     // Alternate stack so a stack-overflow SIGSEGV still has somewhere to run.
     stack_t ss{};
-    ss.ss_sp = alt_stack_mem;
-    ss.ss_size = sizeof(alt_stack_mem);
+    const auto sig_stack_size = SIGSTKSZ;
+    auto stk_mem = malloc(sig_stack_size);
+    if (not stk_mem) {
+        return;
+    }
+    ss.ss_sp = stk_mem;
+    ss.ss_size = sig_stack_size;
     ss.ss_flags = 0;
     sigaltstack(&ss, nullptr);
 
