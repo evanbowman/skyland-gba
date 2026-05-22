@@ -57,36 +57,36 @@
                   (rooms isle))))
 
 
+(defn/temp annie-join ()
+  (let ((goblin nil)
+        ((x . y) (find-crew-slot (tr "<c:Anvil Annie:44>I'm sure we can find some space!")
+                                 'ladder
+                                 (tr "Place block (1x2):"))))
+    (foreach (lambda (chr)
+               (if (equal (lookup 'race (cddr chr)) 1)
+                   (setq goblin true)))
+             (chrs (player)))
+
+    (let ((mode (if goblin 'hostile 'neutral)))
+      (chr-new (player) x y mode (if goblin
+                                     '((race . 2)) ; hostile human
+                                     '((icon . 44))))
+      mode)))
+
+
 (defn/temp join-crew ()
   (if (dialog-await-binary-q
        (tr "<c:Anvil Annie:44>...That's a powerful warship you're flying. <B:0> <s:3>. . . . . <s:0> <B:0> Alright. New calculation. <B:0> If you wanted me dead, I'd already BE dead. And if you're hunting what I THINK you're hunting... <B:0> ...maybe I've been watching the wrong skies. <B:0> You gotta let me aboard, we should join up!")
        (tr "Welcome aboard!")
        (tr "Politely decline."))
-      (let ((goblin nil)
-            ((x . y) (find-crew-slot (tr "<c:Anvil Annie:44>I'm sure we can find some space!")
-                                     'ladder
-                                     (tr "Place block (1x2):"))))
-        (foreach (lambda (chr)
-                   (if (equal (lookup 'race (cddr chr)) 1)
-                       (setq goblin true)))
-                 (chrs (player)))
-        (chr-new (player)
-                 x
-                 y
-                 (if goblin
-                     'hostile
-                     'neutral)
-                 (if goblin
-                     '((race . 2)) ; hostile human
-                     '((icon . 44))))
-        (if goblin
-            (progn
-              (await (dialog* (tr "<c:Anvil Annie:44>Finally aboard! Let me just... <B:0> <s:3>. . . <s:0>")))
-              (await (dialog* (tr "<c:Anvil Annie:44>Wait. WAIT. <B:0> Those biosigns... <d:1000> <a:SHAKE>GOBLINS!? <B:0> I KNEW IT! This was a trap all along!")))
-              (attack-player (tr "Anvil Annie has turned hostile!")))
-            (progn
-              (await (dialog* (tr "Anvil Annie joined your crew!")))
-              (exit))))
+      (case (annie-join)
+        ('hostile
+         (await (dialog* (tr "<c:Anvil Annie:44>Finally aboard! Let me just... <B:0> <s:3>. . . <s:0>")))
+         (await (dialog* (tr "<c:Anvil Annie:44>Wait. WAIT. <B:0> Those biosigns... <d:1000> <a:SHAKE>GOBLINS!? <B:0> I KNEW IT! This was a trap all along!")))
+         (attack-player (tr "Anvil Annie has turned hostile!")))
+        ('neutral
+         (await (dialog* (tr "Anvil Annie joined your crew!")))
+         (exit)))
       (progn
         (await (dialog* (tr "<c:Anvil Annie:44>Understood, right. Hard to trust anyone, these days...")))
         (exit))))
@@ -144,3 +144,28 @@
               "<c:Anvil Annie:44>Spies, saboteurs, sleeper agents! They think they're so clever with their fake distress calls and forged cargo manifests! But I can spot 'em from leagues away! <B:0> See that scorched hull fragment? 'Friendly trader' who tried to scan my weapon configurations! <B:0> The nerve! They're ALL connected, part of some massive intelligence network! <B:0> Anyway..."))))
       (negotiate)
       (refuse)))
+
+
+(let ((weapons (make-set (map car (filter (lambda (r)
+                                            (equal (rinfo 'category (car r)) 'weapon))
+                                          (rooms (opponent)))))))
+
+  (defn/temp opponent-has-weapons ()
+    (apply + (map (lambda (rsym)
+                    (room-count (opponent) rsym))
+                  weapons)))
+
+  (defn on-room-destroyed (isle sym)
+    (when (and (equal isle (opponent)) (not (opponent-has-weapons)))
+      (setq on-room-destroyed nil)
+      (sleep 300)
+      (when (dialog-await-y/n (tr (s+ "<c:Anvil Annie:44>Argh you've beaten me! <B:0>"
+                                      "Please, take me with you!")))
+        (case (annie-join)
+          ('hostile
+           (await (dialog* (tr "<c:Anvil Annie:44>Finally aboard! Let me just... <B:0> <s:3>. . . <s:0>")))
+           (await (dialog* (tr "<c:Anvil Annie:44>Wait. WAIT. <B:0> Those biosigns... <d:1000> <a:SHAKE>GOBLINS!?")))
+           (await (dialog* (tr "Anvil Annie has turned hostile!"))))
+          ('neutral
+           (await (dialog* (tr "Anvil Annie joined your crew!")))
+           (exit)))))))

@@ -10,6 +10,8 @@
 ("Place block (1x2):" . "Colocar bloque (1x2):")
 ("<c:Anvil Annie:44>Finally aboard! Let me just... <B:0> <s:3>. . . <s:0>" . "<c:Annie Yunque:44>¡Por fin a bordo! Solo déjame... <B:0> <s:3>. . . <s:0>")
 ("<c:Anvil Annie:44>Wait. WAIT. <B:0> Those biosigns... <d:1000> <a:SHAKE>GOBLINS!? <B:0> I KNEW IT! This was a trap all along!" . "<c:Annie Yunque:44>Espera. ESPERA. <B:0> Esas bioseñales... <B:0> <d:1000> ¿¡<a:SHAKE>GOBLINS!? <B:0> ¡LO SABÍA! ¡Esto era una trampa desde el principio!")
+("<c:Anvil Annie:44>Wait. WAIT. <B:0> Those biosigns... <d:1000> <a:SHAKE>GOBLINS!?" . "<c:Annie Yunque:44>Espera. ESPERA. <B:0> Esas bioseñales... <B:0> <d:1000> ¿¡<a:SHAKE>GOBLINS!?")
+("<c:Anvil Annie:44>Argh you've beaten me! <B:0>Please, take me with you!" . "<c:Annie Yunque:44>¡Argh, me has vencido! <B:0>¡Por favor, llévame contigo!")
 ("Anvil Annie has turned hostile!" . "¡Annie Yunque se ha vuelto hostil!")
 ("Anvil Annie joined your crew!" . "¡Annie Yunque se unió a tu tripulación!")
 ("<c:Anvil Annie:44>Understood, right. Hard to trust anyone, these days..." . "<c:Annie Yunque:44>Entendido, claro. Difícil fiarse de nadie, hoy en día...")

@@ -46,9 +46,13 @@
   (append (slice lat 0 pos) (cons elem (slice lat pos))))
 
 
+(defn/c make-set (val)
+  (union val val))
+
+
 (defn/c push-set (sym val)
   (let ((tmp (cons val (eval sym))))
-    (set sym (union tmp tmp))))
+    (set sym (make-set tmp))))
 
 
 (defn/c replace (lat pred newv)
