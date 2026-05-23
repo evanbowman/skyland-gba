@@ -30,8 +30,8 @@
 
 (defn/temp attack-player ((txt . string))
   (opponent-mode 'hostile)
-  (await (dialog* txt))
-  (await (dialog* (tr "Your opponent has locked weapons, prepare for battle!"))))
+  (dialog-await txt)
+  (dialog-await (tr "Your opponent has locked weapons, prepare for battle!")))
 
 
 (defn/temp pay-toll (toll)
@@ -42,7 +42,7 @@
       (progn
         (adventure-log-add 69 (list toll))
         (coins-add (- toll))
-        (dialog (tr "<c:Anvil Annie:44>There we go! See how easy that was? Now get out of my airspace before I change my mind!"))
+        (dialog-await (tr "<c:Anvil Annie:44>There we go! See how easy that was? Now get out of my airspace before I change my mind!"))
         (exit))))
 
 
@@ -81,21 +81,21 @@
        (tr "Politely decline."))
       (case (annie-join)
         ('hostile
-         (await (dialog* (tr "<c:Anvil Annie:44>Finally aboard! Let me just... <B:0> <s:3>. . . <s:0>")))
-         (await (dialog* (tr "<c:Anvil Annie:44>Wait. WAIT. <B:0> Those biosigns... <d:1000> <a:SHAKE>GOBLINS!? <B:0> I KNEW IT! This was a trap all along!")))
+         (dialog-await (tr "<c:Anvil Annie:44>Finally aboard! Let me just... <B:0> <s:3>. . . <s:0>"))
+         (dialog-await (tr "<c:Anvil Annie:44>Wait. WAIT. <B:0> Those biosigns... <d:1000> <a:SHAKE>GOBLINS!? <B:0> I KNEW IT! This was a trap all along!"))
          (attack-player (tr "Anvil Annie has turned hostile!")))
         ('neutral
-         (await (dialog* (tr "Anvil Annie joined your crew!")))
+         (dialog-await (tr "Anvil Annie joined your crew!"))
          (exit)))
       (progn
-        (await (dialog* (tr "<c:Anvil Annie:44>Understood, right. Hard to trust anyone, these days...")))
+        (dialog-await (tr "<c:Anvil Annie:44>Understood, right. Hard to trust anyone, these days..."))
         (exit))))
 
 
 (defn/temp intimidate ()
   (let ((pstr (strength (player)))
         (ostr (strength (opponent))))
-    (await (dialog* "<s:3>. . . . . <s:0>"))
+    (dialog-await "<s:3>. . . . . <s:0>")
     (cond
       ((> pstr ostr)
        (join-crew)) ; she joins you
@@ -116,14 +116,14 @@
 
 
 (defn/temp negotiate ()
-  (let ((sel (await (dialog-choice* (tr "<c:Anvil Annie:44>Alright, let's negotiate. <B:0> I'm listening, but no sudden moves, gotit?")
-                                    (list (tr "Pay 700@.")
-                                          (let ((st (strength (player))))
-                                            (cond
-                                              ((> st 2) (tr "Intimidate."))
-                                              ((equal st 2) (tr "Intimidate. (risky)"))
-                                              (true (tr "Intimidate. (foolish)"))))
-                                          (tr "Refuse Bribe."))))))
+  (let ((sel (dialog-await-choice (tr "<c:Anvil Annie:44>Alright, let's negotiate. <B:0> I'm listening, but no sudden moves, gotit?")
+                                  (list (tr "Pay 700@.")
+                                        (let ((st (strength (player))))
+                                          (cond
+                                            ((> st 2) (tr "Intimidate."))
+                                            ((equal st 2) (tr "Intimidate. (risky)"))
+                                            (true (tr "Intimidate. (foolish)"))))
+                                        (tr "Refuse Bribe.")))))
     (case sel
       (0 (pay-toll 700))
       (1 (intimidate))
@@ -132,7 +132,7 @@
 
 (defn on-converge ()
   (setq on-converge nil)
-  (await (dialog* (tr "<c:Anvil Annie:44>Unknown vessel! You're trespassing in MY airspace! <B:0> I've been keeping this stretch of sky clear for twenty years, and I don't plan on stopping now! <B:0> Don't even think about giving me that 'innocent trader' routine - I can smell goblin sympathizers from three leagues away!")))
+  (dialog-await (tr "<c:Anvil Annie:44>Unknown vessel! You're trespassing in MY airspace! <B:0> I've been keeping this stretch of sky clear for twenty years, and I don't plan on stopping now! <B:0> Don't even think about giving me that 'innocent trader' routine - I can smell goblin sympathizers from three leagues away!"))
   (dialog-opts-reset)
   (if (dialog-await-binary-q-w/lore
        (tr "<c:Anvil Annie:44>Tell you what, spy - <B:0>you hand over 700@ right now, and maybe Sweet Bertha here won't blow a hole in your hull! (pats cannon)")
@@ -163,9 +163,11 @@
                                       "Please, take me with you!")))
         (case (annie-join)
           ('hostile
-           (await (dialog* (tr "<c:Anvil Annie:44>Finally aboard! Let me just... <B:0> <s:3>. . . <s:0>")))
-           (await (dialog* (tr "<c:Anvil Annie:44>Wait. WAIT. <B:0> Those biosigns... <d:1000> <a:SHAKE>GOBLINS!?")))
-           (await (dialog* (tr "Anvil Annie has turned hostile!"))))
+           (dialog-await (tr "<c:Anvil Annie:44>Finally aboard! Let me just... <B:0> <s:3>. . . <s:0>"))
+           (dialog-await (tr "<c:Anvil Annie:44>Wait. WAIT. <B:0> Those biosigns... <d:1000> <a:SHAKE>GOBLINS!?"))
+           (dialog-await (tr "Anvil Annie has turned hostile!")))
           ('neutral
-           (await (dialog* (tr "Anvil Annie joined your crew!")))
+           (coins-add (* (coins-victory) 72/100))
+           (score-add (* (coins-victory) 1/4))
+           (dialog-await (tr "Anvil Annie joined your crew!"))
            (exit)))))))

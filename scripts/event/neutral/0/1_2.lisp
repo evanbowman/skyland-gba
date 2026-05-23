@@ -43,10 +43,10 @@
 
 
 (defn/temp sabotage-station ()
-  (await (dialog*
-          (tr "Your crew targets the station's external sensors with precision fire. <B:0> ")
-          (tr "The weapons array remains active, but its targeting systems go dark. <B:0> ")
-          (tr "You slip past the blind station without incident.")))
+  (dialog-await
+   (tr "Your crew targets the station's external sensors with precision fire. <B:0> ")
+   (tr "The weapons array remains active, but its targeting systems go dark. <B:0> ")
+   (tr "You slip past the blind station without incident."))
   (adventure-log-add 77 '())
   (push-pending-event (+ 3 (choice 3)) "/scripts/event/hostile/imperial-pursuit.lisp")
   (exit))
@@ -54,7 +54,7 @@
 
 (defn/temp attack-player ((text . string))
   (opponent-mode 'hostile)
-  (await (dialog* text)))
+  (dialog-await text))
 
 
 (defn/temp pay-toll (receipt)
@@ -66,30 +66,30 @@
         (adventure-log-add 60 (list 600))
         (coins-add -600)
         (when receipt
-          (await (dialog*
-                  (tr "The station processes your payment. <B:0> ")
-                  (tr "After a moment, it transmits a receipt datapacket to your systems.")))
+          (dialog-await
+           (tr "The station processes your payment. <B:0> ")
+           (tr "After a moment, it transmits a receipt datapacket to your systems."))
           (pickup-cart 12 (tr "Your crew examines the transmission: a properly formatted Imperial Transit Voucher, complete with authentication seals and tax filing instructions. <B:0> According to the attached guidance, this 600@ toll is fully deductible from your annual merchant levy... <B:0> ...which was last collected seventeen years ago.")))
-        (await (dialog* (tr "The station deactivates and allows you to pass.")))
+        (dialog-await (tr "The station deactivates and allows you to pass."))
         (exit))))
 
 
 (defn/temp investigate ()
-  (await (dialog*
-    (tr "Your crew examines the station more closely. <B:0> ")
-    (tr "The toll demand references Imperial Transit Code section 47-G, subsection 12… <B:0> ")
-    (tr "…which was amended by decree 891 in the Third Solar Cycle… <B:0> ")
-    (tr "…but that decree was suspended pending review after the empire fractured…")))
+  (dialog-await
+   (tr "Your crew examines the station more closely. <B:0> ")
+   (tr "The toll demand references Imperial Transit Code section 47-G, subsection 12… <B:0> ")
+   (tr "…which was amended by decree 891 in the Third Solar Cycle… <B:0> ")
+   (tr "…but that decree was suspended pending review after the empire fractured…"))
 
-  (await (dialog*
-    (tr "Whether this toll is even legally enforceable would require months of archival research. <B:0> ")
-    (tr "Your engineer has a simpler solution: physically disable the station's sensor array. <B:0> ")
-    (tr "It won't know you passed. But someone will eventually notice the damage…")))
+  (dialog-await
+   (tr "Whether this toll is even legally enforceable would require months of archival research. <B:0> ")
+   (tr "Your engineer has a simpler solution: physically disable the station's sensor array. <B:0> ")
+   (tr "It won't know you passed. But someone will eventually notice the damage…"))
 
-  (let ((sel (await (dialog-choice* (tr "Disable the sensors?")
-                                    (tr '("Sabotage it."
-                                          "Just pay the toll."
-                                          "Refuse and fight!"))))))
+  (let ((sel (dialog-await-choice (tr "Disable the sensors?")
+                                  (tr '("Sabotage it."
+                                        "Just pay the toll."
+                                        "Refuse and fight!")))))
     (case sel
       (0 (sabotage-station))
       (1 (pay-toll true))
@@ -98,12 +98,11 @@
 
 (defn on-converge ()
   (setq on-converge nil)
-  (let ((sel (await
-              (dialog-choice*
-               (tr "While the old empire is now fragmented and most of its weapons systems are offline, this automated vessel seems to still be functioning. <B:0>The station's computers demand a toll of 600@. Pay?")
-               (tr '("Pay 600@ toll."
-                     "Examine the station…"
-                     "Refuse."))))))
+  (let ((sel (dialog-await-choice
+              (tr "While the old empire is now fragmented and most of its weapons systems are offline, this automated vessel seems to still be functioning. <B:0>The station's computers demand a toll of 600@. Pay?")
+              (tr '("Pay 600@ toll."
+                    "Examine the station…"
+                    "Refuse.")))))
     (case sel
       (0 (pay-toll false))
       (1 (investigate))

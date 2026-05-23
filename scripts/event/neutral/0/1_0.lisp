@@ -29,9 +29,9 @@
 
 
 (defn/temp attack-player (msg)
-  (await (dialog* msg))
-  (await (dialog* (tr "<c:goblin:2>Yesss captain!")))
-  (await (dialog* (tr "(the transmission was cut)")))
+  (dialog-await msg)
+  (dialog-await (tr "<c:goblin:2>Yesss captain!"))
+  (dialog-await (tr "(the transmission was cut)"))
   (opponent-mode 'hostile))
 
 
@@ -105,18 +105,17 @@
 
 
 (defn on-room-destroyed (isle sym)
-  ;; TODO: rewrite this with new-style await pattern
   (if (and (equal isle (opponent))
            (equal 2 (+ (room-count (opponent) 'cannon)
                        (room-count (opponent) 'missile-silo))))
       (progn
         (setq on-room-destroyed nil)
         (opponent-mode 'neutral)
-        (await (dialog* (tr (s+ "<c:Redbeard:12>Alright, alright! You've bested me! I yield! "
-                                "<B:0> You've disarmed the great Redbeard without sinking him - "
-                                "not many can claim that. <B:0> "
-                                "Take what you want from my hold, just... leave me vessel intact, "
-                                "aye?"))))
+        (dialog-await (tr (s+ "<c:Redbeard:12>Alright, alright! You've bested me! I yield! "
+                              "<B:0> You've disarmed the great Redbeard without sinking him - "
+                              "not many can claim that. <B:0> "
+                              "Take what you want from my hold, just... leave me vessel intact, "
+                              "aye?")))
         (pickup-cart 11 (tr (s+ "Among the scattered coins and looted cargo, you find a battered "
                                 "data cartridge, its label barely legible. <B:0> "
                                 "Redbeard waves dismissively. 'Old stories, mostly lies. "

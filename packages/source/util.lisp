@@ -54,6 +54,10 @@
   (dialog-opts-push txt2 --try-dialog-decline))
 
 
+(defn/c dialog-await ()
+  (await (apply dialog* $V)))
+
+
 ;; This fairly niche function opens a box of options. The first option being the
 ;; yes option, the last option being the no option. Sandwitched in between, will
 ;; be a bunch of worldbuilding questions. If you select a middle option, the
@@ -82,13 +86,16 @@
     result))
 
 
-
 (defn/c dialog-choice* ((text . string) choices)
   (dialog-opts-reset)
   (foreach (lambda (c)
              (dialog-opts-push c (lambda () nil)))
            choices)
   (dialog* text))
+
+
+(defn/c dialog-await-choice ((text . string) choices)
+  (await (dialog-choice* text choices)))
 
 
 (defn/c dialog-await-binary-q ((text . string) (y . string) (n . string))
