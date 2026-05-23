@@ -7,7 +7,8 @@
 (load-library "/packages/lib/locale.slb")
 
 
-;; Convenience alias for translating text.
+;; Convenience alias for translating text. Also used as an extraction marker for
+;; the localization scripts.
 (defn/c tr (thing)
   (if tr-bindings
       (tr-load thing)
