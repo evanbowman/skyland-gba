@@ -278,8 +278,8 @@ private:
     static constexpr auto build_impl(std::index_sequence<Is...>)
     {
         return mapbox::eternal::hash_map<mapbox::eternal::string, int>(
-            { std::pair<mapbox::eternal::string, int>{
-                Rooms::name(), static_cast<int>(Is)}... });
+            {std::pair<mapbox::eternal::string, int>{Rooms::name(),
+                                                     static_cast<int>(Is)}...});
     }
 
 public:

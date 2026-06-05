@@ -32,21 +32,21 @@
 #include <unordered_set>
 #if defined(__APPLE__)
 #include <fcntl.h>
-#include <signal.h>
 #include <limits.h>
 #include <mach-o/dyld.h> // for _NSGetExecutablePath
 #include <pwd.h>
+#include <signal.h>
 #include <sys/resource.h>
 #include <unistd.h> // for fork, execl
 #elif defined(__linux__)
-#include <signal.h>
 #include <fcntl.h>
 #include <limits.h>
 #include <pwd.h>
+#include <signal.h>
 #include <unistd.h> // for fork, execl, readlink
 #elif defined(_WIN32)
-#include <windows.h> // for GetModuleFileNameA, CreateProcessA
 #include <lmcons.h>
+#include <windows.h> // for GetModuleFileNameA, CreateProcessA
 #endif
 #include <filesystem>
 
@@ -3036,9 +3036,9 @@ static bool is_tile_transparent(SDL_Surface* surface,
 
     Uint8* pixels = (Uint8*)surface->pixels;
     const int pitch = surface->pitch;
-    const int bpp   = surface->format->BytesPerPixel;
-    const int w     = surface->w;
-    const int h     = surface->h;
+    const int bpp = surface->format->BytesPerPixel;
+    const int w = surface->w;
+    const int h = surface->h;
 
     bool is_transparent = true;
 
@@ -3049,7 +3049,8 @@ static bool is_tile_transparent(SDL_Surface* surface,
 
             // Guard against tilesheets whose dimensions aren't an exact
             // multiple of tile_size, and against a bad tile coordinate.
-            if (px >= w || py >= h) continue;
+            if (px >= w || py >= h)
+                continue;
 
             Uint8* p = pixels + py * pitch + px * bpp;
 
@@ -3075,7 +3076,8 @@ static bool is_tile_transparent(SDL_Surface* surface,
                 // Unknown format — bail out conservatively by treating
                 // the tile as non-transparent so we don't optimize away
                 // a draw we actually need.
-                if (SDL_MUSTLOCK(surface)) SDL_UnlockSurface(surface);
+                if (SDL_MUSTLOCK(surface))
+                    SDL_UnlockSurface(surface);
                 return false;
             }
 
@@ -3269,8 +3271,7 @@ void Platform::load_tile0_texture(const char* name_or_path)
         return;
     }
 
-    tile0_index_zero_is_transparent =
-        is_tile_transparent(loaded_surface, 0, 0);
+    tile0_index_zero_is_transparent = is_tile_transparent(loaded_surface, 0, 0);
 
     // NOTE: don't do the expansion for externally loaded files, which are
     // neither flattened nor metatiled, as expanding them messes up texture
@@ -3325,8 +3326,7 @@ void Platform::load_tile1_texture(const char* name_or_path)
         return;
     }
 
-    tile1_index_zero_is_transparent =
-        is_tile_transparent(loaded_surface, 0, 0);
+    tile1_index_zero_is_transparent = is_tile_transparent(loaded_surface, 0, 0);
 
     if (std::string(name_or_path).find('.') == std::string::npos) {
         loaded_surface = expand_surface_to_width(loaded_surface, 2048);
@@ -6629,7 +6629,9 @@ static void crash_signal_handler(int sig, siginfo_t*, void*)
 
     (*unrecoverrable_error_callback)("signal");
 
-    struct sigaction sa{};
+    struct sigaction sa
+    {
+    };
     sa.sa_handler = SIG_DFL;
     sigemptyset(&sa.sa_mask);
     sigaction(sig, &sa, nullptr);
@@ -6651,15 +6653,17 @@ static void install_crash_handlers()
     ss.ss_flags = 0;
     sigaltstack(&ss, nullptr);
 
-    struct sigaction sa{};
+    struct sigaction sa
+    {
+    };
     sa.sa_sigaction = crash_signal_handler;
     sigemptyset(&sa.sa_mask);
     sa.sa_flags = SA_SIGINFO | SA_ONSTACK | SA_RESETHAND;
 
     sigaction(SIGSEGV, &sa, nullptr);
-    sigaction(SIGBUS,  &sa, nullptr);
-    sigaction(SIGFPE,  &sa, nullptr);
-    sigaction(SIGILL,  &sa, nullptr);
+    sigaction(SIGBUS, &sa, nullptr);
+    sigaction(SIGFPE, &sa, nullptr);
+    sigaction(SIGILL, &sa, nullptr);
     sigaction(SIGABRT, &sa, nullptr);
 }
 #endif

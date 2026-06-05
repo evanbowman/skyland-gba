@@ -117,9 +117,7 @@ public:
             PLATFORM.screen().clear();
             PLATFORM.screen().display();
             show_island(&APP.player_island());
-            APP.with_opponent_island([](auto& isle) {
-                show_island(&isle);
-            });
+            APP.with_opponent_island([](auto& isle) { show_island(&isle); });
             PLATFORM.sleep(4);
             PLATFORM.screen().schedule_fade(0.f);
 

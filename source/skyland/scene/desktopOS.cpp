@@ -641,13 +641,13 @@ public:
                 Text::print(format("lisp:[%/%]",
                                    lisp_mem.first,
                                    lisp_mem.first + lisp_mem.second)
-                            .c_str(),
+                                .c_str(),
                             {1, 7});
                 int ent_used = 0;
                 int ent_total = 0;
                 for (auto& pl : globals().entity_pools_.pools()) {
-                    ent_used +=
-                        pl->pooled_element_count() - pl->pooled_element_remaining();
+                    ent_used += pl->pooled_element_count() -
+                                pl->pooled_element_remaining();
                     ent_total += pl->pooled_element_count();
                 }
                 Text::print(format("entity:[%/%]", ent_used, ent_total).c_str(),
@@ -655,11 +655,11 @@ public:
 
                 auto stat = flash_filesystem::statistics();
                 Text::print(
-                            format("disk:[%/%]",
-                                   stat.bytes_used_ / 1024,
-                                   (stat.bytes_used_ + stat.bytes_available_) / 1024)
-                            .c_str(),
-                            {1, 9});
+                    format("disk:[%/%]",
+                           stat.bytes_used_ / 1024,
+                           (stat.bytes_used_ + stat.bytes_available_) / 1024)
+                        .c_str(),
+                    {1, 9});
 
                 u32 mstack = 0;
                 if (auto s = PLATFORM.get_extensions().get_stack_usage) {
@@ -707,25 +707,26 @@ public:
                 const int px = cursor.x.as_integer();
                 const int py = cursor.y.as_integer();
 
-                constexpr int origin_px_x   = 1 * 8;
-                constexpr int origin_px_y   = 4 * 8;
-                constexpr int col_pitch     = 16;
-                constexpr int row_pitch     = 8;
-                constexpr int cell_w        = 8;
-                constexpr int cell_h        = 8;
-                constexpr int cols_per_row  = 14;
+                constexpr int origin_px_x = 1 * 8;
+                constexpr int origin_px_y = 4 * 8;
+                constexpr int col_pitch = 16;
+                constexpr int row_pitch = 8;
+                constexpr int cell_w = 8;
+                constexpr int cell_h = 8;
+                constexpr int cols_per_row = 14;
 
                 const int rel_x = px - origin_px_x;
                 const int rel_y = py - origin_px_y + 8;
 
                 int hovered = -1;
                 if (rel_x >= 0 && rel_y >= 0) {
-                    const int col   = rel_x / col_pitch;
+                    const int col = rel_x / col_pitch;
                     const int sub_x = rel_x % col_pitch;
-                    const int row   = rel_y / row_pitch;
+                    const int row = rel_y / row_pitch;
                     const int sub_y = rel_y % row_pitch;
 
-                    if (col < cols_per_row && sub_x < cell_w && sub_y < cell_h) {
+                    if (col < cols_per_row && sub_x < cell_w &&
+                        sub_y < cell_h) {
                         const int idx = row * cols_per_row + col;
                         if (idx < (int)scratch_buffer_count) {
                             hovered = idx;
