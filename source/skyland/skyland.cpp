@@ -952,6 +952,16 @@ void swap_language(const char* new_lang)
 
 
 
+void App::reset_time_stream()
+{
+    APP.time_stream().enable_pushes(true);
+    time_stream().clear();
+    time_stream::event::Initial e;
+    APP.push_time_stream(e);
+}
+
+
+
 } // namespace skyland
 
 

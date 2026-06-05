@@ -100,6 +100,7 @@ ScenePtr LevelCompleteOptionsScene::update(Time delta)
             PLATFORM.screen().schedule_fade(0.f);
             PLATFORM.screen().pixelate(0, false);
             APP.reset_opponent_island();
+            APP.reset_time_stream();
             return make_scene<ReadyScene>();
         } else {
             const auto amount = smoothstep(0.f, fade_duration, timer_);

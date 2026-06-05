@@ -293,11 +293,7 @@ ScenePtr SelectTutorialScene::update(Time delta)
             PLATFORM.speaker().stream_music(APP.environment().music()->c_str(),
                                             0);
 
-            APP.time_stream().enable_pushes(true);
-            APP.time_stream().clear();
-
-            time_stream::event::Initial e;
-            APP.push_time_stream(e);
+            APP.reset_time_stream();
 
             return make_scene<FadeInScene>();
         } else {

@@ -470,6 +470,9 @@ public:
     }
 
 
+    void reset_time_stream();
+
+
     template <typename T> void push_time_stream(T& elem)
     {
         time_stream_.push(level_timer(), elem);

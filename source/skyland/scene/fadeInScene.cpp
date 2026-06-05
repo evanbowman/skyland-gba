@@ -124,11 +124,7 @@ ScenePtr FadeInScene::update(Time delta)
 
         if (APP.game_mode() == App::GameMode::sandbox or
             APP.game_mode() == App::GameMode::adventure) {
-            APP.time_stream().enable_pushes(true);
-            APP.time_stream().clear();
-
-            time_stream::event::Initial e;
-            APP.push_time_stream(e);
+            APP.reset_time_stream();
         }
 
         const auto loc = APP.current_world_location();

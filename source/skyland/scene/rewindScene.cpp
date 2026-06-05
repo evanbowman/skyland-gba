@@ -327,7 +327,9 @@ ScenePtr RewindScene::update(Time)
 
     if (far_camera_) {
         auto& cursor_loc = globals().far_cursor_loc_;
-        APP.camera()->update(*APP.opponent_island(), cursor_loc, delta, false);
+        APP.with_opponent_island([&](auto& isle) {
+            APP.camera()->update(isle, cursor_loc, delta, false);
+        });
     } else {
         auto& cursor_loc = globals().near_cursor_loc_;
         APP.camera()->update(APP.player_island(), cursor_loc, delta, true);
@@ -358,8 +360,7 @@ ScenePtr RewindScene::update(Time)
     const auto current_timestamp = APP.level_timer().total();
     auto end_timestamp = APP.time_stream().end_timestamp();
 
-    if (not APP.opponent_island() or not end_timestamp or
-        APP.player().button_down(Button::alt_1) or
+    if (not end_timestamp or APP.player().button_down(Button::alt_1) or
         (exit_requested_ and not is_decimator_firing())) {
 
         if (APP.player().button_down(Button::alt_1)) {
@@ -419,7 +420,9 @@ ScenePtr RewindScene::update(Time)
 
         case time_stream::event::Type::opponent_room_created: {
             auto e = (time_stream::event::OpponentRoomCreated*)end;
-            APP.opponent_island()->destroy_room({e->x_, e->y_});
+            APP.with_opponent_island([&e](auto& isle) {
+                isle.destroy_room({e->x_, e->y_});
+            });
             APP.time_stream().pop(sizeof *e);
             break;
         }
@@ -484,15 +487,16 @@ ScenePtr RewindScene::update(Time)
 
         case time_stream::event::Type::opponent_room_destroyed: {
             auto e = (time_stream::event::OpponentRoomDestroyed*)end;
-            (*load_metaclass(e->type_))
-                ->create(APP.opponent_island(), {e->x_, e->y_});
-            if (auto room = APP.opponent_island()->get_room({e->x_, e->y_})) {
-                const bool quiet = (*room->metaclass())->properties() &
-                                   RoomProperties::destroy_quietly;
-                if (not quiet) {
-                    medium_explosion_inv(room->origin());
+            APP.with_opponent_island([&e](auto& isle) {
+                (*load_metaclass(e->type_))->create(&isle, {e->x_, e->y_});
+                if (auto room = isle.get_room({e->x_, e->y_})) {
+                    const bool quiet = (*room->metaclass())->properties() &
+                                       RoomProperties::destroy_quietly;
+                    if (not quiet) {
+                        medium_explosion_inv(room->origin());
+                    }
                 }
-            }
+            });
             APP.time_stream().pop(sizeof *e);
             break;
         }
@@ -510,9 +514,11 @@ ScenePtr RewindScene::update(Time)
 
         case time_stream::event::Type::opponent_room_powerchange: {
             auto e = (time_stream::event::OpponentRoomPowerchange*)end;
-            if (auto room = APP.opponent_island()->get_room({e->x_, e->y_})) {
-                room->set_powerdown(e->status_);
-            }
+            APP.with_opponent_island([&e](auto& isle) {
+                if (auto room = isle.get_room({e->x_, e->y_})) {
+                    room->set_powerdown(e->status_);
+                }
+            });
             APP.time_stream().pop(sizeof *e);
             break;
         }
@@ -533,9 +539,11 @@ ScenePtr RewindScene::update(Time)
         case time_stream::event::Type::opponent_room_transmuted: {
             auto e = (time_stream::event::OpponentRoomTransmuted*)end;
 
-            if (auto room = APP.opponent_island()->get_room({e->x_, e->y_})) {
-                room->__unsafe__transmute(e->prev_type_);
-            }
+            APP.with_opponent_island([&](auto& isle) {
+                if (auto room = isle.get_room({e->x_, e->y_})) {
+                    room->__unsafe__transmute(e->prev_type_);
+                }
+            });
 
             APP.time_stream().pop(sizeof *e);
             break;
@@ -559,14 +567,15 @@ ScenePtr RewindScene::update(Time)
 
         case time_stream::event::Type::opponent_room_salvaged: {
             auto e = (time_stream::event::OpponentRoomSalvaged*)end;
-            (*load_metaclass(e->type_))
-                ->create(APP.opponent_island(), {e->x_, e->y_});
-            if (auto room = APP.opponent_island()->get_room({e->x_, e->y_})) {
-                if (room->metaclass_index() == e->type_) {
-                    room->__set_health(e->health_.get());
-                    room->set_group((Room::Group)e->group_);
+            APP.with_opponent_island([&e](auto& isle) {
+                (*load_metaclass(e->type_))->create(&isle, {e->x_, e->y_});
+                if (auto room = isle.get_room({e->x_, e->y_})) {
+                    if (room->metaclass_index() == e->type_) {
+                        room->__set_health(e->health_.get());
+                        room->set_group((Room::Group)e->group_);
+                    }
                 }
-            }
+            });
             APP.time_stream().pop(sizeof *e);
             break;
         }
@@ -588,13 +597,14 @@ ScenePtr RewindScene::update(Time)
 
         case time_stream::event::Type::opponent_room_moved: {
             auto e = (time_stream::event::OpponentRoomMoved*)end;
-            if (auto r = APP.opponent_island()->get_room({e->x_, e->y_})) {
-                APP.opponent_island()->move_room({e->x_, e->y_},
-                                                 {e->prev_x_, e->prev_y_});
-                if (move_region) {
-                    r->set_hidden(true);
+            APP.with_opponent_island([&e, move_region](auto& isle) {
+                if (auto r = isle.get_room({e->x_, e->y_})) {
+                    isle.move_room({e->x_, e->y_}, {e->prev_x_, e->prev_y_});
+                    if (move_region) {
+                        r->set_hidden(true);
+                    }
                 }
-            }
+            });
             APP.time_stream().pop(sizeof *e);
             break;
         }
@@ -650,7 +660,9 @@ ScenePtr RewindScene::update(Time)
 
         case time_stream::event::Type::opponent_fire_created: {
             auto e = (time_stream::event::OpponentFireCreated*)end;
-            APP.opponent_island()->fire_extinguish({e->x_, e->y_});
+            APP.with_opponent_island([&e](auto& isle) {
+                isle.fire_extinguish({e->x_, e->y_});
+            });
             APP.time_stream().pop(sizeof *e);
             break;
         }
@@ -666,7 +678,9 @@ ScenePtr RewindScene::update(Time)
 
         case time_stream::event::Type::opponent_fire_extinguished: {
             auto e = (time_stream::event::OpponentFireExtinguished*)end;
-            APP.opponent_island()->fire_create({e->x_, e->y_});
+            APP.with_opponent_island([&e](auto& isle) {
+                isle.fire_create({e->x_, e->y_});
+            });
             APP.time_stream().pop(sizeof *e);
             break;
         }
@@ -698,6 +712,11 @@ ScenePtr RewindScene::update(Time)
                         time_stream::event::Type::player_room_plundered
                     ? &APP.player_island()
                     : APP.opponent_island();
+
+            if (not island) {
+                APP.time_stream().pop(sizeof *e);
+                break;
+            }
 
             // NOTE: the plundered room was already technically re-created, by
             // the room destroyed event issued by the zero-health room after it
@@ -771,11 +790,13 @@ ScenePtr RewindScene::update(Time)
 
         case time_stream::event::Type::opponent_nemesis_blast_destroyed: {
             auto e = (time_stream::event::PlayerNemesisBlastDestroyed*)end;
-            if (auto v = respawn_basic_projectile<NemesisBlast>(
-                    APP.opponent_island(), *e, medium_explosion_inv)) {
-                v->set_variant(e->variant_);
-                APP.camera()->shake(8);
-            }
+            APP.with_opponent_island([&e](auto& isle) {
+                if (auto v = respawn_basic_projectile<NemesisBlast>(
+                        &isle, *e, medium_explosion_inv)) {
+                    v->set_variant(e->variant_);
+                    APP.camera()->shake(8);
+                }
+            });
             APP.time_stream().pop(sizeof *e);
             break;
         }
@@ -793,7 +814,8 @@ ScenePtr RewindScene::update(Time)
         case time_stream::event::Type::opponent_plugin_projectile_destroyed: {
             auto e =
                 (time_stream::event::OpponentPluginProjectileDestroyed*)end;
-            respawn_plugin_projectile(APP.opponent_island(), *e);
+            APP.with_opponent_island(
+                [&e](auto& isle) { respawn_plugin_projectile(&isle, *e); });
             APP.time_stream().pop(sizeof *e);
             APP.camera()->shake(8);
             break;
@@ -834,11 +856,13 @@ ScenePtr RewindScene::update(Time)
 
         case time_stream::event::Type::opponent_cannonball_destroyed: {
             auto e = (time_stream::event::OpponentCannonballDestroyed*)end;
-            auto p = respawn_basic_projectile<Cannonball>(
-                APP.opponent_island(), *e, medium_explosion_inv);
-            if (p) {
-                p->set_variant(e->variant_);
-            }
+            APP.with_opponent_island([&e](auto& isle) {
+                auto p = respawn_basic_projectile<Cannonball>(
+                    &isle, *e, medium_explosion_inv);
+                if (p) {
+                    p->set_variant(e->variant_);
+                }
+            });
             APP.time_stream().pop(sizeof *e);
             APP.camera()->shake(8);
             break;
@@ -857,8 +881,10 @@ ScenePtr RewindScene::update(Time)
 
         case time_stream::event::Type::opponent_incineratorbolt_destroyed: {
             auto e = (time_stream::event::OpponentIncineratorboltDestroyed*)end;
-            respawn_basic_projectile<IncineratorBolt>(
-                APP.opponent_island(), *e, medium_explosion_inv);
+            APP.with_opponent_island([&e](auto& isle) {
+                respawn_basic_projectile<IncineratorBolt>(
+                    &isle, *e, medium_explosion_inv);
+            });
             APP.time_stream().pop(sizeof *e);
             APP.camera()->shake(14);
             break;
@@ -880,11 +906,13 @@ ScenePtr RewindScene::update(Time)
 
         case time_stream::event::Type::opponent_beam_destroyed: {
             auto e = (time_stream::event::OpponentBeamDestroyed*)end;
-            auto t = respawn_basic_projectile<Beam>(
-                APP.opponent_island(), *e, medium_explosion_inv, e->index_);
-            if (t) {
-                t->restore_blocks_hit(*e);
-            }
+            APP.with_opponent_island([&e](auto& isle) {
+                auto t = respawn_basic_projectile<Beam>(
+                    &isle, *e, medium_explosion_inv, e->index_);
+                if (t) {
+                    t->restore_blocks_hit(*e);
+                }
+            });
             APP.time_stream().pop(sizeof *e);
             APP.camera()->shake(8);
             break;
@@ -903,8 +931,10 @@ ScenePtr RewindScene::update(Time)
 
         case time_stream::event::Type::opponent_arcbolt_destroyed: {
             auto e = (time_stream::event::OpponentArcboltDestroyed*)end;
-            respawn_basic_projectile<ArcBolt>(
-                APP.opponent_island(), *e, medium_explosion_inv);
+            APP.with_opponent_island([&e](auto& isle) {
+                respawn_basic_projectile<ArcBolt>(
+                    &isle, *e, medium_explosion_inv);
+            });
             APP.time_stream().pop(sizeof *e);
             APP.camera()->shake(8);
             break;
@@ -923,8 +953,10 @@ ScenePtr RewindScene::update(Time)
 
         case time_stream::event::Type::opponent_firebolt_destroyed: {
             auto e = (time_stream::event::OpponentFireboltDestroyed*)end;
-            respawn_basic_projectile<FireBolt>(
-                APP.opponent_island(), *e, medium_explosion_inv);
+            APP.with_opponent_island([&e](auto& isle) {
+                respawn_basic_projectile<FireBolt>(
+                    &isle, *e, medium_explosion_inv);
+            });
             APP.time_stream().pop(sizeof *e);
             APP.camera()->shake(8);
             break;
@@ -943,8 +975,9 @@ ScenePtr RewindScene::update(Time)
 
         case time_stream::event::Type::opponent_flak_destroyed: {
             auto e = (time_stream::event::OpponentFlakDestroyed*)end;
-            respawn_basic_projectile<Flak>(
-                APP.opponent_island(), *e, medium_explosion_inv);
+            APP.with_opponent_island([&e](auto& isle) {
+                respawn_basic_projectile<Flak>(&isle, *e, medium_explosion_inv);
+            });
             APP.time_stream().pop(sizeof *e);
             APP.camera()->shake(8);
             break;
@@ -963,8 +996,10 @@ ScenePtr RewindScene::update(Time)
 
         case time_stream::event::Type::opponent_ionburst_destroyed: {
             auto e = (time_stream::event::OpponentIonBurstDestroyed*)end;
-            respawn_basic_projectile<IonBurst>(
-                APP.opponent_island(), *e, medium_explosion_inv);
+            APP.with_opponent_island([&e](auto& isle) {
+                respawn_basic_projectile<IonBurst>(
+                    &isle, *e, medium_explosion_inv);
+            });
             APP.time_stream().pop(sizeof *e);
             APP.camera()->shake(8);
             break;
@@ -983,8 +1018,10 @@ ScenePtr RewindScene::update(Time)
 
         case time_stream::event::Type::opponent_antimatter_destroyed: {
             auto e = (time_stream::event::OpponentAntimatterDestroyed*)end;
-            respawn_basic_projectile<Antimatter>(
-                &APP.player_island(), *e, medium_explosion_inv);
+            APP.with_opponent_island([&e](auto& isle) {
+                respawn_basic_projectile<Antimatter>(
+                    &isle, *e, medium_explosion_inv);
+            });
             APP.time_stream().pop(sizeof *e);
             APP.camera()->shake(8);
             break;
@@ -1041,8 +1078,10 @@ ScenePtr RewindScene::update(Time)
 
         case time_stream::event::Type::opponent_decimator_burst_destroyed: {
             auto e = (time_stream::event::OpponentDecimatorBurstDestroyed*)end;
-            respawn_basic_projectile<DecimatorBurst>(
-                APP.opponent_island(), *e, medium_explosion_inv);
+            APP.with_opponent_island([&e](auto& isle) {
+                respawn_basic_projectile<DecimatorBurst>(
+                    &isle, *e, medium_explosion_inv);
+            });
             APP.time_stream().pop(sizeof *e);
             APP.camera()->shake(26);
             break;
@@ -1059,7 +1098,8 @@ ScenePtr RewindScene::update(Time)
 
         case time_stream::event::Type::opponent_missile_destroyed: {
             auto e = (time_stream::event::OpponentMissileDestroyed*)end;
-            respawn_missile(APP.opponent_island(), *e);
+            APP.with_opponent_island(
+                [&e](auto& isle) { respawn_missile(&isle, *e); });
             APP.time_stream().pop(sizeof *e);
             break;
         }
@@ -1075,7 +1115,8 @@ ScenePtr RewindScene::update(Time)
 
         case time_stream::event::Type::opponent_rocketbomb_destroyed: {
             auto e = (time_stream::event::OpponentRocketBombDestroyed*)end;
-            respawn_rocketbomb(APP.opponent_island(), *e);
+            APP.with_opponent_island(
+                [&e](auto& isle) { respawn_rocketbomb(&isle, *e); });
             APP.time_stream().pop(sizeof *e);
             break;
         }
@@ -1091,7 +1132,8 @@ ScenePtr RewindScene::update(Time)
 
         case time_stream::event::Type::opponent_clumpmissile_destroyed: {
             auto e = (time_stream::event::OpponentClumpMissileDestroyed*)end;
-            respawn_clumpmissile(APP.opponent_island(), *e);
+            APP.with_opponent_island(
+                [&e](auto& isle) { respawn_clumpmissile(&isle, *e); });
             APP.time_stream().pop(sizeof *e);
             break;
         }
@@ -1107,7 +1149,8 @@ ScenePtr RewindScene::update(Time)
 
         case time_stream::event::Type::opponent_atomic_destroyed: {
             auto e = (time_stream::event::OpponentAtomicDestroyed*)end;
-            respawn_atomic(APP.opponent_island(), *e);
+            APP.with_opponent_island(
+                [&e](auto& isle) { respawn_atomic(&isle, *e); });
             APP.time_stream().pop(sizeof *e);
             break;
         }
@@ -1126,10 +1169,12 @@ ScenePtr RewindScene::update(Time)
 
         case time_stream::event::Type::opponent_room_damaged_small: {
             auto e = (time_stream::event::OpponentRoomDamagedSmall*)end;
-            if (auto room = APP.opponent_island()->get_room({e->x_, e->y_})) {
-                room->__set_health(room->health() + e->diff_);
-                room->reset_injured_timer(1);
-            }
+            APP.with_opponent_island([&e](auto& isle) {
+                if (auto room = isle.get_room({e->x_, e->y_})) {
+                    room->__set_health(room->health() + e->diff_);
+                    room->reset_injured_timer(1);
+                }
+            });
             APP.time_stream().pop(sizeof *e);
             break;
         }
@@ -1148,10 +1193,12 @@ ScenePtr RewindScene::update(Time)
 
         case time_stream::event::Type::opponent_room_damaged: {
             auto e = (time_stream::event::OpponentRoomDamaged*)end;
-            if (auto room = APP.opponent_island()->get_room({e->x_, e->y_})) {
-                room->__set_health(e->previous_health_.get());
-                room->reset_injured_timer(1);
-            }
+            APP.with_opponent_island([&e](auto& isle) {
+                if (auto room = isle.get_room({e->x_, e->y_})) {
+                    room->__set_health(e->previous_health_.get());
+                    room->reset_injured_timer(1);
+                }
+            });
             APP.time_stream().pop(sizeof *e);
             break;
         }
@@ -1169,9 +1216,11 @@ ScenePtr RewindScene::update(Time)
 
         case time_stream::event::Type::opponent_room_repaired: {
             auto e = (time_stream::event::OpponentRoomRepaired*)end;
-            if (auto room = APP.opponent_island()->get_room({e->x_, e->y_})) {
-                room->__set_health(e->previous_health_.get());
-            }
+            APP.with_opponent_island([&e](auto& isle) {
+                if (auto room = isle.get_room({e->x_, e->y_})) {
+                    room->__set_health(e->previous_health_.get());
+                }
+            });
             APP.time_stream().pop(sizeof *e);
             break;
         }
@@ -1189,6 +1238,11 @@ ScenePtr RewindScene::update(Time)
             auto e = (time_stream::event::CharacterMovementPathAssigned*)end;
             Island* island =
                 e->near_ ? &APP.player_island() : APP.opponent_island();
+
+            if (not island) {
+                APP.time_stream().pop(sizeof *e);
+                break;
+            }
 
             if (auto chr = island->find_character_by_id(e->id_.get()).first) {
                 chr->drop_movement_path();
@@ -1220,6 +1274,11 @@ ScenePtr RewindScene::update(Time)
             auto e = (time_stream::event::CharacterMoved*)end;
             Island* island =
                 e->near_ ? &APP.player_island() : APP.opponent_island();
+
+            if (not island) {
+                APP.time_stream().pop(sizeof *e);
+                break;
+            }
 
             if (auto chr = island->find_character_by_id(e->id_.get()).first) {
                 chr->rewind_movement_step({e->previous_x_, e->previous_y_});
@@ -1255,6 +1314,11 @@ ScenePtr RewindScene::update(Time)
 
             Island* island =
                 e->near_ ? &APP.player_island() : APP.opponent_island();
+
+            if (not island) {
+                APP.time_stream().pop(sizeof *e);
+                break;
+            }
 
             Player* owner =
                 e->owned_by_player_ ? &APP.player() : &APP.opponent();
@@ -1304,6 +1368,11 @@ ScenePtr RewindScene::update(Time)
             Island* island =
                 e->near_ ? &APP.player_island() : APP.opponent_island();
 
+            if (not island) {
+                APP.time_stream().pop(sizeof *e);
+                break;
+            }
+
             if (auto room = island->get_room({e->x_, e->y_})) {
                 for (auto it = room->characters().begin();
                      it not_eq room->characters().end();) {
@@ -1335,6 +1404,11 @@ ScenePtr RewindScene::update(Time)
             Island* island =
                 e->near_ ? &APP.player_island() : APP.opponent_island();
 
+            if (not island) {
+                APP.time_stream().pop(sizeof *e);
+                break;
+            }
+
             if (auto chr = island->find_character_by_id(e->id_.get()).first) {
                 chr->__set_health(e->previous_health_);
             } else {
@@ -1356,6 +1430,11 @@ ScenePtr RewindScene::update(Time)
 
             Island* dest_island = not e->source_near_ ? &APP.player_island()
                                                       : APP.opponent_island();
+
+            if (not source_island or not dest_island) {
+                APP.time_stream().pop(sizeof *e);
+                break;
+            }
 
             // Ok, so here, we want to revert the transport. Find the
             // transported character at the destination island, and move it back
@@ -1419,6 +1498,11 @@ ScenePtr RewindScene::update(Time)
 
             Island* dest_island =
                 not e->chr_near_ ? &APP.player_island() : APP.opponent_island();
+
+            if (not source_island or not dest_island) {
+                APP.time_stream().pop(sizeof *e);
+                break;
+            }
 
             auto chr_info = dest_island->find_character_by_id(e->id_.get());
             if (chr_info.first == nullptr) {
@@ -1545,6 +1629,11 @@ ScenePtr RewindScene::update(Time)
             Island* island =
                 e->near_ ? &APP.player_island() : APP.opponent_island();
 
+            if (not island) {
+                APP.time_stream().pop(sizeof *e);
+                break;
+            }
+
             if (auto room = island->get_room({e->room_x_, e->room_y_})) {
                 if (e->has_previous_target_) {
                     room->set_target(
@@ -1573,10 +1662,11 @@ ScenePtr RewindScene::update(Time)
 
         case time_stream::event::Type::opponent_room_reload_complete: {
             auto e = (time_stream::event::OpponentRoomReloadComplete*)end;
-            if (auto room =
-                    APP.opponent_island()->get_room({e->room_x_, e->room_y_})) {
-                room->___rewind___finished_reload();
-            }
+            APP.with_opponent_island([&e](auto& isle) {
+                if (auto room = isle.get_room({e->room_x_, e->room_y_})) {
+                    room->___rewind___finished_reload();
+                }
+            });
             APP.time_stream().pop(sizeof *e);
             break;
         }
@@ -1584,8 +1674,10 @@ ScenePtr RewindScene::update(Time)
 
         case time_stream::event::Type::opponent_island_drift_changed: {
             auto e = (time_stream::event::OpponentIslandDriftChanged*)end;
-            auto val = Fixnum::create(e->previous_speed__data_.get());
-            APP.opponent_island()->set_drift(val);
+            APP.with_opponent_island([&e](auto& isle) {
+                auto val = Fixnum::create(e->previous_speed__data_.get());
+                isle.set_drift(val);
+            });
             APP.time_stream().pop(sizeof *e);
             break;
         }
@@ -1597,8 +1689,10 @@ ScenePtr RewindScene::update(Time)
             Island* island =
                 e->near_ ? &APP.player_island() : APP.opponent_island();
 
-            island->init_terrain(e->previous_terrain_size_);
-            island->repaint();
+            if (island) {
+                island->init_terrain(e->previous_terrain_size_);
+                island->repaint();
+            }
 
             APP.time_stream().pop(sizeof *e);
             break;
@@ -1611,14 +1705,16 @@ ScenePtr RewindScene::update(Time)
             Island* dest_island = e->destination_near_ ? &APP.player_island()
                                                        : APP.opponent_island();
 
-            for (auto& drone_sp : dest_island->drones()) {
-                if (drone_sp->position().x == e->x_pos_ and
-                    drone_sp->position().y == e->y_pos_) {
+            if (dest_island) {
+                for (auto& drone_sp : dest_island->drones()) {
+                    if (drone_sp->position().x == e->x_pos_ and
+                        drone_sp->position().y == e->y_pos_) {
 
-                    drone_sp->__override_state(Drone::State::launch,
-                                               e->duration_.get(),
-                                               e->duration_.get());
-                    break;
+                        drone_sp->__override_state(Drone::State::launch,
+                                                   e->duration_.get(),
+                                                   e->duration_.get());
+                        break;
+                    }
                 }
             }
 
@@ -1633,12 +1729,14 @@ ScenePtr RewindScene::update(Time)
             Island* dest_island = e->destination_near_ ? &APP.player_island()
                                                        : APP.opponent_island();
 
-            for (auto& drone : dest_island->drones()) {
-                if (drone->position().x == e->x_pos_ and
-                    drone->position().y == e->y_pos_) {
+            if (dest_island) {
+                for (auto& drone : dest_island->drones()) {
+                    if (drone->position().x == e->x_pos_ and
+                        drone->position().y == e->y_pos_) {
 
-                    drone->__set_health(e->previous_health_.get());
-                    break;
+                        drone->__set_health(e->previous_health_.get());
+                        break;
+                    }
                 }
             }
 
@@ -1653,19 +1751,21 @@ ScenePtr RewindScene::update(Time)
             Island* dest_island = e->destination_near_ ? &APP.player_island()
                                                        : APP.opponent_island();
 
-            for (auto& drone : dest_island->drones()) {
-                if (drone->position().x == e->x_pos_ and
-                    drone->position().y == e->y_pos_) {
+            if (dest_island) {
+                for (auto& drone : dest_island->drones()) {
+                    if (drone->position().x == e->x_pos_ and
+                        drone->position().y == e->y_pos_) {
 
-                    if (e->has_previous_target_) {
-                        drone->set_target(
-                            {e->previous_target_x_, e->previous_target_y_},
-                            false,
-                            e->previous_target_near_);
-                    } else {
-                        drone->drop_target();
+                        if (e->has_previous_target_) {
+                            drone->set_target(
+                                {e->previous_target_x_, e->previous_target_y_},
+                                false,
+                                e->previous_target_near_);
+                        } else {
+                            drone->drop_target();
+                        }
+                        break;
                     }
-                    break;
                 }
             }
 
@@ -1680,12 +1780,14 @@ ScenePtr RewindScene::update(Time)
             Island* dest_island = e->destination_near_ ? &APP.player_island()
                                                        : APP.opponent_island();
 
-            for (auto& drone : dest_island->drones()) {
-                if (drone->position().x == e->x_pos_ and
-                    drone->position().y == e->y_pos_) {
+            if (dest_island) {
+                for (auto& drone : dest_island->drones()) {
+                    if (drone->position().x == e->x_pos_ and
+                        drone->position().y == e->y_pos_) {
 
-                    drone->___rewind___finished_reload();
-                    break;
+                        drone->___rewind___finished_reload();
+                        break;
+                    }
                 }
             }
 
@@ -1702,6 +1804,11 @@ ScenePtr RewindScene::update(Time)
 
             Island* parent_island =
                 e->parent_near_ ? &APP.player_island() : APP.opponent_island();
+
+            if (not dest_island or not parent_island) {
+                APP.time_stream().pop(sizeof *e);
+                break;
+            }
 
             auto drone_class = &drone_metatable().first[e->type_];
             if (auto drone = (*drone_class)
@@ -2067,7 +2174,7 @@ ScenePtr RewindScene::update(Time)
     rewind_entities(delta, APP.birds());
 
     APP.player_island().rewind(delta);
-    APP.opponent_island()->rewind(delta);
+    APP.with_opponent_island([delta](auto& isle) { isle.rewind(delta); });
 
     // Potential bugfix: some moved blocks caused the move region begin message
     // to age-out of the history buffer.
@@ -2075,9 +2182,11 @@ ScenePtr RewindScene::update(Time)
         for (auto& room : APP.player_island().rooms()) {
             room->set_hidden(false);
         }
-        for (auto& room : APP.opponent_island()->rooms()) {
-            room->set_hidden(false);
-        }
+        APP.with_opponent_island([](auto& isle) {
+            for (auto& room : isle.rooms()) {
+                room->set_hidden(false);
+            }
+        });
     }
 
     return null_scene();
