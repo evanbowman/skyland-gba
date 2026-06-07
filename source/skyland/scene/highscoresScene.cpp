@@ -270,7 +270,10 @@ void HighscoresScene::enter(Scene& prev)
             PersistentData::StateFlag::dev_mode_active)) {
 
         if (score > (int)highscores.values_[0].get()) {
-            highscore_island_info_store();
+            // FIXME: re-enable this? The data isn't currently used by the
+            // webserver, and there's a bug in this function that crashes the
+            // desktop builds of the game.
+            // highscore_island_info_store();
         }
 
         for (auto& highscore : reversed(highscores.values_)) {
