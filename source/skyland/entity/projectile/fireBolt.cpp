@@ -158,7 +158,13 @@ void FireBolt::on_collision(Room& room, Vec2<u8> origin)
         return;
     }
 
-    room.parent()->fire_create(room.position());
+    auto sz = room.size();
+    auto pos = room.position();
+    for (u8 x = pos.x; x < pos.x + sz.x; ++x) {
+        for (u8 y = pos.y; y < pos.y + sz.y; ++y) {
+            room.parent()->fire_create({x, y});
+        }
+    }
 
     if ((*room.metaclass())->properties() & RoomProperties::fragile and
         room.max_health() < 30) {
