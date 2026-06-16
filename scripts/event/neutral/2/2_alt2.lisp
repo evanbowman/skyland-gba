@@ -28,6 +28,9 @@
       nil)))
 
 
+(global 'donate-crew) ;; For the linter
+
+
 (defn/temp present-choice ()
   (case (dialog-await-choice
          (tr "The channel stays open. At the windows, the copies have stopped working — every one turned toward you.")
@@ -44,6 +47,13 @@
                              "they showed at every other task — no anger in it. <B:0> "
                              "The far ones do not move at all.")))
        (opponent-mode 'hostile)
+       (foreach (lambda (info)
+                  (let ((x (get info 0))
+                        (y (get info 1)))
+                    (chr-del (opponent) x y)
+                    (let ((id (chr-new (opponent) x y 'hostile '((race . 2)))))
+                      (chr-hp id 48))))
+                (chrs (opponent)))
        (dialog-await (tr "<c:Carrier:25>DEFENSE PROTOCOL ENGAGED. ASSETS COMMITTED.")))
     (2 (exit))))
 
