@@ -3,4 +3,4 @@
 ;;;
 
 
-(eval-file (format "/scripts/event/neutral/2/2_alt%.lisp" (choice 2)))
+(eval-file (format "/scripts/event/neutral/2/2_alt%.lisp" (choice 3)))
