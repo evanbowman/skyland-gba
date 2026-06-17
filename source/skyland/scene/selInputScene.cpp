@@ -52,6 +52,11 @@ void SelInputScene::enter(Scene& prev)
             required_space_ = {(u8)xrange, (u8)yrange};
             w_ot_ = (*mt)->weapon_orientation();
         }
+    } else {
+        auto isle = near_ ? &APP.player_island() : APP.opponent_island();
+        if (isle) {
+            show_island_interior(isle);
+        }
     }
 
 
