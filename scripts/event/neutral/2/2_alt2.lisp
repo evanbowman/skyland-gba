@@ -59,10 +59,15 @@
 
 
 (defn/temp get-item ()
-  (let ((opt (sample '(warhead
-                       amplifier
-                       phase-shifter
-                       deflector))))
+  (let ((tab (eval-file "/scripts/config/room_tab.lisp"))
+        (opt '()))
+
+    (while (nil? opt)
+      (let ((pick (sample tab)))
+        (let ((cost (get pick 2)))
+          (when (> cost 2999)
+            (setq opt (cons (car pick) opt))))))
+
     (let (((x . y) (await (sel-input* opt (tr "Place item:")))))   ;; paren fixed
       (room-new (player) (list opt x y))
       (sound "build0")

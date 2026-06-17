@@ -54,7 +54,7 @@ void SelInputScene::enter(Scene& prev)
         }
     } else {
         auto isle = near_ ? &APP.player_island() : APP.opponent_island();
-        if (isle) {
+        if (isle and not isle->interior_visible()) {
             show_island_interior(isle);
         }
     }
