@@ -68,9 +68,10 @@
           (when (> cost 2999)
             (setq opt (cons (car pick) opt))))))
 
-    (let (((x . y) (await (sel-input* opt (tr "Place item:")))))   ;; paren fixed
-      (room-new (player) (list opt x y))
+    (let (((x . y) (await (sel-input* (car opt) (tr "Place item:")))))   ;; paren fixed
+      (room-new (player) (list (car opt) x y))
       (sound "build0")
+      (dialog-await (format (tr "You got one '%'!") (rinfo 'name (car opt))))
       (dialog-await (tr "<c:Carrier:25>EXCHANGE COMPLETE. THE LEDGER IS BALANCED.")))))
 
 
@@ -89,7 +90,10 @@
                               (format "<c:%:19> " (tr "Replicant")))
                           (tr "Something feels off. <B:0> Hm. Probably nothing.")))
     (get-item)
-    (dialog-await (tr "The replicant vessel drifts smoothly into the distance..."))
+    (dialog-await (tr (s+ "The vessel falls away behind you, lit and steady as before. <B:0> "
+                          "At one window, a face you know presses to the glass. <B:0> "
+                          "By the next pass of the light, you can no longer pick it out from the rest.")))
+    (adventure-log-add 78 nil)
     (exit)))
 
 
